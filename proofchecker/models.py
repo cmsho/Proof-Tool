@@ -18,6 +18,8 @@ class Instructor(models.Model):
 
 class Course(models.Model):
     title = models.CharField(max_length=255)
+    term = models.CharField(max_length=255)
+    section = models.PositiveSmallIntegerField()
 
     # Relationships
     instructor = models.ForeignKey(Instructor, on_delete=models.PROTECT)
