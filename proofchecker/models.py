@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+
 
 # Create your models here.
 class Proof(models.Model):
@@ -6,15 +8,24 @@ class Proof(models.Model):
     conclusion = models.CharField(max_length=255)
     proof_text = models.TextField()
 
+    def __str__(self):
+        return f"proof for arguments {self.premise}  {self.conclusion} "
+
+    def get_absolute_url(self):
+        return "/proofs"
+
+
 class Student(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
 
+
 class Instructor(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
+
 
 class Course(models.Model):
     title = models.CharField(max_length=255)
@@ -23,16 +34,18 @@ class Course(models.Model):
 
     # Relationships
     instructor = models.ForeignKey(Instructor, on_delete=models.PROTECT)
-        # One-to-many relationship (could perhaps be many-to-many)
-        # If instructor is deleted, the course is preserved
+    # One-to-many relationship (could perhaps be many-to-many)
+    # If instructor is deleted, the course is preserved
     students = models.ManyToManyField(Student)
-        # Many-to-many relationship
+    # Many-to-many relationship
+
 
 class Problem(models.Model):
     grade = models.DecimalField(max_digits=5, decimal_places=2)
 
     proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
-        # If the proof is deleted, the problem is deleted
+    # If the proof is deleted, the problem is deleted
+
 
 class Assignment(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
@@ -42,4 +55,3 @@ class Assignment(models.Model):
 
     problems = models.ManyToManyField(Problem)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-
