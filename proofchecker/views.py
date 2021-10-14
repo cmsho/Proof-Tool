@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from .models import Proof
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+
 from .forms import ProofForm
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
+from .models import Proof
 
 
 # Create your views here.
@@ -9,6 +10,7 @@ def home(request):
     proofs = Proof.objects.all()
     context = {"proofs": proofs}
     return render(request, "proofchecker/home.html", context)
+
 
 # class HomeView(TemplateView):
 #     template_name = "proofchecker/home.html"

@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'debug_toolbar',
     'django.contrib.admin',
+    'crispy_forms',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -127,3 +128,4 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # customized user model
 AUTH_USER_MODEL = 'proofchecker.User'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
