@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Assignment</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'proofchecker/css/main.css' %}">
-    <script src="{% static 'proofchecker/js/main.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+    <script src="{% static 'js/main.js' %}"></script>
 </head>
 
 <body>
@@ -30,14 +30,16 @@
                 <label>
                     <b>Premise</b>
                 </label>
-                <input id="premise" type="text" placeholder="Enter Premise" onkeydown="insertTab(this, event);" " required>
-            
-                <label><b>Conclusion</b></label>
+                <input id="premise" type="text" placeholder="Enter Premise" onkeydown="insertTab(this, event);" required>
+
+                <label>
+                    <b>Conclusion</b>
+                </label>
                 <input id="conclusion " type="text " placeholder="Enter Conclusion " onkeydown="insertTab(this, event); " required>
-            
+
                 <button type="submit ">Start solving!</button>
 
-                
+
                 <!-- <input type="submit " value="Submit ">
                 <table>
                     <tr>
@@ -58,13 +60,13 @@
         <br>
         <div>
             <form onSubmit="return printOut() ">
-                <textarea id='textbox' contenteditable onkeydown="insertTab(this, event); "></textarea> 
+                <textarea id='textbox' contenteditable onkeydown="insertTab(this, event); "></textarea>
                 <input type="submit " value="Submit ">
             </form>
-        </div>        
+        </div>
     </main>
-    
-    <nav class = "right-side-navigation ">
+
+    <nav class="right-side-navigation ">
         <div class="btn-group ">
             <button>Info</button>
             <button>Rules</button>
@@ -72,12 +74,13 @@
         </div>
         <div id="right-side-information ">
 
-            \and &nbsp&nbsp&nbsp ∧<br>
-            \or &nbsp&nbsp&nbsp ∨<br>
-            \implies &nbsp&nbsp →<br>
-            \not &nbsp&nbsp&nbsp ¬<br>
+            \and &nbsp&nbsp&nbsp ∧
+            <br> \or &nbsp&nbsp&nbsp ∨
+            <br> \implies &nbsp&nbsp →
+            <br> \not &nbsp&nbsp&nbsp ¬
+            <br>
 
-        </div> 
+        </div>
     </nav>
 
 
