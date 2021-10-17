@@ -12,6 +12,9 @@ def home(request):
     return render(request, "proofchecker/home.html", context)
 
 
+def AssignmentPage(request):
+    return render(request, "proofchecker/assignment_page.html")
+
 # class HomeView(TemplateView):
 #     template_name = "proofchecker/home.html"
 #
