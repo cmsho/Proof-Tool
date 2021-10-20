@@ -41,7 +41,7 @@ class ProofUpdateView(UpdateView):
     form_class = ProofForm
 
 
-class PostDeleteView(DeleteView):
+class ProofDeleteView(DeleteView):
     model = Proof
     template_name = "proofchecker/delete_proof.html"
     success_url = "/allproofs/"
