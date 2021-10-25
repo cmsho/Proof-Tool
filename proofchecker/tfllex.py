@@ -38,6 +38,7 @@ t_RPAREN=r'((\))|(\])|(\}))'
 #         t.value = False
 #     return t
 
+# TODO: Rewrite this rule so line numbers correspond to ProofLines
 # Define a rule so we can track line numbers
 def t_newline(t):
     r'\n+'
@@ -46,10 +47,20 @@ def t_newline(t):
 # A string containing ignored characters (spaces and tabs)
 t_ignore  = ' \t'
 
+# TODO: Rewrite this to return appropriate respond to client and break 
 # Error handling rule
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
+
+# EOF handling rule
+# def t_eof(t):
+    # # Get more input (Example)
+    # more = input('... ')
+    # if more:
+    #     self.lexer.input(more)
+    #     return self.lexer.token()
+    # return None
 
 # Build the lexer
 lexer = lex.lex()
