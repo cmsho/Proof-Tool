@@ -130,4 +130,4 @@ dmypy.json
 /proofchecker/migrations/
 
 # Ply debugging
-/proofchecker/parser.out
+/proofchecker/utils/parser.out

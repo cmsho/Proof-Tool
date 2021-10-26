@@ -1,8 +1,24 @@
 from django.test import TestCase
 
 from .syntax import Syntax
+from .utils import tflparse as yacc
 
 # Create your tests here.
+
+class TflParseTests(TestCase):
+
+    def test_parser_puts_main_op_in_root_node(self):
+        """
+        The parser should return a binary tree
+        with the main operator as the root node
+        """
+        str1 = '(A∧B)∨C'
+        str2 = '(A∨B)∧[(¬C→D)∧(A↔Z)]'
+        node1 = yacc.parser.parse(str1)
+        node2 = yacc.parser.parse(str2)
+        self.assertEqual(node1.value, '∨')
+        self.assertEqual(node2.value, '∧')
+
 class SyntaxTests(TestCase):
 
     def test_remove_justification_with_just(self):

@@ -1,7 +1,7 @@
-import ply.yacc as yacc 
+from .ply import yacc 
 
-from binarytree import Node
-from tfllex import tokens
+from .binarytree import Node
+from .tfllex import tokens
 
 # Ordered lowest to highest
 precedence = (
@@ -46,7 +46,7 @@ def p_error(p):
     print("Syntax error in input!")
 
 # Build the parser
-parser = yacc.yacc(debug=True)
+parser = yacc.yacc()
 
 def test():
     while True:
