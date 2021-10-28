@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
@@ -41,7 +42,7 @@ class ProofUpdateView(UpdateView):
     form_class = ProofForm
 
 
-class PostDeleteView(DeleteView):
+class ProofDeleteView(DeleteView):
     model = Proof
     template_name = "proofchecker/delete_proof.html"
     success_url = "/allproofs/"
