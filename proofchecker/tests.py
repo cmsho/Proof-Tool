@@ -23,7 +23,19 @@ class BinaryTreeTests(TestCase):
         b.left.right = Node('B')
         b.right = Node('C')
 
+        c = yacc.parser.parse('A∧B')
+        d = yacc.parser.parse('(A∧B)∨[(¬C→D)∧(A↔Z)]')
+
         self.assertEqual(a, b.left)
+        self.assertEqual(c, d.left)
+
+        e = yacc.parser.parse('A∧B')
+        f = yacc.parser.parse('A∧B')
+
+        # FIXME: Two different characters representing same symbol cause failure
+        # self.assertEqual(e, f)
+
+
 
 class SyntaxTests(TestCase):
 
