@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from .syntax import Syntax
 from .utils import tflparse as yacc
-from .utils.binarytree import Node, treeToString
+from .utils.binarytree import Node, treeToString, stringToTree
 
 # Create your tests here.
 
@@ -50,7 +50,19 @@ class BinaryTreeTests(TestCase):
         
         self.assertEqual(''.join(c), '∨(∧(A)(B))(C)')
         self.assertEqual(''.join(d), '∧(A)(∨(B)(C))')
+    
+    def test_string_to_tree(self):
+        """
+        Should construct a binary tree from an
+        unambigious string representation
+        """
+        a = '∨(∧(A)(B))(C)'
 
+        b = stringToTree(a)
+        c = yacc.parser.parse('(A∧B)∨C')
+        
+        self.assertTrue(b.value == '∨')
+        self.assertEqual(b, c)
 
 class SyntaxTests(TestCase):
 
