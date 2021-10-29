@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from .syntax import Syntax
 from .utils import tflparse as yacc
-from .utils.binarytree import Node, inorder, preorder, postorder
+from .utils.binarytree import Node, treeToString
 
 # Create your tests here.
 
@@ -34,7 +34,22 @@ class BinaryTreeTests(TestCase):
 
         # FIXME: Two different characters representing same symbol cause failure
         # self.assertEqual(e, f)
+    
+    def test_tree_to_string(self):
+        """
+        Should construct an unambiguous string representation
+        of the binary tree
+        """
+        a = yacc.parser.parse('(A∧B)∨C')
+        b = yacc.parser.parse('A∧(B∨C)')
 
+        c = []
+        d = []
+        treeToString(a, c)
+        treeToString(b, d)
+        
+        self.assertEqual(''.join(c), '∨(∧(A)(B))(C)')
+        self.assertEqual(''.join(d), '∧(A)(∨(B)(C))')
 
 
 class SyntaxTests(TestCase):

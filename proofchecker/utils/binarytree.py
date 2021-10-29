@@ -3,9 +3,9 @@
 from collections import deque
 
 class Node:
-    '''
+    """
     Represents a node in a binary search tree
-    '''
+    """
     def __init__(self, data):
         self.left = None
         self.value = data
@@ -24,9 +24,9 @@ class Node:
         return not self.__eq__(other)
 
 def inorder(root):
-    '''
+    """
     Returns a string representation of an in-order tree traversal
-    '''
+    """
 
     # create an empty stack
     result = ''
@@ -49,9 +49,9 @@ def inorder(root):
     return result
 
 def preorder(root):
-    '''
+    """
     Returns a string representation of a pre-order tree traversal
-    '''
+    """
     result = ''
     stack = deque()
     stack.append(root)
@@ -95,4 +95,31 @@ def postorder(root):
             root = None
     
     return result
+
+def treeToString(root: Node, string: list):
+    """
+    Function to construct string from binary tree
+    """
+
+    if root is None:
+        return
+
+    # push the root data as character
+    string.append(str(root.value))
+
+    # if leaf node, then return
+    if not root.left and not root.right:
+        return
+
+    # for left subtree
+    string.append('(')
+    treeToString(root.left, string)
+    string.append(')')
  
+    # only if right child is present to
+    # avoid extra parenthesis
+
+    if root.right:
+        string.append('(')
+        treeToString(root.right, string)
+        string.append(')')
