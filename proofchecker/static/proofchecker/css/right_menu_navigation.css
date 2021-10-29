@@ -53,7 +53,7 @@
     font-size: 20px;
   }
   
-  #right-side-information {
+#menu{
     height: 75%;
     width: 100%;
     background: white;
@@ -63,4 +63,17 @@
     align-items: center;
     text-align: right;
     overflow: auto;
+}
+
+
+  #info-information {
+    display: visible;
+  }
+
+  #rules-information {
+    display:none;
+  }
+
+  #other-information {
+    display:none;
   }
