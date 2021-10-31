@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, \
-    verify_rule
+    verify_or_intro, verify_rule
 from .syntax import Syntax
 from .utils import tflparse as yacc
 from .utils.binarytree import Node, treeToString, stringToTree
@@ -112,6 +112,17 @@ class ProofTests(TestCase):
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_and_elim(line2, proof)
+        self.assertEqual(result, True)
+    
+    def test_verify_or_intro(self):
+        """
+        Test that the function verify_and_elim is working properly
+        """
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'A∨B', '∨I 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_or_intro(line2, proof)
         self.assertEqual(result, True)
 
     def test_verify_rule(self):

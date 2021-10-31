@@ -68,13 +68,13 @@ def verify_and_intro(current_line: ProofLine, proof: Proof):
     """
     rule = current_line.rule
 
-    # Attempt to grab the lines (m, n) 
+    # Attempt to grab lines (m, n) 
     try:
         target_lines = rule[3:len(rule)]
         target_lines = target_lines.split()
         target_lines[0] = target_lines[0].replace(',', '')
 
-        # Search for the lines (m, n) in the proof
+        # Search for lines (m, n) in the proof
         try:
             formulas = []
             for num in target_lines:
@@ -88,20 +88,13 @@ def verify_and_intro(current_line: ProofLine, proof: Proof):
             root_combined.left = yacc.parser.parse(formulas[0])
             root_combined.right = yacc.parser.parse(formulas[1])
 
-            string_combined = []
-            treeToString(root_combined, string_combined)
-            combined = ''.join(string_combined)
-
+            # Create a tree from the current formula
             root_current = yacc.parser.parse(current_line.formula)
-            string_current = []
-            treeToString(root_current, string_current)
-            current = ''.join(string_current)
 
-            # Compare the conjoined formulas to the formula on current_line
-            if combined == current:
+            # Compare the trees
+            if root_combined == root_current:
                 return True
             else:
-                # print("combined != current")
                 return False
         
         except:
@@ -119,12 +112,12 @@ def verify_and_elim(current_line: ProofLine, proof: Proof):
     """
     rule = current_line.rule
 
-    # Attempt to grab the line m 
+    # Attempt to grab line m 
     try:
         target_line = rule[3:len(rule)]
         target_line = target_line.strip()
 
-        # Search for the lines (m, n) in the proof
+        # Search for line m in the proof
         try:
             formula = None
             for line in proof.lines:
@@ -132,37 +125,65 @@ def verify_and_elim(current_line: ProofLine, proof: Proof):
                     formula = line.formula
                     break
             
-            # Create unambiguous string representations of the left
-            # and right hand side of the target formula
+            # Create trees for the left and right side of the target formula
             root_target = yacc.parser.parse(formula)
-
             root_left = root_target.left
-            string_left = []
-            treeToString(root_left, string_left)
-            left = ''.join(string_left)
-
             root_right = root_target.right
-            string_right = []
-            treeToString(root_right, string_right)
-            right = ''.join(string_right)
 
-            # Create unambigious string representation of the current formula
+            # Create a tree from the current formula
             root_current = yacc.parser.parse(current_line.formula)
-            string_current = []
-            treeToString(root_current, string_current)
-            current = ''.join(string_current)
 
-            # Compare the current formula to the left and right side of target formula
-            if current == (left or right):
+            # Compare the trees
+            if root_current == (root_left or root_right):
                 return True
             else:
-                # print("current != (left or right)")
                 return False
         
         except:
             print("Line numbers are not specified correctly")
-            return False
-            
+            return False      
+
+    except:
+        print("Rule not formatted properly")
+        return False
+
+def verify_or_intro(current_line: ProofLine, proof: Proof):
+    """
+    Verify proper implementation of the rule ∨I m
+    (Or Introduction)
+    """
+    rule = current_line.rule
+
+    # Attempt to grab line m
+    try:
+        target_line = rule[3:len(rule)]
+        target_line = target_line.strip()
+
+        # Search for line m in the proof
+        try:
+            formula = None
+            for line in proof.lines:
+                if float(target_line) == float(line.line_no):
+                    formula = line.formula
+                    break
+
+            # Create a tree for the target formula
+            root_target = yacc.parser.parse(formula)
+
+            # Create trees for left and right side of current formula
+            root_current = yacc.parser.parse(current_line.formula)
+            root_left = root_current.left
+            root_right = root_current.right
+
+            # Compare the trees
+            if root_target == (root_left or root_right):
+                return True
+            else:
+                return False
+
+        except:
+            print("Line numbers are not specified correctly")
+            return False        
 
     except:
         print("Rule not formatted properly")
