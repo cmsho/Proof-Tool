@@ -1,5 +1,7 @@
 from django.test import TestCase
 
+from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, \
+    verify_rule
 from .syntax import Syntax
 from .utils import tflparse as yacc
 from .utils.binarytree import Node, treeToString, stringToTree
@@ -63,6 +65,67 @@ class BinaryTreeTests(TestCase):
         
         self.assertTrue(b.value == '∨')
         self.assertEqual(b, c)
+
+class ProofTests(TestCase):
+    
+    def test_proof_line(self):
+        """
+        Test that a ProofLine can be constructed appropriately
+        """
+        line1 = ProofLine(1, '(A∧C)∨(B∧C)', 'Premise')
+        self.assertEqual(1, line1.line_no)
+        self.assertEqual('(A∧C)∨(B∧C)', line1.formula)
+        self.assertEqual('Premise', line1.rule)
+    
+    def test_proof_construction(self):
+        """
+        Test that a Proof can be constructed appropriately
+        """
+        line1 = ProofLine(1, '(A∧C)∨(B∧C)', 'Premise')
+        line2_1 = ProofLine(2.1, '(A∧C)', 'Assumption')
+        line2_2 = ProofLine(2.2, 'C', '∧E 2.1')
+        line3_1 = ProofLine(3.1, '(B∧C)', 'Assumption')
+        line3_2 = ProofLine(3.2, 'C', '∧E 2.1')
+        line4 = ProofLine(4, 'C', '∨E, 1, 2, 3')
+        
+        proof1 = Proof()
+        proof1.lines.extend([line1, line2_1, line2_2, line3_1, line3_2, line4])
+        self.assertEqual(len(proof1.lines), 6)
+    
+    def test_verify_and_intro(self):
+        """
+        Test that the function verify_and_intro is working properly
+        """
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'B', 'Premise')
+        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
+        proof = Proof()
+        proof.lines.extend([line1, line2, line3])
+        result = verify_and_intro(line3, proof)
+        self.assertEqual(result, True)
+    
+    def test_verify_and_elim(self):
+        """
+        Test that the function verify_and_elim is working properly
+        """
+        line1 = ProofLine(1, 'A∧B', 'Premise')
+        line2 = ProofLine(2, 'A', '∧E 1')
+        proof = Proof()
+        proof.lines.extend([line1, line2])
+        result = verify_and_elim(line2, proof)
+        self.assertEqual(result, True)
+
+    # def test_verify_rule(self):
+    #     """
+    #     Test that the verify_rule function is working properly
+    #     """
+    #     line1 = ProofLine(1, 'A', 'Premise')
+    #     line2 = ProofLine(2, 'B', 'Premise')
+    #     line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
+    #     proof = Proof()
+    #     proof.lines.extend([line1, line2, line3])
+    #     result = verify_rule(line3, proof)
+    #     self.assertEqual(result, True)
 
 class SyntaxTests(TestCase):
 
