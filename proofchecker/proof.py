@@ -70,14 +70,14 @@ def verify_and_intro(current_line: ProofLine, proof: Proof):
 
     # Attempt to grab the lines (m, n) 
     try:
-        lines = rule[3:len(rule)]
-        lines = lines.split()
-        lines[0] = lines[0].replace(',', '')
+        target_lines = rule[3:len(rule)]
+        target_lines = target_lines.split()
+        target_lines[0] = target_lines[0].replace(',', '')
 
         # Search for the lines (m, n) in the proof
         try:
             formulas = []
-            for num in lines:
+            for num in target_lines:
                 for line in proof.lines:
                     if float(num) == float(line.line_no):
                         formulas.append(line.formula)
@@ -101,6 +101,7 @@ def verify_and_intro(current_line: ProofLine, proof: Proof):
             if combined == current:
                 return True
             else:
+                # print("combined != current")
                 return False
         
         except:
@@ -155,11 +156,13 @@ def verify_and_elim(current_line: ProofLine, proof: Proof):
             if current == (left or right):
                 return True
             else:
+                # print("current != (left or right)")
                 return False
         
         except:
             print("Line numbers are not specified correctly")
             return False
+            
 
     except:
         print("Rule not formatted properly")

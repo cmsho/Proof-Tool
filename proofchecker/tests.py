@@ -87,10 +87,9 @@ class ProofTests(TestCase):
         line3_1 = ProofLine(3.1, '(B∧C)', 'Assumption')
         line3_2 = ProofLine(3.2, 'C', '∧E 2.1')
         line4 = ProofLine(4, 'C', '∨E, 1, 2, 3')
-        
-        proof1 = Proof()
-        proof1.lines.extend([line1, line2_1, line2_2, line3_1, line3_2, line4])
-        self.assertEqual(len(proof1.lines), 6)
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2_1, line2_2, line3_1, line3_2, line4])
+        self.assertEqual(len(proof.lines), 6)
     
     def test_verify_and_intro(self):
         """
@@ -99,33 +98,33 @@ class ProofTests(TestCase):
         line1 = ProofLine(1, 'A', 'Premise')
         line2 = ProofLine(2, 'B', 'Premise')
         line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
-        proof = Proof()
+        proof = Proof(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_and_intro(line3, proof)
         self.assertEqual(result, True)
-    
+
     def test_verify_and_elim(self):
         """
         Test that the function verify_and_elim is working properly
         """
         line1 = ProofLine(1, 'A∧B', 'Premise')
         line2 = ProofLine(2, 'A', '∧E 1')
-        proof = Proof()
+        proof = Proof(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_and_elim(line2, proof)
         self.assertEqual(result, True)
 
-    # def test_verify_rule(self):
-    #     """
-    #     Test that the verify_rule function is working properly
-    #     """
-    #     line1 = ProofLine(1, 'A', 'Premise')
-    #     line2 = ProofLine(2, 'B', 'Premise')
-    #     line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
-    #     proof = Proof()
-    #     proof.lines.extend([line1, line2, line3])
-    #     result = verify_rule(line3, proof)
-    #     self.assertEqual(result, True)
+    def test_verify_rule(self):
+        """
+        Test that the verify_rule function is working properly
+        """
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'B', 'Premise')
+        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_rule(line3, proof)
+        self.assertEqual(result, True)
 
 class SyntaxTests(TestCase):
 
