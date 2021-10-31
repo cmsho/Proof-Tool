@@ -47,7 +47,7 @@ def verify_rule(current_line: ProofLine, proof: Proof):
             case '∧E':
                 return verify_and_elim(current_line, proof)
             case '∨I':
-                pass
+                return verify_or_intro(current_line, proof)
             case '∨E':
                 pass
             case '¬I':
@@ -57,7 +57,7 @@ def verify_rule(current_line: ProofLine, proof: Proof):
             case '→I':
                 pass
             case '→E':
-                pass
+                return verify_implies_elim(current_line, proof)
             case 'IP':
                 pass
 
@@ -188,3 +188,45 @@ def verify_or_intro(current_line: ProofLine, proof: Proof):
     except:
         print("Rule not formatted properly")
         return False
+
+def verify_implies_elim(current_line: ProofLine, proof: Proof):
+    """
+    Verify proper implementation of the rule →E m, n
+    (Conditional Elimination (Modus Ponens))
+    """
+    rule = current_line.rule
+
+    # Attempt to grab lines (m, n) 
+    try:
+        target_lines = rule[3:len(rule)]
+        target_lines = target_lines.split()
+        target_lines[0] = target_lines[0].replace(',', '')
+
+        # Search for lines (m, n) in the proof
+        try:
+            formulas = []
+            for num in target_lines:
+                for line in proof.lines:
+                    if float(num) == float(line.line_no):
+                        formulas.append(line.formula)
+                        break
+            
+            root_implies = yacc.parser.parse(formulas[0])
+
+            root_combined = Node('→')
+            root_combined.left = yacc.parser.parse(formulas[1])
+            root_combined.right = yacc.parser.parse(current_line.formula)
+
+            # Compare the trees
+            if root_implies == root_combined:
+                return True
+            else:
+                return False
+        
+        except:
+            print("Line numbers are not specified correctly")
+            return False
+
+    except:
+        print("Rule not formatted properly")
+        return False    

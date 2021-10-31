@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, \
+from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_implies_elim, \
     verify_or_intro, verify_rule
 from .syntax import Syntax
 from .utils import tflparse as yacc
@@ -123,6 +123,18 @@ class ProofTests(TestCase):
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_or_intro(line2, proof)
+        self.assertEqual(result, True)
+
+    def test_verify_implies_elim(self):
+        """
+        Test that the function verify_implies_elim is working properly
+        """
+        line1 = ProofLine(1, 'A→B', 'Premise')
+        line2 = ProofLine(2, 'A', 'Premise')
+        line3 = ProofLine(3, 'B', '→E 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_implies_elim(line3, proof)
         self.assertEqual(result, True)
 
     def test_verify_rule(self):
