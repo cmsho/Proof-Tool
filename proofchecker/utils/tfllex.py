@@ -15,7 +15,7 @@ tokens = [
 
 # Regular expression rules for simple tokens
 t_VAR=r'[A-Z]'
-t_BOOL=r'((True)|(False)|(TRUE)|(FALSE))'
+t_BOOL=r'((True)|(TRUE)|(False)|(FALSE)|⊥)'
 t_AND=r'(∧|\^|\&)'
 t_OR=r'(∨|v)'
 t_NOT=r'(¬|~|-)'

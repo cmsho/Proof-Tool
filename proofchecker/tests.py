@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_implies_elim, \
-    verify_or_intro, verify_rule
+    verify_not_elim, verify_or_intro, verify_rule
 from .syntax import Syntax
 from .utils import tflparse as yacc
 from .utils.binarytree import Node, treeToString, stringToTree
@@ -123,6 +123,26 @@ class ProofTests(TestCase):
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_or_intro(line2, proof)
+        self.assertEqual(result, True)
+
+    def test_verify_not_elim(self):
+        """
+        Test that the fucntion verify_not_elim is working properly
+        """
+        line1 = ProofLine(1, '¬A', 'Premise')
+        line2 = ProofLine(2, 'A', 'Premise')
+        line3 = ProofLine(3, '⊥', '¬E 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_not_elim(line3, proof)
+        self.assertEqual(result, True)
+
+        line4 = ProofLine(4, '¬B', 'Premise')
+        line5 = ProofLine(5, 'B', 'Premise')
+        line6 = ProofLine(6, 'False', '¬E 4, 5')
+        proof = Proof(lines=[])
+        proof.lines.extend([line4, line5, line6])
+        result = verify_not_elim(line6, proof)
         self.assertEqual(result, True)
 
     def test_verify_implies_elim(self):
