@@ -14,15 +14,15 @@ class Proof:
 
 class ProofLine:
 
-    def __init__(self, line_no=None, formula=None, rule=None):
+    def __init__(self, line_no=None, expression=None, rule=None):
         self.line_no = line_no
-        self.formula = formula
+        self.expression = expression
         self.rule = rule
     
     def __str__(self):
         return ('Line {}: {}, {}'.format(
             self.line_no,
-            self.formula,
+            self.expression,
             self.rule
         ))
 
@@ -53,7 +53,7 @@ def verify_rule(current_line: ProofLine, proof: Proof):
             case '¬I':
                 pass
             case '¬E':
-                pass
+                return verify_not_elim(current_line, proof)
             case '→I':
                 pass
             case '→E':
@@ -78,33 +78,42 @@ def grab_two_lines(rule: str):
     target_lines[0] = target_lines[0].replace(',', '')
     return target_lines
 
-def find_one_formula(target_line: int, proof: Proof):
+def grab_line_group(rule: str):
     """
-    Find the formula on line (m) of a Proof
+    Grab lines m-n from a TFL rule
     """
-    formula = None
+    target_lines = rule[3:len(rule)]
+    target_lines = target_lines.replace('-', ' ')
+    target_lines = target_lines.split()
+    return target_lines
+
+def find_one_expression(target_line: int, proof: Proof):
+    """
+    Find the expression on line (m) of a Proof
+    """
+    expression = None
     for line in proof.lines:
         if float(target_line) == float(line.line_no):
-            formula = line.formula
+            expression = line.expression
             break
-    return formula
+    return expression
 
-def find_two_formulas(target_lines: list[int], proof: Proof):
+def find_two_expressions(target_lines: list[int], proof: Proof):
     """
-    Find the formulas on lines (m, n) of a Proof
+    Find the expressions on lines (m, n) of a Proof
     """
-    formulas = []
+    expressions = []
     for num in target_lines:
         for line in proof.lines:
             if float(num) == float(line.line_no):
-                formulas.append(line.formula)
+                expressions.append(line.expression)
                 break
-    return formulas
+    return expressions
 
 def verify_and_intro(current_line: ProofLine, proof: Proof):
     """
     Verify proper implementation of the rule ∧I m, n
-    (And Introduction)
+    (Conjunction Introduction)
     """
     rule = current_line.rule
 
@@ -114,19 +123,19 @@ def verify_and_intro(current_line: ProofLine, proof: Proof):
 
         # Search for lines (m, n) in the proof
         try:
-            formulas = find_two_formulas(target_lines, proof)
+            expressions = find_two_expressions(target_lines, proof)
             
-            # Join the two formulas in a tree
+            # Join the two expressions in a tree
             root_combined = Node('∧')
-            root_combined.left = yacc.parser.parse(formulas[0])
-            root_combined.right = yacc.parser.parse(formulas[1])
+            root_combined.left = yacc.parser.parse(expressions[0])
+            root_combined.right = yacc.parser.parse(expressions[1])
 
             root_combined_reverse = Node('∧')
-            root_combined_reverse.left = yacc.parser.parse(formulas[1])
-            root_combined_reverse.right = yacc.parser.parse(formulas[0])
+            root_combined_reverse.left = yacc.parser.parse(expressions[1])
+            root_combined_reverse.right = yacc.parser.parse(expressions[0])
 
-            # Create a tree from the current formula
-            root_current = yacc.parser.parse(current_line.formula)
+            # Create a tree from the current expression
+            root_current = yacc.parser.parse(current_line.expression)
 
             # Compare the trees
             if root_current == (root_combined or root_combined_reverse):
@@ -145,7 +154,7 @@ def verify_and_intro(current_line: ProofLine, proof: Proof):
 def verify_and_elim(current_line: ProofLine, proof: Proof):
     """
     Verify proper implementation of the rule ∧E m
-    (And Elimination)
+    (Conjunction Elimination)
     """
     rule = current_line.rule
 
@@ -155,15 +164,15 @@ def verify_and_elim(current_line: ProofLine, proof: Proof):
 
         # Search for line m in the proof
         try:
-            formula = find_one_formula(target_line, proof)
+            expression = find_one_expression(target_line, proof)
             
-            # Create trees for the left and right side of the target formula
-            root_target = yacc.parser.parse(formula)
+            # Create trees for the left and right side of the target expression
+            root_target = yacc.parser.parse(expression)
             root_left = root_target.left
             root_right = root_target.right
 
-            # Create a tree from the current formula
-            root_current = yacc.parser.parse(current_line.formula)
+            # Create a tree from the current expression
+            root_current = yacc.parser.parse(current_line.expression)
 
             # Compare the trees
             if root_current == (root_left or root_right):
@@ -182,7 +191,7 @@ def verify_and_elim(current_line: ProofLine, proof: Proof):
 def verify_or_intro(current_line: ProofLine, proof: Proof):
     """
     Verify proper implementation of the rule ∨I m
-    (Or Introduction)
+    (Disjunction Introduction)
     """
     rule = current_line.rule
 
@@ -192,13 +201,13 @@ def verify_or_intro(current_line: ProofLine, proof: Proof):
 
         # Search for line m in the proof
         try:
-            formula = find_one_formula(target_line, proof)
+            expression = find_one_expression(target_line, proof)
 
-            # Create a tree for the target formula
-            root_target = yacc.parser.parse(formula)
+            # Create a tree for the target expression
+            root_target = yacc.parser.parse(expression)
 
-            # Create trees for left and right side of current formula
-            root_current = yacc.parser.parse(current_line.formula)
+            # Create trees for left and right side of current expression
+            root_current = yacc.parser.parse(current_line.expression)
             root_left = root_current.left
             root_right = root_current.right
 
@@ -230,14 +239,14 @@ def verify_not_elim(current_line: ProofLine, proof: Proof):
 
         # Search for line m in the proof
         try:
-            formulas = find_two_formulas(target_lines, proof)
+            expressions = find_two_expressions(target_lines, proof)
 
-            # Create trees from the formula on line (m, n)
-            root_m = yacc.parser.parse(formulas[0])
-            root_n = yacc.parser.parse(formulas[1])
+            # Create trees from the expression on line (m, n)
+            root_m = yacc.parser.parse(expressions[0])
+            root_n = yacc.parser.parse(expressions[1])
 
-            # Create a tree from the formula on the current_line
-            root_current = yacc.parser.parse(current_line.formula)
+            # Create a tree from the expression on the current_line
+            root_current = yacc.parser.parse(current_line.expression)
 
             # Verify m is the negation of n
             if (root_m.value == '¬') and (root_m.right == root_n):
@@ -264,7 +273,6 @@ def verify_not_elim(current_line: ProofLine, proof: Proof):
         print("Rule not formatted properly")
         return False
 
-    
 
 def verify_implies_elim(current_line: ProofLine, proof: Proof):
     """
@@ -279,13 +287,13 @@ def verify_implies_elim(current_line: ProofLine, proof: Proof):
 
         # Search for lines (m, n) in the proof
         try:
-            formulas = find_two_formulas(target_lines, proof)
+            expressions = find_two_expressions(target_lines, proof)
             
-            root_implies = yacc.parser.parse(formulas[0])
+            root_implies = yacc.parser.parse(expressions[0])
 
             root_combined = Node('→')
-            root_combined.left = yacc.parser.parse(formulas[1])
-            root_combined.right = yacc.parser.parse(current_line.formula)
+            root_combined.left = yacc.parser.parse(expressions[1])
+            root_combined.right = yacc.parser.parse(current_line.expression)
 
             # Compare the trees
             if root_implies == root_combined:

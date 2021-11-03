@@ -74,7 +74,7 @@ class ProofTests(TestCase):
         """
         line1 = ProofLine(1, '(A∧C)∨(B∧C)', 'Premise')
         self.assertEqual(1, line1.line_no)
-        self.assertEqual('(A∧C)∨(B∧C)', line1.formula)
+        self.assertEqual('(A∧C)∨(B∧C)', line1.expression)
         self.assertEqual('Premise', line1.rule)
     
     def test_proof_construction(self):
