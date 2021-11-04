@@ -87,6 +87,16 @@ def grab_line_group(rule: str):
     target_lines = target_lines.split()
     return target_lines
 
+def grab_two_line_groups(rule: str):
+    """
+    Grab lines i-j, k-l from a TFL rule
+    """
+    target_lines = rule[3:len(rule)]
+    target_lines = target_lines.replace('-', ' ')
+    target_lines = target_lines.replace(',', '')
+    target_lines = target_lines.split()
+    return target_lines
+
 def find_one_expression(target_line: int, proof: Proof):
     """
     Find the expression on line (m) of a Proof
@@ -274,6 +284,41 @@ def verify_not_elim(current_line: ProofLine, proof: Proof):
         return False
 
 
+def verify_implies_intro(current_line: ProofLine, proof: Proof):
+    """
+    Verify proper implementation of the rule →I m-n
+    (Conditional Introduction)
+    TODO: Verify that it is legal to reference the line numbers
+    """
+    rule = current_line.rule
+
+    # Attempt to grab lines m-n
+    try:
+        target_lines = grab_line_group(rule)
+        
+        # Search for lines m-n in the proof
+        try:
+            expressions = find_two_expressions(target_lines, proof)
+
+            root_m = yacc.parser.parse(expressions[0])
+            root_n = yacc.parser.parse(expressions[1])
+            root_current = yacc.parser.parse(current_line.expression)
+
+            if (root_current.left == root_m) and (root_current.right == root_n):
+                return True
+            else:
+                response = "The expressions on lines {} and {} do not match the implication on line {}"\
+                    .format(str(target_lines[0]),str(target_lines[1]),str(current_line.line_no))
+                print(response)
+                return False
+
+        except:
+            print("Line numbers are not specified correctly")
+            return False
+
+    except:
+        print("Rule not formatted properly")
+        return False    
 def verify_implies_elim(current_line: ProofLine, proof: Proof):
     """
     Verify proper implementation of the rule →E m, n
