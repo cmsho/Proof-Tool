@@ -1,10 +1,10 @@
 from django.test import TestCase
 
 from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_implies_elim, \
-    verify_not_elim, verify_or_intro, verify_implies_intro, verify_rule
+    verify_not_elim, verify_or_intro, verify_or_elim, verify_implies_intro, verify_rule
 from .syntax import Syntax
 from .utils import tflparse as yacc
-from .utils.binarytree import Node, treeToString, stringToTree
+from .utils.binarytree import Node, tree_to_string, string_to_tree
 
 # Create your tests here.
 
@@ -47,8 +47,8 @@ class BinaryTreeTests(TestCase):
 
         c = []
         d = []
-        treeToString(a, c)
-        treeToString(b, d)
+        tree_to_string(a, c)
+        tree_to_string(b, d)
         
         self.assertEqual(''.join(c), '∨(∧(A)(B))(C)')
         self.assertEqual(''.join(d), '∧(A)(∨(B)(C))')
@@ -60,7 +60,7 @@ class BinaryTreeTests(TestCase):
         """
         a = '∨(∧(A)(B))(C)'
 
-        b = stringToTree(a)
+        b = string_to_tree(a)
         c = yacc.parser.parse('(A∧B)∨C')
         
         self.assertTrue(b.value == '∨')
@@ -116,13 +116,29 @@ class ProofTests(TestCase):
     
     def test_verify_or_intro(self):
         """
-        Test that the function verify_and_elim is working properly
+        Test that the function verify_or_intro is working properly
         """
         line1 = ProofLine(1, 'A', 'Premise')
         line2 = ProofLine(2, 'A∨B', '∨I 1')
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_or_intro(line2, proof)
+        self.assertEqual(result, True)
+
+    def test_verify_or_elim(self):
+        """
+        Test that the function verify_or_elim is working properly
+        TODO: Verify that it is legal to reference a line number
+        """
+        line1 = ProofLine(1, 'A∨B', 'Premise')
+        line2 = ProofLine(2, 'A', 'Assumption')
+        line3 = ProofLine(3, 'C', 'Assumption')
+        line4 = ProofLine(4, 'B', 'Assumption')
+        line5 = ProofLine(5, 'C', 'Assumption')
+        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        result = verify_or_elim(line6, proof)
         self.assertEqual(result, True)
 
     def test_verify_not_elim(self):
