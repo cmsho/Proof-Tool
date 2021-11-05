@@ -1,5 +1,5 @@
 from .utils import tflparse as yacc
-from .utils.binarytree import Node, make_tree
+from .utils.binarytree import Node
 
 class Proof:
     
@@ -60,6 +60,12 @@ def verify_rule(current_line: ProofLine, proof: Proof):
                 return verify_implies_elim(current_line, proof)
             case 'IP':
                 pass
+
+def make_tree(string: str):
+    """
+    Function to construct a binary tree
+    """
+    return yacc.parser.parse(string)
 
 def find_line(rule: str):
     """

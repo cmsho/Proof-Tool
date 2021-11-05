@@ -1,7 +1,6 @@
 # Creates an binary tree
 
 from collections import deque
-from . import tflparse as yacc
 
 class Node:
     """
@@ -97,11 +96,6 @@ def postorder(root: Node):
     
     return result
 
-def make_tree(string: str):
-    """
-    Function to construct a binary tree
-    """
-    return yacc.parser.parse(string)
 
 def tree_to_string(root: Node, string: list):
     """
