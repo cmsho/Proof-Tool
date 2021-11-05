@@ -49,13 +49,13 @@ def verify_rule(current_line: ProofLine, proof: Proof):
             case '∨I':
                 return verify_or_intro(current_line, proof)
             case '∨E':
-                pass
+                return verify_or_elim(current_line, proof)
             case '¬I':
-                pass
+                return verify_not_intro(current_line, proof)
             case '¬E':
                 return verify_not_elim(current_line, proof)
             case '→I':
-                pass
+                return verify_implies_intro(current_line, proof)
             case '→E':
                 return verify_implies_elim(current_line, proof)
             case 'IP':
@@ -281,6 +281,55 @@ def verify_or_elim(current_line: ProofLine, proof: Proof):
         print("Rule not formatted properly")
         return False
 
+
+def verify_not_intro(current_line: ProofLine, proof: Proof):
+    """
+    Verify proper implementation of the rule ¬I m-n
+    (Negation Introduction)
+    """
+    rule = current_line.rule
+
+    # Attempt to find lines (i-j)
+    try:
+        target_lines = find_lines(rule)
+
+        # Search for lines i-j in the proof
+        try:
+            expressions = find_expressions(target_lines, proof)
+
+            # Create trees from the expressions on lines i-j
+            root_i = make_tree(expressions[0])
+            root_j = make_tree(expressions[1])
+
+            # Create a tree from the expression on the current_line
+            root_current = make_tree(current_line.expression)
+
+            # Verify current line is the negation of line i
+            if (root_current.value == '¬') and (root_current.right == root_i):
+                
+                # TODO: Test this
+                if (root_j.value == '⊥') or (root_j.value.casefold() == 'false'):
+                    return True
+                else:
+                    response = "Line {} should be '⊥' (Contradiction)"\
+                        .format(str(target_lines[1].line_no))
+                    return False
+
+            else:
+                response = "Line {} is not the negation of line {}"\
+                    .format(str(current_line.line_no),str(target_lines[0]))
+                print(response)
+                return False
+
+        except:
+            print("Line numbers are not specified correctly")
+            return False        
+
+    except:
+        print("Rule not formatted properly")
+        return False
+
+
 def verify_not_elim(current_line: ProofLine, proof: Proof):
     """
     Verify proper implementation of the rule ¬E m, n
@@ -292,11 +341,11 @@ def verify_not_elim(current_line: ProofLine, proof: Proof):
     try:
         target_lines = find_lines(rule)
 
-        # Search for line m in the proof
+        # Search for lines (m, n) in the proof
         try:
             expressions = find_expressions(target_lines, proof)
 
-            # Create trees from the expression on line (m, n)
+            # Create trees from the expressions on lines (m, n)
             root_m = make_tree(expressions[0])
             root_n = make_tree(expressions[1])
 
@@ -363,7 +412,9 @@ def verify_implies_intro(current_line: ProofLine, proof: Proof):
 
     except:
         print("Rule not formatted properly")
-        return False    
+        return False
+
+
 def verify_implies_elim(current_line: ProofLine, proof: Proof):
     """
     Verify proper implementation of the rule →E m, n
