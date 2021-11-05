@@ -448,4 +448,52 @@ def verify_implies_elim(current_line: ProofLine, proof: Proof):
 
     except:
         print("Rule not formatted properly")
-        return False    
+        return False
+
+
+def verify_indirect_proof(current_line: ProofLine, proof: Proof):
+    """
+    Verify proper implementation of the rule IP i-j
+    (Indirect Proof)
+    """
+    rule = current_line.rule
+
+    # Attempt to find lines i-j
+    try:
+        target_lines = find_lines(rule)
+
+        # Search for lines i-j in the proof
+        try:
+            expressions = find_expressions(target_lines, proof)
+
+            # Create trees from the expressions on lines i-j
+            root_i = make_tree(expressions[0])
+            root_j = make_tree(expressions[1])
+
+            # Create a tree from the expression on the current_line
+            root_current = make_tree(current_line.expression)
+
+            # Verify line i is the negation of current line
+            if (root_i.value == '¬') and (root_i.right == root_current):
+                
+                # TODO: Test this
+                if (root_j.value == '⊥') or (root_j.value.casefold() == 'false'):
+                    return True
+                else:
+                    response = "Line {} should be '⊥' (Contradiction)"\
+                        .format(str(target_lines[1].line_no))
+                    return False
+
+            else:
+                response = "Line {} is not the negation of line {}"\
+                    .format(str(target_lines[0]),str(current_line.line_no))
+                print(response)
+                return False
+
+        except:
+            print("Line numbers are not specified correctly")
+            return False        
+
+    except:
+        print("Rule not formatted properly")
+        return False

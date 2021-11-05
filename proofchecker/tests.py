@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_or_intro, verify_or_elim, \
-    verify_implies_intro, verify_implies_elim, verify_not_intro, verify_not_elim, verify_rule
+from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_indirect_proof, verify_or_intro, verify_or_elim, \
+    verify_implies_intro, verify_implies_elim, verify_not_intro, verify_not_elim, verify_indirect_proof, verify_rule
 from .syntax import Syntax
 from .utils import tflparse as yacc
 from .utils.binarytree import Node, tree_to_string, string_to_tree
@@ -196,6 +196,18 @@ class ProofTests(TestCase):
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_elim(line3, proof)
+        self.assertEqual(result, True)
+
+    def test_verify_indirect_proof(self):
+        """
+        Test that the function verify_indirect_proof is working properly
+        """
+        line1 = ProofLine(1, '¬A', 'Premise')
+        line2 = ProofLine(2, '⊥', 'Premise')
+        line3 = ProofLine(3, 'A', '¬I 1-2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_indirect_proof(line3, proof)
         self.assertEqual(result, True)
 
     def test_verify_rule(self):
