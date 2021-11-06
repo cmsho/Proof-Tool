@@ -34,8 +34,9 @@ t_ignore  = ' \t'
 
 # Error handling rule
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
-    t.lexer.skip(1)
+    expression = t
+    message = "Illegal character '%s'" % t.value[0]
+    raise IllegalCharacterError(expression, message)
 
 # Build the lexer
 lexer = lex.lex()
@@ -48,3 +49,17 @@ def test(data):
             if not tok:
                 break
             print(tok)
+
+# Illegal Character
+class IllegalCharacterError(Exception):
+    """
+    Raised when the scanner encounters an illegal character
+
+    Attributes:
+        expression -- input expression in which teh error occurred
+        message -- explanation of the error
+    """
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
