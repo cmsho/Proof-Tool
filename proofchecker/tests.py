@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_indirect_proof, verify_or_intro, verify_or_elim, \
-    verify_implies_intro, verify_implies_elim, verify_not_intro, verify_not_elim, verify_indirect_proof, verify_rule
+    verify_implies_intro, verify_implies_elim, verify_not_intro, verify_not_elim, verify_indirect_proof, verify_rule, verify_proof
 from .syntax import Syntax
 from .utils import tflparse as yacc
 from .utils.binarytree import Node, tree_to_string, string_to_tree
@@ -539,6 +539,91 @@ class ProofTests(TestCase):
         result = verify_rule(line3, proof)
         self.assertEqual(result.is_valid, True)
 
+    def test_verify_proof(self):
+        """
+        Test that the verify_proof function is working properly
+        """
+        # Test and_intro
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'B', 'Premise')
+        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_proof(proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test and_elim
+        line1 = ProofLine(1, 'A∧B', 'Premise')
+        line2 = ProofLine(2, 'A', '∧E 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_proof(proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test or_intro
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'A∨B', '∨I 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_proof(proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test or_elim
+        line1 = ProofLine(1, 'A∨B', 'Premise')
+        line2 = ProofLine(2, 'A', 'Assumption')
+        line3 = ProofLine(3, 'C', 'Assumption')
+        line4 = ProofLine(4, 'B', 'Assumption')
+        line5 = ProofLine(5, 'C', 'Assumption')
+        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        result = verify_proof(proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test not_intro
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, '⊥', 'Premise')
+        line3 = ProofLine(3, '¬A', '¬I 1-2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_proof(proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test not_elim
+        line1 = ProofLine(1, '¬A', 'Premise')
+        line2 = ProofLine(2, 'A', 'Premise')
+        line3 = ProofLine(3, '⊥', '¬E 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_proof(proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test implies_intro
+        line1 = ProofLine(1, 'A', 'Assumption')
+        line2 = ProofLine(2, 'B', 'Assumption')
+        line3 = ProofLine(3, 'A→B', '→I 1-2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_proof(proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test implies_elim
+        line1 = ProofLine(1, 'A→B', 'Premise')
+        line2 = ProofLine(2, 'A', 'Premise')
+        line3 = ProofLine(3, 'B', '→E 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_proof(proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test indirect_proof
+        line1 = ProofLine(1, '¬A', 'Premise')
+        line2 = ProofLine(2, '⊥', 'Premise')
+        line3 = ProofLine(3, 'A', 'IP 1-2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_proof(proof)
+        self.assertEqual(result.is_valid, True)
 
 class SyntaxTests(TestCase):
 
