@@ -1,13 +1,13 @@
 {% extends 'proofchecker/base.html' %} {% block content %}
-<h1>PROOF APP</h1>
-{% if user.is_authenticated %} {% if user.is_student %}
-<h3>Welcome Home, STUDENT!</h3>
-{% elif user.is_instructor %}
-<h3>Welcome Home, INSTRUCTOR!</h3>
-{% endif %} {% else %}
-<h3>Welcome Home, GUEST!</h3>
-{% endif %}
-<p>
-    <a href="{% url 'assignment_page' %}"> Create your proof </a>
-</p>
+    <h1>PROOF APP</h1>
+    {% if user.is_authenticated %} {% if user.is_student %}
+        <h3>Welcome Home, STUDENT!</h3>
+    {% elif user.is_instructor %}
+        <h3>Welcome Home, INSTRUCTOR!</h3>
+    {% endif %} {% else %}
+        <h3>Welcome Home, GUEST!</h3>
+    {% endif %}
+    <p>
+        <a href="{% url 'assignment_page' %}"> Create your proof </a>
+    </p>
 {% endblock %}

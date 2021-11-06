@@ -1,0 +1,58 @@
+{% extends 'proofchecker/base.html' %}
+{% load static %}
+{% block content %}
+
+    <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
+
+    <form action="" method="POST">
+        {% csrf_token %}
+        <main>
+            <p> Problem: This is a placeholder for where the problem will be populated</p>
+            <div>
+                Placeholder for where the user types the premise and conclusion.
+                <br>
+                <br>
+                <form onsubmit="return createTable(this)">
+                    <label>
+                        <b>Premise</b>
+                    </label>
+                    <!-- <input id="premise" type="text" placeholder="Enter Premise" onkeydown="insertTab(this, event);" required> -->
+                    <input id="premise" type="text" placeholder="Enter Premise" onkeydown="replaceCharacter(this);"
+                           required>
+                    <br>
+                    <label>
+                        <b>Conclusion</b>
+                    </label>
+                    <input id="conclusion" type="text" placeholder="Enter Conclusion"
+                           onkeydown="replaceCharacter(this);" required>
+
+                    <!-- <label> -->
+                    <div>
+                        <button id="startProof" type="submit"> Start Proof</button>
+                    </div>
+                </form>
+            </div>
+            <br>
+            <div>
+                Placeholder for where the formatted premise/conclusion statement will populate
+            </div>
+            <br>
+
+
+            <!-- <button id="startProof" onclick="createTable()"> Start Proof</button> -->
+
+            <div id="cont">
+            </div>
+            <input type="button" id="appendNewRow" value="Append New Row" onclick="appendNewRow(this)"/>
+            <input type="button" id="bt" value="Submit Data" onclick="submit()"/>
+
+
+        </main>
+
+
+    </form>
+
+{% endblock %}
+{% block js_block %}
+    <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
+{% endblock %}
