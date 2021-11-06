@@ -96,7 +96,8 @@ def postorder(root: Node):
     
     return result
 
-def treeToString(root: Node, string: list):
+
+def tree_to_string(root: Node, string: list):
     """
     Function to construct string from binary tree
     """
@@ -113,17 +114,17 @@ def treeToString(root: Node, string: list):
 
     # For left subtree
     string.append('(')
-    treeToString(root.left, string)
+    tree_to_string(root.left, string)
     string.append(')')
  
     # Only if right child is present to avoid extra parenthesis
     if root.right:
         string.append('(')
-        treeToString(root.right, string)
+        tree_to_string(root.right, string)
         string.append(')')
 
 
-def stringToTreeHelper(start_index, end_index, arr, root):
+def string_to_tree_helper(start_index, end_index, arr, root):
 
     if start_index[0] >= end_index:
         return None
@@ -140,7 +141,7 @@ def stringToTreeHelper(start_index, end_index, arr, root):
                 new_root = Node(arr[start_index[0]+1])
                 root.left = new_root
                 start_index[0] += 2
-                stringToTreeHelper(start_index, end_index, arr, new_root)
+                string_to_tree_helper(start_index, end_index, arr, new_root)
  
         else:
             start_index[0] += 2
@@ -158,7 +159,7 @@ def stringToTreeHelper(start_index, end_index, arr, root):
             new_root = Node(arr[start_index[0]+1])
             root.right = new_root
             start_index[0] += 2
-            stringToTreeHelper(start_index, end_index, arr, new_root)
+            string_to_tree_helper(start_index, end_index, arr, new_root)
 
         else:
             return
@@ -175,7 +176,7 @@ def stringToTreeHelper(start_index, end_index, arr, root):
     return
 
 
-def stringToTree(string):
+def string_to_tree(string):
  
     root = Node(string[0])
  
@@ -184,6 +185,6 @@ def stringToTree(string):
         start_index = [1]
         end_index = len(string)-1
  
-        stringToTreeHelper(start_index, end_index, string, root)
+        string_to_tree_helper(start_index, end_index, string, root)
  
     return root
