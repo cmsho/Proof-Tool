@@ -1,3 +1,4 @@
+from proofchecker.utils.tfllex import IllegalCharacterError
 from .utils import tflparse as yacc
 from .utils.binarytree import Node
 
@@ -40,15 +41,36 @@ def verify_proof(proof: Proof):
     """
     response = ProofResponse()
 
-    # Check each line to determine if it is valid
     for line in proof.lines:
+
+        # Verify the line has a line number
+        if not line.line_no:
+            response.err_msg = "One or more lines is missing a line number"
+            return response
+
+        # Verify the expression is valid
+        try:
+            expression = make_tree(line.expression)
+            if expression == None:
+                response.err_msg = "No expression on line {}"\
+                    .format(str(line.line_no))
+                return response
+        except IllegalCharacterError as char_err:
+            response.err_msg = "{} on line {}"\
+                .format(char_err.message, str(line.line_no))
+            return response 
+        except:
+            response.err_msg = "Syntax error on line {}"\
+                .format(str(line.line_no))
+            return response
+        
+        # Verify the rule is valid
         response = verify_rule(line, proof)
 
-        # If the line is invalid, return the response
         if not response.is_valid:
             return response
 
-    # If all lines are valid, proof is valid
+    # If all lines are valid, then the proof is valid
     response.is_valid = True
     return response
 

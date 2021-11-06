@@ -1,4 +1,6 @@
 from typing import Match
+
+from proofchecker.syntax import Syntax
 from .ply import yacc 
 
 from .binarytree import Node
@@ -67,7 +69,7 @@ def p_sentence(p):
 #       Define additional grammar rules for errors
 # Error rule for syntax errors
 def p_error(p):
-    print("Syntax error in input!")
+    raise SyntaxError
 
 # Build the parser
 parser = yacc.yacc()
@@ -81,3 +83,17 @@ def test():
         if not s: continue
         result = parser.parse(s)
         print(result)
+
+# Invalid syntax
+class TFLSyntaxError(Exception):
+    """
+    Raised when the parser determines the TFL syntax is invalid 
+
+    Attributes:
+        expression -- input expression in which teh error occurred
+        message -- explanation of the error
+    """
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
