@@ -20,6 +20,8 @@ function replaceCharacter(ev) {
     txt = txt.replace("\\or", "∨");
     txt = txt.replace("\\implies", "→");
     txt = txt.replace("\\not", "¬");
+    txt = txt.replace("\\iff", "↔");
+    txt = txt.replace("\\contradiction", "⊥");
     document.getElementById(name).value = txt;
 
 }
