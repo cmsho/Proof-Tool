@@ -32,6 +32,27 @@ class ProofResponse:
         self.is_valid = is_valid
         self.err_msg = err_msg
 
+
+def verify_proof(proof: Proof):
+    """
+    Verify if a proof is valid, line by line.  
+    Returns a ProofResponse, which contains an error message if invalid
+    """
+    response = ProofResponse()
+
+    # Check each line to determine if it is valid
+    for line in proof.lines:
+        response = verify_rule(line, proof)
+
+        # If the line is invalid, return the response
+        if not response.is_valid:
+            return response
+
+    # If all lines are valid, proof is valid
+    response.is_valid = True
+    return response
+
+
 def verify_rule(current_line: ProofLine, proof: Proof):
     """
     Determines what rule is being applied, then calls the appropriate
@@ -40,11 +61,14 @@ def verify_rule(current_line: ProofLine, proof: Proof):
     rule = current_line.rule
 
     if rule.casefold() == 'premise':
-        pass
+        # TODO: Verify premise
+        return ProofResponse(is_valid=True)
     elif rule.casefold() == ('assumption' or 'assumpt'):
-        pass
+        # TODO: Verify assumption
+        return ProofResponse(is_valid=True)
     elif rule.casefold() == 'x':
-        pass
+        # TODO: Verify explosion
+        return ProofResponse(is_valid=True)
     else:
         rule_type = rule[0:2]
         match rule_type:
@@ -66,6 +90,12 @@ def verify_rule(current_line: ProofLine, proof: Proof):
                 return verify_implies_elim(current_line, proof)
             case 'IP':
                 return verify_indirect_proof(current_line, proof)
+    
+    # If we reach this point, rule cannot be determined
+    response = ProofResponse()
+    response.err_msg = "Rule on line {} cannot be determined"\
+        .format(str(current_line.line_no))
+    return response
 
 def make_tree(string: str):
     """
