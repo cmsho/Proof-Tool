@@ -95,41 +95,101 @@ class ProofTests(TestCase):
         """
         Test that the function verify_and_intro is working properly
         """
+        # Test with proper input
         line1 = ProofLine(1, 'A', 'Premise')
         line2 = ProofLine(2, 'B', 'Premise')
         line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_and_intro(line3, proof)
-        self.assertEqual(result, True)
+        self.assertEqual(result.is_valid, True)
+
+        # Test with invalid conjunction
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'C', 'Premise')
+        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_and_intro(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "The conjunction of lines 1 and 2 does not equal line 3")
+
+        # Test with invalid line specification
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'B', 'Premise')
+        line3 = ProofLine(3, 'A∧B', '∧I 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_and_intro(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Conjunction Introduction: ∧I m, n")        
 
     def test_verify_and_elim(self):
         """
         Test that the function verify_and_elim is working properly
         """
+        # Test with proper input
         line1 = ProofLine(1, 'A∧B', 'Premise')
         line2 = ProofLine(2, 'A', '∧E 1')
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_and_elim(line2, proof)
-        self.assertEqual(result, True)
+        self.assertEqual(result.is_valid, True)
+
+        # Test with invalid conclusion
+        line1 = ProofLine(1, 'A∧B', 'Premise')
+        line2 = ProofLine(2, 'C', '∧E 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_and_elim(line2, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
+
+        # Test with invalid line specification
+        line1 = ProofLine(1, 'A∧B', 'Premise')
+        line2 = ProofLine(2, 'A', '∧E 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_and_elim(line2, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Conjunction Elimination: ∧E m")
     
     def test_verify_or_intro(self):
         """
         Test that the function verify_or_intro is working properly
         """
+        # Test with valid input
         line1 = ProofLine(1, 'A', 'Premise')
         line2 = ProofLine(2, 'A∨B', '∨I 1')
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_or_intro(line2, proof)
-        self.assertEqual(result, True)
+        self.assertEqual(result.is_valid, True)
+
+        # Test with invalid conclusion
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'B∨C', '∨I 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_or_intro(line2, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
+
+        # Test with invalid line specification
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'A∨B', '∨I 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_or_intro(line2, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Disjunction Introduction: ∨I m")
 
     def test_verify_or_elim(self):
         """
         Test that the function verify_or_elim is working properly
         TODO: Verify that it is legal to reference a line number
         """
+        # Test with valid input
         line1 = ProofLine(1, 'A∨B', 'Premise')
         line2 = ProofLine(2, 'A', 'Assumption')
         line3 = ProofLine(3, 'C', 'Assumption')
@@ -139,88 +199,346 @@ class ProofTests(TestCase):
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
-        self.assertEqual(result, True)
+        self.assertEqual(result.is_valid, True)
+
+        # Test with unequivalent expressions
+        line1 = ProofLine(1, 'A∨B', 'Premise')
+        line2 = ProofLine(2, 'A', 'Assumption')
+        line3 = ProofLine(3, 'C', 'Assumption')
+        line4 = ProofLine(4, 'B', 'Assumption')
+        line5 = ProofLine(5, 'D', 'Assumption')
+        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        result = verify_or_elim(line6, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "The expressions on lines 3, 5 and 6 are not equivalent")
+
+        # Test with improper disjunction
+        line1 = ProofLine(1, 'A∨B', 'Premise')
+        line2 = ProofLine(2, 'A', 'Assumption')
+        line3 = ProofLine(3, 'C', 'Assumption')
+        line4 = ProofLine(4, 'D', 'Assumption')
+        line5 = ProofLine(5, 'C', 'Assumption')
+        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        result = verify_or_elim(line6, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "The expression on line 4 is not part of the disjunction on line 1")
+
+        # Test with improper disjunction
+        line1 = ProofLine(1, 'A∨B', 'Premise')
+        line2 = ProofLine(2, 'D', 'Assumption')
+        line3 = ProofLine(3, 'C', 'Assumption')
+        line4 = ProofLine(4, 'B', 'Assumption')
+        line5 = ProofLine(5, 'C', 'Assumption')
+        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        result = verify_or_elim(line6, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "The expression on line 2 is not part of the disjunction on line 1")
+
+        # Test with only one half of disjunction
+        line1 = ProofLine(1, 'A∨B', 'Premise')
+        line2 = ProofLine(2, 'A', 'Assumption')
+        line3 = ProofLine(3, 'C', 'Assumption')
+        line4 = ProofLine(4, 'A', 'Assumption')
+        line5 = ProofLine(5, 'C', 'Assumption')
+        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        result = verify_or_elim(line6, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "The expressions on lines 2 and 4 should be different")
+
+        # Test with improper line specification
+        line1 = ProofLine(1, 'A∨B', 'Premise')
+        line2 = ProofLine(2, 'A', 'Assumption')
+        line3 = ProofLine(3, 'C', 'Assumption')
+        line4 = ProofLine(4, 'A', 'Assumption')
+        line5 = ProofLine(5, 'C', 'Assumption')
+        line6 = ProofLine(6, 'C', '∨E 1, 2-5')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        result = verify_or_elim(line6, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Disjunction Elimination: ∨E m, i-j, k-l")
 
     def test_verify_not_intro(self):
         """
         Test that the function verify_not_intro is working properly
         """
+        # Test with valid input
         line1 = ProofLine(1, 'A', 'Premise')
         line2 = ProofLine(2, '⊥', 'Premise')
         line3 = ProofLine(3, '¬A', '¬I 1-2')
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_intro(line3, proof)
-        self.assertEqual(result, True)   
+        self.assertEqual(result.is_valid, True)
+
+        # Test without contradiction
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'B', 'Premise')
+        line3 = ProofLine(3, '¬A', '¬I 1-2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_not_intro(line3, proof)
+        self.assertEqual(result.is_valid, False)   
+        self.assertEqual(result.err_msg, "Line 2 should be '⊥' (Contradiction)")
+
+        # Test without proper negation
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, '⊥', 'Premise')
+        line3 = ProofLine(3, '¬B', '¬I 1-2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_not_intro(line3, proof)
+        self.assertEqual(result.is_valid, False)   
+        self.assertEqual(result.err_msg, "Line 3 is not the negation of line 1")
+        
+        # Test with improper line specification
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, '⊥', 'Premise')
+        line3 = ProofLine(3, '¬A', '¬I 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_not_intro(line3, proof)
+        self.assertEqual(result.is_valid, False)   
+        self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Negation Introduction: ¬I m-n")
 
     def test_verify_not_elim(self):
         """
         Test that the fucntion verify_not_elim is working properly
         """
+        # Test with valid input
         line1 = ProofLine(1, '¬A', 'Premise')
         line2 = ProofLine(2, 'A', 'Premise')
         line3 = ProofLine(3, '⊥', '¬E 1, 2')
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_elim(line3, proof)
-        self.assertEqual(result, True)
+        self.assertEqual(result.is_valid, True)
 
-        line4 = ProofLine(4, '¬B', 'Premise')
-        line5 = ProofLine(5, 'B', 'Premise')
-        line6 = ProofLine(6, 'False', '¬E 4, 5')
+        # Test without contradiction
+        line1 = ProofLine(1, '¬A', 'Premise')
+        line2 = ProofLine(2, 'A', 'Premise')
+        line3 = ProofLine(3, 'B', '¬E 1, 2')
         proof = Proof(lines=[])
-        proof.lines.extend([line4, line5, line6])
-        result = verify_not_elim(line6, proof)
-        self.assertEqual(result, True)
+        proof.lines.extend([line1, line2, line3])
+        result = verify_not_elim(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line 3 should be '⊥' (Contradiction)")
+
+        # Test without proper contradiction
+        line1 = ProofLine(1, '¬A', 'Premise')
+        line2 = ProofLine(2, 'B', 'Premise')
+        line3 = ProofLine(3, '⊥', '¬E 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_not_elim(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line 1 is not the negation of line 2")
+
+        # Test with improper line specification
+        line1 = ProofLine(1, '¬A', 'Premise')
+        line2 = ProofLine(2, 'A', 'Premise')
+        line3 = ProofLine(3, '⊥', '¬E 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_not_elim(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Negation Elimination: ¬E m, n")
+
 
     def test_verify_implies_intro(self):
         """
         Test that the function verify_implies_intro is working properly
         TODO: Verify that it is legal to reference the line number
         """
+        # Test with valid input
         line1 = ProofLine(1, 'A', 'Assumption')
         line2 = ProofLine(2, 'B', 'Assumption')
         line3 = ProofLine(3, 'A→B', '→I 1-2')
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_intro(line3, proof)
-        self.assertEqual(result, True)        
+        self.assertEqual(result.is_valid, True)
+
+        # Test with invalid implication
+        line1 = ProofLine(1, 'A', 'Assumption')
+        line2 = ProofLine(2, 'B', 'Assumption')
+        line3 = ProofLine(3, 'A→C', '→I 1-2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_implies_intro(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'The expressions on lines 1 and 2 do not match the implication on line 3')
+
+        # Test with improper line specification
+        line1 = ProofLine(1, 'A', 'Assumption')
+        line2 = ProofLine(2, 'B', 'Assumption')
+        line3 = ProofLine(3, 'A→B', '→I 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_implies_intro(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'Line numbers are not specified correctly.  Conditional Introduction: →I m-n')
 
     def test_verify_implies_elim(self):
         """
         Test that the function verify_implies_elim is working properly
         """
+        # Test with valid input
         line1 = ProofLine(1, 'A→B', 'Premise')
         line2 = ProofLine(2, 'A', 'Premise')
         line3 = ProofLine(3, 'B', '→E 1, 2')
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_elim(line3, proof)
-        self.assertEqual(result, True)
+        self.assertEqual(result.is_valid, True)
+
+        # Test with invalid elimination
+        line1 = ProofLine(1, 'A→B', 'Premise')
+        line2 = ProofLine(2, 'A', 'Premise')
+        line3 = ProofLine(3, 'C', '→E 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_implies_elim(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'The expressions on lines 2 and 3 do not match the implication on line 1')
+
+        # Test with improper line specification
+        line1 = ProofLine(1, 'A→B', 'Premise')
+        line2 = ProofLine(2, 'A', 'Premise')
+        line3 = ProofLine(3, 'B', '→E 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_implies_elim(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'Line numbers are not specified correctly.  Conditional Elimination (Modus Ponens): →E m, n')
 
     def test_verify_indirect_proof(self):
         """
         Test that the function verify_indirect_proof is working properly
         """
+        # Test with valid input
         line1 = ProofLine(1, '¬A', 'Premise')
         line2 = ProofLine(2, '⊥', 'Premise')
-        line3 = ProofLine(3, 'A', '¬I 1-2')
+        line3 = ProofLine(3, 'A', 'IP 1-2')
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_indirect_proof(line3, proof)
-        self.assertEqual(result, True)
+        self.assertEqual(result.is_valid, True)
+
+        # Test without contradition
+        line1 = ProofLine(1, '¬A', 'Premise')
+        line2 = ProofLine(2, 'B', 'Premise')
+        line3 = ProofLine(3, 'A', 'IP 1-2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_indirect_proof(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line 2 should be '⊥' (Contradiction)")
+
+        # Test with improper negation
+        line1 = ProofLine(1, '¬A', 'Premise')
+        line2 = ProofLine(2, '⊥', 'Premise')
+        line3 = ProofLine(3, 'B', 'IP 1-2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_indirect_proof(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line 1 is not the negation of line 3")
 
     def test_verify_rule(self):
         """
         Test that the verify_rule function is working properly
         """
+        # Test and_intro
         line1 = ProofLine(1, 'A', 'Premise')
         line2 = ProofLine(2, 'B', 'Premise')
         line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
-        self.assertEqual(result, True)
+        self.assertEqual(result.is_valid, True)
+
+        # Test and_elim
+        line1 = ProofLine(1, 'A∧B', 'Premise')
+        line2 = ProofLine(2, 'A', '∧E 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_rule(line2, proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test or_intro
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'A∨B', '∨I 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_rule(line2, proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test or_elim
+        line1 = ProofLine(1, 'A∨B', 'Premise')
+        line2 = ProofLine(2, 'A', 'Assumption')
+        line3 = ProofLine(3, 'C', 'Assumption')
+        line4 = ProofLine(4, 'B', 'Assumption')
+        line5 = ProofLine(5, 'C', 'Assumption')
+        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        result = verify_rule(line6, proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test not_intro
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, '⊥', 'Premise')
+        line3 = ProofLine(3, '¬A', '¬I 1-2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_rule(line3, proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test not_elim
+        line1 = ProofLine(1, '¬A', 'Premise')
+        line2 = ProofLine(2, 'A', 'Premise')
+        line3 = ProofLine(3, '⊥', '¬E 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_rule(line3, proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test implies_intro
+        line1 = ProofLine(1, 'A', 'Assumption')
+        line2 = ProofLine(2, 'B', 'Assumption')
+        line3 = ProofLine(3, 'A→B', '→I 1-2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_rule(line3, proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test implies_elim
+        line1 = ProofLine(1, 'A→B', 'Premise')
+        line2 = ProofLine(2, 'A', 'Premise')
+        line3 = ProofLine(3, 'B', '→E 1, 2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_rule(line3, proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test indirect_proof
+        line1 = ProofLine(1, '¬A', 'Premise')
+        line2 = ProofLine(2, '⊥', 'Premise')
+        line3 = ProofLine(3, 'A', 'IP 1-2')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_rule(line3, proof)
+        self.assertEqual(result.is_valid, True)
+
 
 class SyntaxTests(TestCase):
 

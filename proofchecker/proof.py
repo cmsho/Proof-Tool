@@ -26,6 +26,12 @@ class ProofLine:
             self.rule
         ))
 
+class ProofResponse:
+
+    def __init__(self, is_valid=False, err_msg=None):
+        self.is_valid = is_valid
+        self.err_msg = err_msg
+
 def verify_rule(current_line: ProofLine, proof: Proof):
     """
     Determines what rule is being applied, then calls the appropriate
@@ -59,7 +65,7 @@ def verify_rule(current_line: ProofLine, proof: Proof):
             case '→E':
                 return verify_implies_elim(current_line, proof)
             case 'IP':
-                pass
+                return verify_indirect_proof(current_line, proof)
 
 def make_tree(string: str):
     """
@@ -114,6 +120,7 @@ def verify_and_intro(current_line: ProofLine, proof: Proof):
     (Conjunction Introduction)
     """
     rule = current_line.rule
+    response = ProofResponse()
 
     # Attempt to find lines (m, n) 
     try:
@@ -124,30 +131,33 @@ def verify_and_intro(current_line: ProofLine, proof: Proof):
             expressions = find_expressions(target_lines, proof)
             
             # Join the two expressions in a tree
-            root_combined = Node('∧')
-            root_combined.left = make_tree(expressions[0])
-            root_combined.right = make_tree(expressions[1])
+            root_m_and_n = Node('∧')
+            root_m_and_n.left = make_tree(expressions[0])
+            root_m_and_n.right = make_tree(expressions[1])
 
-            root_combined_reverse = Node('∧')
-            root_combined_reverse.left = make_tree(expressions[1])
-            root_combined_reverse.right = make_tree(expressions[0])
+            root_n_and_m = Node('∧')
+            root_n_and_m.left = make_tree(expressions[1])
+            root_n_and_m.right = make_tree(expressions[0])
 
             # Create a tree from the current expression
             root_current = make_tree(current_line.expression)
 
             # Compare the trees
-            if root_current == (root_combined or root_combined_reverse):
-                return True
+            if root_current == (root_m_and_n or root_n_and_m):
+                response.is_valid = True
+                return response
             else:
-                return False
+                response.err_msg = "The conjunction of lines {} and {} does not equal line {}"\
+                    .format(str(target_lines[0]), str(target_lines[1]), str(current_line.line_no))
+                return response
         
         except:
-            print("Line numbers are not specified correctly")
-            return False
+            response.err_msg = "Line numbers are not specified correctly.  Conjunction Introduction: ∧I m, n"
+            return response
 
     except:
-        print("Rule not formatted properly")
-        return False
+        response.err_msg = "Rule is not formatted properly.  Conjunction Introduction: ∧I m, n"
+        return response
 
 def verify_and_elim(current_line: ProofLine, proof: Proof):
     """
@@ -155,6 +165,7 @@ def verify_and_elim(current_line: ProofLine, proof: Proof):
     (Conjunction Elimination)
     """
     rule = current_line.rule
+    response = ProofResponse()
 
     # Attempt to find line m 
     try:
@@ -174,17 +185,20 @@ def verify_and_elim(current_line: ProofLine, proof: Proof):
 
             # Compare the trees
             if root_current == (root_left or root_right):
-                return True
+                response.is_valid = True
+                return response
             else:
-                return False
+                response.err_msg = "Line {} does not follow from line {}"\
+                    .format(str(current_line.line_no), str(target_line))
+                return response
         
         except:
-            print("Line numbers are not specified correctly")
-            return False      
+            response.err_msg = "Line numbers are not specified correctly.  Conjunction Elimination: ∧E m"
+            return response      
 
     except:
-        print("Rule not formatted properly")
-        return False
+        response.err_msg = "Rule not formatted properly.  Conjunction Elimination: ∧E m"
+        return response
 
 def verify_or_intro(current_line: ProofLine, proof: Proof):
     """
@@ -192,6 +206,7 @@ def verify_or_intro(current_line: ProofLine, proof: Proof):
     (Disjunction Introduction)
     """
     rule = current_line.rule
+    response = ProofResponse()
 
     # Attempt to find line m
     try:
@@ -211,17 +226,20 @@ def verify_or_intro(current_line: ProofLine, proof: Proof):
 
             # Compare the trees
             if root_target == (root_left or root_right):
-                return True
+                response.is_valid = True
+                return response
             else:
-                return False
+                response.err_msg = "Line {} does not follow from line {}"\
+                    .format(str(current_line.line_no), str(target_line))
+                return response
 
         except:
-            print("Line numbers are not specified correctly")
-            return False        
+            response.err_msg = "Line numbers are not specified correctly.  Disjunction Introduction: ∨I m"
+            return response
 
     except:
-        print("Rule not formatted properly")
-        return False
+        response.err_msg = "Rule not formatted properly.  Disjunction Introduction: ∨I m"
+        return response
 
 
 def verify_or_elim(current_line: ProofLine, proof: Proof):
@@ -230,6 +248,7 @@ def verify_or_elim(current_line: ProofLine, proof: Proof):
     (Disjunction Elimination)
     """
     rule = current_line.rule
+    response = ProofResponse()
 
     # Attempt to find lines (m, i-j, k-l)
     try:
@@ -253,33 +272,30 @@ def verify_or_elim(current_line: ProofLine, proof: Proof):
                     if (root_k == root_m.left) or (root_k == root_m.right):
                         # Verify that j, l, and current_line expression are equivalent
                         if (root_j == root_l) and (root_l == root_current):
-                            return True
+                            response.is_valid = True
+                            return response
                         else:
-                            response = "The expressions on lines {}, {} and {} are not equivalent"\
+                            response.err_msg = "The expressions on lines {}, {} and {} are not equivalent"\
                                 .format(str(target_lines[2]),str(target_lines[4]),str(current_line.line_no))
-                            print(response)
-                            return False
+                            return response
                     else:
-                        response = "The expressions on line {} is not part of the disjunction on line {}"\
+                        response.err_msg = "The expression on line {} is not part of the disjunction on line {}"\
                             .format(str(target_lines[3]),str(target_lines[0]))
-                        print(response)
-                        return False
+                        return response
                 else:
-                    response = "The expressions on line {} is not part of the disjunction on line {}"\
+                    response.err_msg = "The expression on line {} is not part of the disjunction on line {}"\
                         .format(str(target_lines[1]),str(target_lines[0]))
-                    print(response)
-                    return False                                                    
+                    return response          
             else:
-                response = "The expressions on lines {} and {} should be different"\
+                response.err_msg = "The expressions on lines {} and {} should be different"\
                     .format(str(target_lines[1]),str(target_lines[3]))
-                print(response)
-                return False    
+                return response    
         except:
-            print("Line numbers are not specified correctly")
-            return False        
+            response.err_msg = "Line numbers are not specified correctly.  Disjunction Elimination: ∨E m, i-j, k-l"
+            return response        
     except:
-        print("Rule not formatted properly")
-        return False
+        response.err_msg = "Rule not formatted properly.  Disjunction Elimination: ∨E m, i-j, k-l"
+        return response
 
 
 def verify_not_intro(current_line: ProofLine, proof: Proof):
@@ -288,6 +304,7 @@ def verify_not_intro(current_line: ProofLine, proof: Proof):
     (Negation Introduction)
     """
     rule = current_line.rule
+    response = ProofResponse()
 
     # Attempt to find lines (i-j)
     try:
@@ -309,25 +326,25 @@ def verify_not_intro(current_line: ProofLine, proof: Proof):
                 
                 # TODO: Test this
                 if (root_j.value == '⊥') or (root_j.value.casefold() == 'false'):
-                    return True
+                    response.is_valid = True
+                    return response
                 else:
-                    response = "Line {} should be '⊥' (Contradiction)"\
-                        .format(str(target_lines[1].line_no))
-                    return False
+                    response.err_msg = "Line {} should be '⊥' (Contradiction)"\
+                        .format(str(target_lines[1]))
+                    return response
 
             else:
-                response = "Line {} is not the negation of line {}"\
+                response.err_msg = "Line {} is not the negation of line {}"\
                     .format(str(current_line.line_no),str(target_lines[0]))
-                print(response)
-                return False
+                return response
 
         except:
-            print("Line numbers are not specified correctly")
-            return False        
+            response.err_msg = "Line numbers are not specified correctly.  Negation Introduction: ¬I m-n"
+            return response        
 
     except:
-        print("Rule not formatted properly")
-        return False
+        response.err_msg = "Rule not formatted properly.  Negation Introduction: ¬I m-n"
+        return response
 
 
 def verify_not_elim(current_line: ProofLine, proof: Proof):
@@ -336,6 +353,7 @@ def verify_not_elim(current_line: ProofLine, proof: Proof):
     (Negation Elimination)
     """
     rule = current_line.rule
+    response = ProofResponse()
 
     # Attempt to find lines (m, n)
     try:
@@ -357,25 +375,25 @@ def verify_not_elim(current_line: ProofLine, proof: Proof):
                 
                 # TODO: Test this
                 if (root_current.value == '⊥') or (root_current.value.casefold() == 'false'):
-                    return True
+                    response.is_valid = True
+                    return response
                 else:
-                    response = "Line {} should be '⊥' (Contradiction)"\
+                    response.err_msg = "Line {} should be '⊥' (Contradiction)"\
                         .format(str(current_line.line_no))
-                    return False
+                    return response
 
             else:
-                response = "Line {} is not the negation of line {}"\
+                response.err_msg = "Line {} is not the negation of line {}"\
                     .format(str(target_lines[0]),str(target_lines[1]))
-                print(response)
-                return False
+                return response
 
         except:
-            print("Line numbers are not specified correctly")
-            return False        
+            response.err_msg = "Line numbers are not specified correctly.  Negation Elimination: ¬E m, n"
+            return response        
 
     except:
-        print("Rule not formatted properly")
-        return False
+        response.err_msg = "Rule not formatted properly.  Negation Elimination: ¬E m, n"
+        return response
 
 
 def verify_implies_intro(current_line: ProofLine, proof: Proof):
@@ -385,6 +403,7 @@ def verify_implies_intro(current_line: ProofLine, proof: Proof):
     TODO: Verify that it is legal to reference the line numbers
     """
     rule = current_line.rule
+    response = ProofResponse()
 
     # Attempt to find lines m-n
     try:
@@ -399,20 +418,20 @@ def verify_implies_intro(current_line: ProofLine, proof: Proof):
             root_current = make_tree(current_line.expression)
 
             if (root_current.left == root_m) and (root_current.right == root_n):
-                return True
+                response.is_valid = True
+                return response
             else:
-                response = "The expressions on lines {} and {} do not match the implication on line {}"\
+                response.err_msg = "The expressions on lines {} and {} do not match the implication on line {}"\
                     .format(str(target_lines[0]),str(target_lines[1]),str(current_line.line_no))
-                print(response)
-                return False
+                return response
 
         except:
-            print("Line numbers are not specified correctly")
-            return False
+            response.err_msg = "Line numbers are not specified correctly.  Conditional Introduction: →I m-n"
+            return response
 
     except:
-        print("Rule not formatted properly")
-        return False
+        print("Rule not formatted properly.  Conditional Introduction: →I m-n")
+        return response
 
 
 def verify_implies_elim(current_line: ProofLine, proof: Proof):
@@ -421,6 +440,7 @@ def verify_implies_elim(current_line: ProofLine, proof: Proof):
     (Conditional Elimination (Modus Ponens))
     """
     rule = current_line.rule
+    response = ProofResponse()
 
     # Attempt to find lines (m, n) 
     try:
@@ -438,17 +458,20 @@ def verify_implies_elim(current_line: ProofLine, proof: Proof):
 
             # Compare the trees
             if root_implies == root_combined:
-                return True
+                response.is_valid = True
+                return response
             else:
-                return False
+                response.err_msg = "The expressions on lines {} and {} do not match the implication on line {}"\
+                    .format(str(target_lines[1]),str(current_line.line_no),str(target_lines[0]))
+                return response
         
         except:
-            print("Line numbers are not specified correctly")
-            return False
+            response.err_msg = "Line numbers are not specified correctly.  Conditional Elimination (Modus Ponens): →E m, n"
+            return response
 
     except:
-        print("Rule not formatted properly")
-        return False
+        response.err_msg = "Rule not formatted properly.  Conditional Elimination (Modus Ponens): →E m, n"
+        return response
 
 
 def verify_indirect_proof(current_line: ProofLine, proof: Proof):
@@ -457,6 +480,7 @@ def verify_indirect_proof(current_line: ProofLine, proof: Proof):
     (Indirect Proof)
     """
     rule = current_line.rule
+    response = ProofResponse()
 
     # Attempt to find lines i-j
     try:
@@ -478,22 +502,22 @@ def verify_indirect_proof(current_line: ProofLine, proof: Proof):
                 
                 # TODO: Test this
                 if (root_j.value == '⊥') or (root_j.value.casefold() == 'false'):
-                    return True
+                    response.is_valid = True
+                    return response
                 else:
-                    response = "Line {} should be '⊥' (Contradiction)"\
-                        .format(str(target_lines[1].line_no))
-                    return False
+                    response.err_msg = "Line {} should be '⊥' (Contradiction)"\
+                        .format(str(target_lines[1]))
+                    return response
 
             else:
-                response = "Line {} is not the negation of line {}"\
+                response.err_msg = "Line {} is not the negation of line {}"\
                     .format(str(target_lines[0]),str(current_line.line_no))
-                print(response)
-                return False
+                return response
 
         except:
-            print("Line numbers are not specified correctly")
-            return False        
+            response.err_msg = "Line numbers are not specified correctly.  Indirect Proof: IP i-j"
+            return response        
 
     except:
-        print("Rule not formatted properly")
-        return False
+        response.err_msg = "Rule not formatted properly.  Indirect Proof: IP i-j"
+        return response
