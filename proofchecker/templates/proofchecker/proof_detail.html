@@ -1,0 +1,15 @@
+{% extends 'proofchecker/base.html' %}
+{% load static %}
+{% block content %}
+    </div>
+    <p>{{ object.premise }}</p>
+    <p>{{ object.conclusion }}</p>
+
+    </div>
+
+
+{% endblock %}
+
+{% block js_block %}
+    <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
+{% endblock %}
