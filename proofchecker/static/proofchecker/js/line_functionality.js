@@ -116,20 +116,38 @@ function createTable(ev) {
     div.appendChild(emptyTable);
 
     // Create first row with the premise
-    var tr = appendNewRow();
+    // var tr = appendNewRow();
 
     console.log(document.getElementById('premise').value);
     var premise = document.getElementById('premise').value
     console.log(document.getElementById('conclusion').value);
     var conclusion = document.getElementById('conclusion').value;
 
-    console.log(emptyTable.childNodes[0].childNodes[1].childNodes[1].value);
-    // emptyTable.childNodes[0].childNodes[1].childNodes[1].setAttribute('value', premise);
-    emptyTable.childNodes[0].childNodes[1].childNodes[1].innerText = premise;
-    emptyTable.childNodes[0].childNodes[1].childNodes[2].innerText = '';
-    emptyTable.childNodes[0].childNodes[1].childNodes[3].innerText = '';
-    emptyTable.childNodes[0].childNodes[1].childNodes[4].innerText = '';
-    emptyTable.childNodes[0].childNodes[1].childNodes[5].innerText = '';
+    // Delimit the premise based on 
+    console.log(premise.split(",").map(item => item.trim()));
+    var premises = premise.split(",").map(item => item.trim());
+
+    // Iterate over the premises
+    var rowCount = 1;
+    for (let premiseCount = 0; premiseCount < premises.length; premiseCount++) {
+        console.log(premises[premiseCount]);
+        appendNewRow();
+
+        emptyTable.childNodes[0].childNodes[rowCount].childNodes[1].innerText = premises[premiseCount];
+        emptyTable.childNodes[0].childNodes[rowCount].childNodes[2].innerText = "Premise";
+        emptyTable.childNodes[0].childNodes[rowCount].childNodes[5].innerText = '';
+        rowCount++;
+    }
+
+
+
+    // console.log(emptyTable.childNodes[0].childNodes[1].childNodes[1].value);
+    // // emptyTable.childNodes[0].childNodes[1].childNodes[1].setAttribute('value', premise);
+    // emptyTable.childNodes[0].childNodes[1].childNodes[1].innerText = premise;
+    // emptyTable.childNodes[0].childNodes[1].childNodes[2].innerText = "Premise";
+    // // emptyTable.childNodes[0].childNodes[1].childNodes[3].innerText = '';
+    // // emptyTable.childNodes[0].childNodes[1].childNodes[4].innerText = '';
+    // emptyTable.childNodes[0].childNodes[1].childNodes[5].innerText = '';
 
     return false;
 
@@ -204,6 +222,26 @@ function removeRow(oButton) {
 function submit() {
     var myTable = document.getElementById('emptyTable');
     var values = new Array();
+
+
+    for (var row = 1; row < myTable.rows.length; row++) {
+        for (var cellCount = 0; cellCount < myTable.rows[row].cells.length; cellCount++) {
+            var element = myTable.rows.item(row).cells[cellCount];
+            console.log(element);
+
+            if (cellCount == 0) {
+                console.log(element.innerText);
+                values.push(element.innerText);
+            } else if (cellCount == 1 || cellCount == 2) {
+                values.push(element.childNodes[0].value ? element.childNodes[0].value : element.innerText)
+                // values.push(element.childNodes[0].value);
+            }
+
+        }
+    }
+    console.log(values);
+
+    return;
 
     values.push("1");
     values.push(emptyTable.childNodes[0].childNodes[1].childNodes[1].innerText)
