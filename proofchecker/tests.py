@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_assumption, verify_citation, verify_or_intro, \
+from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_assumption, verify_citation, verify_explosion, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
     verify_not_elim, verify_indirect_proof, verify_premise, verify_rule, verify_proof, depth
 from .syntax import Syntax
@@ -197,6 +197,28 @@ class ProofTests(TestCase):
         result = verify_assumption(line3)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, 'Assumptions can only exist at the start of a subproof')
+
+    def test_verify_explosion(self):
+        """
+        Test that the function verify_explosion is working properly
+        """
+        # Test with proper input
+        line1 = ProofLine(1, '⊥', 'Premise')
+        line2 = ProofLine(2, 'B', 'X 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_explosion(line2, proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test without contradiction
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'B', 'X 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_explosion(line2, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line 1 should be '⊥' (Contradiction)")
+
 
     def test_verify_and_intro(self):
         """

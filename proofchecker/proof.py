@@ -91,8 +91,7 @@ def verify_rule(current_line: ProofLine, proof: Proof):
     elif rule.casefold() == ('assumption' or 'assumpt'):
         return verify_assumption(current_line)
     elif rule.casefold() == 'x':
-        # TODO: Verify explosion
-        return ProofResponse(is_valid=True)
+        return verify_explosion(current_line, proof)
     else:
         rule_type = rule[0:2]
         match rule_type:
@@ -191,6 +190,19 @@ def find_line(rule: str, proof: Proof):
             break
     return target_line
 
+def find_line_explosion(rule: str, proof: Proof):
+    """
+    Find a single line from the TFL rule explosion
+    """
+    target_line_no = rule[2:len(rule)]
+    target_line_no = target_line_no.strip()
+    target_line = None
+    for line in proof.lines:
+        if str(target_line_no) == str(line.line_no):
+            target_line = line
+            break
+    return target_line
+
 def find_lines(rule: str, proof: Proof):
     """
     Find multiple lines from a TFL rule
@@ -263,6 +275,44 @@ def verify_assumption(current_line: ProofLine):
     except:
         response.err_msg = 'One or more invalid line numbers.'
         return response
+
+def verify_explosion(current_line: ProofLine, proof: Proof):
+    """
+    Verify proper implementation of the rule X m
+    (Explosion)
+    """
+    rule = current_line.rule
+    response = ProofResponse()
+
+    # Attempt to find line m
+    try:
+        target_line = find_line_explosion(rule, proof)
+
+        # Verify if line citation is valid
+        result = verify_citation(current_line, target_line)
+        if result.is_valid == False:
+            return result
+
+        try: 
+            expression = target_line.expression
+            root = make_tree(expression)
+
+            # Verify line j is a contradiction
+            if (root.value == '⊥') or (root.value.casefold() == 'false'):
+                response.is_valid = True
+                return response
+            else:
+                response.err_msg = "Line {} should be '⊥' (Contradiction)"\
+                    .format(str(target_line.line_no))
+                return response
+
+        except:
+            response.err_msg = "Line numbers are not specified correctly.  Explosion: X m"
+            return response      
+
+    except:
+        response.err_msg = "Rule not formatted properly.  Conjunction Elimination: X m"
+        return response 
 
 def verify_and_intro(current_line: ProofLine, proof: Proof):
     """
@@ -501,7 +551,7 @@ def verify_not_intro(current_line: ProofLine, proof: Proof):
             # Verify current line is the negation of line i
             if (root_current.value == '¬') and (root_current.right == root_i):
                 
-                # TODO: Test this
+                # Verify line j is a contradiction
                 if (root_j.value == '⊥') or (root_j.value.casefold() == 'false'):
                     response.is_valid = True
                     return response
@@ -556,7 +606,7 @@ def verify_not_elim(current_line: ProofLine, proof: Proof):
             # Verify m is the negation of n
             if (root_m.value == '¬') and (root_m.right == root_n):
                 
-                # TODO: Test this
+                # Verify current line is a contradiction
                 if (root_current.value == '⊥') or (root_current.value.casefold() == 'false'):
                     response.is_valid = True
                     return response
@@ -583,7 +633,6 @@ def verify_implies_intro(current_line: ProofLine, proof: Proof):
     """
     Verify proper implementation of the rule →I m-n
     (Conditional Introduction)
-    TODO: Verify that it is legal to reference the line numbers
     """
     rule = current_line.rule
     response = ProofResponse()
@@ -701,7 +750,7 @@ def verify_indirect_proof(current_line: ProofLine, proof: Proof):
             # Verify line i is the negation of current line
             if (root_i.value == '¬') and (root_i.right == root_current):
                 
-                # TODO: Test this
+                # Verify line j is a contradiction
                 if (root_j.value == '⊥') or (root_j.value.casefold() == 'false'):
                     response.is_valid = True
                     return response
