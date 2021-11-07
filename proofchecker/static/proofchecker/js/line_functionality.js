@@ -1,5 +1,6 @@
 var headers = new Array();
-headers = ['#', 'Formula', 'Justification', '', '', '']
+headers = ['#', 'Expression', 'Justification', '', '', '']
+
 
 function replaceCharacter(ev) {
 
@@ -40,11 +41,11 @@ function createNewRow(oButton, tr) {
 
         }
 
-        // If this is the second column create input for formula
+        // If this is the second column create input for expression
         if (cellCount == 1) {
             var inputField = document.createElement('input');
 
-            var inputId = `formula-${tr.rowIndex}`;
+            var inputId = `expression-${tr.rowIndex}`;
 
             inputField.setAttribute('id', inputId);
             inputField.setAttribute('type', 'text');
@@ -101,6 +102,8 @@ function createNewRow(oButton, tr) {
 
 function createTable(ev) {
     console.log(ev);
+
+
     var emptyTable = document.createElement('table');
     emptyTable.setAttribute('id', 'emptyTable');
 
@@ -115,42 +118,28 @@ function createTable(ev) {
     var div = document.getElementById('cont');
     div.appendChild(emptyTable);
 
-    // Create first row with the premise
-    // var tr = appendNewRow();
-
-    console.log(document.getElementById('premise').value);
+    // console.log(document.getElementById('premise').value);
     var premise = document.getElementById('premise').value
-    console.log(document.getElementById('conclusion').value);
+    // console.log(document.getElementById('conclusion').value);
     var conclusion = document.getElementById('conclusion').value;
 
+    var problem = `${premise} ∴ ${conclusion}`;
+
+    document.getElementById("problem").innerHTML = problem;
+
     // Delimit the premise based on 
-    console.log(premise.split(",").map(item => item.trim()));
     var premises = premise.split(",").map(item => item.trim());
 
-    // Iterate over the premises
+    // Iterate over the premises and create a new row for each
     var rowCount = 1;
     for (let premiseCount = 0; premiseCount < premises.length; premiseCount++) {
-        console.log(premises[premiseCount]);
         appendNewRow();
-
         emptyTable.childNodes[0].childNodes[rowCount].childNodes[1].innerText = premises[premiseCount];
         emptyTable.childNodes[0].childNodes[rowCount].childNodes[2].innerText = "Premise";
         emptyTable.childNodes[0].childNodes[rowCount].childNodes[5].innerText = '';
         rowCount++;
     }
-
-
-
-    // console.log(emptyTable.childNodes[0].childNodes[1].childNodes[1].value);
-    // // emptyTable.childNodes[0].childNodes[1].childNodes[1].setAttribute('value', premise);
-    // emptyTable.childNodes[0].childNodes[1].childNodes[1].innerText = premise;
-    // emptyTable.childNodes[0].childNodes[1].childNodes[2].innerText = "Premise";
-    // // emptyTable.childNodes[0].childNodes[1].childNodes[3].innerText = '';
-    // // emptyTable.childNodes[0].childNodes[1].childNodes[4].innerText = '';
-    // emptyTable.childNodes[0].childNodes[1].childNodes[5].innerText = '';
-
     return false;
-
 }
 
 function appendNewRow(oButton) {
@@ -163,7 +152,6 @@ function appendNewRow(oButton) {
 
 // function to insert a row below current row
 function insertNewRow(oButton) {
-
     const myList = oButton.parentNode.parentNode.parentNode;
     const myItem = oButton.parentNode.parentNode;
     var tr = document.createElement('tr');
@@ -186,15 +174,15 @@ function renumberRows() {
 
             // Update the row number
             if (cellCount == 0) {
-                console.log(element.innerText);
+                // console.log(element.innerText);
                 element.innerText = rowNumberCounter;
             }
 
-            // Update the formula id
+            // Update the expression id
             if (cellCount == 1) {
-                console.log(element.childNodes[0].id);
-                element.childNodes[0].id = `formula-${rowNumberCounter}`;
-                console.log(element.childNodes[0].id);
+                // console.log(element.childNodes[0].id);
+                element.childNodes[0].id = `expression-${rowNumberCounter}`;
+                // console.log(element.childNodes[0].id);
             }
 
             // Update the justification id
@@ -215,7 +203,7 @@ function insertNewSubRow(oButton) {
 // function to delete a row.
 function removeRow(oButton) {
     var emptyTable = document.getElementById('emptyTable');
-    emptyTable.deleteRow(oButton.parentNode.parentNode.rowIndex); // buttton -> td -> tr
+    emptyTable.deleteRow(oButton.parentNode.parentNode.rowIndex);
     renumberRows();
 }
 
@@ -223,6 +211,7 @@ function submit() {
     var myTable = document.getElementById('emptyTable');
     var values = new Array();
 
+    var jsonToValidate
 
     for (var row = 1; row < myTable.rows.length; row++) {
         for (var cellCount = 0; cellCount < myTable.rows[row].cells.length; cellCount++) {
@@ -230,32 +219,9 @@ function submit() {
             console.log(element);
 
             if (cellCount == 0) {
-                console.log(element.innerText);
                 values.push(element.innerText);
             } else if (cellCount == 1 || cellCount == 2) {
                 values.push(element.childNodes[0].value ? element.childNodes[0].value : element.innerText)
-                // values.push(element.childNodes[0].value);
-            }
-
-        }
-    }
-    console.log(values);
-
-    return;
-
-    values.push("1");
-    values.push(emptyTable.childNodes[0].childNodes[1].childNodes[1].innerText)
-
-    for (var row = 2; row < myTable.rows.length; row++) {
-        for (var cellCount = 0; cellCount < myTable.rows[row].cells.length; cellCount++) {
-            var element = myTable.rows.item(row).cells[cellCount];
-            // console.log(element.childNodes[0].value);
-
-            // add the row number
-            if (cellCount == 0) {
-                values.push(element.innerText);
-            } else if (element.childNodes[0].type != 'button') {
-                values.push(element.childNodes[0].value);
             }
 
         }
