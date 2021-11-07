@@ -1,6 +1,4 @@
-from typing import Match
-
-from proofchecker.syntax import Syntax
+from proofchecker.utils.ply.lex import lex
 from .ply import yacc 
 
 from .binarytree import Node

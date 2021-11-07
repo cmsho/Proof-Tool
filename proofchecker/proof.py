@@ -1,5 +1,7 @@
 from proofchecker.utils.tfllex import IllegalCharacterError
-from .utils import tflparse as yacc
+from .utils import tflparse, numparse
+from .utils.tfllex import lexer as tfllexer
+from .utils.numlex import lexer as numlexer
 from .utils.binarytree import Node
 
 class Proof:
@@ -119,11 +121,59 @@ def verify_rule(current_line: ProofLine, proof: Proof):
         .format(str(current_line.line_no))
     return response
 
+def depth(line_no):
+    """
+    Calculates the depth of a line number
+    """
+    return numparse.parser.parse(line_no, lexer=numlexer)
+
+def verify_line_citation(current_line: ProofLine, cited_line: ProofLine):
+    """
+    Verify whether an individual line citation is valid
+    Returns a ProofResponse with an error message if invalid
+    """
+    response = ProofResponse()
+    
+    try:
+        # Calculate the depth of each line number
+        current_depth = depth(str(current_line.line_no))
+        cited_depth = depth(str(cited_line.line_no))
+
+        # Check if the cited line occurs within a subproof that has not been closed
+        # before the line where the rule is applied (this is a violation)
+        if cited_depth > current_depth:
+            response.err_msg = "Line {} occurs within a subproof that has not been closed prior to line {}"\
+                .format(str(cited_line.line_no), str(current_line.line_no))
+            return response
+
+        # Create an array of nested line numbers
+        current_nums = str(current_line.line_no).replace('.', ' ')
+        current_nums = current_nums.split()
+        cited_nums = str(cited_line.line_no).replace('.', ' ')
+        cited_nums = cited_nums.split()
+        x = 0
+        
+        # Check that the current line occurs after the cited line in the proof
+        while x < cited_depth:
+            if current_nums[x] < cited_nums[x]:
+                response.err_msg = "Invalid citation: line {} occurs after line {}"\
+                    .format(str(cited_line.line_no), str(current_line.line_no))
+                return response
+            x += 1
+        
+        # If all the other checks pass, line citation is valid
+        response.is_valid = True
+        return response
+
+    except:
+        response.err_msg = "Line numbers are not formatted properly"
+        return response
+
 def make_tree(string: str):
     """
     Function to construct a binary tree
     """
-    return yacc.parser.parse(string)
+    return tflparse.parser.parse(string, lexer=tfllexer)
 
 def find_line(rule: str):
     """
@@ -143,25 +193,25 @@ def find_lines(rule: str):
     target_lines = target_lines.split()
     return target_lines
 
-def find_expression(target_line: int, proof: Proof):
+def find_expression(target_line, proof: Proof):
     """
     Find the expression on line (m) of a Proof
     """
     expression = None
     for line in proof.lines:
-        if float(target_line) == float(line.line_no):
+        if str(target_line) == str(line.line_no):
             expression = line.expression
             break
     return expression
 
-def find_expressions(target_lines: list[int], proof: Proof):
+def find_expressions(target_lines, proof: Proof):
     """
     Find the expressions on lines (m, n) of a Proof
     """
     expressions = []
     for num in target_lines:
         for line in proof.lines:
-            if float(num) == float(line.line_no):
+            if str(num) == str(line.line_no):
                 expressions.append(line.expression)
                 break
     return expressions
