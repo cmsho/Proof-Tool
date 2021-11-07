@@ -6,8 +6,11 @@ from .utils.binarytree import Node
 
 class Proof:
     
-    def __init__(self, lines=[]):
+    def __init__(self, premises=[], conclusion='', lines=[], created_by=''):
+        self.premises = premises
+        self.conclusion = conclusion
         self.lines = lines
+        self.created_by = created_by
     
     def __str__(self):
         result = ''
@@ -68,7 +71,6 @@ def verify_proof(proof: Proof):
         
         # Verify the rule is valid
         response = verify_rule(line, proof)
-
         if not response.is_valid:
             return response
 
@@ -85,11 +87,9 @@ def verify_rule(current_line: ProofLine, proof: Proof):
     rule = current_line.rule
 
     if rule.casefold() == 'premise':
-        # TODO: Verify premise
-        return ProofResponse(is_valid=True)
+        return verify_premise(current_line, proof)
     elif rule.casefold() == ('assumption' or 'assumpt'):
-        # TODO: Verify assumption
-        return ProofResponse(is_valid=True)
+        return verify_assumption(current_line)
     elif rule.casefold() == 'x':
         # TODO: Verify explosion
         return ProofResponse(is_valid=True)
@@ -215,6 +215,54 @@ def find_expressions(lines):
     for line in lines:
         expressions.append(line.expression)
     return expressions
+
+def verify_premise(current_line: ProofLine, proof: Proof):
+    """
+    Verify that "premise" is valid justification for a line
+    """
+    response = ProofResponse()
+    try:
+        current_exp = current_line.expression
+        current = make_tree(current_exp)
+
+        # Search for the expression in premises
+        for premise in proof.premises:
+            if make_tree(premise) == current:
+                response.is_valid = True
+                return response
+    
+        # If not found, invalid
+        response.err_msg = "Expression on line {} not found in premises"\
+            .format(str(current_line.line_no))
+        return response
+
+    except:
+        response.err_msg = "One or more premises is invalid"
+        return response
+
+def verify_assumption(current_line: ProofLine):
+    """
+    Verify that an assumption is valid
+    """
+    response = ProofResponse()
+
+    try:
+        nums = str(current_line.line_no).replace('.', ' ')
+        nums = nums.split()
+        last_num = nums[len(nums)-1]
+
+        # Assumptions should start a new subproof
+        # (i.e. the last number in the line number should be '1')
+        if str(last_num) == '1':
+            response.is_valid = True
+            return response
+    
+        response.err_msg = 'Assumptions can only exist at the start of a subproof'
+        return response
+
+    except:
+        response.err_msg = 'One or more invalid line numbers.'
+        return response
 
 def verify_and_intro(current_line: ProofLine, proof: Proof):
     """
