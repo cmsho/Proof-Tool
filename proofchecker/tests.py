@@ -1,9 +1,13 @@
 from django.test import TestCase
 
-from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_indirect_proof, verify_or_intro, verify_or_elim, \
-    verify_implies_intro, verify_implies_elim, verify_not_intro, verify_not_elim, verify_indirect_proof, verify_rule, verify_proof
+from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_line_citation, verify_or_intro, \
+    verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
+    verify_not_elim, verify_indirect_proof, verify_rule, verify_proof, depth
 from .syntax import Syntax
+from .utils import numparse
 from .utils import tflparse as yacc
+from .utils.tfllex import lexer as tfllexer
+from .utils.numlex import lexer as numlexer
 from .utils.binarytree import Node, tree_to_string, string_to_tree
 
 # Create your tests here.
@@ -25,14 +29,14 @@ class BinaryTreeTests(TestCase):
         b.left.right = Node('B')
         b.right = Node('C')
 
-        c = yacc.parser.parse('A∧B')
-        d = yacc.parser.parse('(A∧B)∨[(¬C→D)∧(A↔Z)]')
+        c = yacc.parser.parse('A∧B', lexer=tfllexer)
+        d = yacc.parser.parse('(A∧B)∨[(¬C→D)∧(A↔Z)]', lexer=tfllexer)
 
         self.assertEqual(a, b.left)
         self.assertEqual(c, d.left)
 
-        e = yacc.parser.parse('A∧B')
-        f = yacc.parser.parse('A∧B')
+        e = yacc.parser.parse('A∧B', lexer=tfllexer)
+        f = yacc.parser.parse('A∧B', lexer=tfllexer)
 
         # FIXME: Two different characters representing same symbol cause failure
         # self.assertEqual(e, f)
@@ -42,8 +46,8 @@ class BinaryTreeTests(TestCase):
         Should construct an unambiguous string representation
         of the binary tree
         """
-        a = yacc.parser.parse('(A∧B)∨C')
-        b = yacc.parser.parse('A∧(B∨C)')
+        a = yacc.parser.parse('(A∧B)∨C', lexer=tfllexer)
+        b = yacc.parser.parse('A∧(B∨C)', lexer=tfllexer)
 
         c = []
         d = []
@@ -61,7 +65,7 @@ class BinaryTreeTests(TestCase):
         a = '∨(∧(A)(B))(C)'
 
         b = string_to_tree(a)
-        c = yacc.parser.parse('(A∧B)∨C')
+        c = yacc.parser.parse('(A∧B)∨C', lexer=tfllexer)
         
         self.assertTrue(b.value == '∨')
         self.assertEqual(b, c)
@@ -90,7 +94,62 @@ class ProofTests(TestCase):
         proof = Proof(lines=[])
         proof.lines.extend([line1, line2_1, line2_2, line3_1, line3_2, line4])
         self.assertEqual(len(proof.lines), 6)
-    
+
+    def test_depth(self):
+        """
+        Verify that the depth() function returns the correct depth
+        """
+        str1 = '3'
+        str2 = '3.12.4'
+        str3 = '3.12.4.66666.7.16.5'
+        a = depth(str1)
+        b = depth(str2)
+        c = depth(str3)
+        self.assertEqual(a, 1)
+        self.assertEqual(b, 3)
+        self.assertEqual(c, 7)
+
+    def test_verify_line_citation(self):
+        """
+        Verify that the function verify_line_citation is working properly
+        """
+        # Test with proper input
+        line1 = ProofLine(2.1, 'A', 'Premise')
+        line2 = ProofLine(2.2, 'B', 'Premise')
+        line3 = ProofLine(2.3, 'A∧B', '∧I 1, 2')
+        result1 = verify_line_citation(line3, line1)
+        result2 = verify_line_citation(line3, line2)
+        self.assertEqual(result1.is_valid, True)
+        self.assertEqual(result2.is_valid, True)
+
+        # Test with cited line within an unclosed subproof.
+        line1 = ProofLine(1.1, 'A', 'Premise')
+        line2 = ProofLine(2.1, 'B', 'Assumption')
+        line3 = ProofLine(2.2, 'B', 'R')
+        line4 = ProofLine(3, 'B→B', '→I 2-3')
+        line5 = ProofLine(4, 'B', '→E 4, 3')
+        result = verify_line_citation(line5, line3)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg,\
+            'Line 2.2 occurs within a subproof that has not been closed prior to line 4')
+
+        # Test with the cited line occurring after the current line
+        line1 = ProofLine(2.1, 'A∧B', '∧I 1, 2')
+        line2 = ProofLine(2.2, 'B', 'Premise')
+        result = verify_line_citation(line1, line2)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg,\
+            "Invalid citation: line 2.2 occurs after line 2.1")
+
+        # Test with line numbers not formatted properly
+        line1 = ProofLine('1', 'A∧B', '∧I 1, 2')
+        line2 = ProofLine('2.a', 'B', 'Premise')
+        result = verify_line_citation(line1, line2)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg,\
+            "Line numbers are not formatted properly")
+
+
     def test_verify_and_intro(self):
         """
         Test that the function verify_and_intro is working properly
@@ -711,7 +770,24 @@ class TflParseTests(TestCase):
         """
         str1 = '(A∧B)∨C'
         str2 = '(A∨B)∧[(¬C→D)∧(A↔Z)]'
-        node1 = yacc.parser.parse(str1)
-        node2 = yacc.parser.parse(str2)
+        node1 = yacc.parser.parse(str1, lexer=tfllexer)
+        node2 = yacc.parser.parse(str2, lexer=tfllexer)
         self.assertEqual(node1.value, '∨')
         self.assertEqual(node2.value, '∧')
+
+class NumParseTests(TestCase):
+
+    def test_num_parser(self):
+        """
+        The parser should return the depth of the line number
+        (i.e. the amount of numbers separated by dots)
+        """
+        str1 = '3'
+        str2 = '3.12.4'
+        str3 = '3.12.4.66666.7.16.5'
+        a = numparse.parser.parse(str1, lexer=numlexer)
+        b = numparse.parser.parse(str2, lexer=numlexer)
+        c = numparse.parser.parse(str3, lexer=numlexer)
+        self.assertEqual(a, 1)
+        self.assertEqual(b, 3)
+        self.assertEqual(c, 7)
