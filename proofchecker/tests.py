@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_line_citation, verify_or_intro, \
+from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_citation, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
     verify_not_elim, verify_indirect_proof, verify_rule, verify_proof, depth
 from .syntax import Syntax
@@ -117,8 +117,8 @@ class ProofTests(TestCase):
         line1 = ProofLine(2.1, 'A', 'Premise')
         line2 = ProofLine(2.2, 'B', 'Premise')
         line3 = ProofLine(2.3, 'A∧B', '∧I 1, 2')
-        result1 = verify_line_citation(line3, line1)
-        result2 = verify_line_citation(line3, line2)
+        result1 = verify_citation(line3, line1)
+        result2 = verify_citation(line3, line2)
         self.assertEqual(result1.is_valid, True)
         self.assertEqual(result2.is_valid, True)
 
@@ -128,7 +128,7 @@ class ProofTests(TestCase):
         line3 = ProofLine(2.2, 'B', 'R')
         line4 = ProofLine(3, 'B→B', '→I 2-3')
         line5 = ProofLine(4, 'B', '→E 4, 3')
-        result = verify_line_citation(line5, line3)
+        result = verify_citation(line5, line3)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg,\
             'Line 2.2 occurs within a subproof that has not been closed prior to line 4')
@@ -136,7 +136,7 @@ class ProofTests(TestCase):
         # Test with the cited line occurring after the current line
         line1 = ProofLine(2.1, 'A∧B', '∧I 1, 2')
         line2 = ProofLine(2.2, 'B', 'Premise')
-        result = verify_line_citation(line1, line2)
+        result = verify_citation(line1, line2)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg,\
             "Invalid citation: line 2.2 occurs after line 2.1")
@@ -144,7 +144,7 @@ class ProofTests(TestCase):
         # Test with line numbers not formatted properly
         line1 = ProofLine('1', 'A∧B', '∧I 1, 2')
         line2 = ProofLine('2.a', 'B', 'Premise')
-        result = verify_line_citation(line1, line2)
+        result = verify_citation(line1, line2)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg,\
             "Line numbers are not formatted properly")
@@ -203,15 +203,6 @@ class ProofTests(TestCase):
         result = verify_and_elim(line2, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
-
-        # Test with invalid line specification
-        line1 = ProofLine(1, 'A∧B', 'Premise')
-        line2 = ProofLine(2, 'A', '∧E 1, 2')
-        proof = Proof(lines=[])
-        proof.lines.extend([line1, line2])
-        result = verify_and_elim(line2, proof)
-        self.assertEqual(result.is_valid, False)
-        self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Conjunction Elimination: ∧E m")
     
     def test_verify_or_intro(self):
         """
@@ -233,15 +224,6 @@ class ProofTests(TestCase):
         result = verify_or_intro(line2, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
-
-        # Test with invalid line specification
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'A∨B', '∨I 1, 2')
-        proof = Proof(lines=[])
-        proof.lines.extend([line1, line2])
-        result = verify_or_intro(line2, proof)
-        self.assertEqual(result.is_valid, False)
-        self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Disjunction Introduction: ∨I m")
 
     def test_verify_or_elim(self):
         """

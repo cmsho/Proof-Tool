@@ -127,7 +127,7 @@ def depth(line_no):
     """
     return numparse.parser.parse(line_no, lexer=numlexer)
 
-def verify_line_citation(current_line: ProofLine, cited_line: ProofLine):
+def verify_citation(current_line: ProofLine, cited_line: ProofLine):
     """
     Verify whether an individual line citation is valid
     Returns a ProofResponse with an error message if invalid
@@ -159,6 +159,8 @@ def verify_line_citation(current_line: ProofLine, cited_line: ProofLine):
                 response.err_msg = "Invalid citation: line {} occurs after line {}"\
                     .format(str(cited_line.line_no), str(current_line.line_no))
                 return response
+            elif cited_nums[x] < current_nums[x]:
+                break
             x += 1
         
         # If all the other checks pass, line citation is valid
@@ -175,45 +177,43 @@ def make_tree(string: str):
     """
     return tflparse.parser.parse(string, lexer=tfllexer)
 
-def find_line(rule: str):
+
+def find_line(rule: str, proof: Proof):
     """
     Find a single line from a TFL rule
     """
-    target_line = rule[3:len(rule)]
-    target_line = target_line.strip()
+    target_line_no = rule[3:len(rule)]
+    target_line_no = target_line_no.strip()
+    target_line = None
+    for line in proof.lines:
+        if str(target_line_no) == str(line.line_no):
+            target_line = line
+            break
     return target_line
 
-def find_lines(rule: str):
+def find_lines(rule: str, proof: Proof):
     """
     Find multiple lines from a TFL rule
     """
-    target_lines = rule[3:len(rule)]
-    target_lines = target_lines.replace('-', ' ')
-    target_lines = target_lines.replace(',', '')
-    target_lines = target_lines.split()
-    return target_lines
-
-def find_expression(target_line, proof: Proof):
-    """
-    Find the expression on line (m) of a Proof
-    """
-    expression = None
-    for line in proof.lines:
-        if str(target_line) == str(line.line_no):
-            expression = line.expression
-            break
-    return expression
-
-def find_expressions(target_lines, proof: Proof):
-    """
-    Find the expressions on lines (m, n) of a Proof
-    """
-    expressions = []
-    for num in target_lines:
+    target_line_nos = rule[3:len(rule)]
+    target_line_nos = target_line_nos.replace('-', ' ')
+    target_line_nos = target_line_nos.replace(',', '')
+    target_line_nos = target_line_nos.split()
+    target_lines = []
+    for num in target_line_nos:
         for line in proof.lines:
             if str(num) == str(line.line_no):
-                expressions.append(line.expression)
+                target_lines.append(line)
                 break
+    return target_lines
+
+def find_expressions(lines):
+    """
+    Returns an array of expressions from an array of ProofLines
+    """
+    expressions = []
+    for line in lines:
+        expressions.append(line.expression)
     return expressions
 
 def verify_and_intro(current_line: ProofLine, proof: Proof):
@@ -226,11 +226,16 @@ def verify_and_intro(current_line: ProofLine, proof: Proof):
 
     # Attempt to find lines (m, n) 
     try:
-        target_lines = find_lines(rule)
+        target_lines = find_lines(rule, proof)
+
+        for line in target_lines:
+            result = verify_citation(current_line, line)
+            if result.is_valid == False:
+                return result
 
         # Search for lines (m, n) in the proof
         try:
-            expressions = find_expressions(target_lines, proof)
+            expressions = find_expressions(target_lines)
             
             # Join the two expressions in a tree
             root_m_and_n = Node('∧')
@@ -250,7 +255,7 @@ def verify_and_intro(current_line: ProofLine, proof: Proof):
                 return response
             else:
                 response.err_msg = "The conjunction of lines {} and {} does not equal line {}"\
-                    .format(str(target_lines[0]), str(target_lines[1]), str(current_line.line_no))
+                    .format(str(target_lines[0].line_no), str(target_lines[1].line_no), str(current_line.line_no))
                 return response
         
         except:
@@ -271,11 +276,16 @@ def verify_and_elim(current_line: ProofLine, proof: Proof):
 
     # Attempt to find line m 
     try:
-        target_line = find_line(rule)
+        target_line = find_line(rule, proof)
+
+        # Verify if line citation is valid
+        result = verify_citation(current_line, target_line)
+        if result.is_valid == False:
+            return result
 
         # Search for line m in the proof
         try:
-            expression = find_expression(target_line, proof)
+            expression = target_line.expression
             
             # Create trees for the left and right side of the target expression
             root_target = make_tree(expression)
@@ -291,7 +301,7 @@ def verify_and_elim(current_line: ProofLine, proof: Proof):
                 return response
             else:
                 response.err_msg = "Line {} does not follow from line {}"\
-                    .format(str(current_line.line_no), str(target_line))
+                    .format(str(current_line.line_no), str(target_line.line_no))
                 return response
         
         except:
@@ -312,11 +322,16 @@ def verify_or_intro(current_line: ProofLine, proof: Proof):
 
     # Attempt to find line m
     try:
-        target_line = find_line(rule)
+        target_line = find_line(rule, proof)
+
+        # Verify if line citation is valid
+        result = verify_citation(current_line, target_line)
+        if result.is_valid == False:
+            return result
 
         # Search for line m in the proof
         try:
-            expression = find_expression(target_line, proof)
+            expression = target_line.expression
 
             # Create a tree for the target expression
             root_target = make_tree(expression)
@@ -332,7 +347,7 @@ def verify_or_intro(current_line: ProofLine, proof: Proof):
                 return response
             else:
                 response.err_msg = "Line {} does not follow from line {}"\
-                    .format(str(current_line.line_no), str(target_line))
+                    .format(str(current_line.line_no), str(target_line.line_no))
                 return response
 
         except:
@@ -354,11 +369,17 @@ def verify_or_elim(current_line: ProofLine, proof: Proof):
 
     # Attempt to find lines (m, i-j, k-l)
     try:
-        target_lines = find_lines(rule)
+        target_lines = find_lines(rule, proof)
+
+        # Verify that line citations are valid
+        for line in target_lines:
+            result = verify_citation(current_line, line)
+            if result.is_valid == False:
+                return result
 
         # Search for lines m, i-j, k-l in the proof
         try:
-            expressions = find_expressions(target_lines, proof)
+            expressions = find_expressions(target_lines)
         
             # Create trees for expressions on lines m, i, j, k, and l
             root_m = make_tree(expressions[0])
@@ -378,19 +399,19 @@ def verify_or_elim(current_line: ProofLine, proof: Proof):
                             return response
                         else:
                             response.err_msg = "The expressions on lines {}, {} and {} are not equivalent"\
-                                .format(str(target_lines[2]),str(target_lines[4]),str(current_line.line_no))
+                                .format(str(target_lines[2].line_no),str(target_lines[4].line_no),str(current_line.line_no))
                             return response
                     else:
                         response.err_msg = "The expression on line {} is not part of the disjunction on line {}"\
-                            .format(str(target_lines[3]),str(target_lines[0]))
+                            .format(str(target_lines[3].line_no),str(target_lines[0].line_no))
                         return response
                 else:
                     response.err_msg = "The expression on line {} is not part of the disjunction on line {}"\
-                        .format(str(target_lines[1]),str(target_lines[0]))
+                        .format(str(target_lines[1].line_no),str(target_lines[0].line_no))
                     return response          
             else:
                 response.err_msg = "The expressions on lines {} and {} should be different"\
-                    .format(str(target_lines[1]),str(target_lines[3]))
+                    .format(str(target_lines[1].line_no),str(target_lines[3].line_no))
                 return response    
         except:
             response.err_msg = "Line numbers are not specified correctly.  Disjunction Elimination: ∨E m, i-j, k-l"
@@ -410,11 +431,17 @@ def verify_not_intro(current_line: ProofLine, proof: Proof):
 
     # Attempt to find lines (i-j)
     try:
-        target_lines = find_lines(rule)
+        target_lines = find_lines(rule, proof)
+
+        # Verify that line citations are valid
+        for line in target_lines:
+            result = verify_citation(current_line, line)
+            if result.is_valid == False:
+                return result
 
         # Search for lines i-j in the proof
         try:
-            expressions = find_expressions(target_lines, proof)
+            expressions = find_expressions(target_lines)
 
             # Create trees from the expressions on lines i-j
             root_i = make_tree(expressions[0])
@@ -432,12 +459,12 @@ def verify_not_intro(current_line: ProofLine, proof: Proof):
                     return response
                 else:
                     response.err_msg = "Line {} should be '⊥' (Contradiction)"\
-                        .format(str(target_lines[1]))
+                        .format(str(target_lines[1].line_no))
                     return response
 
             else:
                 response.err_msg = "Line {} is not the negation of line {}"\
-                    .format(str(current_line.line_no),str(target_lines[0]))
+                    .format(str(current_line.line_no),str(target_lines[0].line_no))
                 return response
 
         except:
@@ -459,11 +486,17 @@ def verify_not_elim(current_line: ProofLine, proof: Proof):
 
     # Attempt to find lines (m, n)
     try:
-        target_lines = find_lines(rule)
+        target_lines = find_lines(rule, proof)
+
+        # Verify that line citations are valid
+        for line in target_lines:
+            result = verify_citation(current_line, line)
+            if result.is_valid == False:
+                return result
 
         # Search for lines (m, n) in the proof
         try:
-            expressions = find_expressions(target_lines, proof)
+            expressions = find_expressions(target_lines)
 
             # Create trees from the expressions on lines (m, n)
             root_m = make_tree(expressions[0])
@@ -486,7 +519,7 @@ def verify_not_elim(current_line: ProofLine, proof: Proof):
 
             else:
                 response.err_msg = "Line {} is not the negation of line {}"\
-                    .format(str(target_lines[0]),str(target_lines[1]))
+                    .format(str(target_lines[0].line_no),str(target_lines[1].line_no))
                 return response
 
         except:
@@ -509,11 +542,17 @@ def verify_implies_intro(current_line: ProofLine, proof: Proof):
 
     # Attempt to find lines m-n
     try:
-        target_lines = find_lines(rule)
+        target_lines = find_lines(rule, proof)
+
+        # Verify that line citations are valid
+        for line in target_lines:
+            result = verify_citation(current_line, line)
+            if result.is_valid == False:
+                return result
         
         # Search for lines m-n in the proof
         try:
-            expressions = find_expressions(target_lines, proof)
+            expressions = find_expressions(target_lines)
 
             root_m = make_tree(expressions[0])
             root_n = make_tree(expressions[1])
@@ -524,7 +563,7 @@ def verify_implies_intro(current_line: ProofLine, proof: Proof):
                 return response
             else:
                 response.err_msg = "The expressions on lines {} and {} do not match the implication on line {}"\
-                    .format(str(target_lines[0]),str(target_lines[1]),str(current_line.line_no))
+                    .format(str(target_lines[0].line_no),str(target_lines[1].line_no),str(current_line.line_no))
                 return response
 
         except:
@@ -546,11 +585,17 @@ def verify_implies_elim(current_line: ProofLine, proof: Proof):
 
     # Attempt to find lines (m, n) 
     try:
-        target_lines = find_lines(rule)
+        target_lines = find_lines(rule, proof)
+
+        # Verify that line citations are valid
+        for line in target_lines:
+            result = verify_citation(current_line, line)
+            if result.is_valid == False:
+                return result
 
         # Search for lines (m, n) in the proof
         try:
-            expressions = find_expressions(target_lines, proof)
+            expressions = find_expressions(target_lines)
             
             root_implies = make_tree(expressions[0])
 
@@ -564,7 +609,7 @@ def verify_implies_elim(current_line: ProofLine, proof: Proof):
                 return response
             else:
                 response.err_msg = "The expressions on lines {} and {} do not match the implication on line {}"\
-                    .format(str(target_lines[1]),str(current_line.line_no),str(target_lines[0]))
+                    .format(str(target_lines[1].line_no),str(current_line.line_no),str(target_lines[0].line_no))
                 return response
         
         except:
@@ -586,11 +631,17 @@ def verify_indirect_proof(current_line: ProofLine, proof: Proof):
 
     # Attempt to find lines i-j
     try:
-        target_lines = find_lines(rule)
+        target_lines = find_lines(rule, proof)
+
+        # Verify that line citations are valid
+        for line in target_lines:
+            result = verify_citation(current_line, line)
+            if result.is_valid == False:
+                return result
 
         # Search for lines i-j in the proof
         try:
-            expressions = find_expressions(target_lines, proof)
+            expressions = find_expressions(target_lines)
 
             # Create trees from the expressions on lines i-j
             root_i = make_tree(expressions[0])
@@ -608,12 +659,12 @@ def verify_indirect_proof(current_line: ProofLine, proof: Proof):
                     return response
                 else:
                     response.err_msg = "Line {} should be '⊥' (Contradiction)"\
-                        .format(str(target_lines[1]))
+                        .format(str(target_lines[1].line_no))
                     return response
 
             else:
                 response.err_msg = "Line {} is not the negation of line {}"\
-                    .format(str(target_lines[0]),str(current_line.line_no))
+                    .format(str(target_lines[0].line_no),str(current_line.line_no))
                 return response
 
         except:
