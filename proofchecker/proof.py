@@ -74,9 +74,18 @@ def verify_proof(proof: Proof):
         if not response.is_valid:
             return response
 
-    # If all lines are valid, then the proof is valid
+    last_line = proof.lines[len(proof.lines)-1]
+    conclusion = is_conclusion(last_line, proof)
     response.is_valid = True
-    return response
+
+    # If the last line is the desired conclusion, it is a full and complete proof
+    if conclusion:
+        return response
+
+    # If not, the proof is incomplete
+    else:
+        response.err_msg = "All lines are valid, but the proof is incomplete"
+        return response
 
 
 def verify_rule(current_line: ProofLine, proof: Proof):
@@ -170,12 +179,28 @@ def verify_citation(current_line: ProofLine, cited_line: ProofLine):
         response.err_msg = "Line numbers are not formatted properly"
         return response
 
+
 def make_tree(string: str):
     """
     Function to construct a binary tree
     """
     return tflparse.parser.parse(string, lexer=tfllexer)
 
+def is_conclusion(current_line: ProofLine, proof: Proof):
+    """
+    Verify whether the current_line is the desired conclusion
+    """
+    response = ProofResponse
+    try:
+        current = make_tree(current_line.expression)
+        conclusion = make_tree(proof.conclusion)
+
+        if current == conclusion:
+            return True
+        
+        return False
+    except:
+        return False
 
 def find_line(rule: str, proof: Proof):
     """
@@ -237,7 +262,17 @@ def verify_premise(current_line: ProofLine, proof: Proof):
         current_exp = current_line.expression
         current = make_tree(current_exp)
 
-        # Search for the expression in premises
+        # If there is only one premise
+        if isinstance(proof.premises, str):
+            if make_tree(proof.premises) == current:
+                response.is_valid = True
+                return response
+            else:
+                response.err_msg = "Expression on line {} is not a premise"\
+                    .format(str(current_line.line_no))
+                return response                
+
+        # If multiple expressions, search for the premise
         for premise in proof.premises:
             if make_tree(premise) == current:
                 response.is_valid = True

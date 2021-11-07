@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_assumption, verify_citation, verify_explosion, verify_or_intro, \
+from .proof import Proof, ProofLine, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_citation, verify_explosion, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
     verify_not_elim, verify_indirect_proof, verify_premise, verify_rule, verify_proof, depth
 from .syntax import Syntax
@@ -149,6 +149,27 @@ class ProofTests(TestCase):
         self.assertEqual(result.err_msg,\
             "Line numbers are not formatted properly")
 
+    def test_is_conclusion(self):
+        """
+        Test that the function is_conclusion works properly
+        """
+        # Test with proper input
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'B', 'Premise')
+        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
+        proof = Proof(premises=['A', 'B'], conclusion='A∧B', lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = is_conclusion(line3, proof)
+        self.assertEqual(result, True)
+
+        # Test with incomplete proof
+        line1 = ProofLine(1, '(A∧C)∨(B∧C)', 'Premise')
+        line2 = ProofLine(2, '(A∧C)', '∨E 1')
+        proof = Proof(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[])
+        proof.lines.extend([line1, line2])
+        result = is_conclusion(line2, proof)
+        self.assertEqual(result, False)
+
     def test_verify_premise(self):
         """
         Test that the function verify_premise is working properly
@@ -172,7 +193,7 @@ class ProofTests(TestCase):
         proof.lines.extend([line1, line2, line3])
         result = verify_premise(line2, proof)
         self.assertEqual(result.is_valid, False)
-        self.assertEqual(result.err_msg, "Expression on line 2 not found in premises")
+        self.assertEqual(result.err_msg, "Expression on line 2 is not a premise")
 
     def test_verify_assumption(self):
         """
@@ -676,6 +697,16 @@ class ProofTests(TestCase):
         result = verify_proof(proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Syntax error on line 1")
+    
+        # Test with a valid but incomplete proof
+        line1 = ProofLine(1, '(A∧C)∨(B∧C)', 'Premise')
+        line2 = ProofLine(2.1, '(A∧C)', 'Assumption')
+        line3 = ProofLine(2.2, 'C', '∧E 2.1')
+        proof = Proof(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_proof(proof)
+        self.assertEqual(result.is_valid, True)
+        self.assertEqual(result.err_msg, "All lines are valid, but the proof is incomplete")
 
 
 class SyntaxTests(TestCase):
