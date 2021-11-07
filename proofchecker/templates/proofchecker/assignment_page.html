@@ -1,37 +1,33 @@
 {% extends 'proofchecker/base.html' %} {% block content %} {% load static %}
 
-<main>
-    <p> Problem: This is a placeholder for where the problem will be populated</p>
-    <div>
-        Placeholder for where the user types the premise and conclusion.
-        <br>
-        <br>
-        <form onsubmit="return createTable(this)">
-            <label>
-                <b>Premise</b>
-            </label>
-            <input id="premise" type="text" placeholder="Enter Premise" onkeydown="replaceCharacter(this);" required>
-            <br>
-            <label>
-                <b>Conclusion</b>
-            </label>
-            <input id="conclusion" type="text" placeholder="Enter Conclusion" onkeydown="replaceCharacter(this);" required>
-            <div>
-                <button id="startProof" type="submit"> Start Proof</button>
-            </div>
-        </form>
-    </div>
+
+<p> Problem: This is a placeholder for where the problem will be populated</p>
+<div>
+    Placeholder for where the user types the premise and conclusion.
     <br>
-    <div>
-        Placeholder for where the formatted premise/conclusion statement will populate
-    </div>
     <br>
+    <form onsubmit="return createTable(this)">
+        <label>
+            <b>Premise</b>
+        </label>
+        <input id="premise" type="text" placeholder="Enter Premise" onkeydown="replaceCharacter(this);" required>
+        <br>
+        <label>
+            <b>Conclusion</b>
+        </label>
+        <input id="conclusion" type="text" placeholder="Enter Conclusion" onkeydown="replaceCharacter(this);" required>
+        <div>
+            <button id="startProof" type="submit"> Start Proof</button>
+        </div>
+    </form>
+</div>
+<br>
+<div>
+    Placeholder for where the formatted premise/conclusion statement will populate
+</div>
+<br>
 
-    <div id="cont">
-    </div>
-    <input type="button" id="appendNewRow" value="Append New Row" onclick="appendNewRow(this)" />
-    <input type="button" id="bt" value="Submit Data" onclick="submit()" />
-
-</main>
-
-{% include 'proofchecker/right_navigation_menu.html' %} {% endblock %}
+<div id="cont">
+</div>
+<input type="button" id="appendNewRow" value="Append New Row" onclick="appendNewRow(this)">
+<input type="button" id="bt" value="Submit Data" onclick="submit()"> {% include 'proofchecker/right_navigation_menu.html' %} {% endblock %}
