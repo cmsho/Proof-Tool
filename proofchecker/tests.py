@@ -1,8 +1,8 @@
 from django.test import TestCase
 
-from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_line_citation, verify_or_intro, \
+from .proof import Proof, ProofLine, verify_and_intro, verify_and_elim, verify_assumption, verify_citation, verify_explosion, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
-    verify_not_elim, verify_indirect_proof, verify_rule, verify_proof, depth
+    verify_not_elim, verify_indirect_proof, verify_premise, verify_rule, verify_proof, depth
 from .syntax import Syntax
 from .utils import numparse
 from .utils import tflparse as yacc
@@ -117,8 +117,8 @@ class ProofTests(TestCase):
         line1 = ProofLine(2.1, 'A', 'Premise')
         line2 = ProofLine(2.2, 'B', 'Premise')
         line3 = ProofLine(2.3, 'A∧B', '∧I 1, 2')
-        result1 = verify_line_citation(line3, line1)
-        result2 = verify_line_citation(line3, line2)
+        result1 = verify_citation(line3, line1)
+        result2 = verify_citation(line3, line2)
         self.assertEqual(result1.is_valid, True)
         self.assertEqual(result2.is_valid, True)
 
@@ -128,7 +128,7 @@ class ProofTests(TestCase):
         line3 = ProofLine(2.2, 'B', 'R')
         line4 = ProofLine(3, 'B→B', '→I 2-3')
         line5 = ProofLine(4, 'B', '→E 4, 3')
-        result = verify_line_citation(line5, line3)
+        result = verify_citation(line5, line3)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg,\
             'Line 2.2 occurs within a subproof that has not been closed prior to line 4')
@@ -136,7 +136,7 @@ class ProofTests(TestCase):
         # Test with the cited line occurring after the current line
         line1 = ProofLine(2.1, 'A∧B', '∧I 1, 2')
         line2 = ProofLine(2.2, 'B', 'Premise')
-        result = verify_line_citation(line1, line2)
+        result = verify_citation(line1, line2)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg,\
             "Invalid citation: line 2.2 occurs after line 2.1")
@@ -144,10 +144,80 @@ class ProofTests(TestCase):
         # Test with line numbers not formatted properly
         line1 = ProofLine('1', 'A∧B', '∧I 1, 2')
         line2 = ProofLine('2.a', 'B', 'Premise')
-        result = verify_line_citation(line1, line2)
+        result = verify_citation(line1, line2)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg,\
             "Line numbers are not formatted properly")
+
+    def test_verify_premise(self):
+        """
+        Test that the function verify_premise is working properly
+        """
+        # Test with proper input
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'B', 'Premise')
+        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
+        proof = Proof(premises=['A', 'B'], lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result1 = verify_premise(line1, proof)
+        result2 = verify_premise(line2, proof)
+        self.assertEqual(result1.is_valid, True)
+        self.assertEqual(result2.is_valid, True)
+    
+        # Test with a line not in premises    
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'B', 'Premise')
+        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
+        proof = Proof(premises='A', lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_premise(line2, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Expression on line 2 not found in premises")
+
+    def test_verify_assumption(self):
+        """
+        Test that the function verify_assumption is working properly
+        """
+        # Test with valid input
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2.1, 'B', 'Assumption')
+        line3 = ProofLine(2.2, 'A∧B', '∧I 1, 2')
+        proof = Proof(premises='A', lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_assumption(line2)
+        self.assertEqual(result.is_valid, True)
+
+        # Test with invalid input
+        # Test with valid input
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2.1, 'B', 'Assumption')
+        line3 = ProofLine(2.2, 'C', 'Assumption')
+        proof = Proof(premises='A', lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_assumption(line3)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'Assumptions can only exist at the start of a subproof')
+
+    def test_verify_explosion(self):
+        """
+        Test that the function verify_explosion is working properly
+        """
+        # Test with proper input
+        line1 = ProofLine(1, '⊥', 'Premise')
+        line2 = ProofLine(2, 'B', 'X 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_explosion(line2, proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test without contradiction
+        line1 = ProofLine(1, 'A', 'Premise')
+        line2 = ProofLine(2, 'B', 'X 1')
+        proof = Proof(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_explosion(line2, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "Line 1 should be '⊥' (Contradiction)")
 
 
     def test_verify_and_intro(self):
@@ -203,15 +273,6 @@ class ProofTests(TestCase):
         result = verify_and_elim(line2, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
-
-        # Test with invalid line specification
-        line1 = ProofLine(1, 'A∧B', 'Premise')
-        line2 = ProofLine(2, 'A', '∧E 1, 2')
-        proof = Proof(lines=[])
-        proof.lines.extend([line1, line2])
-        result = verify_and_elim(line2, proof)
-        self.assertEqual(result.is_valid, False)
-        self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Conjunction Elimination: ∧E m")
     
     def test_verify_or_intro(self):
         """
@@ -234,19 +295,9 @@ class ProofTests(TestCase):
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
 
-        # Test with invalid line specification
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'A∨B', '∨I 1, 2')
-        proof = Proof(lines=[])
-        proof.lines.extend([line1, line2])
-        result = verify_or_intro(line2, proof)
-        self.assertEqual(result.is_valid, False)
-        self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Disjunction Introduction: ∨I m")
-
     def test_verify_or_elim(self):
         """
         Test that the function verify_or_elim is working properly
-        TODO: Verify that it is legal to reference a line number
         """
         # Test with valid input
         line1 = ProofLine(1, 'A∨B', 'Premise')
@@ -415,7 +466,6 @@ class ProofTests(TestCase):
     def test_verify_implies_intro(self):
         """
         Test that the function verify_implies_intro is working properly
-        TODO: Verify that it is legal to reference the line number
         """
         # Test with valid input
         line1 = ProofLine(1, 'A', 'Assumption')
@@ -606,14 +656,14 @@ class ProofTests(TestCase):
         line1 = ProofLine(1, 'A', 'Premise')
         line2 = ProofLine(2, 'B', 'Premise')
         line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
-        proof = Proof(lines=[])
+        proof = Proof(premises=['A', 'B'], lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_proof(proof)
         self.assertEqual(result.is_valid, True)
 
         # Test a proof with an invalid character
         line1 = ProofLine(1, 'Hello', 'Premise')
-        proof = Proof(lines=[])
+        proof = Proof(premises='Hello', lines=[])
         proof.lines.extend([line1])
         result = verify_proof(proof)
         self.assertEqual(result.is_valid, False)
@@ -621,12 +671,11 @@ class ProofTests(TestCase):
 
         # Test a proof with an valid characters but invalid syntax
         line1 = ProofLine(1, 'A∧', 'Premise')
-        proof = Proof(lines=[])
+        proof = Proof(premises='A∧', lines=[])
         proof.lines.extend([line1])
         result = verify_proof(proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Syntax error on line 1")
-
 
 
 class SyntaxTests(TestCase):
@@ -706,16 +755,6 @@ class SyntaxTests(TestCase):
         """
         str = '[(A∧B)∨C]'
         self.assertEqual(Syntax.find_main_operator(str), 6)
-
-    # TODO: Tests for standard order of operations
-    # e.g. ¬A∨B should recognize ∨ as the main logical operator    
-    # def test_find_main_operator_order_of_operations(self):
-    #     """
-    #     find_main_operator should apply the order of operations
-    #     when multiple logical operators exist at the same depth
-    #     """
-    #     str = '¬A∨B'
-    #     self.assertEqual(Syntax.find_main_operator(str), 2)
 
     def test_is_valid_TFL_with_atomic_sentence(self):
         """
