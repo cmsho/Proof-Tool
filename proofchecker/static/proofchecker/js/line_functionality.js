@@ -208,23 +208,49 @@ function removeRow(oButton) {
 }
 
 function submit() {
+
     var myTable = document.getElementById('emptyTable');
     var values = new Array();
 
-    var jsonToValidate
+    var proofObject = {};
+
+    proofObject["proof"] = {};
+
+
+    var premise = document.getElementById('premise').value
+    var premises = premise.split(",").map(item => item.trim());
+    var conclusion = document.getElementById('conclusion').value;
+
+
+
+    var proof = proofObject["proof"];
+    proof["premises"] = premises;
+    proof["conclusion"] = conclusion;
+    proof["lines"] = [];
 
     for (var row = 1; row < myTable.rows.length; row++) {
+        var proofLine = {};
         for (var cellCount = 0; cellCount < myTable.rows[row].cells.length; cellCount++) {
             var element = myTable.rows.item(row).cells[cellCount];
             console.log(element);
 
             if (cellCount == 0) {
                 values.push(element.innerText);
-            } else if (cellCount == 1 || cellCount == 2) {
+                proofLine["line_no"] = element.innerText;
+            } else if (cellCount == 1) {
                 values.push(element.childNodes[0].value ? element.childNodes[0].value : element.innerText)
+                proofLine["expression"] = element.childNodes[0].value ? element.childNodes[0].value : element.innerText;
+            } else if (cellCount == 2) {
+                values.push(element.childNodes[0].value ? element.childNodes[0].value : element.innerText)
+                proofLine["rule"] = element.childNodes[0].value ? element.childNodes[0].value : element.innerText;
             }
-
         }
+        proof["lines"].push(proofLine);
     }
-    console.log(values);
+
+    console.log(proofObject);
+
+    var jsonProofObject = JSON.stringify(proofObject);
+    console.log(jsonProofObject);
+
 }
