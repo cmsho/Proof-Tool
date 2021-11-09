@@ -1,5 +1,5 @@
 var headers = new Array();
-headers = ['#', 'Expression', 'Justification', '', '', '', '']
+headers = ['#', 'Expression', 'Justification', '', '', '']
 
 
 function replaceCharacter(ev) {
@@ -70,13 +70,22 @@ function createNewRow(oButton, tr) {
         }
 
         // If this is the fourth column create button for adding 
+        // if (cellCount == 3) {
+        //     var button = document.createElement('input');
+        //     button.setAttribute('type', 'button');
+        //     button.setAttribute('value', 'Insert New Row');
+        //     button.setAttribute('onclick', 'insertNewRow(this)');
+        //     td.appendChild(button);
+        // }
         if (cellCount == 3) {
             var button = document.createElement('input');
             button.setAttribute('type', 'button');
-            button.setAttribute('value', 'Insert New Row');
-            button.setAttribute('onclick', 'insertNewRow(this)');
+            button.setAttribute('value', 'Insert Row Current Level');
+            button.setAttribute('onclick', 'insertRowCurrentLevel(this)');
             td.appendChild(button);
         }
+
+
         // If this is the fifth column create button for adding sub
         if (cellCount == 4) {
             var button = document.createElement('input');
@@ -91,13 +100,6 @@ function createNewRow(oButton, tr) {
             button.setAttribute('type', 'button');
             button.setAttribute('value', 'Remove');
             button.setAttribute('onclick', 'removeRow(this)');
-            td.appendChild(button);
-        }
-        if (cellCount == 6) {
-            var button = document.createElement('input');
-            button.setAttribute('type', 'button');
-            button.setAttribute('value', 'Insert Row Current Level');
-            button.setAttribute('onclick', 'insertRowCurrentLevel(this)');
             td.appendChild(button);
         }
 
@@ -152,7 +154,7 @@ function createTable(ev) {
         emptyTable.childNodes[0].childNodes[rowCount].childNodes[2].innerText = "Premise";
         emptyTable.childNodes[0].childNodes[rowCount].childNodes[4].innerText = '';
         emptyTable.childNodes[0].childNodes[rowCount].childNodes[5].innerText = '';
-        emptyTable.childNodes[0].childNodes[rowCount].childNodes[6].innerText = '';
+        // emptyTable.childNodes[0].childNodes[rowCount].childNodes[6].innerText = '';
         rowCount++;
     }
     return false;
@@ -208,12 +210,12 @@ function renumberRows() {
 
 // function to insert a new row for a sub proof
 function insertNewSubRow(oButton) {
-    console.log("Add functionality to insert sub row")
+    // console.log("Add functionality to insert sub row")
 
-    console.log(oButton.parentNode.parentNode.rowIndex);
-    console.log(oButton.parentNode.parentNode);
-    console.log(oButton.parentNode);
-    console.log(oButton);
+    // console.log(oButton.parentNode.parentNode.rowIndex);
+    // console.log(oButton.parentNode.parentNode);
+    // console.log(oButton.parentNode);
+    // console.log(oButton);
 
     const myList = oButton.parentNode.parentNode.parentNode;
     const myItem = oButton.parentNode.parentNode;
@@ -221,12 +223,12 @@ function insertNewSubRow(oButton) {
     tr = createNewRow(oButton, tr);
     myList.insertBefore(tr, myItem.nextSibling);
 
-    console.log("Blank");
-    console.log(myItem.childNodes[0].innerHTML);
+    // console.log("Blank");
+    // console.log(myItem.childNodes[0].innerHTML);
     var value = myItem.childNodes[0].innerHTML;
     myItem.childNodes[0].innerHTML = `${value}.1`;
     tr.childNodes[0].innerHTML = `${value}.2`;
-    console.log(tr.childNodes[0]);
+    // console.log(tr.childNodes[0]);
 }
 
 function insertRowCurrentLevel(oButton) {
@@ -246,12 +248,8 @@ function insertRowCurrentLevel(oButton) {
 
     // Split the rowNumberOfClickedButton into prefix and last digit
     var rowNumberOfClickedButtonList = rowNumberOfClickedButton.split('.');
-    console.log("rowNumberOfClickedButtonList");
-    console.log(rowNumberOfClickedButtonList)
 
     var prefixValuesList = rowNumberOfClickedButtonList.slice(0, -1);
-    console.log("prefixValuesList");
-    console.log(prefixValuesList);
     var indexOfChangingElement = prefixValuesList.length;
 
     // If it has no subproof numbering then add one to the previous row number
@@ -267,133 +265,17 @@ function insertRowCurrentLevel(oButton) {
 
     var prefixValuesString = prefixValuesList.join('.')
 
-    console.log("renumber all rows");
-
     var startingPoint = newRow.rowIndex + 1;
 
     renumberAllRows(startingPoint, prefixValuesList);
     return;
-
-
-    // //Split the aboveRowNumber into beginning digits and last digit
-    // var rowNumberOfClickedButtonList = rowNumbeOfClickedButton.split('.');
-    // var beginningValuesList = rowNumberOfClickedButtonList.slice(0, -1);
-    // var beginningValues = beginningValuesList.join('.');
-    // var lastValue = rowNumberOfClickedButtonList.at(-1);
-    // var indexOfChangingElement = rowNumberOfClickedButtonList.length - 1;
-
-    // // Set the new row number to the above row's number plus 1
-    // newRow.childNodes[0].innerHTML = `${beginningValues}.${Number(lastValue) + 1}`;
-
-    // console.log("start");
-    // console.log(aboveRowNumber);
-    // console.log(rowNumberOfClickedButtonList);
-    // console.log(beginningValuesList);
-    // console.log(lastValue);
-    // console.log(indexOfChangingElement);
-    // console.log("end");
-
-    //Iterate over every row in the table and if their their beginning values start with our beginningValue then we update it. Need to think about for ones that have subproofs so we'll have to reconstruct it
-    //Essentially a renumbering of the sub group
-    // var myTable = document.getElementById('emptyTable');
-    // var values = new Array();
-
-    // // console.log(myTable.rows.length);
-    // var rowNumberCounter = 1;
-
-    // for (var row = 2; row < myTable.rows.length; row++) {
-
-    //     console.log(row);
-    //     var existingRowNumber = myTable.rows.item(row).cells[0].innerHTML;
-    //     var existingRowNumberList = existingRowNumber.split('.');
-    //     var valueAtIndexOfChangingElement = existingRowNumberList.at(indexOfChangingElement);
-    //     var temporaryBeginningValuesList = existingRowNumberList.slice(0, -1);
-    //     var temporaryBeginningValues = temporaryBeginningValuesList.join('.')
-
-    //     console.log(existingRowNumber);
-    //     console.log(existingRowNumberList);
-    //     console.log(temporaryBeginningValues);
-    //     console.log(beginningValues == temporaryBeginningValues);
-
-    //     //If we are dealing with no sub proofs then update all numbers 
-    //     if (rowNumberOfClickedButtonList.length == 1) {
-    //         console.log("beg");
-    //         console.log(existingRowNumberList);
-    //         existingRowNumberList[indexOfChangingElement] = rowNumberCounter + 1;
-
-    //         var updatedRowNumber = existingRowNumberList.length > 1 ? existingRowNumberList.join(".") : existingRowNumberList;
-    //         console.log(existingRowNumberList);
-    //         console.log(updatedRowNumber);
-    //         console.log("fin");
-    //         for (var cellCount = 0; cellCount < myTable.rows[row].cells.length; cellCount++) {
-
-    //             var element = myTable.rows.item(row).cells[cellCount];
-
-    //             // Update the row number
-    //             if (cellCount == 0) {
-    //                 // console.log(element.innerText);
-    //                 element.innerText = updatedRowNumber;
-    //             }
-
-    //             // Update the expression id
-    //             if (cellCount == 1) {
-    //                 // console.log(element.childNodes[0].id);
-    //                 element.childNodes[0].id = `expression-${updatedRowNumber}`;
-    //                 // console.log(element.childNodes[0].id);
-    //             }
-
-    //             // Update the justification id
-    //             if (cellCount == 2) {
-    //                 element.childNodes[0].id = `justification-${updatedRowNumber}`;
-    //             }
-    //         }
-    //         rowNumberCounter++;
-
-    //     }
-
-
-
-    //     else if (beginningValues == temporaryBeginningValues) {
-    //         console.log("Previous row number")
-    //         console.log(existingRowNumberList.join("."));
-    //         existingRowNumberList[indexOfChangingElement] = rowNumberCounter;
-
-    //         var updatedRowNumber = existingRowNumberList.join(".")
-    //         console.log("New row number");
-    //         console.log(updatedRowNumber);
-    //         for (var cellCount = 0; cellCount < myTable.rows[row].cells.length; cellCount++) {
-
-    //             var element = myTable.rows.item(row).cells[cellCount];
-
-    //             // Update the row number
-    //             if (cellCount == 0) {
-    //                 // console.log(element.innerText);
-    //                 element.innerText = updatedRowNumber;
-    //             }
-
-    //             // Update the expression id
-    //             if (cellCount == 1) {
-    //                 // console.log(element.childNodes[0].id);
-    //                 element.childNodes[0].id = `expression-${updatedRowNumber}`;
-    //                 // console.log(element.childNodes[0].id);
-    //             }
-
-    //             // Update the justification id
-    //             if (cellCount == 2) {
-    //                 element.childNodes[0].id = `justification-${updatedRowNumber}`;
-    //             }
-    //         }
-    //         rowNumberCounter++;
-    //     }
-    // }
-
 }
 
 // function to renumber both parent rows and rows with sub proofs
 function renumberAllRows(startingPoint, prefixValuesList) {
     var myTable = document.getElementById('emptyTable');
 
-    console.log(startingPoint);
+    // console.log(startingPoint);
     var indexOfChangingElement = prefixValuesList.length;
     var prefixValues = prefixValuesList.join('.');
 
@@ -401,22 +283,22 @@ function renumberAllRows(startingPoint, prefixValuesList) {
         // console.log(myTable.rows.item(row).rowIndex);
         // console.log(myTable.rows.item(row).cells[0].innerHTML);
 
-        console.log("Current Row Number");
+        // console.log("Current Row Number");
         // console.log(myTable.rows.item(row).cells[0].innerHTML)
         var currentRowNumber = myTable.rows.item(row).cells[0].innerHTML;
-        console.log(currentRowNumber);
-        console.log("Current Row Number List");
+        // console.log(currentRowNumber);
+        // console.log("Current Row Number List");
         var currentRowNumberList = currentRowNumber.split('.');
-        console.log(currentRowNumberList);
-        console.log("Current Row Number Prefix")
+        // console.log(currentRowNumberList);
+        // console.log("Current Row Number Prefix")
 
 
         if (currentRowNumber.startsWith(prefixValues)) {
-            console.log("Starts with prefix?");
-            console.log("true");
-            console.log(["beginning", currentRowNumberList.join('.')]);
+            // console.log("Starts with prefix?");
+            // console.log("true");
+            // console.log(["beginning", currentRowNumberList.join('.')]);
             currentRowNumberList[indexOfChangingElement] = Number(currentRowNumberList[indexOfChangingElement]) + 1;
-            console.log(["ending", currentRowNumberList.join('.')]);
+            // console.log(["ending", currentRowNumberList.join('.')]);
             var newRowNumber = currentRowNumberList.join('.');
 
             for (var cellCount = 0; cellCount < myTable.rows[row].cells.length; cellCount++) {
@@ -451,10 +333,122 @@ function renumberAllRows(startingPoint, prefixValuesList) {
 
 // function to delete a row.
 function removeRow(oButton) {
+
+    var emptyTable = document.getElementById('emptyTable').childNodes[0];
+    const rowOfClickedButton = oButton.parentNode.parentNode;
+
+    // Retrieve the current row number of the row you're deleting
+    var rowNumberOfClickedButton = rowOfClickedButton.childNodes[0].innerHTML;
+
+    // Split the rowNumberOfClickedButton into prefix and last digit
+    var rowNumberOfClickedButtonList = rowNumberOfClickedButton.split('.')
+
+    var prefixValuesList = rowNumberOfClickedButtonList.slice(0, -1);
+    var indexOfChangingElement = prefixValuesList.length;
+    var prefixValuesString = prefixValuesList.join('.')
+
+    var startingPoint = rowOfClickedButton.rowIndex;
+
+    emptyTable.deleteRow(rowOfClickedButton.rowIndex);
+
+    renumberAllRowsAfterDelete(startingPoint, prefixValuesList);
+
+
+    return;
     var emptyTable = document.getElementById('emptyTable');
     emptyTable.deleteRow(oButton.parentNode.parentNode.rowIndex);
+    // var emptyTable = document.getElementById('emptyTable').childNodes[0];
+    // const rowOfClickedButton = oButton.parentNode.parentNode;
+
+    var newRow = document.createElement('tr');
+    newRow = createNewRow(oButton, newRow);
+    emptyTable.insertBefore(newRow, rowOfClickedButton.nextSibling);
+
+    //Retrieve the current row number of the row you're inserting under
+    // var rowNumberOfClickedButton = rowOfClickedButton.childNodes[0].innerHTML;
+
+    // Split the rowNumberOfClickedButton into prefix and last digit
+    // var rowNumberOfClickedButtonList = rowNumberOfClickedButton.split('.');
+
+    // var prefixValuesList = rowNumberOfClickedButtonList.slice(0, -1);
+    // var indexOfChangingElement = prefixValuesList.length;
+    // var prefixValuesString = prefixValuesList.join('.')
+
+    // var startingPoint = newRow.rowIndex;
+
+    // renumberAllRowsAfterDelete(startingPoint, prefixValuesList);
+    // return;
     renumberRows();
 }
+
+
+
+function renumberAllRowsAfterDelete(startingPoint, prefixValuesList) {
+    var myTable = document.getElementById('emptyTable');
+
+    // console.log(startingPoint);
+    var indexOfChangingElement = prefixValuesList.length;
+    var prefixValues = prefixValuesList.join('.');
+
+    console.log([startingPoint, myTable.rows.length - 1]);
+
+    // for (var row = startingPoint; row < myTable.rows.length; row++) {
+    for (var row = myTable.rows.length - 1; row >= startingPoint; row--) {
+        console.log(myTable.rows.item(row).rowIndex);
+        // continue;
+        // console.log(myTable.rows.item(row).cells[0].innerHTML);
+
+        // console.log("Current Row Number");
+        // console.log(myTable.rows.item(row).cells[0].innerHTML)
+        var currentRowNumber = myTable.rows.item(row).cells[0].innerHTML;
+        // console.log(currentRowNumber);
+        // console.log("Current Row Number List");
+        var currentRowNumberList = currentRowNumber.split('.');
+        // console.log(currentRowNumberList);
+        // console.log("Current Row Number Prefix")
+
+
+        if (currentRowNumber.startsWith(prefixValues)) {
+            // console.log("Starts with prefix?");
+            // console.log("true");
+            // console.log(["beginning", currentRowNumberList.join('.')]);
+            currentRowNumberList[indexOfChangingElement] = Number(currentRowNumberList[indexOfChangingElement]) - 1;
+            // console.log(["ending", currentRowNumberList.join('.')]);
+            var newRowNumber = currentRowNumberList.join('.');
+
+            for (var cellCount = 0; cellCount < myTable.rows[row].cells.length; cellCount++) {
+
+                var element = myTable.rows.item(row).cells[cellCount];
+
+                // Update the row number
+                if (cellCount == 0) {
+                    // console.log(element.innerText);
+                    element.innerText = newRowNumber;
+                }
+
+                // Update the expression id
+                if (cellCount == 1) {
+                    // console.log(element.childNodes[0].id);
+                    element.childNodes[0].id = `expression-${newRowNumber}`;
+                    // console.log(element.childNodes[0].id);
+                }
+
+                // Update the justification id
+                if (cellCount == 2) {
+                    element.childNodes[0].id = `justification-${newRowNumber}`;
+                }
+            }
+
+
+        }
+
+
+    }
+}
+
+
+
+
 
 function submit() {
 
