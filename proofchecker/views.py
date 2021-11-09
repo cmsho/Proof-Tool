@@ -3,7 +3,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from .forms import ProofForm, ProofLineForm, AssignmentForm
-from .models import Proof, Problem, Assignment, Instructor
+from .models import Proof, Problem, Assignment, Instructor, ProofLine
+from .json_to_object import ProofTemp
 
 
 # Create your views here.
@@ -37,13 +38,13 @@ class ProofDetailView(DetailView):
 
 def proof_create_view(request):
     form = ProofForm(request.POST or None)
-    form_2 = ProofLineForm(request.POST or None)
+    # form_2 = ProofLineForm(request.POST or None)
     context = {
         "form": form,
-        "form_2": form_2
+        # "form_2": form_2
     }
 
-    if all([form.is_valid(), form_2.is_valid()]):
+    if form.is_valid():
         obj = form.save(commit=False)
         obj.created_by = request.user
         obj.save()
@@ -51,8 +52,8 @@ def proof_create_view(request):
     return render(request, 'proofchecker/add_proof.html', context)
 
 
-def proof_update_view(request, id=None):
-    obj = get_object_or_404(Proof, id=id, user=request.user)
+def proof_update_view(request, pk):
+    obj = get_object_or_404(Proof, id=pk, user=request.user)
     form = ProofForm(request.POST or None, instance=obj)
     form_2 = ProofLineForm(request.POST or None)
     context = {
@@ -61,18 +62,57 @@ def proof_update_view(request, id=None):
         "object": obj
     }
 
-    # if all([form.is_valid(), form_2.is_valid()]):
+    if all([form.is_valid(), form_2.is_valid()]):
+        form.save(commit=False)
+        form_2.save(commit=False)
+        return redirect(obj.get_absolute_url())
+    return render(request, 'proofchecker/edit_proof.html', context)
 
 
-# def proof_create_view(request):
-#     if request.method == 'POST':
-#         new_premise = request.POST.get('premise')
-#         new_conclusion = request.POST.get('conclusion')
-#         new_proof_text = request.POST.get('proof_text')
-#         new_proof = Proof.objects.create(premise=new_premise, conclusion=new_conclusion,
-#                                          created_by=request.user)
-#         new_proof.save()
-#     return render(request, 'proofchecker/add_proof1.html')
+def proof_create_view_temp(request):
+    if request.method == 'POST':
+        # new_premise = request.POST.get('premise')
+        # new_conclusion = request.POST.get('conclusion')
+        # new_proof_text = request.POST.get('proof_text')
+        # new_proof = Proof.objects.create(premise=new_premise, conclusion=new_conclusion,
+        #                                  created_by=request.user)
+        # new_proof.save()
+
+        req_body = '''{
+                                    "premises": ["A", "B"],
+                                    "conclusion": "A∧B",
+                                    "lines": [{
+                                            "line_no": "1",
+                                            "expression": "A",
+                                            "rule": "Premise"
+                                        },
+                                        {
+                                            "line_no": "2",
+                                            "expression": "B",
+                                            "rule": "Premise"
+                                        },
+                                        {
+                                            "line_no": "3",
+                                            "expression": "A∧B",
+                                            "rule": "∧I 1, 2"
+                                        }
+                                    ]
+                            }'''
+        jsonProof = ProofTemp.from_json(req_body)
+
+        modelProof = Proof.objects.create(premise=jsonProof.premises, conclusion=jsonProof.conclusion,
+                                          created_by=request.user)
+        modelProof.save()
+
+        for line in jsonProof.lines:
+            print(line)
+            modelLine = ProofLine.objects.create(proof_id=modelProof.id, line_no=line['line_no'],
+                                                 formula=line['expression'], rule=line['rule'])
+            modelLine.save()
+
+        print(jsonProof.premises)
+
+    return render(request, 'proofchecker/add_proof1.html')
 
 
 # class ProofCreateView(CreateView):
