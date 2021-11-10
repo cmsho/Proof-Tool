@@ -38,6 +38,44 @@ class ProofResponse:
         self.is_valid = is_valid
         self.err_msg = err_msg
 
+def is_valid_expression(expression: str):
+    """
+    Verify if a string is a valid Boolean expression
+    Returns a Boolean (True/False)
+    """
+    # Verify the expression is valid
+    try:
+        expression = make_tree(expression)
+        if expression == None:
+            return False
+        else:
+            return True
+    except:
+        return False
+
+def verify_expression(expression: str):
+    """
+    Verify if a string is a valid boolean expression
+    Returns a ProofResponse
+    """
+    response = ProofResponse()
+    # Verify the expression is valid
+    try:
+        expression = make_tree(expression)
+        if expression == None:
+            response.err_msg = "Expression cannot be an empty string"
+            return response
+        else:
+            response.is_valid = True
+            return response
+    except IllegalCharacterError as char_err:
+        response.err_msg = "{} in expression {}"\
+            .format(char_err.message, str(expression))
+        return response 
+    except:
+        response.err_msg = "Syntax error in expression {}"\
+            .format(str(expression))
+        return response
 
 def verify_proof(proof: Proof):
     """

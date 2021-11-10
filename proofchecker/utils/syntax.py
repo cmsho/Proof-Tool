@@ -1,6 +1,12 @@
-    # TODO: In find_main_operator(), test for multiple operators at depth 0 
-    # Apply standard order of operations if multiple operators at depth 0
-    # e.g. ¬A∨B should recognize ∨ as the main logical operator
+"""
+NOTE: THIS FILE IS DEPRECATED
+All syntax validation and proof validation is currently managed in the proof.py file.
+"""   
+
+   
+# TODO: In find_main_operator(), test for multiple operators at depth 0 
+# Apply standard order of operations if multiple operators at depth 0
+# e.g. ¬A∨B should recognize ∨ as the main logical operator
 
 from .constants import Constants
 
