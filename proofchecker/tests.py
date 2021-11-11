@@ -1,14 +1,14 @@
 from django.test import TestCase
 
-from .proof import Proof, ProofLine, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_citation, verify_explosion, verify_or_intro, \
+from .proof import ProofObj, ProofLineObj, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_citation, verify_explosion, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
     verify_not_elim, verify_indirect_proof, verify_premise, verify_rule, verify_proof, depth
-from .syntax import Syntax
 from .utils import numparse
 from .utils import tflparse as yacc
-from .utils.tfllex import lexer as tfllexer
-from .utils.numlex import lexer as numlexer
 from .utils.binarytree import Node, tree_to_string, string_to_tree
+from .utils.numlex import lexer as numlexer
+from .utils.syntax import Syntax
+from .utils.tfllex import lexer as tfllexer
 
 # Create your tests here.
 
@@ -76,7 +76,7 @@ class ProofTests(TestCase):
         """
         Test that a ProofLine can be constructed appropriately
         """
-        line1 = ProofLine(1, '(A∧C)∨(B∧C)', 'Premise')
+        line1 = ProofLineObj(1, '(A∧C)∨(B∧C)', 'Premise')
         self.assertEqual(1, line1.line_no)
         self.assertEqual('(A∧C)∨(B∧C)', line1.expression)
         self.assertEqual('Premise', line1.rule)
@@ -85,13 +85,13 @@ class ProofTests(TestCase):
         """
         Test that a Proof can be constructed appropriately
         """
-        line1 = ProofLine(1, '(A∧C)∨(B∧C)', 'Premise')
-        line2_1 = ProofLine(2.1, '(A∧C)', 'Assumption')
-        line2_2 = ProofLine(2.2, 'C', '∧E 2.1')
-        line3_1 = ProofLine(3.1, '(B∧C)', 'Assumption')
-        line3_2 = ProofLine(3.2, 'C', '∧E 2.1')
-        line4 = ProofLine(4, 'C', '∨E, 1, 2, 3')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, '(A∧C)∨(B∧C)', 'Premise')
+        line2_1 = ProofLineObj(2.1, '(A∧C)', 'Assumption')
+        line2_2 = ProofLineObj(2.2, 'C', '∧E 2.1')
+        line3_1 = ProofLineObj(3.1, '(B∧C)', 'Assumption')
+        line3_2 = ProofLineObj(3.2, 'C', '∧E 2.1')
+        line4 = ProofLineObj(4, 'C', '∨E, 1, 2, 3')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2_1, line2_2, line3_1, line3_2, line4])
         self.assertEqual(len(proof.lines), 6)
 
@@ -114,36 +114,36 @@ class ProofTests(TestCase):
         Verify that the function verify_line_citation is working properly
         """
         # Test with proper input
-        line1 = ProofLine(2.1, 'A', 'Premise')
-        line2 = ProofLine(2.2, 'B', 'Premise')
-        line3 = ProofLine(2.3, 'A∧B', '∧I 1, 2')
+        line1 = ProofLineObj(2.1, 'A', 'Premise')
+        line2 = ProofLineObj(2.2, 'B', 'Premise')
+        line3 = ProofLineObj(2.3, 'A∧B', '∧I 1, 2')
         result1 = verify_citation(line3, line1)
         result2 = verify_citation(line3, line2)
         self.assertEqual(result1.is_valid, True)
         self.assertEqual(result2.is_valid, True)
 
         # Test with cited line within an unclosed subproof.
-        line1 = ProofLine(1.1, 'A', 'Premise')
-        line2 = ProofLine(2.1, 'B', 'Assumption')
-        line3 = ProofLine(2.2, 'B', 'R')
-        line4 = ProofLine(3, 'B→B', '→I 2-3')
-        line5 = ProofLine(4, 'B', '→E 4, 3')
+        line1 = ProofLineObj(1.1, 'A', 'Premise')
+        line2 = ProofLineObj(2.1, 'B', 'Assumption')
+        line3 = ProofLineObj(2.2, 'B', 'R')
+        line4 = ProofLineObj(3, 'B→B', '→I 2-3')
+        line5 = ProofLineObj(4, 'B', '→E 4, 3')
         result = verify_citation(line5, line3)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg,\
             'Line 2.2 occurs within a subproof that has not been closed prior to line 4')
 
         # Test with the cited line occurring after the current line
-        line1 = ProofLine(2.1, 'A∧B', '∧I 1, 2')
-        line2 = ProofLine(2.2, 'B', 'Premise')
+        line1 = ProofLineObj(2.1, 'A∧B', '∧I 1, 2')
+        line2 = ProofLineObj(2.2, 'B', 'Premise')
         result = verify_citation(line1, line2)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg,\
             "Invalid citation: line 2.2 occurs after line 2.1")
 
         # Test with line numbers not formatted properly
-        line1 = ProofLine('1', 'A∧B', '∧I 1, 2')
-        line2 = ProofLine('2.a', 'B', 'Premise')
+        line1 = ProofLineObj('1', 'A∧B', '∧I 1, 2')
+        line2 = ProofLineObj('2.a', 'B', 'Premise')
         result = verify_citation(line1, line2)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg,\
@@ -154,18 +154,18 @@ class ProofTests(TestCase):
         Test that the function is_conclusion works properly
         """
         # Test with proper input
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'B', 'Premise')
-        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
-        proof = Proof(premises=['A', 'B'], conclusion='A∧B', lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'Premise')
+        line3 = ProofLineObj(3, 'A∧B', '∧I 1, 2')
+        proof = ProofObj(premises=['A', 'B'], conclusion='A∧B', lines=[])
         proof.lines.extend([line1, line2, line3])
         result = is_conclusion(line3, proof)
         self.assertEqual(result, True)
 
         # Test with incomplete proof
-        line1 = ProofLine(1, '(A∧C)∨(B∧C)', 'Premise')
-        line2 = ProofLine(2, '(A∧C)', '∨E 1')
-        proof = Proof(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[])
+        line1 = ProofLineObj(1, '(A∧C)∨(B∧C)', 'Premise')
+        line2 = ProofLineObj(2, '(A∧C)', '∨E 1')
+        proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[])
         proof.lines.extend([line1, line2])
         result = is_conclusion(line2, proof)
         self.assertEqual(result, False)
@@ -175,10 +175,10 @@ class ProofTests(TestCase):
         Test that the function verify_premise is working properly
         """
         # Test with proper input
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'B', 'Premise')
-        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
-        proof = Proof(premises=['A', 'B'], lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'Premise')
+        line3 = ProofLineObj(3, 'A∧B', '∧I 1, 2')
+        proof = ProofObj(premises=['A', 'B'], lines=[])
         proof.lines.extend([line1, line2, line3])
         result1 = verify_premise(line1, proof)
         result2 = verify_premise(line2, proof)
@@ -186,10 +186,10 @@ class ProofTests(TestCase):
         self.assertEqual(result2.is_valid, True)
     
         # Test with a line not in premises    
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'B', 'Premise')
-        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
-        proof = Proof(premises='A', lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'Premise')
+        line3 = ProofLineObj(3, 'A∧B', '∧I 1, 2')
+        proof = ProofObj(premises='A', lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_premise(line2, proof)
         self.assertEqual(result.is_valid, False)
@@ -200,20 +200,20 @@ class ProofTests(TestCase):
         Test that the function verify_assumption is working properly
         """
         # Test with valid input
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2.1, 'B', 'Assumption')
-        line3 = ProofLine(2.2, 'A∧B', '∧I 1, 2')
-        proof = Proof(premises='A', lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2.1, 'B', 'Assumption')
+        line3 = ProofLineObj(2.2, 'A∧B', '∧I 1, 2')
+        proof = ProofObj(premises='A', lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_assumption(line2)
         self.assertEqual(result.is_valid, True)
 
         # Test with invalid input
         # Test with valid input
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2.1, 'B', 'Assumption')
-        line3 = ProofLine(2.2, 'C', 'Assumption')
-        proof = Proof(premises='A', lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2.1, 'B', 'Assumption')
+        line3 = ProofLineObj(2.2, 'C', 'Assumption')
+        proof = ProofObj(premises='A', lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_assumption(line3)
         self.assertEqual(result.is_valid, False)
@@ -224,17 +224,17 @@ class ProofTests(TestCase):
         Test that the function verify_explosion is working properly
         """
         # Test with proper input
-        line1 = ProofLine(1, '⊥', 'Premise')
-        line2 = ProofLine(2, 'B', 'X 1')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, '⊥', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'X 1')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_explosion(line2, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test without contradiction
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'B', 'X 1')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'X 1')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_explosion(line2, proof)
         self.assertEqual(result.is_valid, False)
@@ -246,29 +246,29 @@ class ProofTests(TestCase):
         Test that the function verify_and_intro is working properly
         """
         # Test with proper input
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'B', 'Premise')
-        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'Premise')
+        line3 = ProofLineObj(3, 'A∧B', '∧I 1, 2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_and_intro(line3, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test with invalid conjunction
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'C', 'Premise')
-        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'C', 'Premise')
+        line3 = ProofLineObj(3, 'A∧B', '∧I 1, 2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_and_intro(line3, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "The conjunction of lines 1 and 2 does not equal line 3")
 
         # Test with invalid line specification
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'B', 'Premise')
-        line3 = ProofLine(3, 'A∧B', '∧I 1')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'Premise')
+        line3 = ProofLineObj(3, 'A∧B', '∧I 1')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_and_intro(line3, proof)
         self.assertEqual(result.is_valid, False)
@@ -279,17 +279,17 @@ class ProofTests(TestCase):
         Test that the function verify_and_elim is working properly
         """
         # Test with proper input
-        line1 = ProofLine(1, 'A∧B', 'Premise')
-        line2 = ProofLine(2, 'A', '∧E 1')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A∧B', 'Premise')
+        line2 = ProofLineObj(2, 'A', '∧E 1')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_and_elim(line2, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test with invalid conclusion
-        line1 = ProofLine(1, 'A∧B', 'Premise')
-        line2 = ProofLine(2, 'C', '∧E 1')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A∧B', 'Premise')
+        line2 = ProofLineObj(2, 'C', '∧E 1')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_and_elim(line2, proof)
         self.assertEqual(result.is_valid, False)
@@ -300,17 +300,17 @@ class ProofTests(TestCase):
         Test that the function verify_or_intro is working properly
         """
         # Test with valid input
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'A∨B', '∨I 1')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'A∨B', '∨I 1')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_or_intro(line2, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test with invalid conclusion
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'B∨C', '∨I 1')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'B∨C', '∨I 1')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_or_intro(line2, proof)
         self.assertEqual(result.is_valid, False)
@@ -321,77 +321,77 @@ class ProofTests(TestCase):
         Test that the function verify_or_elim is working properly
         """
         # Test with valid input
-        line1 = ProofLine(1, 'A∨B', 'Premise')
-        line2 = ProofLine(2, 'A', 'Assumption')
-        line3 = ProofLine(3, 'C', 'Assumption')
-        line4 = ProofLine(4, 'B', 'Assumption')
-        line5 = ProofLine(5, 'C', 'Assumption')
-        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A∨B', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Assumption')
+        line3 = ProofLineObj(3, 'C', 'Assumption')
+        line4 = ProofLineObj(4, 'B', 'Assumption')
+        line5 = ProofLineObj(5, 'C', 'Assumption')
+        line6 = ProofLineObj(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test with unequivalent expressions
-        line1 = ProofLine(1, 'A∨B', 'Premise')
-        line2 = ProofLine(2, 'A', 'Assumption')
-        line3 = ProofLine(3, 'C', 'Assumption')
-        line4 = ProofLine(4, 'B', 'Assumption')
-        line5 = ProofLine(5, 'D', 'Assumption')
-        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A∨B', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Assumption')
+        line3 = ProofLineObj(3, 'C', 'Assumption')
+        line4 = ProofLineObj(4, 'B', 'Assumption')
+        line5 = ProofLineObj(5, 'D', 'Assumption')
+        line6 = ProofLineObj(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "The expressions on lines 3, 5 and 6 are not equivalent")
 
         # Test with improper disjunction
-        line1 = ProofLine(1, 'A∨B', 'Premise')
-        line2 = ProofLine(2, 'A', 'Assumption')
-        line3 = ProofLine(3, 'C', 'Assumption')
-        line4 = ProofLine(4, 'D', 'Assumption')
-        line5 = ProofLine(5, 'C', 'Assumption')
-        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A∨B', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Assumption')
+        line3 = ProofLineObj(3, 'C', 'Assumption')
+        line4 = ProofLineObj(4, 'D', 'Assumption')
+        line5 = ProofLineObj(5, 'C', 'Assumption')
+        line6 = ProofLineObj(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "The expression on line 4 is not part of the disjunction on line 1")
 
         # Test with improper disjunction
-        line1 = ProofLine(1, 'A∨B', 'Premise')
-        line2 = ProofLine(2, 'D', 'Assumption')
-        line3 = ProofLine(3, 'C', 'Assumption')
-        line4 = ProofLine(4, 'B', 'Assumption')
-        line5 = ProofLine(5, 'C', 'Assumption')
-        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A∨B', 'Premise')
+        line2 = ProofLineObj(2, 'D', 'Assumption')
+        line3 = ProofLineObj(3, 'C', 'Assumption')
+        line4 = ProofLineObj(4, 'B', 'Assumption')
+        line5 = ProofLineObj(5, 'C', 'Assumption')
+        line6 = ProofLineObj(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "The expression on line 2 is not part of the disjunction on line 1")
 
         # Test with only one half of disjunction
-        line1 = ProofLine(1, 'A∨B', 'Premise')
-        line2 = ProofLine(2, 'A', 'Assumption')
-        line3 = ProofLine(3, 'C', 'Assumption')
-        line4 = ProofLine(4, 'A', 'Assumption')
-        line5 = ProofLine(5, 'C', 'Assumption')
-        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A∨B', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Assumption')
+        line3 = ProofLineObj(3, 'C', 'Assumption')
+        line4 = ProofLineObj(4, 'A', 'Assumption')
+        line5 = ProofLineObj(5, 'C', 'Assumption')
+        line6 = ProofLineObj(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "The expressions on lines 2 and 4 should be different")
 
         # Test with improper line specification
-        line1 = ProofLine(1, 'A∨B', 'Premise')
-        line2 = ProofLine(2, 'A', 'Assumption')
-        line3 = ProofLine(3, 'C', 'Assumption')
-        line4 = ProofLine(4, 'A', 'Assumption')
-        line5 = ProofLine(5, 'C', 'Assumption')
-        line6 = ProofLine(6, 'C', '∨E 1, 2-5')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A∨B', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Assumption')
+        line3 = ProofLineObj(3, 'C', 'Assumption')
+        line4 = ProofLineObj(4, 'A', 'Assumption')
+        line5 = ProofLineObj(5, 'C', 'Assumption')
+        line6 = ProofLineObj(6, 'C', '∨E 1, 2-5')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
         self.assertEqual(result.is_valid, False)
@@ -402,39 +402,39 @@ class ProofTests(TestCase):
         Test that the function verify_not_intro is working properly
         """
         # Test with valid input
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, '⊥', 'Premise')
-        line3 = ProofLine(3, '¬A', '¬I 1-2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, '⊥', 'Premise')
+        line3 = ProofLineObj(3, '¬A', '¬I 1-2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_intro(line3, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test without contradiction
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'B', 'Premise')
-        line3 = ProofLine(3, '¬A', '¬I 1-2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'Premise')
+        line3 = ProofLineObj(3, '¬A', '¬I 1-2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_intro(line3, proof)
         self.assertEqual(result.is_valid, False)   
         self.assertEqual(result.err_msg, "Line 2 should be '⊥' (Contradiction)")
 
         # Test without proper negation
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, '⊥', 'Premise')
-        line3 = ProofLine(3, '¬B', '¬I 1-2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, '⊥', 'Premise')
+        line3 = ProofLineObj(3, '¬B', '¬I 1-2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_intro(line3, proof)
         self.assertEqual(result.is_valid, False)   
         self.assertEqual(result.err_msg, "Line 3 is not the negation of line 1")
         
         # Test with improper line specification
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, '⊥', 'Premise')
-        line3 = ProofLine(3, '¬A', '¬I 1')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, '⊥', 'Premise')
+        line3 = ProofLineObj(3, '¬A', '¬I 1')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_intro(line3, proof)
         self.assertEqual(result.is_valid, False)   
@@ -445,39 +445,39 @@ class ProofTests(TestCase):
         Test that the fucntion verify_not_elim is working properly
         """
         # Test with valid input
-        line1 = ProofLine(1, '¬A', 'Premise')
-        line2 = ProofLine(2, 'A', 'Premise')
-        line3 = ProofLine(3, '⊥', '¬E 1, 2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, '¬A', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Premise')
+        line3 = ProofLineObj(3, '⊥', '¬E 1, 2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_elim(line3, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test without contradiction
-        line1 = ProofLine(1, '¬A', 'Premise')
-        line2 = ProofLine(2, 'A', 'Premise')
-        line3 = ProofLine(3, 'B', '¬E 1, 2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, '¬A', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Premise')
+        line3 = ProofLineObj(3, 'B', '¬E 1, 2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_elim(line3, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Line 3 should be '⊥' (Contradiction)")
 
         # Test without proper contradiction
-        line1 = ProofLine(1, '¬A', 'Premise')
-        line2 = ProofLine(2, 'B', 'Premise')
-        line3 = ProofLine(3, '⊥', '¬E 1, 2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, '¬A', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'Premise')
+        line3 = ProofLineObj(3, '⊥', '¬E 1, 2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_elim(line3, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Line 1 is not the negation of line 2")
 
         # Test with improper line specification
-        line1 = ProofLine(1, '¬A', 'Premise')
-        line2 = ProofLine(2, 'A', 'Premise')
-        line3 = ProofLine(3, '⊥', '¬E 2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, '¬A', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Premise')
+        line3 = ProofLineObj(3, '⊥', '¬E 2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_elim(line3, proof)
         self.assertEqual(result.is_valid, False)
@@ -489,29 +489,29 @@ class ProofTests(TestCase):
         Test that the function verify_implies_intro is working properly
         """
         # Test with valid input
-        line1 = ProofLine(1, 'A', 'Assumption')
-        line2 = ProofLine(2, 'B', 'Assumption')
-        line3 = ProofLine(3, 'A→B', '→I 1-2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Assumption')
+        line2 = ProofLineObj(2, 'B', 'Assumption')
+        line3 = ProofLineObj(3, 'A→B', '→I 1-2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_intro(line3, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test with invalid implication
-        line1 = ProofLine(1, 'A', 'Assumption')
-        line2 = ProofLine(2, 'B', 'Assumption')
-        line3 = ProofLine(3, 'A→C', '→I 1-2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Assumption')
+        line2 = ProofLineObj(2, 'B', 'Assumption')
+        line3 = ProofLineObj(3, 'A→C', '→I 1-2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_intro(line3, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, 'The expressions on lines 1 and 2 do not match the implication on line 3')
 
         # Test with improper line specification
-        line1 = ProofLine(1, 'A', 'Assumption')
-        line2 = ProofLine(2, 'B', 'Assumption')
-        line3 = ProofLine(3, 'A→B', '→I 2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Assumption')
+        line2 = ProofLineObj(2, 'B', 'Assumption')
+        line3 = ProofLineObj(3, 'A→B', '→I 2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_intro(line3, proof)
         self.assertEqual(result.is_valid, False)
@@ -522,29 +522,29 @@ class ProofTests(TestCase):
         Test that the function verify_implies_elim is working properly
         """
         # Test with valid input
-        line1 = ProofLine(1, 'A→B', 'Premise')
-        line2 = ProofLine(2, 'A', 'Premise')
-        line3 = ProofLine(3, 'B', '→E 1, 2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A→B', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Premise')
+        line3 = ProofLineObj(3, 'B', '→E 1, 2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_elim(line3, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test with invalid elimination
-        line1 = ProofLine(1, 'A→B', 'Premise')
-        line2 = ProofLine(2, 'A', 'Premise')
-        line3 = ProofLine(3, 'C', '→E 1, 2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A→B', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Premise')
+        line3 = ProofLineObj(3, 'C', '→E 1, 2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_elim(line3, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, 'The expressions on lines 2 and 3 do not match the implication on line 1')
 
         # Test with improper line specification
-        line1 = ProofLine(1, 'A→B', 'Premise')
-        line2 = ProofLine(2, 'A', 'Premise')
-        line3 = ProofLine(3, 'B', '→E 1')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A→B', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Premise')
+        line3 = ProofLineObj(3, 'B', '→E 1')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_elim(line3, proof)
         self.assertEqual(result.is_valid, False)
@@ -555,29 +555,29 @@ class ProofTests(TestCase):
         Test that the function verify_indirect_proof is working properly
         """
         # Test with valid input
-        line1 = ProofLine(1, '¬A', 'Premise')
-        line2 = ProofLine(2, '⊥', 'Premise')
-        line3 = ProofLine(3, 'A', 'IP 1-2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, '¬A', 'Premise')
+        line2 = ProofLineObj(2, '⊥', 'Premise')
+        line3 = ProofLineObj(3, 'A', 'IP 1-2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_indirect_proof(line3, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test without contradition
-        line1 = ProofLine(1, '¬A', 'Premise')
-        line2 = ProofLine(2, 'B', 'Premise')
-        line3 = ProofLine(3, 'A', 'IP 1-2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, '¬A', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'Premise')
+        line3 = ProofLineObj(3, 'A', 'IP 1-2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_indirect_proof(line3, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Line 2 should be '⊥' (Contradiction)")
 
         # Test with improper negation
-        line1 = ProofLine(1, '¬A', 'Premise')
-        line2 = ProofLine(2, '⊥', 'Premise')
-        line3 = ProofLine(3, 'B', 'IP 1-2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, '¬A', 'Premise')
+        line2 = ProofLineObj(2, '⊥', 'Premise')
+        line3 = ProofLineObj(3, 'B', 'IP 1-2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_indirect_proof(line3, proof)
         self.assertEqual(result.is_valid, False)
@@ -588,83 +588,83 @@ class ProofTests(TestCase):
         Test that the verify_rule function is working properly
         """
         # Test and_intro
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'B', 'Premise')
-        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'Premise')
+        line3 = ProofLineObj(3, 'A∧B', '∧I 1, 2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test and_elim
-        line1 = ProofLine(1, 'A∧B', 'Premise')
-        line2 = ProofLine(2, 'A', '∧E 1')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A∧B', 'Premise')
+        line2 = ProofLineObj(2, 'A', '∧E 1')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_rule(line2, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test or_intro
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'A∨B', '∨I 1')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'A∨B', '∨I 1')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_rule(line2, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test or_elim
-        line1 = ProofLine(1, 'A∨B', 'Premise')
-        line2 = ProofLine(2, 'A', 'Assumption')
-        line3 = ProofLine(3, 'C', 'Assumption')
-        line4 = ProofLine(4, 'B', 'Assumption')
-        line5 = ProofLine(5, 'C', 'Assumption')
-        line6 = ProofLine(6, 'C', '∨E 1, 2-3, 4-5')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A∨B', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Assumption')
+        line3 = ProofLineObj(3, 'C', 'Assumption')
+        line4 = ProofLineObj(4, 'B', 'Assumption')
+        line5 = ProofLineObj(5, 'C', 'Assumption')
+        line6 = ProofLineObj(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_rule(line6, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test not_intro
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, '⊥', 'Premise')
-        line3 = ProofLine(3, '¬A', '¬I 1-2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, '⊥', 'Premise')
+        line3 = ProofLineObj(3, '¬A', '¬I 1-2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test not_elim
-        line1 = ProofLine(1, '¬A', 'Premise')
-        line2 = ProofLine(2, 'A', 'Premise')
-        line3 = ProofLine(3, '⊥', '¬E 1, 2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, '¬A', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Premise')
+        line3 = ProofLineObj(3, '⊥', '¬E 1, 2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test implies_intro
-        line1 = ProofLine(1, 'A', 'Assumption')
-        line2 = ProofLine(2, 'B', 'Assumption')
-        line3 = ProofLine(3, 'A→B', '→I 1-2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A', 'Assumption')
+        line2 = ProofLineObj(2, 'B', 'Assumption')
+        line3 = ProofLineObj(3, 'A→B', '→I 1-2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test implies_elim
-        line1 = ProofLine(1, 'A→B', 'Premise')
-        line2 = ProofLine(2, 'A', 'Premise')
-        line3 = ProofLine(3, 'B', '→E 1, 2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, 'A→B', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'Premise')
+        line3 = ProofLineObj(3, 'B', '→E 1, 2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
         self.assertEqual(result.is_valid, True)
 
         # Test indirect_proof
-        line1 = ProofLine(1, '¬A', 'Premise')
-        line2 = ProofLine(2, '⊥', 'Premise')
-        line3 = ProofLine(3, 'A', 'IP 1-2')
-        proof = Proof(lines=[])
+        line1 = ProofLineObj(1, '¬A', 'Premise')
+        line2 = ProofLineObj(2, '⊥', 'Premise')
+        line3 = ProofLineObj(3, 'A', 'IP 1-2')
+        proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
         self.assertEqual(result.is_valid, True)
@@ -674,35 +674,35 @@ class ProofTests(TestCase):
         Test that the verify_proof function is working properly
         """
         # Test a valid proof returns True
-        line1 = ProofLine(1, 'A', 'Premise')
-        line2 = ProofLine(2, 'B', 'Premise')
-        line3 = ProofLine(3, 'A∧B', '∧I 1, 2')
-        proof = Proof(premises=['A', 'B'], lines=[])
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'Premise')
+        line3 = ProofLineObj(3, 'A∧B', '∧I 1, 2')
+        proof = ProofObj(premises=['A', 'B'], lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_proof(proof)
         self.assertEqual(result.is_valid, True)
 
         # Test a proof with an invalid character
-        line1 = ProofLine(1, 'Hello', 'Premise')
-        proof = Proof(premises='Hello', lines=[])
+        line1 = ProofLineObj(1, 'Hello', 'Premise')
+        proof = ProofObj(premises='Hello', lines=[])
         proof.lines.extend([line1])
         result = verify_proof(proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Illegal character 'e' on line 1")
 
         # Test a proof with an valid characters but invalid syntax
-        line1 = ProofLine(1, 'A∧', 'Premise')
-        proof = Proof(premises='A∧', lines=[])
+        line1 = ProofLineObj(1, 'A∧', 'Premise')
+        proof = ProofObj(premises='A∧', lines=[])
         proof.lines.extend([line1])
         result = verify_proof(proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Syntax error on line 1")
     
         # Test with a valid but incomplete proof
-        line1 = ProofLine(1, '(A∧C)∨(B∧C)', 'Premise')
-        line2 = ProofLine(2.1, '(A∧C)', 'Assumption')
-        line3 = ProofLine(2.2, 'C', '∧E 2.1')
-        proof = Proof(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[])
+        line1 = ProofLineObj(1, '(A∧C)∨(B∧C)', 'Premise')
+        line2 = ProofLineObj(2.1, '(A∧C)', 'Assumption')
+        line3 = ProofLineObj(2.2, 'C', '∧E 2.1')
+        proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[])
         proof.lines.extend([line1, line2])
         result = verify_proof(proof)
         self.assertEqual(result.is_valid, True)
