@@ -4,7 +4,7 @@ from .utils.tfllex import lexer as tfllexer
 from .utils.numlex import lexer as numlexer
 from .utils.binarytree import Node
 
-class Proof:
+class ProofObj:
     
     def __init__(self, premises=[], conclusion='', lines=[], created_by=''):
         self.premises = premises
@@ -18,7 +18,7 @@ class Proof:
             result += str(line) +'\n'
         return result
 
-class ProofLine:
+class ProofLineObj:
 
     def __init__(self, line_no=None, expression=None, rule=None):
         self.line_no = line_no
@@ -77,7 +77,7 @@ def verify_expression(expression: str):
             .format(str(expression))
         return response
 
-def verify_proof(proof: Proof):
+def verify_proof(proof: ProofObj):
     """
     Verify if a proof is valid, line by line.  
     Returns a ProofResponse, which contains an error message if invalid
@@ -126,7 +126,7 @@ def verify_proof(proof: Proof):
         return response
 
 
-def verify_rule(current_line: ProofLine, proof: Proof):
+def verify_rule(current_line: ProofLineObj, proof: ProofObj):
     """
     Determines what rule is being applied, then calls the appropriate
     function to verify the rule is applied correctly
@@ -173,7 +173,7 @@ def depth(line_no):
     """
     return numparse.parser.parse(line_no, lexer=numlexer)
 
-def verify_citation(current_line: ProofLine, cited_line: ProofLine):
+def verify_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
     """
     Verify whether an individual line citation is valid
     Returns a ProofResponse with an error message if invalid
@@ -224,7 +224,7 @@ def make_tree(string: str):
     """
     return tflparse.parser.parse(string, lexer=tfllexer)
 
-def is_conclusion(current_line: ProofLine, proof: Proof):
+def is_conclusion(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify whether the current_line is the desired conclusion
     """
@@ -240,7 +240,7 @@ def is_conclusion(current_line: ProofLine, proof: Proof):
     except:
         return False
 
-def find_line(rule: str, proof: Proof):
+def find_line(rule: str, proof: ProofObj):
     """
     Find a single line from a TFL rule
     """
@@ -253,7 +253,7 @@ def find_line(rule: str, proof: Proof):
             break
     return target_line
 
-def find_line_explosion(rule: str, proof: Proof):
+def find_line_explosion(rule: str, proof: ProofObj):
     """
     Find a single line from the TFL rule explosion
     """
@@ -266,7 +266,7 @@ def find_line_explosion(rule: str, proof: Proof):
             break
     return target_line
 
-def find_lines(rule: str, proof: Proof):
+def find_lines(rule: str, proof: ProofObj):
     """
     Find multiple lines from a TFL rule
     """
@@ -291,7 +291,7 @@ def find_expressions(lines):
         expressions.append(line.expression)
     return expressions
 
-def verify_premise(current_line: ProofLine, proof: Proof):
+def verify_premise(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify that "premise" is valid justification for a line
     """
@@ -325,7 +325,7 @@ def verify_premise(current_line: ProofLine, proof: Proof):
         response.err_msg = "One or more premises is invalid"
         return response
 
-def verify_assumption(current_line: ProofLine):
+def verify_assumption(current_line: ProofLineObj):
     """
     Verify that an assumption is valid
     """
@@ -349,7 +349,7 @@ def verify_assumption(current_line: ProofLine):
         response.err_msg = 'One or more invalid line numbers.'
         return response
 
-def verify_explosion(current_line: ProofLine, proof: Proof):
+def verify_explosion(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify proper implementation of the rule X m
     (Explosion)
@@ -387,7 +387,7 @@ def verify_explosion(current_line: ProofLine, proof: Proof):
         response.err_msg = "Rule not formatted properly.  Conjunction Elimination: X m"
         return response 
 
-def verify_and_intro(current_line: ProofLine, proof: Proof):
+def verify_and_intro(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify proper implementation of the rule ∧I m, n
     (Conjunction Introduction)
@@ -437,7 +437,7 @@ def verify_and_intro(current_line: ProofLine, proof: Proof):
         response.err_msg = "Rule is not formatted properly.  Conjunction Introduction: ∧I m, n"
         return response
 
-def verify_and_elim(current_line: ProofLine, proof: Proof):
+def verify_and_elim(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify proper implementation of the rule ∧E m
     (Conjunction Elimination)
@@ -483,7 +483,7 @@ def verify_and_elim(current_line: ProofLine, proof: Proof):
         response.err_msg = "Rule not formatted properly.  Conjunction Elimination: ∧E m"
         return response
 
-def verify_or_intro(current_line: ProofLine, proof: Proof):
+def verify_or_intro(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify proper implementation of the rule ∨I m
     (Disjunction Introduction)
@@ -530,7 +530,7 @@ def verify_or_intro(current_line: ProofLine, proof: Proof):
         return response
 
 
-def verify_or_elim(current_line: ProofLine, proof: Proof):
+def verify_or_elim(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify proper implementation of the rule ∨E m, i-j, k-l
     (Disjunction Elimination)
@@ -592,7 +592,7 @@ def verify_or_elim(current_line: ProofLine, proof: Proof):
         return response
 
 
-def verify_not_intro(current_line: ProofLine, proof: Proof):
+def verify_not_intro(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify proper implementation of the rule ¬I m-n
     (Negation Introduction)
@@ -647,7 +647,7 @@ def verify_not_intro(current_line: ProofLine, proof: Proof):
         return response
 
 
-def verify_not_elim(current_line: ProofLine, proof: Proof):
+def verify_not_elim(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify proper implementation of the rule ¬E m, n
     (Negation Elimination)
@@ -702,7 +702,7 @@ def verify_not_elim(current_line: ProofLine, proof: Proof):
         return response
 
 
-def verify_implies_intro(current_line: ProofLine, proof: Proof):
+def verify_implies_intro(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify proper implementation of the rule →I m-n
     (Conditional Introduction)
@@ -745,7 +745,7 @@ def verify_implies_intro(current_line: ProofLine, proof: Proof):
         return response
 
 
-def verify_implies_elim(current_line: ProofLine, proof: Proof):
+def verify_implies_elim(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify proper implementation of the rule →E m, n
     (Conditional Elimination (Modus Ponens))
@@ -791,7 +791,7 @@ def verify_implies_elim(current_line: ProofLine, proof: Proof):
         return response
 
 
-def verify_indirect_proof(current_line: ProofLine, proof: Proof):
+def verify_indirect_proof(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify proper implementation of the rule IP i-j
     (Indirect Proof)
