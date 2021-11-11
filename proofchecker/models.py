@@ -24,12 +24,12 @@ class Instructor(models.Model):
 
 
 class Proof(models.Model):
-    premise = models.CharField(max_length=255)
+    premises = models.CharField(max_length=255)
     conclusion = models.CharField(max_length=255)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"proof for premise : {self.premise}  conclusion {self.conclusion} "
+        return f"proof for premise : {self.premises}  conclusion {self.conclusion} "
 
     def get_absolute_url(self):
         return "/proofs/"
@@ -37,7 +37,7 @@ class Proof(models.Model):
 
 class ProofLine(models.Model):
     proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
-    line_no = models.DecimalField(max_digits=5, decimal_places=2)
+    line_no = models.CharField(max_length=100)
     formula = models.CharField(max_length=255)
     rule = models.CharField(max_length=255)
 

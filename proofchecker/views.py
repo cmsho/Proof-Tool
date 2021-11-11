@@ -4,7 +4,7 @@ from django.forms.models import modelformset_factory
 from .forms import ProofForm, ProofLineForm, AssignmentForm
 from .models import Proof, Problem, Assignment, Instructor, ProofLine
 from .json_to_object import ProofTemp
-from .proof import ProofObj, ProofLineObj, verify_proof
+from .proof import ProofObj, ProofLineObj, verify_proof, find_premises
 
 
 # Create your views here.
@@ -31,10 +31,10 @@ def ProofChecker(request):
         # Grab premise and conclusion from the form
         # Assign them to the proof object
         parent = form.save(commit=False)
-        proof.premises = str(parent.premise)
-        print('PREMISES: ' + proof.premises)
+        proof.premises = find_premises(parent.premises)
+        print('\nPREMISES: ' + str(proof.premises))
         proof.conclusion = str(parent.conclusion)
-        print('CONCLUSION: ' + proof.conclusion)
+        print('CONCLUSION: ' + proof.conclusion + '\n')
 
         for line in formset:
             # Create a proofline object
@@ -48,17 +48,17 @@ def ProofChecker(request):
             proofline.line_no = str(child.line_no)
             print('LINE #: ' + proofline.line_no)
             proofline.expression = str(child.formula)
-            print('EXPRESSION: ' + proofline.expression)
+            print('\t EXPRESSION: ' + proofline.expression)
             proofline.rule = str(child.rule)
-            print('RULE: ' + proofline.rule)
+            print('\t RULE: ' + proofline.rule)
 
             # Append the proofline to the proof object's lines
             proof.lines.append(proofline)
 
         # Verify the proof!
         response = verify_proof(proof)
-        print(response.is_valid)
-        print(response.err_msg)
+        print("\nPROOF.IS_VALID: " + str(response.is_valid))
+        print("ERROR MESSAGE: " + str(response.err_msg))
 
         # Send the response back
         context = {
@@ -173,7 +173,7 @@ def proof_create_view_temp(request):
                             }'''
         jsonProof = ProofTemp.from_json(req_body)
 
-        modelProof = Proof.objects.create(premise=jsonProof.premises, conclusion=jsonProof.conclusion,
+        modelProof = Proof.objects.create(premises=jsonProof.premises, conclusion=jsonProof.conclusion,
                                           created_by=request.user)
         modelProof.save()
 

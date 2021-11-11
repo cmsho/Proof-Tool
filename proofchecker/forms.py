@@ -6,7 +6,7 @@ from .models import Proof, ProofLine, Assignment
 class ProofForm(forms.ModelForm):
     class Meta:
         model = Proof
-        fields = ['premise', 'conclusion']
+        fields = ['premises', 'conclusion']
 
 # class ProofForm(forms.Form):
 #     premise = forms.CharField(max_length=255)

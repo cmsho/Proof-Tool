@@ -269,7 +269,6 @@ def verify_subproof_citation(current_line: ProofLineObj, cited_line: ProofLineOb
         return response
 
 
-
 def make_tree(string: str):
     """
     Function to construct a binary tree
@@ -291,6 +290,16 @@ def is_conclusion(current_line: ProofLineObj, proof: ProofObj):
         return False
     except:
         return False
+
+
+def find_premises(premises: str):
+    """
+    Take a string of comma separated-premises
+    and return an array of premises
+    """
+    premises = premises.replace(',', ' ')
+    premises = premises.split()
+    return premises
 
 def find_line(rule: str, proof: ProofObj):
     """
