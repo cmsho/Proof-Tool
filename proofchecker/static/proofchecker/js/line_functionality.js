@@ -1,5 +1,5 @@
 var headers = new Array();
-headers = ['#', 'Expression', 'Justification', '', '', '']
+headers = ['#', 'Expression', 'Justification', '', '', '', '']
 
 
 function replaceCharacter(ev) {
@@ -82,8 +82,8 @@ function createNewRow(oButton, tr) {
         if (cellCount == 4) {
             var button = document.createElement('input');
             button.setAttribute('type', 'button');
-            button.setAttribute('value', 'Insert Sub Row');
-            button.setAttribute('onclick', 'insertNewSubRow(this)');
+            button.setAttribute('value', 'Begin Subproof');
+            button.setAttribute('onclick', 'beginSubproof(this)');
             td.appendChild(button);
         }
         // If this is the six column create button for deleting
@@ -92,6 +92,14 @@ function createNewRow(oButton, tr) {
             button.setAttribute('type', 'button');
             button.setAttribute('value', 'Remove');
             button.setAttribute('onclick', 'removeRow(this)');
+            td.appendChild(button);
+        }
+
+        if (cellCount == 6) {
+            var button = document.createElement('input');
+            button.setAttribute('type', 'button');
+            button.setAttribute('value', 'Conclude Subproof');
+            button.setAttribute('onclick', 'concludeSubproof(this)');
             td.appendChild(button);
         }
 
@@ -146,7 +154,7 @@ function createTable(ev) {
         emptyTable.childNodes[0].childNodes[rowCount].childNodes[2].innerText = "Premise";
         emptyTable.childNodes[0].childNodes[rowCount].childNodes[4].innerText = '';
         emptyTable.childNodes[0].childNodes[rowCount].childNodes[5].innerText = '';
-        // emptyTable.childNodes[0].childNodes[rowCount].childNodes[6].innerText = '';
+        emptyTable.childNodes[0].childNodes[rowCount].childNodes[6].innerText = '';
         rowCount++;
     }
     return false;
@@ -154,7 +162,7 @@ function createTable(ev) {
 
 
 // function to insert a new row for a sub proof
-function insertNewSubRow(oButton) {
+function beginSubproof(oButton) {
 
     const myList = oButton.parentNode.parentNode.parentNode;
     const myItem = oButton.parentNode.parentNode;
@@ -339,7 +347,68 @@ function renumberAllRowsAfterDelete(startingPoint, prefixValuesList) {
     }
 }
 
+function concludeSubproof(oButton) {
 
+    // get the table and the row of the clicked button
+    var emptyTable = document.getElementById('emptyTable').childNodes[0];
+    const rowOfClickedButton = oButton.parentNode.parentNode;
+
+    // Get the row number of the button that was clicked
+    var rowNumberOfClickedButton = rowOfClickedButton.childNodes[0].innerHTML;
+
+    // Split the rowNumberOfClicked Button into the prefix and the last digit
+    var rowNumberOfClickedButtonList = rowNumberOfClickedButton.split('.');
+    var prefixValuesOfClickedButtonList = rowNumberOfClickedButtonList.slice(0, -1);
+    var lengthOfPrefixOfClickedButton = prefixValuesOfClickedButtonList.length;
+    var finalElementOfRowNumberOfClickedButton = rowNumberOfClickedButtonList.slice(-1);
+    var prefixValuesString = prefixValuesOfClickedButtonList.join('.')
+    var startingPoint = rowOfClickedButton.rowIndex;
+
+    // iterate backwards from current row and find the prefixes until you find a prefix that differs
+    var temporaryPreviousRow = rowOfClickedButton.previousSibling;
+
+    for (var rowCount = startingPoint; rowCount >= 2; rowCount--) {
+        var temporaryPreviousRowNumber = temporaryPreviousRow.childNodes[0].innerHTML;
+        console.log("Previous Row");
+        console.log(temporaryPreviousRowNumber);
+        var temporaryPreviousRowNumberList = temporaryPreviousRowNumber.split('.');
+        var prefixOfPreviousRowValueList = temporaryPreviousRowNumberList.slice(0, lengthOfPrefixOfClickedButton);
+        var prefixPreviousRowValuesString = prefixOfPreviousRowValueList.join('.')
+        var temporaryPreviousRow = temporaryPreviousRow.previousSibling;
+
+        if (prefixPreviousRowValuesString !== prefixValuesString) {
+            console.log("There's a diferrence");
+            break;
+        }
+    }
+
+
+    // If the previous row is an integter do one thing
+    if (prefixOfPreviousRowValueList.length == 0) {
+        console.log(rowNumberOfClickedButton);
+        var newRowNumber = Number(temporaryPreviousRowNumber) + 2;
+        var prefixOfNewRowNumber = newRowNumber;
+        var prefixOfNewRowNumberList = [];
+    } else {
+        // take the prefix and add two to the last value of it
+        prefixOfPreviousRowValueList[lengthOfPrefixOfClickedButton - 1] = Number(prefixOfPreviousRowValueList[lengthOfPrefixOfClickedButton - 1]) + 2;
+        console.log(prefixOfPreviousRowValueList);
+        var newRowNumber = prefixOfPreviousRowValueList.join('.');
+
+        var prefixOfNewRowNumberList = prefixOfPreviousRowValueList;
+
+    }
+
+    var newRow = document.createElement('tr');
+    var newRow = createNewRow(oButton, newRow);
+    emptyTable.insertBefore(newRow, rowOfClickedButton.nextSibling);
+    newRow.childNodes[0].innerHTML = newRowNumber;
+
+    var startingPoint = newRow.rowIndex + 1;
+
+    renumberAllRows(startingPoint, prefixOfNewRowNumberList);
+
+}
 
 
 
