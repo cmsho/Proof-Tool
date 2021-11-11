@@ -173,7 +173,7 @@ def depth(line_no):
     """
     return numparse.parser.parse(line_no, lexer=numlexer)
 
-def verify_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
+def verify_line_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
     """
     Verify whether an individual line citation is valid
     Returns a ProofResponse with an error message if invalid
@@ -216,6 +216,58 @@ def verify_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
     except:
         response.err_msg = "Line numbers are not formatted properly"
         return response
+
+def verify_subproof_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
+    """
+    Verify whether an subproof citation is valid
+    Returns a ProofResponse with an error message if invalid
+    """
+    # Currently subproof cited as lines i-j
+    #       i = first line of subproof (e.g. 2.1)
+    #       j = last line of subproof  (e.g. 2.4)
+    #
+    # TODO: Refactor code so citation
+    #       only requires one line     (e.g. 2)
+
+    response = ProofResponse()
+    
+    try:
+        # Calculate the depth of each line number
+        current_depth = depth(str(current_line.line_no))
+        cited_depth = depth(str(cited_line.line_no))-1
+
+        # Check if the cited line occurs within a subproof that has not been closed
+        # before the line where the rule is applied (this is a violation)
+        if cited_depth > current_depth:
+            response.err_msg = "Line {} occurs within a subproof that has not been closed prior to line {}"\
+                .format(str(cited_line.line_no), str(current_line.line_no))
+            return response
+
+        # Create an array of nested line numbers
+        current_nums = str(current_line.line_no).replace('.', ' ')
+        current_nums = current_nums.split()
+        cited_nums = str(cited_line.line_no).replace('.', ' ')
+        cited_nums = cited_nums.split()
+        x = 0
+        
+        # Check that the current line occurs after the cited line in the proof
+        while x < cited_depth:
+            if current_nums[x] < cited_nums[x]:
+                response.err_msg = "Invalid citation: line {} occurs after line {}"\
+                    .format(str(cited_line.line_no), str(current_line.line_no))
+                return response
+            elif cited_nums[x] < current_nums[x]:
+                break
+            x += 1
+        
+        # If all the other checks pass, line citation is valid
+        response.is_valid = True
+        return response
+
+    except:
+        response.err_msg = "Line numbers are not formatted properly"
+        return response
+
 
 
 def make_tree(string: str):
@@ -362,7 +414,7 @@ def verify_explosion(current_line: ProofLineObj, proof: ProofObj):
         target_line = find_line_explosion(rule, proof)
 
         # Verify if line citation is valid
-        result = verify_citation(current_line, target_line)
+        result = verify_line_citation(current_line, target_line)
         if result.is_valid == False:
             return result
 
@@ -400,7 +452,7 @@ def verify_and_intro(current_line: ProofLineObj, proof: ProofObj):
         target_lines = find_lines(rule, proof)
 
         for line in target_lines:
-            result = verify_citation(current_line, line)
+            result = verify_line_citation(current_line, line)
             if result.is_valid == False:
                 return result
 
@@ -450,7 +502,7 @@ def verify_and_elim(current_line: ProofLineObj, proof: ProofObj):
         target_line = find_line(rule, proof)
 
         # Verify if line citation is valid
-        result = verify_citation(current_line, target_line)
+        result = verify_line_citation(current_line, target_line)
         if result.is_valid == False:
             return result
 
@@ -496,7 +548,7 @@ def verify_or_intro(current_line: ProofLineObj, proof: ProofObj):
         target_line = find_line(rule, proof)
 
         # Verify if line citation is valid
-        result = verify_citation(current_line, target_line)
+        result = verify_line_citation(current_line, target_line)
         if result.is_valid == False:
             return result
 
@@ -542,9 +594,14 @@ def verify_or_elim(current_line: ProofLineObj, proof: ProofObj):
     try:
         target_lines = find_lines(rule, proof)
 
-        # Verify that line citations are valid
-        for line in target_lines:
-            result = verify_citation(current_line, line)
+        # Verify that line m citation is valid
+        line_m_citation = verify_line_citation(current_line, target_lines[0])
+        if line_m_citation.is_valid == False:
+            return line_m_citation
+
+        # Verify that subproof citations are valid
+        for line in target_lines[1:len(target_lines)]:
+            result = verify_subproof_citation(current_line, line)
             if result.is_valid == False:
                 return result
 
@@ -604,9 +661,9 @@ def verify_not_intro(current_line: ProofLineObj, proof: ProofObj):
     try:
         target_lines = find_lines(rule, proof)
 
-        # Verify that line citations are valid
+        # Verify that subproof citation are valid
         for line in target_lines:
-            result = verify_citation(current_line, line)
+            result = verify_subproof_citation(current_line, line)
             if result.is_valid == False:
                 return result
 
@@ -661,7 +718,7 @@ def verify_not_elim(current_line: ProofLineObj, proof: ProofObj):
 
         # Verify that line citations are valid
         for line in target_lines:
-            result = verify_citation(current_line, line)
+            result = verify_line_citation(current_line, line)
             if result.is_valid == False:
                 return result
 
@@ -714,9 +771,9 @@ def verify_implies_intro(current_line: ProofLineObj, proof: ProofObj):
     try:
         target_lines = find_lines(rule, proof)
 
-        # Verify that line citations are valid
+        # Verify that subproof citation are valid
         for line in target_lines:
-            result = verify_citation(current_line, line)
+            result = verify_subproof_citation(current_line, line)
             if result.is_valid == False:
                 return result
         
@@ -759,7 +816,7 @@ def verify_implies_elim(current_line: ProofLineObj, proof: ProofObj):
 
         # Verify that line citations are valid
         for line in target_lines:
-            result = verify_citation(current_line, line)
+            result = verify_line_citation(current_line, line)
             if result.is_valid == False:
                 return result
 
@@ -803,9 +860,9 @@ def verify_indirect_proof(current_line: ProofLineObj, proof: ProofObj):
     try:
         target_lines = find_lines(rule, proof)
 
-        # Verify that line citations are valid
+        # Verify that subproof citation are valid
         for line in target_lines:
-            result = verify_citation(current_line, line)
+            result = verify_subproof_citation(current_line, line)
             if result.is_valid == False:
                 return result
 

@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .proof import ProofObj, ProofLineObj, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_citation, verify_explosion, verify_or_intro, \
+from .proof import ProofObj, ProofLineObj, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_line_citation, verify_explosion, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
     verify_not_elim, verify_indirect_proof, verify_premise, verify_rule, verify_proof, depth
 from .utils import numparse
@@ -117,8 +117,8 @@ class ProofTests(TestCase):
         line1 = ProofLineObj(2.1, 'A', 'Premise')
         line2 = ProofLineObj(2.2, 'B', 'Premise')
         line3 = ProofLineObj(2.3, 'A∧B', '∧I 1, 2')
-        result1 = verify_citation(line3, line1)
-        result2 = verify_citation(line3, line2)
+        result1 = verify_line_citation(line3, line1)
+        result2 = verify_line_citation(line3, line2)
         self.assertEqual(result1.is_valid, True)
         self.assertEqual(result2.is_valid, True)
 
@@ -128,7 +128,7 @@ class ProofTests(TestCase):
         line3 = ProofLineObj(2.2, 'B', 'R')
         line4 = ProofLineObj(3, 'B→B', '→I 2-3')
         line5 = ProofLineObj(4, 'B', '→E 4, 3')
-        result = verify_citation(line5, line3)
+        result = verify_line_citation(line5, line3)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg,\
             'Line 2.2 occurs within a subproof that has not been closed prior to line 4')
@@ -136,7 +136,7 @@ class ProofTests(TestCase):
         # Test with the cited line occurring after the current line
         line1 = ProofLineObj(2.1, 'A∧B', '∧I 1, 2')
         line2 = ProofLineObj(2.2, 'B', 'Premise')
-        result = verify_citation(line1, line2)
+        result = verify_line_citation(line1, line2)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg,\
             "Invalid citation: line 2.2 occurs after line 2.1")
@@ -144,7 +144,7 @@ class ProofTests(TestCase):
         # Test with line numbers not formatted properly
         line1 = ProofLineObj('1', 'A∧B', '∧I 1, 2')
         line2 = ProofLineObj('2.a', 'B', 'Premise')
-        result = verify_citation(line1, line2)
+        result = verify_line_citation(line1, line2)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg,\
             "Line numbers are not formatted properly")
@@ -286,6 +286,14 @@ class ProofTests(TestCase):
         result = verify_and_elim(line2, proof)
         self.assertEqual(result.is_valid, True)
 
+        line1 = ProofLineObj(1, '(A∧C)∨(B∧C)', 'Premise')
+        line2 = ProofLineObj(2.1, 'A∧C', 'Assumption')
+        line3 = ProofLineObj(2.2, 'C', '∧E 2.1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_and_elim(line3, proof)
+        self.assertEqual(result.is_valid, True) 
+
         # Test with invalid conclusion
         line1 = ProofLineObj(1, 'A∧B', 'Premise')
         line2 = ProofLineObj(2, 'C', '∧E 1')
@@ -327,6 +335,18 @@ class ProofTests(TestCase):
         line4 = ProofLineObj(4, 'B', 'Assumption')
         line5 = ProofLineObj(5, 'C', 'Assumption')
         line6 = ProofLineObj(6, 'C', '∨E 1, 2-3, 4-5')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        result = verify_or_elim(line6, proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test with valid input
+        line1 = ProofLineObj(1, 'A∨B', 'Premise')
+        line2 = ProofLineObj(2.1, 'A', 'Assumption')
+        line3 = ProofLineObj(2.2, 'C', 'Assumption')
+        line4 = ProofLineObj(3.1, 'B', 'Assumption')
+        line5 = ProofLineObj(3.2, 'C', 'Assumption')
+        line6 = ProofLineObj(4, 'C', '∨E 1, 2.1-2.2, 3.1-3.2')
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
@@ -402,9 +422,9 @@ class ProofTests(TestCase):
         Test that the function verify_not_intro is working properly
         """
         # Test with valid input
-        line1 = ProofLineObj(1, 'A', 'Premise')
-        line2 = ProofLineObj(2, '⊥', 'Premise')
-        line3 = ProofLineObj(3, '¬A', '¬I 1-2')
+        line1 = ProofLineObj(1.1, 'A', 'Premise')
+        line2 = ProofLineObj(1.2, '⊥', 'Premise')
+        line3 = ProofLineObj(2, '¬A', '¬I 1.1-1.2')
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_intro(line3, proof)
@@ -489,9 +509,9 @@ class ProofTests(TestCase):
         Test that the function verify_implies_intro is working properly
         """
         # Test with valid input
-        line1 = ProofLineObj(1, 'A', 'Assumption')
-        line2 = ProofLineObj(2, 'B', 'Assumption')
-        line3 = ProofLineObj(3, 'A→B', '→I 1-2')
+        line1 = ProofLineObj(1.1, 'A∧B', 'Premise')
+        line2 = ProofLineObj(1.2, 'B', '∧E 1.1')
+        line3 = ProofLineObj(2, '(A∧B)→B', '→I 1.1-1.2')
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_intro(line3, proof)
@@ -555,9 +575,9 @@ class ProofTests(TestCase):
         Test that the function verify_indirect_proof is working properly
         """
         # Test with valid input
-        line1 = ProofLineObj(1, '¬A', 'Premise')
-        line2 = ProofLineObj(2, '⊥', 'Premise')
-        line3 = ProofLineObj(3, 'A', 'IP 1-2')
+        line1 = ProofLineObj(1.1, '¬A', 'Premise')
+        line2 = ProofLineObj(1.2, '⊥', 'X')
+        line3 = ProofLineObj(2, 'A', 'IP 1.1-1.2')
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_indirect_proof(line3, proof)
