@@ -107,13 +107,6 @@ function createNewRow(oButton, tr) {
     return tr;
 }
 
-function appendNewRow(oButton) {
-    var emptyTable = document.getElementById('emptyTable');
-    var rowCount = emptyTable.rows.length;
-    var tr = emptyTable.insertRow(rowCount);
-    createNewRow(oButton, tr);
-}
-
 
 function createTable(ev) {
     console.log(ev);
@@ -149,7 +142,7 @@ function createTable(ev) {
     var rowCount = 1;
 
     for (let premiseCount = 0; premiseCount < premises.length; premiseCount++) {
-        appendNewRow();
+        addPremiseRows();
         emptyTable.childNodes[0].childNodes[rowCount].childNodes[1].innerText = premises[premiseCount];
         emptyTable.childNodes[0].childNodes[rowCount].childNodes[2].innerText = "Premise";
         emptyTable.childNodes[0].childNodes[rowCount].childNodes[4].innerText = '';
@@ -160,28 +153,52 @@ function createTable(ev) {
     return false;
 }
 
+function addPremiseRows(oButton) {
+    var emptyTable = document.getElementById('emptyTable');
+    var rowCount = emptyTable.rows.length;
+    var tr = emptyTable.insertRow(rowCount);
+    createNewRow(oButton, tr);
+}
+
+function appendNewRow(oButton) {
+    const emptyTable = document.getElementById('emptyTable');
+    var rowCount = emptyTable.rows.length;
+    var newRow = emptyTable.insertRow(rowCount);
+    createNewRow(oButton, newRow);
+
+    var previousRowNumber = emptyTable.rows.item(rowCount - 1).cells[0].innerHTML
+
+    var previousRowNumberList = previousRowNumber.split('.');
+    var newRowNumber = Number(previousRowNumberList[0]) + 1;
+    newRow.childNodes[0].innerHTML = newRowNumber;
+
+    newRow.childNodes[1].childNodes[0].id = `expression-${newRowNumber}`
+    newRow.childNodes[2].childNodes[0].id = `justification-${newRowNumber}`
+
+}
+
 
 // function to insert a new row for a sub proof
 function beginSubproof(oButton) {
 
-    const myList = oButton.parentNode.parentNode.parentNode;
-    const myItem = oButton.parentNode.parentNode;
-    var tr = document.createElement('tr');
-    tr = createNewRow(oButton, tr);
-    myList.insertBefore(tr, myItem.nextSibling);
+    const emptyTable = document.getElementById('emptyTable').childNodes[0];
+    const rowOfClickedButton = oButton.parentNode.parentNode;
+    var newRow = document.createElement('tr');
+    newRow = createNewRow(oButton, newRow);
+    emptyTable.insertBefore(newRow, rowOfClickedButton.nextSibling);
 
-    var value = myItem.childNodes[0].innerHTML;
-    myItem.childNodes[0].innerHTML = `${value}.1`;
-    tr.childNodes[0].innerHTML = `${value}.2`;
+    var newRowPrefix = rowOfClickedButton.childNodes[0].innerHTML;
+    rowOfClickedButton.childNodes[0].innerHTML = `${newRowPrefix}.1`;
+    newRow.childNodes[0].innerHTML = `${newRowPrefix}.2`;
+
 }
 
 function insertRowCurrentLevel(oButton) {
 
     //Insert a new row into the table beneath the current element
 
-    var emptyTable = document.getElementById('emptyTable').childNodes[0];
+    const emptyTable = document.getElementById('emptyTable').childNodes[0];
     const rowOfClickedButton = oButton.parentNode.parentNode;
-
     var newRow = document.createElement('tr');
     newRow = createNewRow(oButton, newRow);
     emptyTable.insertBefore(newRow, rowOfClickedButton.nextSibling);
@@ -232,12 +249,15 @@ function removeRow(oButton) {
     var finalElementOfRowNumberOfClickedButton = rowNumberOfClickedButtonList.slice(-1);
     var prefixValuesString = prefixValuesList.join('.')
 
-    // Find the prefix of the next value to see if we have deleted the last element of a subproof
-    var nextRowNumber = rowOfClickedButton.nextSibling.childNodes[0].innerHTML;
-    var nextRowNumberList = nextRowNumber.split('.');
-    var prefixOfNextRowValueList = nextRowNumberList.slice(0, -1);
-    var prefixNextRowValuesString = prefixOfNextRowValueList.join('.')
 
+    var prefixNextRowValuesString = "";
+    if (rowOfClickedButton.rowIndex !== emptyTable.rows.length - 1) {
+        // Find the prefix of the next value to see if we are deleting the last element of a subproof
+        var nextRowNumber = rowOfClickedButton.nextSibling.childNodes[0].innerHTML;
+        var nextRowNumberList = nextRowNumber.split('.');
+        var prefixOfNextRowValueList = nextRowNumberList.slice(0, -1);
+        var prefixNextRowValuesString = prefixOfNextRowValueList.join('.')
+    }
     var startingPoint = rowOfClickedButton.rowIndex;
 
     emptyTable.deleteRow(rowOfClickedButton.rowIndex);
@@ -254,8 +274,6 @@ function removeRow(oButton) {
     }
 
 }
-
-
 
 
 
