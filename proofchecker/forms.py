@@ -8,8 +8,15 @@ class ProofForm(forms.ModelForm):
         model = Proof
         fields = ['premise', 'conclusion']
 
+# class ProofForm(forms.Form):
+#     premise = forms.CharField(max_length=255)
+#     conclusion = forms.CharField(max_length=255)
+#
+#     def clean(self):
+#         cleaned_data = self.cleaned_data
+#         return cleaned_data
 
-class ProofLineForm(forms.Form):
+class ProofLineForm(forms.ModelForm):
     class Meta:
         model = ProofLine
         fields = ['line_no', 'formula', 'rule']
