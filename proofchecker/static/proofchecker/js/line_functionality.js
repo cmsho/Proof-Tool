@@ -192,70 +192,29 @@ function insertRowCurrentLevel(oButton) {
     // Split the rowNumberOfClickedButton into prefix and last digit
     var rowNumberOfClickedButtonList = rowNumberOfClickedButton.split('.');
 
-    var prefixValuesList = rowNumberOfClickedButtonList.slice(0, -1);
-    var indexOfChangingElement = prefixValuesList.length;
+    var prefixValueList = rowNumberOfClickedButtonList.slice(0, -1);
+    var indexOfChangingElement = prefixValueList.length;
 
     // If it has no subproof numbering then add one to the previous row number
-    if (prefixValuesList.length == 0) {
+    if (prefixValueList.length == 0) {
         newRow.childNodes[0].innerHTML = `${Number(rowNumberOfClickedButton) + 1}`;
 
         // If is has subproof number then take the last number and add one to it
     } else {
-        var prefixValuesString = prefixValuesList.join('.')
+        var prefixValuesString = prefixValueList.join('.')
         var lastValue = rowNumberOfClickedButtonList.at(-1);
         newRow.childNodes[0].innerHTML = `${prefixValuesString}.${Number(lastValue) + 1}`;
     }
 
-    var prefixValuesString = prefixValuesList.join('.')
+    var prefixValuesString = prefixValueList.join('.')
 
     var startingPoint = newRow.rowIndex + 1;
 
-    renumberAllRows(startingPoint, prefixValuesList);
+    renumberRows(1, startingPoint, prefixValueList);
 
     return;
 }
 
-// function to renumber both parent rows and rows with sub proofs
-function renumberAllRows(startingPoint, prefixValuesList) {
-    var myTable = document.getElementById('emptyTable');
-
-    // console.log(startingPoint);
-    var indexOfChangingElement = prefixValuesList.length;
-    var prefixValues = prefixValuesList.join('.');
-
-    for (var row = startingPoint; row < myTable.rows.length; row++) {
-        var currentRowNumber = myTable.rows.item(row).cells[0].innerHTML;
-
-        var currentRowNumberList = currentRowNumber.split('.');
-
-
-        if (currentRowNumber.startsWith(prefixValues)) {
-
-            currentRowNumberList[indexOfChangingElement] = Number(currentRowNumberList[indexOfChangingElement]) + 1;
-            var newRowNumber = currentRowNumberList.join('.');
-
-            for (var cellCount = 0; cellCount < myTable.rows[row].cells.length; cellCount++) {
-
-                var element = myTable.rows.item(row).cells[cellCount];
-
-                // Update the row number
-                if (cellCount == 0) {
-                    element.innerText = newRowNumber;
-                }
-
-                // Update the expression id
-                if (cellCount == 1) {
-                    element.childNodes[0].id = `expression-${newRowNumber}`;
-                }
-
-                // Update the justification id
-                if (cellCount == 2) {
-                    element.childNodes[0].id = `justification-${newRowNumber}`;
-                }
-            }
-        }
-    }
-}
 
 // function to delete a row.
 function removeRow(oButton) {
@@ -275,20 +234,15 @@ function removeRow(oButton) {
 
     // Find the prefix of the next value to see if we have deleted the last element of a subproof
     var nextRowNumber = rowOfClickedButton.nextSibling.childNodes[0].innerHTML;
-    console.log("Next row");
-    console.log(nextRowNumber);
     var nextRowNumberList = nextRowNumber.split('.');
     var prefixOfNextRowValueList = nextRowNumberList.slice(0, -1);
     var prefixNextRowValuesString = prefixOfNextRowValueList.join('.')
-
-
 
     var startingPoint = rowOfClickedButton.rowIndex;
 
     emptyTable.deleteRow(rowOfClickedButton.rowIndex);
 
-    renumberAllRowsAfterDelete(startingPoint, prefixValuesList);
-
+    renumberRows(-1, startingPoint, prefixValuesList);
 
     // If we have deleted a sub proof then we need to upate the numbers after
     if (finalElementOfRowNumberOfClickedButton == "1" & !prefixNextRowValuesString.startsWith(prefixValuesString)) {
@@ -296,32 +250,32 @@ function removeRow(oButton) {
         if (prefixValuesList.length == prefixOfNextRowValueList.length) {
             prefixOfNextRowValueList.pop();
         }
-        renumberAllRowsAfterDelete(startingPoint, prefixOfNextRowValueList);
+        renumberRows(-1, startingPoint, prefixOfNextRowValueList);
     }
 
 }
 
 
 
-function renumberAllRowsAfterDelete(startingPoint, prefixValuesList) {
+
+
+function renumberRows(direction, startingPoint, prefixValueList) {
     var myTable = document.getElementById('emptyTable');
 
-    // console.log(startingPoint);
-    var indexOfChangingElement = prefixValuesList.length;
-    var prefixValues = prefixValuesList.join('.');
+    var indexOfChangingElement = prefixValueList.length;
+    var prefixValues = prefixValueList.join('.');
 
-    console.log([startingPoint, myTable.rows.length - 1]);
+    var counter = (direction == 1) ? startingPoint : myTable.rows.length - 1;
+    var stoppingPoint = (direction == 1) ? myTable.rows.length : startingPoint - 1;
 
-    // for (var row = startingPoint; row < myTable.rows.length; row++) {
-    for (var row = myTable.rows.length - 1; row >= startingPoint; row--) {
+    for (var row = counter; row != stoppingPoint; row += direction) {
 
         var currentRowNumber = myTable.rows.item(row).cells[0].innerHTML;
-
         var currentRowNumberList = currentRowNumber.split('.');
 
         if (currentRowNumber.startsWith(prefixValues)) {
 
-            currentRowNumberList[indexOfChangingElement] = Number(currentRowNumberList[indexOfChangingElement]) - 1;
+            currentRowNumberList[indexOfChangingElement] = Number(currentRowNumberList[indexOfChangingElement]) + direction;
             var newRowNumber = currentRowNumberList.join('.');
 
             for (var cellCount = 0; cellCount < myTable.rows[row].cells.length; cellCount++) {
@@ -346,6 +300,7 @@ function renumberAllRowsAfterDelete(startingPoint, prefixValuesList) {
         }
     }
 }
+
 
 function concludeSubproof(oButton) {
 
@@ -406,7 +361,7 @@ function concludeSubproof(oButton) {
 
     var startingPoint = newRow.rowIndex + 1;
 
-    renumberAllRows(startingPoint, prefixOfNewRowNumberList);
+    renumberRows(1, startingPoint, prefixOfNewRowNumberList)
 
 }
 
