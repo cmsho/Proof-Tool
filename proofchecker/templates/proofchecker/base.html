@@ -7,15 +7,15 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
+{#    <!-- Bootstrap CSS -->#}
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
-    <!-- FontAwesome -->
+{#    <script src="{% static 'js/bootstrap.min.js' %}"></script>#}
+{#    <!-- FontAwesome -->#}
     <link rel="stylesheet" href="{% static 'fa/css/all.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
     <!-- <script src="{% static 'js/symbol_replacement.js' %}"></script> -->
 
-    <link rel="stylesheet" type="text/css" href="{% static 'css/user_input.css' %}">
+{#    <link rel="stylesheet" type="text/css" href="{% static 'css/user_input.css' %}">#}
     <link rel="stylesheet" type="text/css" href="{% static 'css/right_menu_navigation.css' %}">
 
     <script src="{% static 'js/right_menu_navigation.js' %}"></script>
@@ -37,6 +37,8 @@
             <a href="#">Courses</a>
             <br>
             <a href="{% url 'all_assignments' %}">Assignments</a>
+            <br>
+            <a href="{% url 'all_proofs' %}">Proofs</a>
             <br>
             <a href="{% url 'logout' %}">Logout</a>
             {% else %}

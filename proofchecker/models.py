@@ -32,7 +32,7 @@ class Proof(models.Model):
         return f"proof for premise : {self.premise}  conclusion {self.conclusion} "
 
     def get_absolute_url(self):
-        return reverse('proof_detail', kwargs={'pk': self.pk})
+        return "/proofs/"
 
 
 class ProofLine(models.Model):
