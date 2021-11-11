@@ -135,7 +135,7 @@ def verify_rule(current_line: ProofLineObj, proof: ProofObj):
 
     if rule.casefold() == 'premise':
         return verify_premise(current_line, proof)
-    elif rule.casefold() == ('assumption' or 'assumpt'):
+    elif (rule.casefold() == 'assumption') or (rule.casefold() == 'assumpt'):
         return verify_assumption(current_line)
     elif rule.casefold() == 'x':
         return verify_explosion(current_line, proof)
@@ -421,7 +421,7 @@ def verify_and_intro(current_line: ProofLineObj, proof: ProofObj):
             root_current = make_tree(current_line.expression)
 
             # Compare the trees
-            if root_current == (root_m_and_n or root_n_and_m):
+            if (root_current == root_m_and_n) or (root_current == root_n_and_m):
                 response.is_valid = True
                 return response
             else:
@@ -467,7 +467,7 @@ def verify_and_elim(current_line: ProofLineObj, proof: ProofObj):
             root_current = make_tree(current_line.expression)
 
             # Compare the trees
-            if root_current == (root_left or root_right):
+            if (root_current == root_left) or (root_current == root_right):
                 response.is_valid = True
                 return response
             else:
@@ -513,7 +513,7 @@ def verify_or_intro(current_line: ProofLineObj, proof: ProofObj):
             root_right = root_current.right
 
             # Compare the trees
-            if root_target == (root_left or root_right):
+            if (root_target == root_left) or (root_target == root_right):
                 response.is_valid = True
                 return response
             else:
