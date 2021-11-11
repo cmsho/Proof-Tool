@@ -689,19 +689,51 @@ class ProofTests(TestCase):
         result = verify_rule(line3, proof)
         self.assertEqual(result.is_valid, True)
 
-    def test_verify_proof(self):
+
+    def test_verify_proof_with_valid_proof(self):
         """
-        Test that the verify_proof function is working properly
+        Test that the verify_proof function returns is_valid == True
+        when provided with a valid proof
         """
-        # Test a valid proof returns True
+        # And Intro
         line1 = ProofLineObj(1, 'A', 'Premise')
         line2 = ProofLineObj(2, 'B', 'Premise')
         line3 = ProofLineObj(3, 'A∧B', '∧I 1, 2')
-        proof = ProofObj(premises=['A', 'B'], lines=[])
+        proof = ProofObj(premises=['A', 'B'], conclusion='A∧B', lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_proof(proof)
         self.assertEqual(result.is_valid, True)
+        self.assertEqual(result.err_msg, None)
 
+        # And Elim
+        line1 = ProofLineObj(1, 'A∧B', 'Premise')
+        line2 = ProofLineObj(2, 'A', '∧E 1')
+        proof = ProofObj(premises='A∧B', conclusion='A', lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_proof(proof)
+        self.assertEqual(result.is_valid, True)
+        self.assertEqual(result.err_msg, None)
+
+        # Or Intro/Elim
+        line1 = ProofLineObj('1', 'AvB', 'Premise')
+        line2 = ProofLineObj('2.1', 'A', 'Assumption')
+        line3 = ProofLineObj('2.2', 'AvB', 'vI 2.1')
+        line4 = ProofLineObj('3.1', 'B', 'Assumption')
+        line5 = ProofLineObj('3.2', 'AvB', 'vI 3.1')
+        line6 = ProofLineObj('4', 'AvB', 'vE 1, 2.1-2.2, 3.1-3.2')
+        proof = ProofObj(premises='AvB', conclusion='AvB', lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        result = verify_proof(proof)
+        self.assertEqual(result.is_valid, True)
+        self.assertEqual(result.err_msg, None)
+
+
+    def test_verify_proof_with_invalid_proof(self):
+        """
+        Test that the verify_proof function returns is_valid == False
+        when provided with an invalid proof
+        (and that the err_msg is appropriate)
+        """
         # Test a proof with an invalid character
         line1 = ProofLineObj(1, 'Hello', 'Premise')
         proof = ProofObj(premises='Hello', lines=[])

@@ -125,13 +125,33 @@ def verify_proof(proof: ProofObj):
         response.err_msg = "All lines are valid, but the proof is incomplete"
         return response
 
+def clean_rule(rule: str):
+    """
+    Replace symbols to clean the rule for rule verification
+    """
+    if rule[0] in '^&':
+        clean_rule = '∧' + rule[1:len(rule)]
+        return clean_rule
+    if rule[0] == 'v':
+        clean_rule = '∨' + rule[1:len(rule)]
+        return clean_rule
+    if rule[0] in '~-':
+        clean_rule = '¬' + rule[1:len(rule)]
+        return clean_rule
+    if (rule[0] == '>') or (rule[0:2] == '->'):
+        clean_rule = '→' + rule[1:len(rule)]
+        return clean_rule
+    return rule
+            
+    
+    CONNECTIVES = ['∧', '∨', '¬', '→', '↔']
 
 def verify_rule(current_line: ProofLineObj, proof: ProofObj):
     """
     Determines what rule is being applied, then calls the appropriate
     function to verify the rule is applied correctly
     """
-    rule = current_line.rule
+    rule = clean_rule(current_line.rule)
 
     if rule.casefold() == 'premise':
         return verify_premise(current_line, proof)
@@ -415,7 +435,7 @@ def verify_explosion(current_line: ProofLineObj, proof: ProofObj):
     Verify proper implementation of the rule X m
     (Explosion)
     """
-    rule = current_line.rule
+    rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
     # Attempt to find line m
@@ -453,7 +473,7 @@ def verify_and_intro(current_line: ProofLineObj, proof: ProofObj):
     Verify proper implementation of the rule ∧I m, n
     (Conjunction Introduction)
     """
-    rule = current_line.rule
+    rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
     # Attempt to find lines (m, n) 
@@ -503,7 +523,7 @@ def verify_and_elim(current_line: ProofLineObj, proof: ProofObj):
     Verify proper implementation of the rule ∧E m
     (Conjunction Elimination)
     """
-    rule = current_line.rule
+    rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
     # Attempt to find line m 
@@ -549,7 +569,7 @@ def verify_or_intro(current_line: ProofLineObj, proof: ProofObj):
     Verify proper implementation of the rule ∨I m
     (Disjunction Introduction)
     """
-    rule = current_line.rule
+    rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
     # Attempt to find line m
@@ -596,7 +616,7 @@ def verify_or_elim(current_line: ProofLineObj, proof: ProofObj):
     Verify proper implementation of the rule ∨E m, i-j, k-l
     (Disjunction Elimination)
     """
-    rule = current_line.rule
+    rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
     # Attempt to find lines (m, i-j, k-l)
@@ -663,7 +683,7 @@ def verify_not_intro(current_line: ProofLineObj, proof: ProofObj):
     Verify proper implementation of the rule ¬I m-n
     (Negation Introduction)
     """
-    rule = current_line.rule
+    rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
     # Attempt to find lines (i-j)
@@ -718,7 +738,7 @@ def verify_not_elim(current_line: ProofLineObj, proof: ProofObj):
     Verify proper implementation of the rule ¬E m, n
     (Negation Elimination)
     """
-    rule = current_line.rule
+    rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
     # Attempt to find lines (m, n)
@@ -773,7 +793,7 @@ def verify_implies_intro(current_line: ProofLineObj, proof: ProofObj):
     Verify proper implementation of the rule →I m-n
     (Conditional Introduction)
     """
-    rule = current_line.rule
+    rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
     # Attempt to find lines m-n
@@ -816,7 +836,7 @@ def verify_implies_elim(current_line: ProofLineObj, proof: ProofObj):
     Verify proper implementation of the rule →E m, n
     (Conditional Elimination (Modus Ponens))
     """
-    rule = current_line.rule
+    rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
     # Attempt to find lines (m, n) 
@@ -862,7 +882,7 @@ def verify_indirect_proof(current_line: ProofLineObj, proof: ProofObj):
     Verify proper implementation of the rule IP i-j
     (Indirect Proof)
     """
-    rule = current_line.rule
+    rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
     # Attempt to find lines i-j
