@@ -3,9 +3,27 @@
 {% block content %}
     <a href="{% url 'add_proof' %}"> Add a new Proof </a>
     <hr>
-    {% for object in object_list %}
-        <li>{{ object.premises }}, {{ object.conclusion }}</li>
-        <a href="{% url 'update_proof' object.id %}"> Edit </a>
-        <a href="{% url 'delete_proof' object.id %}"> Delete </a></p>
-    {% endfor %}
+
+    <div class="container">
+        <div class="row">
+            {% for object in object_list %}
+            <div class="col">
+                <div class="card bg-light mb-3" style="width: 18rem;">
+                    <div class="card-header">
+                        <h5 style="text-align: center"><b>Proof {{ object.id }}</b></h5>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><b>Premises:</b> {{ object.premises }}</li>
+                        <li class="list-group-item"><b>Conclusion:</b> {{ object.conclusion }}</li>
+                        <li class="list-group-item"><b>Lines:</b> {{ object.proofline_set.count }} </li>
+                    </ul>
+                    <div class="card-body">
+                    <a href="{% url 'update_proof' object.id %}" class="card-link"> Edit </a>
+                    <a href="{% url 'delete_proof' object.id %}" class="card-link"> Delete </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}
