@@ -7,7 +7,6 @@ from .json_to_object import ProofTemp
 from .proof import ProofObj, ProofLineObj, verify_proof, find_premises
 
 
-# Create your views here.
 def home(request):
     proofs = Proof.objects.all()
     context = {"proofs": proofs}
@@ -17,7 +16,8 @@ def home(request):
 def AssignmentPage(request):
     return render(request, "proofchecker/assignment_page.html")
 
-def ProofChecker(request):
+
+def proof_checker(request):
     ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0)
     qs = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
@@ -75,23 +75,6 @@ def ProofChecker(request):
     }
     return render(request, 'proofchecker/proof_checker.html', context)
 
-# class HomeView(TemplateView):
-#     template_name = "proofchecker/home.html"
-#
-#     def get_context_data(self):
-#         context = super().get_context_data()
-#         context["proofs"] = Proof.objects.all()
-#         return context
-
-
-class ProofView(ListView):
-    model = Proof
-    template_name = "proofchecker/allproofs.html"
-
-
-class ProofDetailView(DetailView):
-    model = Proof
-
 
 def proof_create_view(request):
     ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0)
@@ -122,10 +105,10 @@ def proof_create_view(request):
                 proof.lines.append(proofline)
             # Verify the proof!
             response = verify_proof(proof)
-            if response.is_valid:
-                response_text = "validation successful!"
-            else:
+            if response.err_msg:
                 response_text = response.err_msg
+            else:
+                response_text = 'The proof is valid and complete!'
             print("\nPROOF.IS_VALID: " + str(response.is_valid))
             print("ERROR MESSAGE: " + str(response.err_msg))
         elif 'submit' in request.POST:
@@ -136,7 +119,7 @@ def proof_create_view(request):
                 child = f.save(commit=False)
                 child.proof = parent
                 child.save()
-            response_text = "proof added successfully!"
+            response_text = "Proof saved successfully!"
 
     context = {
         "form": form,
@@ -178,10 +161,10 @@ def proof_update_view(request, pk=None):
                 proof.lines.append(proofline)
             # Verify the proof!
             response = verify_proof(proof)
-            if response.is_valid:
-                response_text = "validation successful!"
-            else:
+            if response.err_msg:
                 response_text = response.err_msg
+            else:
+                response_text = 'The proof is valid and complete!'
             print("\nPROOF.IS_VALID: " + str(response.is_valid))
             print("ERROR MESSAGE: " + str(response.err_msg))
         elif 'submit' in request.POST:
@@ -192,7 +175,7 @@ def proof_update_view(request, pk=None):
                 child = f.save(commit=False)
                 child.proof = parent
                 child.save()
-            response_text = "proof saved successfully!"
+            response_text = "Proof saved successfully!"
 
     context = {
         "form": form,
@@ -204,67 +187,13 @@ def proof_update_view(request, pk=None):
     return render(request, 'proofchecker/proof_add_edit.html', context)
 
 
-def proof_create_view_temp(request):
-    if request.method == 'POST':
-        # new_premise = request.POST.get('premise')
-        # new_conclusion = request.POST.get('conclusion')
-        # new_proof_text = request.POST.get('proof_text')
-        # new_proof = Proof.objects.create(premise=new_premise, conclusion=new_conclusion,
-        #                                  created_by=request.user)
-        # new_proof.save()
-
-        req_body = '''{
-                                    "premises": ["A", "B"],
-                                    "conclusion": "A∧B",
-                                    "lines": [{
-                                            "line_no": "1",
-                                            "expression": "A",
-                                            "rule": "Premise"
-                                        },
-                                        {
-                                            "line_no": "2",
-                                            "expression": "B",
-                                            "rule": "Premise"
-                                        },
-                                        {
-                                            "line_no": "3",
-                                            "expression": "A∧B",
-                                            "rule": "∧I 1, 2"
-                                        }
-                                    ]
-                            }'''
-        jsonProof = ProofTemp.from_json(req_body)
-
-        modelProof = Proof.objects.create(premises=jsonProof.premises, conclusion=jsonProof.conclusion,
-                                          created_by=request.user)
-        modelProof.save()
-
-        for line in jsonProof.lines:
-            print(line)
-            modelLine = ProofLine.objects.create(proof_id=modelProof.id, line_no=line['line_no'],
-                                                 formula=line['expression'], rule=line['rule'])
-            modelLine.save()
-
-        print(jsonProof.premises)
-
-    return render(request, 'proofchecker/proof_add_edit.html')
+class ProofView(ListView):
+    model = Proof
+    template_name = "proofchecker/allproofs.html"
 
 
-# class ProofCreateView(CreateView):
-#     model = Proof
-#     template_name = "proofchecker/proof_add_edit.html"
-#     form_class = ProofForm
-#
-#     def form_valid(self, form):
-#         form.instance.created_by = self.request.user
-#         return super().form_valid(form)
-#
-#
-# class ProofUpdateView(UpdateView):
-#     model = Proof
-#     template_name = "proofchecker/proof_add_edit.html"
-#     form_class = ProofForm
-
+class ProofDetailView(DetailView):
+    model = Proof
 
 class ProofDeleteView(DeleteView):
     model = Proof

@@ -16,7 +16,6 @@ urlpatterns = [
     path("proofs/<pk>/update/", views.proof_update_view, name="update_proof"),
     path("proofs/<pk>/delete/", views.ProofDeleteView.as_view(), name="delete_proof"),
     path("proofs/assignmentpage/", views.AssignmentPage, name='assignment_page'),
-    path("proofs/checker/", views.ProofChecker, name='proof_checker'),
-    path("proofs/temp", views.proof_create_view_temp, name='json_to_object'),
+    path("proofs/checker/", views.proof_checker, name='proof_checker'),
 
 ]
