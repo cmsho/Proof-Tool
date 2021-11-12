@@ -6,12 +6,16 @@
             display: none;
         }
     </style>
-    <h2>Add a new proof</h2>
+    <h2>Proof Details</h2>
     <hr>
+    {% if response %}
+        <p> <strong>RESULT:</strong> {{ response }} </p>
+        <hr>
+    {% endif %}
     <form action="" method="post">
         <div>
             {% csrf_token %}
-            {{ form.as_table     }}
+            {{ form.as_table }}
         </div>
         <hr>
         {% if formset %}
@@ -28,9 +32,10 @@
         {% endif %}
         <hr>
         <input type="text" class="hidden" id="check-proof">
-        <button type="button">Check Proof</button>
-        <button type="submit">Save</button>
+        <button name="check_proof" type="submit">Check Proof</button>
+        <button name="submit" type="submit">Save</button>
     </form>
+
     <script type="text/javascript">
         const addMoreBtn = document.getElementById("add-more")
         const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
