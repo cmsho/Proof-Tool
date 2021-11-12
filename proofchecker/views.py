@@ -98,21 +98,52 @@ def proof_create_view(request):
     qs = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
     formset = ProofLineFormset(request.POST or None, queryset=qs)
+    response_text = None
 
     if all([form.is_valid(), formset.is_valid()]):
-        parent = form.save(commit=False)
-        parent.created_by = request.user
-        parent.save()
-        for form in formset:
-            child = form.save(commit=False)
-            child.proof = parent
-            child.save()
-        return redirect(parent.get_absolute_url())
+        if 'check_proof' in request.POST:
+            print("check_proof clicked")
+            proof = ProofObj(lines=[])
+            parent = form.save(commit=False)
+            proof.premises = find_premises(parent.premises)
+            print('\nPREMISES: ' + str(proof.premises))
+            proof.conclusion = str(parent.conclusion)
+            print('CONCLUSION: ' + proof.conclusion + '\n')
+            for line in formset:
+                proofline = ProofLineObj()
+                child = line.save(commit=False)
+                child.proof = parent
+                proofline.line_no = str(child.line_no)
+                print('LINE #: ' + proofline.line_no)
+                proofline.expression = str(child.formula)
+                print('\t EXPRESSION: ' + proofline.expression)
+                proofline.rule = str(child.rule)
+                print('\t RULE: ' + proofline.rule)
+                proof.lines.append(proofline)
+            # Verify the proof!
+            response = verify_proof(proof)
+            if response.is_valid:
+                response_text = "validation successful!"
+            else:
+                response_text = response.err_msg
+            print("\nPROOF.IS_VALID: " + str(response.is_valid))
+            print("ERROR MESSAGE: " + str(response.err_msg))
+        elif 'submit' in request.POST:
+            parent = form.save(commit=False)
+            parent.created_by = request.user
+            parent.save()
+            for f in formset:
+                child = f.save(commit=False)
+                child.proof = parent
+                child.save()
+            response_text = "proof added successfully!"
 
     context = {
         "form": form,
-        "formset": formset
+        "formset": formset,
+        "response": response_text
     }
+
     return render(request, 'proofchecker/proof_add_edit.html', context)
 
 
@@ -123,22 +154,53 @@ def proof_update_view(request, pk=None):
     form = ProofForm(request.POST or None, instance=obj)
     ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0)
     formset = ProofLineFormset(request.POST or None, queryset=qs)
+    response_text = None
+
+    if all([form.is_valid(), formset.is_valid()]):
+        if 'check_proof' in request.POST:
+            print("check_proof clicked")
+            proof = ProofObj(lines=[])
+            parent = form.save(commit=False)
+            proof.premises = find_premises(parent.premises)
+            print('\nPREMISES: ' + str(proof.premises))
+            proof.conclusion = str(parent.conclusion)
+            print('CONCLUSION: ' + proof.conclusion + '\n')
+            for line in formset:
+                proofline = ProofLineObj()
+                child = line.save(commit=False)
+                child.proof = parent
+                proofline.line_no = str(child.line_no)
+                print('LINE #: ' + proofline.line_no)
+                proofline.expression = str(child.formula)
+                print('\t EXPRESSION: ' + proofline.expression)
+                proofline.rule = str(child.rule)
+                print('\t RULE: ' + proofline.rule)
+                proof.lines.append(proofline)
+            # Verify the proof!
+            response = verify_proof(proof)
+            if response.is_valid:
+                response_text = "validation successful!"
+            else:
+                response_text = response.err_msg
+            print("\nPROOF.IS_VALID: " + str(response.is_valid))
+            print("ERROR MESSAGE: " + str(response.err_msg))
+        elif 'submit' in request.POST:
+            print("submit button clicked")
+            parent = form.save(commit=False)
+            parent.save()
+            for f in formset:
+                child = f.save(commit=False)
+                child.proof = parent
+                child.save()
+            response_text = "proof saved successfully!"
 
     context = {
         "form": form,
         "formset": formset,
-        "object": obj
+        "object": obj,
+        "response": response_text
     }
 
-    if all([form.is_valid(), formset.is_valid()]):
-        parent = form.save(commit=False)
-        parent.save()
-        for form in formset:
-            child = form.save(commit=False)
-            child.proof = parent
-            child.save()
-
-        return redirect(obj.get_absolute_url())
     return render(request, 'proofchecker/proof_add_edit.html', context)
 
 
