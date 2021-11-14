@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from .proof import ProofObj, ProofLineObj, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_line_citation, verify_explosion, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
-    verify_not_elim, verify_indirect_proof, verify_premise, verify_rule, verify_proof, depth
+    verify_not_elim, verify_indirect_proof, verify_premise, verify_reiteration, verify_rule, verify_proof, depth
 from .utils import numparse
 from .utils import tflparse as yacc
 from .utils.binarytree import Node, tree_to_string, string_to_tree
@@ -240,6 +240,26 @@ class ProofTests(TestCase):
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Line 1 should be '⊥' (Contradiction)")
 
+    def test_verify_reiteration(self):
+        """
+        Test that the function verify_reiteration is working properly
+        """
+        # Test with proper input
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'A', 'R 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_reiteration(line2, proof)
+        self.assertEqual(result.is_valid, True)
+
+        # Test with unequivalent expressions
+        line1 = ProofLineObj(1, 'A', 'Premise')
+        line2 = ProofLineObj(2, 'B', 'R 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_reiteration(line2, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'Lines 1 and 2 are not equivalent')        
 
     def test_verify_and_intro(self):
         """

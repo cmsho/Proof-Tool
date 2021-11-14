@@ -334,9 +334,9 @@ def find_line(rule: str, proof: ProofObj):
             break
     return target_line
 
-def find_line_explosion(rule: str, proof: ProofObj):
+def find_line_x_r(rule: str, proof: ProofObj):
     """
-    Find a single line from the TFL rule explosion
+    Find a single line from the TFL rules X and R
     """
     target_line_no = rule[2:len(rule)]
     target_line_no = target_line_no.strip()
@@ -430,6 +430,45 @@ def verify_assumption(current_line: ProofLineObj):
         response.err_msg = 'One or more invalid line numbers.'
         return response
 
+def verify_reiteration(current_line: ProofLineObj, proof: ProofObj):
+    """
+    Verify proper impelmentation of the rule R m
+    (Reiteration)
+    """
+    rule = clean_rule(current_line.rule)
+    response = ProofResponse()
+
+    # Attempt to find line m
+    try:
+        target_line = find_line_x_r(rule, proof)
+
+        # Verify if line citation is valid
+        result = verify_line_citation(current_line, target_line)
+        if result.is_valid == False:
+            return result
+
+        try: 
+            expression = target_line.expression
+            root_m = make_tree(expression)
+            current = make_tree(current_line.expression)
+
+            # Verify line m and current line are equivalent
+            if (root_m == current):
+                response.is_valid = True
+                return response
+            else:
+                response.err_msg = "Lines {} and {} are not equivalent"\
+                    .format(str(target_line.line_no), str(current_line.line_no))
+                return response
+
+        except:
+            response.err_msg = "Line numbers are not specified correctly.  Reiteration: R m"
+            return response      
+
+    except:
+        response.err_msg = "Rule not formatted properly.  Reiteration: R m"
+        return response 
+
 def verify_explosion(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify proper implementation of the rule X m
@@ -440,7 +479,7 @@ def verify_explosion(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find line m
     try:
-        target_line = find_line_explosion(rule, proof)
+        target_line = find_line_x_r(rule, proof)
 
         # Verify if line citation is valid
         result = verify_line_citation(current_line, target_line)
@@ -465,7 +504,7 @@ def verify_explosion(current_line: ProofLineObj, proof: ProofObj):
             return response      
 
     except:
-        response.err_msg = "Rule not formatted properly.  Conjunction Elimination: X m"
+        response.err_msg = "Rule not formatted properly.  Explosion: X m"
         return response 
 
 def verify_and_intro(current_line: ProofLineObj, proof: ProofObj):
