@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .proof import ProofObj, ProofLineObj, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_iff_intro, verify_line_citation, verify_explosion, verify_or_intro, \
+from .proof import ProofObj, ProofLineObj, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_iff_elim, verify_iff_intro, verify_line_citation, verify_explosion, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
     verify_not_elim, verify_indirect_proof, verify_premise, verify_reiteration, verify_rule, verify_proof, depth
 from .utils import numparse
@@ -695,6 +695,58 @@ class ProofTests(TestCase):
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, 'Invalid introduction on line 3')
 
+    def test_verify_iff_elim(self):
+        """
+        Test that the verify_iff_elim function is working properly
+        """
+        # Test with valid input
+        line1 = ProofLineObj(1, 'A↔B', 'Assumption')
+        line2 = ProofLineObj(2, 'A', 'Assumption')
+        line3 = ProofLineObj(3, 'B', '↔E 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_iff_elim(line3, proof)
+        self.assertEqual(result.is_valid, True)
+        self.assertEqual(result.err_msg, None)
+
+        line1 = ProofLineObj(1, 'A↔B', 'Assumption')
+        line2 = ProofLineObj(2, 'B', 'Assumption')
+        line3 = ProofLineObj(3, 'A', '↔E 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_iff_elim(line3, proof)
+        self.assertEqual(result.is_valid, True)
+        self.assertEqual(result.err_msg, None)
+
+        # Test with invalid input
+        line1 = ProofLineObj(1, 'A↔B', 'Assumption')
+        line2 = ProofLineObj(2, 'A', 'Assumption')
+        line3 = ProofLineObj(3, 'A', '↔E 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_iff_elim(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "The expressions on lines 2 and 3 do not represent both the left and right side of the expression on line 1")
+
+        # Test with invalid input
+        line1 = ProofLineObj(1, 'A↔B', 'Assumption')
+        line2 = ProofLineObj(2, 'C', 'Assumption')
+        line3 = ProofLineObj(3, 'A', '↔E 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_iff_elim(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "The expression on line 2 does not represent the left or right side of the expression on line 1")
+
+        # Test with invalid input
+        line1 = ProofLineObj(1, 'A↔B', 'Assumption')
+        line2 = ProofLineObj(2, 'A', 'Assumption')
+        line3 = ProofLineObj(3, 'C', '↔E 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_iff_elim(line3, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "The expression on line 3 does not represent the left or right side of the expression on line 1")
 
     def test_verify_rule(self):
         """
