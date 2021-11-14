@@ -143,9 +143,6 @@ def clean_rule(rule: str):
         clean_rule = '→' + rule[1:len(rule)]
         return clean_rule
     return rule
-            
-    
-    CONNECTIVES = ['∧', '∨', '¬', '→', '↔']
 
 def verify_rule(current_line: ProofLineObj, proof: ProofObj):
     """
@@ -158,8 +155,12 @@ def verify_rule(current_line: ProofLineObj, proof: ProofObj):
         return verify_premise(current_line, proof)
     elif (rule.casefold() == 'assumption') or (rule.casefold() == 'assumpt'):
         return verify_assumption(current_line)
-    elif rule.casefold() == 'x':
+    elif rule[0].casefold() == 'x':
         return verify_explosion(current_line, proof)
+    elif rule[0].casefold() == 'r':
+        return verify_reiteration(current_line, proof)
+    elif rule[0:3].casefold() == 'dne':
+        return verify_double_not_elim(current_line, proof)
     else:
         rule_type = rule[0:2]
         match rule_type:
@@ -181,6 +182,11 @@ def verify_rule(current_line: ProofLineObj, proof: ProofObj):
                 return verify_implies_elim(current_line, proof)
             case 'IP':
                 return verify_indirect_proof(current_line, proof)
+            case '↔I':
+                return verify_iff_intro(current_line, proof)
+            case '↔E':
+                return verify_iff_elim(current_line, proof)
+
     
     # If we reach this point, rule cannot be determined
     response = ProofResponse()
@@ -1101,4 +1107,56 @@ def verify_iff_elim(current_line: ProofLine, proof: ProofObj):
 
     except:
         response.err_msg = "Rule is not formatted properly.  Biconditional Elimination: ↔E m, n"
+        return response
+
+def verify_double_not_elim(current_line: ProofLineObj, proof: ProofObj):
+    """
+    Verify the proper implementation of DNE m
+    (Double Not Elimination)
+    """
+    rule = clean_rule(current_line.rule)
+    response = ProofResponse()
+
+    # Attempt to find line m
+    try:
+        target_line = find_line(rule, proof)
+
+        # Verify if line citation is valid
+        result = verify_line_citation(current_line, target_line)
+        if result.is_valid == False:
+            return result
+
+        # Search for line m in the proof
+        try:
+            expression = target_line.expression
+
+            # Create trees
+            root_m = make_tree(expression)
+            root_current = make_tree(current_line.expression)
+
+
+            if root_m.value == '¬':
+                if root_m.right.value == '¬':
+                    if root_m.right.right == root_current:
+                        response.is_valid = True
+                        return response
+                    else:
+                        response.err_msg = "Lines {} and {} are not equivalent"\
+                            .format(str(target_line.line_no), str(current_line.line_no))
+                        return response
+                else:
+                    response.err_msg = "Line {} is not an instance of double-not operators"\
+                        .format(str(target_line.line_no))
+                    return response
+            else:
+                response.err_msg = "The main logical operator on line {} is not '¬'"\
+                    .format(str(target_line.line_no))
+                return response
+
+        except:
+            response.err_msg = "Line numbers are not specified correctly.  Double Not Elimination: DNE m"
+            return response
+
+    except:
+        response.err_msg = "Rule not formatted properly.  Double Not Elimination: DNE m"
         return response

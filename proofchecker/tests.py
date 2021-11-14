@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .proof import ProofObj, ProofLineObj, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_iff_elim, verify_iff_intro, verify_line_citation, verify_explosion, verify_or_intro, \
+from .proof import ProofObj, ProofLineObj, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_double_not_elim, verify_iff_elim, verify_iff_intro, verify_line_citation, verify_explosion, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
     verify_not_elim, verify_indirect_proof, verify_premise, verify_reiteration, verify_rule, verify_proof, depth
 from .utils import numparse
@@ -747,6 +747,47 @@ class ProofTests(TestCase):
         result = verify_iff_elim(line3, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "The expression on line 3 does not represent the left or right side of the expression on line 1")
+
+    def test_verify_double_not_elim(self):
+        """
+        Test that the verify_double_not_elim function is working properly
+        """
+        # Test with valid input
+        line1 = ProofLineObj(1, '¬¬A', 'Assumption')
+        line2 = ProofLineObj(2, 'A', 'DNE 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_double_not_elim(line2, proof)
+        self.assertEqual(result.is_valid, True)
+        self.assertEqual(result.err_msg, None)
+
+        # Test with invalid input
+        line1 = ProofLineObj(1, '¬¬A', 'Assumption')
+        line2 = ProofLineObj(2, 'B', 'DNE 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_double_not_elim(line2, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'Lines 1 and 2 are not equivalent')
+
+        # Test with invalid input
+        line1 = ProofLineObj(1, '¬A', 'Assumption')
+        line2 = ProofLineObj(2, 'A', 'DNE 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_double_not_elim(line2, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'Line 1 is not an instance of double-not operators')
+
+        # Test with invalid input
+        line1 = ProofLineObj(1, 'A^B', 'Assumption')
+        line2 = ProofLineObj(2, 'A', 'DNE 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_double_not_elim(line2, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, "The main logical operator on line 1 is not '¬'")                
+
 
     def test_verify_rule(self):
         """
