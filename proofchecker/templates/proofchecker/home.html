@@ -1,5 +1,9 @@
 {% extends 'proofchecker/base.html' %} {% block content %}
-    <h1> <strong>ProofChecker</strong></h1>
+    
+<div class="py-5 my-5 text-center">
+
+    <h1 class="display-3 fw-bold pb-3">ProofChecker</h1>
+
     {% if user.is_authenticated %} {% if user.is_student %}
         <h3>Welcome, Student!</h3>
     {% elif user.is_instructor %}
@@ -7,11 +11,10 @@
     {% endif %} {% else %}
         <h3>Welcome, Guest!</h3>
     {% endif %}
-    <p>
-        <br>
-        <strong>Try out a proof with our new <a href="{% url 'proof_checker' %}"> ProofChecker! </a> </strong>
-    </p>
-    <p>
-        Or, <a href="{% url 'assignment_page' %}"> create your proof </a> using our old form!
-    </p>
+
+    <p class="lead pt-4"> Try out a proof with our new <a href="{% url 'proof_checker' %}"> ProofChecker! </a> </p>
+    <p> Or, <a href="{% url 'assignment_page' %}"> create your proof </a> using our old form! </p>
+
+</div>
+
 {% endblock %}
