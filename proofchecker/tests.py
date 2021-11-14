@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .proof import ProofObj, ProofLineObj, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_line_citation, verify_explosion, verify_or_intro, \
+from .proof import ProofObj, ProofLineObj, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_iff_intro, verify_line_citation, verify_explosion, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
     verify_not_elim, verify_indirect_proof, verify_premise, verify_reiteration, verify_rule, verify_proof, depth
 from .utils import numparse
@@ -622,6 +622,79 @@ class ProofTests(TestCase):
         result = verify_indirect_proof(line3, proof)
         self.assertEqual(result.is_valid, False)
         self.assertEqual(result.err_msg, "Line 1 is not the negation of line 3")
+
+    def test_verify_iff_intro(self):
+        """
+        Test that the verify_iff_intro function is working properly
+        """
+        # Test with valid input
+        line1 = ProofLineObj(1.1, 'A', 'Assumption')
+        line2 = ProofLineObj(1.2, 'B', 'Assumption')
+        line3 = ProofLineObj(2.1, 'B', 'Assumption')
+        line4 = ProofLineObj(2.2, 'A', 'Assumption')
+        line5 = ProofLineObj(3, 'A↔B', '↔I 1.1-1.2, 2.1-2.2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5])
+        result = verify_iff_intro(line5, proof)
+        self.assertEqual(result.is_valid, True)
+        self.assertEqual(result.err_msg, None)
+
+        # Test with unequivalent expressions
+        line1 = ProofLineObj(1.1, 'A', 'Assumption')
+        line2 = ProofLineObj(1.2, 'C', 'Assumption')
+        line3 = ProofLineObj(2.1, 'B', 'Assumption')
+        line4 = ProofLineObj(2.2, 'A', 'Assumption')
+        line5 = ProofLineObj(3, 'A↔B', '↔I 1.1-1.2, 2.1-2.2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5])
+        result = verify_iff_intro(line5, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'The expressions on lines 1.2 and 2.1 are not equivalent')
+
+        line1 = ProofLineObj(1.1, 'A', 'Assumption')
+        line2 = ProofLineObj(1.2, 'B', 'Assumption')
+        line3 = ProofLineObj(2.1, 'B', 'Assumption')
+        line4 = ProofLineObj(2.2, 'C', 'Assumption')
+        line5 = ProofLineObj(3, 'A↔B', '↔I 1.1-1.2, 2.1-2.2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5])
+        result = verify_iff_intro(line5, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'The expressions on lines 1.1 and 2.2 are not equivalent')
+
+        line1 = ProofLineObj(1.1, 'A', 'Assumption')
+        line2 = ProofLineObj(1.2, 'B', 'Assumption')
+        line3 = ProofLineObj(2.1, 'B', 'Assumption')
+        line4 = ProofLineObj(2.2, 'A', 'Assumption')
+        line5 = ProofLineObj(3, 'C↔B', '↔I 1.1-1.2, 2.1-2.2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5])
+        result = verify_iff_intro(line5, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'Left side of line 3 does not equal either of the expressions on lines 1.2 and 2.2')
+
+        line1 = ProofLineObj(1.1, 'A', 'Assumption')
+        line2 = ProofLineObj(1.2, 'B', 'Assumption')
+        line3 = ProofLineObj(2.1, 'B', 'Assumption')
+        line4 = ProofLineObj(2.2, 'A', 'Assumption')
+        line5 = ProofLineObj(3, 'A↔C', '↔I 1.1-1.2, 2.1-2.2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5])
+        result = verify_iff_intro(line5, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'Right side of line 3 does not equal either of the expressions on lines 1.2 and 2.2')
+
+        line1 = ProofLineObj(1.1, 'A', 'Assumption')
+        line2 = ProofLineObj(1.2, 'A', 'Assumption')
+        line3 = ProofLineObj(2.1, 'A', 'Assumption')
+        line4 = ProofLineObj(2.2, 'A', 'Assumption')
+        line5 = ProofLineObj(3, 'A↔B', '↔I 1.1-1.2, 2.1-2.2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5])
+        result = verify_iff_intro(line5, proof)
+        self.assertEqual(result.is_valid, False)
+        self.assertEqual(result.err_msg, 'Invalid introduction on line 3')
+
 
     def test_verify_rule(self):
         """
