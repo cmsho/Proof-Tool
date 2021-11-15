@@ -17,7 +17,7 @@ def AssignmentPage(request):
     return render(request, "proofchecker/assignment_page.html")
 
 def single_proof_checker(request):
-        ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0)
+    ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0)
     qs = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
     formset = ProofLineFormset(request.POST or None, queryset=qs)

@@ -1,13 +1,15 @@
 {% extends 'proofchecker/base.html' %} {% block content %} {% load static %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'css/single_proof_checker.css' %}">
-<link rel="stylesheet" type="text/css" href="{% static 'css/single_proof_checker.css' %}">
+<head>
+    <script src="{% static 'js/single_proof_checker.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/single_proof_checker.css' %}">
+</head>
 
-
-<h2>
+<!-- <h2>
     <strong>ProofChecker v0.1: </strong>Validate your proof!</h2>
 <hr>
 <form action="" method="post">
+
     <div>
         {% csrf_token %} {{ form.as_table }}
     </div>
@@ -19,6 +21,7 @@
         </div>
         {% endfor %}
     </div>
+
     <div id="empty-form" class="hidden">{{ formset.empty_form }}</div>
     <button id="add-more" type="button">Add Proof Line</button>
     {% endif %}
@@ -37,4 +40,79 @@
         <strong>RESULT:</strong> The proof is valid and complete!</p>
     {% endif %} {% endif %}
 
-</form> {% include 'proofchecker/right_navigation_menu.html' %} {% endblock %}
+</form> -->
+<br>
+<br>
+<br>
+<h1>Original Formatting</h1>
+<h2>
+    <strong>ProofChecker v0.1: </strong>Validate your proof!</h2>
+<hr>
+<form action="" method="post">
+
+    <div>
+        {% csrf_token %} {{ form.as_table }}
+    </div>
+    <hr> {% if formset %} {{ formset.management_form }}
+    <div id="proof-line-list">
+        {% for form in formset %}
+        <div class="proofline-form">
+            {{ form.as_table }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="empty-form" class="hidden">{{ formset.empty_form }}</div>
+    <button id="add-more" type="button">Add Proof Line</button>
+    {% endif %}
+
+    <hr>
+    <input type="text" class="hidden" id="check-proof">
+    <button type="submit">Check Proof</button>
+
+    {% if response %}
+    <br>
+    <br> {% if response.err_msg %}
+    <p>
+        <strong>RESULT:</strong> {{ response.err_msg }} </p>
+    {% else %}
+    <p>
+        <strong>RESULT:</strong> The proof is valid and complete!</p>
+    {% endif %} {% endif %}
+
+</form>
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<!-- <form onsubmit="return createTable(this)">
+    <label>
+        <b>Premise</b>
+    </label>
+    <input id="premise" type="text" placeholder="Enter Premise" onkeydown="replaceCharacter(this);" required>
+    <br>
+    <label>
+        <b>Conclusion</b>
+    </label>
+    <input id="conclusion" type="text" placeholder="Enter Conclusion" onkeydown="replaceCharacter(this);" required>
+    <div>
+        <button id="startProof" type="submit"> Start Proof</button>
+    </div>
+</form>
+</div>
+<br>
+<div id="problem">
+
+    Placeholder for where the formatted premise/conclusion statement will populate
+</div>
+<br>
+
+<div id="cont">
+</div>
+<input type="button" id="appendNewRow" value="Append New Row" onclick="appendNewRow(this)">
+<input type="button" id="bt" value="Submit Data" onclick="submit()"> -->
+{% endblock %} {% block js_block %} {% include 'proofchecker/right_navigation_menu.html' %} {% endblock %}
