@@ -1,7 +1,28 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
+from proofchecker.proof import is_line_no, make_tree
+
+def validate_line_no(value):
+    try:
+        is_line_no(value)
+    except:
+        raise ValidationError(
+            _('%(value)s is not a valid line number'),
+            params={'value': value},
+        )
+
+def validate_formula(value):
+    try:
+        make_tree(value)
+    except:
+        raise ValidationError(
+            _('%(value)s is not a valid expression'),
+            params={'value': value},
+        )
 
 # Create your models here.
 class User(AbstractUser):
@@ -37,8 +58,8 @@ class Proof(models.Model):
 
 class ProofLine(models.Model):
     proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
-    line_no = models.CharField(max_length=100)
-    formula = models.CharField(max_length=255)
+    line_no = models.CharField(max_length=100, validators=[validate_line_no])
+    formula = models.CharField(max_length=255, validators=[validate_formula])
     rule = models.CharField(max_length=255)
 
     def __str__(self):

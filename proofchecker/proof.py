@@ -1,4 +1,3 @@
-from proofchecker.models import ProofLine
 from proofchecker.utils.tfllex import IllegalCharacterError
 from .utils import tflparse, numparse
 from .utils.tfllex import lexer as tfllexer
@@ -301,6 +300,12 @@ def make_tree(string: str):
     Function to construct a binary tree
     """
     return tflparse.parser.parse(string, lexer=tfllexer)
+
+def is_line_no(string: str):
+    """
+    Function to determine if a line number is valid
+    """
+    return numparse.parser.parse(string, lexer=numlexer)
 
 def is_conclusion(current_line: ProofLineObj, proof: ProofObj):
     """
@@ -1056,7 +1061,7 @@ def verify_iff_intro(current_line: ProofLineObj, proof: ProofObj):
         response.err_msg = "Rule not formatted properly.  ↔I i-j, k-l"
         return response
 
-def verify_iff_elim(current_line: ProofLine, proof: ProofObj):
+def verify_iff_elim(current_line: ProofLineObj, proof: ProofObj):
     """
     Verify the rule ↔E m, n
     (Biconditional Elimination)
