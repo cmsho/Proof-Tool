@@ -11,19 +11,45 @@
     <form action="" method="post">
         <div>
             {% csrf_token %}
-            {{ form.as_table     }}
+            {{ form.as_table }}
         </div>
+
         <hr>
+
         {% if formset %}
-            {{ formset.management_form }}
+        
+        {{ formset.management_form }}
+
+        <div class="container">
             <div id="proof-line-list">
-                {% for form in formset %}
+
+            <div id="column-titles" class="row text-left font-weight-bold">
+                <div class="col-sm">Line #</div>
+                <div class="col-sm">Expression</div>
+                <div class="col-sm">Rule</div>
+                <!-- FIXME: Empty column so alignment works -->
+                <div class="col-sm"></div>
+            </div>
+
+                {% for line in formset %}
                     <div class="proofline-form">
-                        {{ form.as_table }}
+                        <div class="row">
+                            {% for field in line %}
+                                <div class="col-sm">{{ field }}</div>
+                            {% endfor %}
+                        </div>
                     </div>
                 {% endfor %}
+
+                <div id="empty-form" class="hidden">
+                    <div class="row">
+                        {% for field in formset.empty_form %}
+                            <div class="col-sm">{{ field }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
-            <div id="empty-form" class="hidden">{{ formset.empty_form }}</div>
+        </div>
             <button id="add-more" type="button">Add Proof Line</button>
         {% endif %}
 
@@ -43,6 +69,8 @@
         {% endif %}
 
     </form>
+
+    <!-- Add line button -->
     <script type="text/javascript">
         const addMoreBtn = document.getElementById("add-more")
         const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
@@ -63,9 +91,17 @@
             formCopyTarget.append(emptyFormElement)
         }
     </script>
-{% endblock %}
 
+    <!-- Add symbol replacement functionality to input fields -->
+    <script type="text/javascript">
+        const inputFields = document.getElementsByClassName("text-replacement-enabled")
 
-{% block js_block %}
-    <script type="text/javascript" src="{% static 'js/line_functionality.js' %}"></script>
+        for (let i of inputFields){
+            console.log(i)
+            i.setAttribute("onkeydown", "replaceCharacter(this);")
+        }
+    </script>
+
+{% include 'proofchecker/right_navigation_menu.html' %}
+
 {% endblock %}

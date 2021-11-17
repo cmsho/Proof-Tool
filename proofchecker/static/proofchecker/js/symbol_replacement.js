@@ -31,12 +31,6 @@ function printOut() {
     return false;
 }
 
-
-// document.addEventListener('DOMContentLoaded', function(){
-//     let txt = document.getElementById('premise');
-//     txt.addEventListener('keydown',replaceCharacter);
-// });
-
 function replaceCharacter(ev) {
     console.log(document.getElementById(ev.id));
     let txt = document.getElementById(ev.id).value;
@@ -46,30 +40,7 @@ function replaceCharacter(ev) {
     txt = txt.replace("\\or", "∨");
     txt = txt.replace("\\implies", "→");
     txt = txt.replace("\\not", "¬");
+    txt = txt.replace("\\iff", "↔");
+    txt = txt.replace("\\contradiction", "⊥");
     document.getElementById(ev.id).value = txt;
-
-
-
-
-    // console.log(document.getElementById(ev.id));
-    // console.log()
-    // console.log(ev);
 }
-
-// function replaceCharacter(ev){
-//     let txt = document.getElementById('premise').value;
-//     console.log(txt);
-
-//     txt = txt.replace("\\and","∧");
-//     txt = txt.replace("\\or","∨");
-//     txt = txt.replace("\\implies","→");
-//     txt = txt.replace("\\not","¬");
-//     document.getElementById('premise').value = txt;
-
-
-
-
-//     console.log(document.getElementById('premise'));
-//     // console.log()
-//     // console.log(ev);
-// }
