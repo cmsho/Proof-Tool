@@ -43,6 +43,8 @@
         {% endif %}
 
     </form>
+
+    <!-- Add line button -->
     <script type="text/javascript">
         const addMoreBtn = document.getElementById("add-more")
         const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
@@ -63,9 +65,17 @@
             formCopyTarget.append(emptyFormElement)
         }
     </script>
-{% endblock %}
 
+    <!-- Add symbol replacement functionality to input fields -->
+    <script type="text/javascript">
+        const inputFields = document.getElementsByClassName("text-replacement-enabled")
 
-{% block js_block %}
-    <script type="text/javascript" src="{% static 'js/line_functionality.js' %}"></script>
+        for (let i of inputFields){
+            console.log(i)
+            i.setAttribute("onkeydown", "replaceCharacter(this);")
+        }
+    </script>
+
+{% include 'proofchecker/right_navigation_menu.html' %}
+
 {% endblock %}
