@@ -8,10 +8,20 @@ class ProofForm(forms.ModelForm):
         model = Proof
         fields = ['premises', 'conclusion']
 
+    def __init__(self, *args, **kwargs):
+        super(ProofForm, self).__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'text-replacement-enabled'
+
 class ProofLineForm(forms.ModelForm):
     class Meta:
         model = ProofLine
         fields = ['line_no', 'formula', 'rule']
+
+    def __init__(self, *args, **kwargs):
+        super(ProofLineForm, self).__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'text-replacement-enabled'
 
 
 class AssignmentForm(forms.ModelForm):
