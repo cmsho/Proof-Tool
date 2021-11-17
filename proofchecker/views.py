@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.forms.models import modelformset_factory
+from django.forms import inlineformset_factory
 from .forms import ProofForm, ProofLineForm, AssignmentForm
 from .models import Proof, Problem, Assignment, Instructor, ProofLine
 from .json_to_object import ProofTemp
@@ -77,7 +78,8 @@ def proof_checker(request):
 
 
 def proof_create_view(request):
-    ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0)
+    # ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0)
+    ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
     qs = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
     formset = ProofLineFormset(request.POST or None, queryset=qs)
@@ -116,9 +118,10 @@ def proof_create_view(request):
             parent.created_by = request.user
             parent.save()
             for f in formset:
-                child = f.save(commit=False)
-                child.proof = parent
-                child.save()
+                if not f.cleaned_data['DELETE']:
+                    child = f.save(commit=False)
+                    child.proof = parent
+                    child.save()
             response_text = "Proof saved successfully!"
 
     context = {
@@ -135,7 +138,7 @@ def proof_update_view(request, pk=None):
     qs = obj.proofline_set.all()
 
     form = ProofForm(request.POST or None, instance=obj)
-    ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0)
+    ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
     formset = ProofLineFormset(request.POST or None, queryset=qs)
     response_text = None
 
@@ -175,6 +178,10 @@ def proof_update_view(request, pk=None):
                 child = f.save(commit=False)
                 child.proof = parent
                 child.save()
+
+                if f.cleaned_data['DELETE']:
+                    child.delete()
+
             response_text = "Proof saved successfully!"
 
     context = {
