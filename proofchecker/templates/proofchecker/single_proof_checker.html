@@ -1,50 +1,24 @@
-{% extends 'proofchecker/base.html' %} {% block content %} {% load static %}
-
-<head>
-    <script src="{% static 'js/single_proof_checker.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/single_proof_checker.css' %}">
-</head>
+{% extends 'proofchecker/base.html' %} {% load static %} {% block content %}
+<style>
+    .hidden {
+        display: none;
+    }
+</style>
 <h2>
     <strong>ProofChecker v0.1: </strong>Validate your proof!</h2>
 <hr>
-
-
-
-
 <form action="" method="post">
     <div>
         {% csrf_token %} {{ form.as_table }}
     </div>
     <hr> {% if formset %} {{ formset.management_form }}
-
     <div id="proof-line-list">
-        <table id="proof-table">
-            <tr>
-                <td>#</td>
-                <td>Exression</td>
-                <td>Justification</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            {% for form in formset %}
-            <tr id="to-clone">
-                <td>{{ form.line_no }}</td>
-                <td>{{ form.formula }}</td>
-                <td>{{ form.rule }}</td>
-            </tr>
-
-            <!-- <tr class="proofline-form">{{ form.as_table }}</tr> -->
-
-            <!-- <div class="proofline-form">
-                {{ form.as_table }}
-            </div> -->
-            {% endfor %}
-        </table>
+        {% for form in formset %}
+        <div class="proofline-form">
+            {{ form.as_table }}
+        </div>
+        {% endfor %}
     </div>
-
-    <button id="add-table-row" type="button">Add Table Row</button>
     <div id="empty-form" class="hidden">{{ formset.empty_form }}</div>
     <button id="add-more" type="button">Add Proof Line</button>
     {% endif %}
@@ -64,4 +38,24 @@
     {% endif %} {% endif %}
 
 </form>
-{% include 'proofchecker/right_navigation_menu.html' %} {% endblock %}
+<script type="text/javascript">
+    const addMoreBtn = document.getElementById("add-more")
+    const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
+    const currentProofLineForms = document.getElementsByClassName("proofline-form")
+    addMoreBtn.addEventListener("click", add_new_form)
+    function add_new_form(event) {
+        if (event) {
+            event.preventDefault()
+        }
+        let currentFormCount = currentProofLineForms.length
+        const formCopyTarget = document.getElementById("proof-line-list")
+        const emptyFormElement = document.getElementById("empty-form").cloneNode(true)
+        emptyFormElement.setAttribute("class", "proofline-form")
+        emptyFormElement.setAttribute("id", `form-${currentFormCount}`)
+        const regex = new RegExp('__prefix__', 'g')
+        emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCount)
+        totalNewForms.setAttribute('value', currentFormCount + 1)
+        formCopyTarget.append(emptyFormElement)
+    }
+</script> {% include 'proofchecker/right_navigation_menu.html' %}{% endblock %} {% block js_block %}
+<script type="text/javascript" src="{% static 'js/line_functionality.js' %}"></script> {% endblock %}
