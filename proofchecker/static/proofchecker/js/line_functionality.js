@@ -3,18 +3,8 @@ headers = ['#', 'Expression', 'Justification', '', '', '', '']
 
 
 function replaceCharacter(ev) {
-
-    console.log(ev);
-
-    if (ev.id == "premise" || ev.id == "conclusion") {
-        var name = ev.id;
-    } else {
-        console.log(ev.path[0].id);
-        var name = ev.path[0].id;
-    }
-
-    console.log(document.getElementById(name));
-    let txt = document.getElementById(name).value;
+    console.log(document.getElementById(ev.id));
+    let txt = document.getElementById(ev.id).value;
     console.log(txt);
 
     txt = txt.replace("\\and", "∧");
@@ -23,8 +13,7 @@ function replaceCharacter(ev) {
     txt = txt.replace("\\not", "¬");
     txt = txt.replace("\\iff", "↔");
     txt = txt.replace("\\contradiction", "⊥");
-    document.getElementById(name).value = txt;
-
+    document.getElementById(ev.id).value = txt;
 }
 
 function createNewRow(oButton, tr) {
