@@ -84,6 +84,10 @@ def verify_proof(proof: ProofObj):
     """
     response = ProofResponse()
 
+    if len(proof.lines) == 0:
+        response.err_msg = "Cannot validate a proof with no lines"
+        return response
+
     for line in proof.lines:
 
         # Verify the line has a line number
