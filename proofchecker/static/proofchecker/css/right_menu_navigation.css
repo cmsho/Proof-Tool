@@ -41,23 +41,88 @@
 
 
 #menu{
-  height: 75%;
+  height: 80%;
   width: 100%;
   background: white;
   border: 1px solid #ccc;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  /* align-items: center; */
   text-align: right;
   overflow: auto;
 }
 
+#main-header{
+  font-weight:bold;
+  font-size: 25px;
+  text-decoration: underline;
+}
+
+#sub-header{
+  font-weight:bold;
+  font-size: 18px;
+  text-decoration: underline;
+  padding-top:6px;
+}
+
+#item-name{
+  font-weight:bold;
+  font-size: 16px;
+  padding-top:6px;
+  padding-left:2px;
+  padding-bottom: 0px;
+}
+
+#instruction{
+  padding-left: 3px;
+  padding-bottom: 3px;
+  color: #072a4d;
+}
+
+table{
+  table-layout: fixed;
+  width:100%;
+  background-color: #bdd4ebbe;
+  margin-left: auto;
+  margin-right: auto;
+}
 
 #info-information {
+  text-align: left;
   display: visible;
 }
 
+#left{
+  color: #072a4d;
+  width: 55%;
+  /* text-align: left; */
+}
+
+#center{
+  width: 35%;
+  font-weight:bold;
+  text-decoration: underline;
+  /* text-align: left; */
+}
+
+#right{
+  text-align: right;
+  width: 10%;
+}
+
+#left-proof{
+  text-align: left;
+  width:30%;
+}
+
+
+#info-table{
+  width:90%;
+}
+
+
 #rules-information {
+  text-align:left;
   display:none;
 }
 
