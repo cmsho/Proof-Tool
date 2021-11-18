@@ -6,7 +6,7 @@
             display: none;
         }
     </style>
-    <h2>Proof Details</h2>
+    <h3>Proof: {{ object.id }}</h3>
     <hr>
     {% if response %}
         <p> <strong>RESULT:</strong> {{ response }} </p>
@@ -18,17 +18,24 @@
             {{ form.as_table }}
         </div>
         <hr>
+        <button id="add-more" type="button">Add Proof Line</button>
+        <hr>
         {% if formset %}
             {{ formset.management_form }}
             <div id="proof-line-list">
-                {% for form in formset %}
-                    <div class="proofline-form">
-                        {{ form.as_table }}
+                {% for f in formset %}
+                    <div class="proofline-form" id="proofline-form-{{ forloop.counter0 }}" >
+                        {{ f.as_table }}
+                        <input class="insert-row" type="button" id="id-form-btn-insert-row-{{ forloop.counter0 }}" value="Insert Row" onclick="add_new_form(this)">
+                        <input class="delete-row" type="button" id="id-form-btn-delete-row-{{ forloop.counter0 }}" value="Delete" onclick="removeProofline(this)">
                     </div>
                 {% endfor %}
             </div>
-            <div id="empty-form" class="hidden">{{ formset.empty_form }}</div>
-            <button id="add-more" type="button">Add Proof Line</button>
+            <div id="empty-form" class="hidden">
+                {{ formset.empty_form }}
+                <input class="insert-row" type="button" id="id-form-btn-insert-row-__prefix__" value="Insert Row" onclick="add_new_form(this)">
+                <input class="delete-row" type="button" id="id-form-btn-delete-row-__prefix__" value="Delete" onclick="removeProofline(this)">
+            </div>
         {% endif %}
         <hr>
         <input type="text" class="hidden" id="check-proof">
@@ -36,26 +43,56 @@
         <button name="submit" type="submit">Save</button>
     </form>
 
+
+
     <script type="text/javascript">
         const addMoreBtn = document.getElementById("add-more")
         const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
         const currentProofLineForms = document.getElementsByClassName("proofline-form")
         addMoreBtn.addEventListener("click", add_new_form)
-        function add_new_form(event){
-            if (event){
-                event.preventDefault()
-            }
-            let currentFormCount = currentProofLineForms.length
-            const formCopyTarget = document.getElementById("proof-line-list")
-            const emptyFormElement = document.getElementById("empty-form").cloneNode(true)
-            emptyFormElement.setAttribute("class", "proofline-form")
-            emptyFormElement.setAttribute("id", `form-${currentFormCount}`)
-            const regex = new RegExp('__prefix__', 'g')
-            emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCount)
-            totalNewForms.setAttribute('value', currentFormCount + 1)
-            formCopyTarget.append(emptyFormElement)
+
+
+        function add_new_form(button) {
+           {# this is just a sample #}
+           {#if (button) {#}
+           {#    button.preventDefault()#}
+
+           let currentFormCount = currentProofLineForms.length
+           const formCopyTarget = document.getElementById("proof-line-list")
+
+           const emptyFormElement = document.getElementById("empty-form").cloneNode(true)
+           emptyFormElement.setAttribute("class", "proofline-form")
+           emptyFormElement.setAttribute("id", `proofline-form-${currentFormCount}`)
+
+           const regex = new RegExp('__prefix__', 'g')
+           emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCount)
+           totalNewForms.setAttribute('value', currentFormCount + 1)
+           formCopyTarget.append(emptyFormElement)
+        }
+
+
+        function removeProofline(button) {
+           var id = button.id.replace(/[^0-9]/g, "")
+           console.log(id)
+           const mark_deleted = document.getElementById("id_form-" + id + "-DELETE")
+           mark_deleted.setAttribute("checked", "true")
+           const targeted_prooflie = document.getElementById("proofline-form-" + id)
+           targeted_prooflie.hidden = true
+        }
+
+
+        function resetForm(){
+        }
+
+
+        const inputFields = document.getElementsByClassName("text-replacement-enabled")
+        for (let i of inputFields){
+            console.log(i)
+            i.setAttribute("onkeydown", "replaceCharacter(this);")
         }
     </script>
+
+    {% include 'proofchecker/right_navigation_menu.html' %}
 {% endblock %}
 
 

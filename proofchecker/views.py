@@ -1,4 +1,6 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.forms.models import modelformset_factory
 from django.forms import inlineformset_factory
@@ -122,7 +124,8 @@ def proof_create_view(request):
                     child = f.save(commit=False)
                     child.proof = parent
                     child.save()
-            response_text = "Proof saved successfully!"
+
+            return HttpResponseRedirect(reverse('all_proofs'))
 
     context = {
         "form": form,
@@ -182,7 +185,7 @@ def proof_update_view(request, pk=None):
                 if f.cleaned_data['DELETE']:
                     child.delete()
 
-            response_text = "Proof saved successfully!"
+            return HttpResponseRedirect(reverse('all_proofs'))
 
     context = {
         "form": form,
