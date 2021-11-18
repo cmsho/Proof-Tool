@@ -53,7 +53,7 @@ class Proof(models.Model):
         return f"proof for premise : {self.premises}  conclusion {self.conclusion} "
 
     def get_absolute_url(self):
-        return f"/proofs/{self.pk}/update"
+        return "/proofs"
 
 
 class ProofLine(models.Model):
@@ -63,7 +63,7 @@ class ProofLine(models.Model):
     rule = models.CharField(max_length=255)
 
     def __str__(self):
-        return f"{self.line_no}+{self.formula}+{self.rule}"
+        return f"Proof {self.proof.id} : {self.line_no} {self.formula} {self.rule}"
 
 
 class Problem(models.Model):
