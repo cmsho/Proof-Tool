@@ -1,10 +1,12 @@
 from django.contrib import admin
 
-from .models import User, Proof, Student, Instructor, Assignment, Course, StudentAssignment
+from .models import User, Proof, Problem, Student, Instructor, Assignment, Course, StudentAssignment, ProofLine
 
 # Register your models here.
 admin.site.register(User)
 admin.site.register(Proof)
+admin.site.register(ProofLine)
+admin.site.register(Problem)
 admin.site.register(Student)
 admin.site.register(Instructor)
 admin.site.register(Assignment)

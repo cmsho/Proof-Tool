@@ -1,7 +1,7 @@
 {% extends 'proofchecker/base.html' %}
 {% load static %}
 {% block content %}
-    <h2>Add a new proof</h2>
+    <h2>Assignment</h2>
     <form method="post">
         <div>
             {% csrf_token %}
@@ -9,4 +9,6 @@
             <input type="submit" value="Save"/>
         </div>
     </form>
+    <p><a href="{% url 'delete_assignment' object.id %} ">delete</a></p>
+
 {% endblock %}

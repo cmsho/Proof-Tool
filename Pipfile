@@ -8,8 +8,9 @@ django = "==3.2.7"
 django-debug-toolbar = "*"
 django-crispy-forms = "*"
 coverage = "*"
+django-htmx = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.8"
+python_version = "3.10"

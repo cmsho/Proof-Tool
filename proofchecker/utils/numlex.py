@@ -2,27 +2,13 @@ from .ply import lex
 
 # List of token names
 tokens = [
-    'VAR',
-    'BOOL',
-    'AND',
-    'OR',
-    'NOT',
-    'IMPLIES',
-    'IFF',
-    'LPAREN',
-    'RPAREN',
+    'NUMBER',
+    'DOT'
 ]
 
-# Regular expression rules for simple tokens
-t_VAR=r'[A-Z]'
-t_BOOL=r'((True)|(TRUE)|(False)|(FALSE)|⊥)'
-t_AND=r'(∧|\^|\&)'
-t_OR=r'(∨|v)'
-t_NOT=r'(¬|~|-)'
-t_IMPLIES=r'(→|>|(->))'
-t_IFF=r'(↔|(<->))'
-t_LPAREN=r'((\()|(\[)|(\{))'
-t_RPAREN=r'((\))|(\])|(\}))'
+# Regular expression rules for tokens
+t_NUMBER = r'\d+'
+t_DOT = '\.'
 
 # Define a rule so we can track line numbers
 def t_newline(t):
@@ -40,15 +26,6 @@ def t_error(t):
 
 # Build the lexer
 lexer = lex.lex()
-
-# Test it output
-def test(data):
-    lexer.input(data)
-    while True:
-            tok = lexer.token()
-            if not tok:
-                break
-            print(tok)
 
 # Illegal Character
 class IllegalCharacterError(Exception):

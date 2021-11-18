@@ -1,78 +1,34 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'proofchecker/base.html' %} {% block content %} {% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Assignment</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
-    <script src="{% static 'js/main.js' %}"></script>
-</head>
 
-<body>
-    <nav class="left-side-navigation">
-        <div class="sidenav">
-            <a href="#">Profile</a>
-            <a href="#">Courses</a>
-            <a href="#">Resources</a>
-        </div>
-    </nav>
-
-    <main>
-        <p> Problem: This is a placeholder for where the problem will be populated</p>
-        <div>
-            Placeholder for where the user types the premise and conclusion.
-            <br>
-            <br>
-            <form>
-                <label>
-                    <b>Premise</b>
-                </label>
-                <input id="premise" type="text" placeholder="Enter Premise" onkeydown="insertTab(this, event);" required>
-
-                <label>
-                    <b>Conclusion</b>
-                </label>
-                <input id="conclusion" type="text" placeholder="Enter Conclusion" onkeydown="insertTab(this, event);" required>
-
-                <label>
-            </form>
-        </div>
+<p> Problem: This is a placeholder for where the problem will be populated</p>
+<div>
+    Placeholder for where the user types the premise and conclusion.
+    <br>
+    <br>
+    <form onsubmit="return createTable(this)">
+        <label>
+            <b>Premise</b>
+        </label>
+        <input id="premise" type="text" placeholder="Enter Premise" onkeydown="replaceCharacter(this);" required>
         <br>
+        <label>
+            <b>Conclusion</b>
+        </label>
+        <input id="conclusion" type="text" placeholder="Enter Conclusion" onkeydown="replaceCharacter(this);" required>
         <div>
-            Placeholder for where the formatted premise/conclusion statement will populate
+            <button id="startProof" type="submit"> Start Proof</button>
         </div>
-        <br>
-        <div>
-            <form onSubmit="return printOut() ">
-                <textarea id='textbox' contenteditable onkeydown="insertTab(this, event); "></textarea>
-                <input type="submit" value="Submit">
-            </form>
-        </div>
-    </main>
+    </form>
+</div>
+<br>
+<div id="problem">
 
-    <nav class="right-side-navigation">
-        <div class="btn-group">
-            <button>Info</button>
-            <button>Rules</button>
-            <button>Other</button>
-        </div>
-        <div id="right-side-information">
+    Placeholder for where the formatted premise/conclusion statement will populate
+</div>
+<br>
 
-            \and &nbsp&nbsp&nbsp ∧
-            <br> \or &nbsp&nbsp&nbsp ∨
-            <br> \implies &nbsp&nbsp →
-            <br> \not &nbsp&nbsp&nbsp ¬
-            <br>
-
-        </div>
-    </nav>
-
-
-
-
-</body>
-
-</html>
+<div id="cont">
+</div>
+<input type="button" id="appendNewRow" value="Append New Row" onclick="appendNewRow(this)">
+<input type="button" id="bt" value="Submit Data" onclick="submit()"> {% include 'proofchecker/right_navigation_menu.html' %} {% endblock %}

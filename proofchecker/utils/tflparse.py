@@ -1,3 +1,4 @@
+from proofchecker.utils.ply.lex import lex
 from .ply import yacc 
 
 from .binarytree import Node
@@ -18,15 +19,38 @@ def p_sentence_binary_op(p):
              | sentence OR sentence
              | sentence AND sentence
     '''
+    # Construct tree node
     p[0] = Node(p[2])
     p[0].left = p[1]
     p[0].right = p[3]
 
+    # Reformat symbol if necessary
+    if p[0].value != ('∧' or '∨' or '→' or '↔'):
+        match p[0].value:
+            case '^':
+                p[0].value = '∧'
+            case '&':
+                p[0].value = '∧'
+            case 'v':
+                p[0].value = '∨'
+            case '>':
+                p[0].value = '→'
+            case '->':
+                p[0].value = '→'
+            case '<->':
+                p[0].value = '↔'
+
+
 def p_sentence_unary_op(p):
     'sentence : NOT sentence'
+
+    # Create tree node
     p[0] = Node(p[1])
     p[0].right = p[2]
 
+    # Reformat symbol if necessary
+    if p[0].value != '¬':
+        p[0].value = '¬'
 
 def p_sentence_parens(p):
     'sentence : LPAREN sentence RPAREN'
@@ -43,7 +67,7 @@ def p_sentence(p):
 #       Define additional grammar rules for errors
 # Error rule for syntax errors
 def p_error(p):
-    print("Syntax error in input!")
+    raise SyntaxError
 
 # Build the parser
 parser = yacc.yacc()
@@ -57,3 +81,17 @@ def test():
         if not s: continue
         result = parser.parse(s)
         print(result)
+
+# Invalid syntax
+class TFLSyntaxError(Exception):
+    """
+    Raised when the parser determines the TFL syntax is invalid 
+
+    Attributes:
+        expression -- input expression in which teh error occurred
+        message -- explanation of the error
+    """
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message

@@ -3,9 +3,9 @@
 from collections import deque
 
 class Node:
-    '''
+    """
     Represents a node in a binary search tree
-    '''
+    """
     def __init__(self, data):
         self.left = None
         self.value = data
@@ -23,10 +23,10 @@ class Node:
     def __ne__(self, other):
         return not self.__eq__(other)
 
-def inorder(root):
-    '''
+def inorder(root: Node):
+    """
     Returns a string representation of an in-order tree traversal
-    '''
+    """
 
     # create an empty stack
     result = ''
@@ -48,10 +48,10 @@ def inorder(root):
             curr = curr.right
     return result
 
-def preorder(root):
-    '''
+def preorder(root: Node):
+    """
     Returns a string representation of a pre-order tree traversal
-    '''
+    """
     result = ''
     stack = deque()
     stack.append(root)
@@ -71,7 +71,7 @@ def preorder(root):
 
 # An iterative function to do postorder
 # traversal of a given binary tree
-def postorder(root):
+def postorder(root: Node):
     
     result = ''
     stack = deque()
@@ -95,4 +95,96 @@ def postorder(root):
             root = None
     
     return result
+
+
+def tree_to_string(root: Node, string: list):
+    """
+    Function to construct string from binary tree
+    """
+
+    if root is None:
+        return
+
+    # Push the root data as character
+    string.append(str(root.value))
+
+    # if leaf node, then return
+    if not root.left and not root.right:
+        return
+
+    # For left subtree
+    string.append('(')
+    tree_to_string(root.left, string)
+    string.append(')')
  
+    # Only if right child is present to avoid extra parenthesis
+    if root.right:
+        string.append('(')
+        tree_to_string(root.right, string)
+        string.append(')')
+
+
+def string_to_tree_helper(start_index, end_index, arr, root):
+
+    if start_index[0] >= end_index:
+        return None
+
+    if arr[start_index[0]] == "(":
+
+        if arr[start_index[0]+1] != ")":
+
+            if root.left is None:
+
+                if start_index[0] >= end_index:
+                    return
+
+                new_root = Node(arr[start_index[0]+1])
+                root.left = new_root
+                start_index[0] += 2
+                string_to_tree_helper(start_index, end_index, arr, new_root)
+ 
+        else:
+            start_index[0] += 2
+ 
+        if root.right is None:
+
+            if start_index[0] >= end_index:
+                return
+ 
+
+            if arr[start_index[0]] != "(":
+                start_index[0] += 1
+                return
+ 
+            new_root = Node(arr[start_index[0]+1])
+            root.right = new_root
+            start_index[0] += 2
+            string_to_tree_helper(start_index, end_index, arr, new_root)
+
+        else:
+            return
+
+    if arr[start_index[0]] == ")":
+
+        if start_index[0] >= end_index:
+            return
+
+        start_index[0] += 1
+
+        return
+
+    return
+
+
+def string_to_tree(string):
+ 
+    root = Node(string[0])
+ 
+    if len(string) > 1:
+
+        start_index = [1]
+        end_index = len(string)-1
+ 
+        string_to_tree_helper(start_index, end_index, string, root)
+ 
+    return root
