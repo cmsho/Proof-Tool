@@ -50,7 +50,7 @@ class Proof(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"proof for premise : {self.premises}  conclusion {self.conclusion} "
+        return f"proof {self.pk}: premise {self.premises},  conclusion {self.conclusion} "
 
     def get_absolute_url(self):
         return "/proofs"

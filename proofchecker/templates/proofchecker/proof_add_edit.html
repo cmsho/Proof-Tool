@@ -6,12 +6,8 @@
             display: none;
         }
     </style>
-    <h3>Proof: {{ object.id }}</h3>
+    <h3>Proof {{ object.pk }}</h3>
     <hr>
-    {% if response %}
-        <p> <strong>RESULT:</strong> {{ response }} </p>
-        <hr>
-    {% endif %}
     <form action="" method="post">
         <div>
             {% csrf_token %}
@@ -24,11 +20,13 @@
             {{ formset.management_form }}
             <div id="proof-line-list">
                 {% for f in formset %}
-                    <div class="proofline-form" id="proofline-form-{{ forloop.counter0 }}" >
-                        {{ f.as_table }}
-                        <input class="insert-row" type="button" id="id-form-btn-insert-row-{{ forloop.counter0 }}" value="Insert Row" onclick="add_new_form(this)">
-                        <input class="delete-row" type="button" id="id-form-btn-delete-row-{{ forloop.counter0 }}" value="Delete" onclick="removeProofline(this)">
-                    </div>
+                    {% if not f.DELETE.value %}
+                        <div class="proofline-form" id="proofline-form-{{ forloop.counter0 }}">
+                            {{ f.as_table }}
+                            <input class="insert-row" type="button" id="id-form-btn-insert-row-{{ forloop.counter0 }}" value="Insert Row" onclick="add_new_form(this)">
+                            <input class="delete-row" type="button" id="id-form-btn-delete-row-{{ forloop.counter0 }}" value="Delete" onclick="removeProofline(this)">
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
             <div id="empty-form" class="hidden">
@@ -38,6 +36,10 @@
             </div>
         {% endif %}
         <hr>
+        {% if response.err_msg %}
+            <p> <strong>RESULT:</strong> {{ response.err_msg }} </p>
+            <hr>
+        {% endif %}
         <input type="text" class="hidden" id="check-proof">
         <button name="check_proof" type="submit">Check Proof</button>
         <button name="submit" type="submit">Save</button>
@@ -79,11 +81,6 @@
            const targeted_prooflie = document.getElementById("proofline-form-" + id)
            targeted_prooflie.hidden = true
         }
-
-
-        function resetForm(){
-        }
-
 
         const inputFields = document.getElementsByClassName("text-replacement-enabled")
         for (let i of inputFields){
