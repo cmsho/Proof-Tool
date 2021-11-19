@@ -36,16 +36,43 @@
             </div>
         {% endif %}
         <hr>
-        {% if response.err_msg %}
-            <p> <strong>RESULT:</strong> {{ response.err_msg }} </p>
-            <hr>
-        {% endif %}
+
         <input type="text" class="hidden" id="check-proof">
         <button name="check_proof" type="submit">Check Proof</button>
         <button name="submit" type="submit">Save</button>
     </form>
 
+    <hr>
+    
+    <!-- Display validation errors from form fields-->
+    {% for line in formset %}
+        {% for field in line %}
+            {% if field.errors %}
+            <div class="container">
+                {% for error in field.errors %}
+                <div class="row">
+                    {% if line.line_no.value %}
+                    <p><strong>Error on line {{line.line_no.value}} field {{ field.label_tag }}</strong> {{ error }}</p>
+                    {% else %}
+                    <p><strong>Error in field {{ field.label_tag }}</strong> {{ error }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
 
+    <!-- Display response from Proof Checker-->
+    {% if response %}
+
+    {% if response.err_msg %}
+    <p> <strong>Result:</strong> {{ response.err_msg }} </p>
+    {% else %}
+    <p> <strong>Result:</strong> The proof is valid and complete!</p>
+    {% endif %}
+
+    {% endif %}
 
     <script type="text/javascript">
         const addMoreBtn = document.getElementById("add-more")
@@ -55,9 +82,6 @@
 
 
         function add_new_form(button) {
-           {# this is just a sample #}
-           {#if (button) {#}
-           {#    button.preventDefault()#}
 
            let currentFormCount = currentProofLineForms.length
            const formCopyTarget = document.getElementById("proof-line-list")

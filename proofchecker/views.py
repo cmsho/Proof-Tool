@@ -212,6 +212,7 @@ def proof_update_view(request, pk=None):
 
                 for line in formset:
                     if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
+                        print("CLEANED_DATA: " + str(line.cleaned_data))
                         proofline = ProofLineObj()
                         child = line.save(commit=False)
                         child.proof = parent
@@ -219,7 +220,7 @@ def proof_update_view(request, pk=None):
                         proofline.expression = str(child.formula)
                         proofline.rule = str(child.rule)
                         proof.lines.append(proofline)
-
+                        
                 response = verify_proof(proof)
 
             elif 'submit' in request.POST:
@@ -227,7 +228,9 @@ def proof_update_view(request, pk=None):
                 parent.save()
 
                 for line in formset:
+                    print("CLEANED_DATA: " + str(line.cleaned_data))
                     if len(line.cleaned_data) > 0:
+                        print(line.cleaned_data)
                         child = line.save(commit=False)
                         child.proof = parent
                         child.save()
