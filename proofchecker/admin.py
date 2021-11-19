@@ -4,11 +4,18 @@ from .models import User, Proof, Problem, Student, Instructor, Assignment, Cours
 
 # Register your models here.
 admin.site.register(User)
-admin.site.register(Proof)
-admin.site.register(ProofLine)
 admin.site.register(Problem)
 admin.site.register(Student)
 admin.site.register(Instructor)
 admin.site.register(Assignment)
 admin.site.register(Course)
 admin.site.register(StudentAssignment)
+
+class ProofLineInline(admin.TabularInline):
+    model = ProofLine
+
+@admin.register(Proof)
+class ProofAdmin(admin.ModelAdmin):
+    inlines = [
+        ProofLineInline,
+    ] 
