@@ -19,8 +19,9 @@ def home(request):
 def AssignmentPage(request):
     return render(request, "proofchecker/assignment_page.html")
 
+
 def single_proof_checker(request):
-        ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0)
+    ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0)
     qs = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
     formset = ProofLineFormset(request.POST or None, queryset=qs)
@@ -137,121 +138,111 @@ def proof_checker(request):
     return render(request, 'proofchecker/proof_checker.html', context)
 
 
+
+
+
+
+
+
 def proof_create_view(request):
-    # ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0)
     ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
-    qs = ProofLine.objects.none()
+    query_set = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
-    formset = ProofLineFormset(request.POST or None, queryset=qs)
-    response_text = None
+    formset = ProofLineFormset(request.POST or None, queryset=query_set)
+    response = None
 
-    if all([form.is_valid(), formset.is_valid()]):
-        if 'check_proof' in request.POST:
-            print("check_proof clicked")
-            proof = ProofObj(lines=[])
+    if request.POST:
+        if all([form.is_valid(), formset.is_valid()]):
             parent = form.save(commit=False)
-            proof.premises = find_premises(parent.premises)
-            print('\nPREMISES: ' + str(proof.premises))
-            proof.conclusion = str(parent.conclusion)
-            print('CONCLUSION: ' + proof.conclusion + '\n')
-            for line in formset:
-                proofline = ProofLineObj()
-                child = line.save(commit=False)
-                child.proof = parent
-                proofline.line_no = str(child.line_no)
-                print('LINE #: ' + proofline.line_no)
-                proofline.expression = str(child.formula)
-                print('\t EXPRESSION: ' + proofline.expression)
-                proofline.rule = str(child.rule)
-                print('\t RULE: ' + proofline.rule)
-                proof.lines.append(proofline)
-            # Verify the proof!
-            response = verify_proof(proof)
-            if response.err_msg:
-                response_text = response.err_msg
-            else:
-                response_text = 'The proof is valid and complete!'
-            print("\nPROOF.IS_VALID: " + str(response.is_valid))
-            print("ERROR MESSAGE: " + str(response.err_msg))
-        elif 'submit' in request.POST:
-            parent = form.save(commit=False)
-            parent.created_by = request.user
-            parent.save()
-            for f in formset:
-                if not f.cleaned_data['DELETE']:
-                    child = f.save(commit=False)
-                    child.proof = parent
-                    child.save()
+            if 'check_proof' in request.POST:
+                proof = ProofObj(lines=[]) #
+                proof.premises = find_premises(parent.premises)
+                proof.conclusion = str(parent.conclusion)
 
-            return HttpResponseRedirect(reverse('all_proofs'))
+                for line in formset:
+                    if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
+                        proofline = ProofLineObj()
+                        child = line.save(commit=False)
+                        child.proof = parent
+                        proofline.line_no = str(child.line_no)
+                        proofline.expression = str(child.formula)
+                        proofline.rule = str(child.rule)
+                        proof.lines.append(proofline)
 
+                response = verify_proof(proof)
+
+            elif 'submit' in request.POST:
+                parent.created_by = request.user
+                parent.save()
+                for line in formset:
+                    if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
+                        child = line.save(commit=False)
+                        child.proof = parent
+                        child.save()
+
+                return HttpResponseRedirect(reverse('all_proofs'))
     context = {
         "form": form,
         "formset": formset,
-        "response": response_text
+        "response": response
     }
-
     return render(request, 'proofchecker/proof_add_edit.html', context)
 
 
+
+
+
+
+
 def proof_update_view(request, pk=None):
-    obj = get_object_or_404(Proof, pk=pk, created_by=request.user)
-    qs = obj.proofline_set.all()
-
-    form = ProofForm(request.POST or None, instance=obj)
+    obj = get_object_or_404(Proof, pk=pk)
     ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
-    formset = ProofLineFormset(request.POST or None, queryset=qs)
-    response_text = None
+    query_set = ProofLine.objects.all()
+    form = ProofForm(request.POST or None, instance=obj)
+    formset = ProofLineFormset(request.POST or None, queryset=query_set)
+    response = None
 
-    if all([form.is_valid(), formset.is_valid()]):
-        if 'check_proof' in request.POST:
-            print("check_proof clicked")
-            proof = ProofObj(lines=[])
-            parent = form.save(commit=False)
-            proof.premises = find_premises(parent.premises)
-            print('\nPREMISES: ' + str(proof.premises))
-            proof.conclusion = str(parent.conclusion)
-            print('CONCLUSION: ' + proof.conclusion + '\n')
-            for line in formset:
-                proofline = ProofLineObj()
-                child = line.save(commit=False)
-                child.proof = parent
-                proofline.line_no = str(child.line_no)
-                print('LINE #: ' + proofline.line_no)
-                proofline.expression = str(child.formula)
-                print('\t EXPRESSION: ' + proofline.expression)
-                proofline.rule = str(child.rule)
-                print('\t RULE: ' + proofline.rule)
-                proof.lines.append(proofline)
-            # Verify the proof!
-            response = verify_proof(proof)
-            if response.err_msg:
-                response_text = response.err_msg
-            else:
-                response_text = 'The proof is valid and complete!'
-            print("\nPROOF.IS_VALID: " + str(response.is_valid))
-            print("ERROR MESSAGE: " + str(response.err_msg))
-        elif 'submit' in request.POST:
-            print("submit button clicked")
-            parent = form.save(commit=False)
-            parent.save()
-            for f in formset:
-                child = f.save(commit=False)
-                child.proof = parent
-                child.save()
+    if request.POST:
+        parent = form.save(commit=False)
+        if all([form.is_valid(), formset.is_valid()]):
+            if 'check_proof' in request.POST:
+                proof = ProofObj(lines=[]) #
+                proof.premises = find_premises(parent.premises)
+                proof.conclusion = str(parent.conclusion)
 
-                if f.cleaned_data['DELETE']:
-                    child.delete()
+                for line in formset:
+                    if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
+                        proofline = ProofLineObj()
+                        child = line.save(commit=False)
+                        child.proof = parent
+                        proofline.line_no = str(child.line_no)
+                        proofline.expression = str(child.formula)
+                        proofline.rule = str(child.rule)
+                        proof.lines.append(proofline)
 
-            return HttpResponseRedirect(reverse('all_proofs'))
+                response = verify_proof(proof)
+
+            elif 'submit' in request.POST:
+                parent.created_by = request.user
+                parent.save()
+
+                for line in formset:
+                    if len(line.cleaned_data) > 0:
+                        child = line.save(commit=False)
+                        child.proof = parent
+                        child.save()
+
+                        if line.cleaned_data['DELETE']:
+                            child.delete()
+
+                return HttpResponseRedirect(reverse('all_proofs'))
 
     context = {
+        "object": obj,
         "form": form,
         "formset": formset,
-        "object": obj,
-        "response": response_text
+        "response": response
     }
-
     return render(request, 'proofchecker/proof_add_edit.html', context)
 
 
