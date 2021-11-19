@@ -197,7 +197,7 @@ def proof_create_view(request):
 def proof_update_view(request, pk=None):
     obj = get_object_or_404(Proof, pk=pk)
     ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
-    query_set = ProofLine.objects.all()
+    query_set = obj.proofline_set.all()
     form = ProofForm(request.POST or None, instance=obj)
     formset = ProofLineFormset(request.POST or None, queryset=query_set)
     response = None
