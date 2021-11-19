@@ -85,17 +85,23 @@
 
     <!-- Display validation errors from form fields-->
     {% for line in formset %}
+
+        {% if line.non_field_errors %}
+            <div>
+                {{ line.non_field_errors }}
+            </div>
+        {% endif %}
+
         {% for field in line %}
             {% if field.errors %}
             <div class="container">
                 {% for error in field.errors %}
                 <div class="row">
+                    
                     {% if line.line_no.value %}
-                    <p><strong>Error on line {{line.line_no.value}}:</strong> {{ error }}</p>
-                    {% elif error == "This field is required." %}
-                    <p><strong>Error:</strong> All fields are required</p>
+                    <p><strong>Error on line {{line.line_no.value}}, field {{ field.label_tag }}</strong> {{ error }}</p>
                     {% else %}
-                    <p><strong>Error:</strong> {{ error }}</p>
+                    <p><strong>Error field {{ field.label_tag }}</strong> {{ error }}</p>
 
                     {% endif %}
                 </div>

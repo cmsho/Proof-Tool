@@ -22,15 +22,17 @@ function add_new_form(button) {
 
 function removeProofline(button) {
     var id = button.id.replace(/[^0-9]/g, "")
-    console.log(id)
+    console.log("ID: " + id)
     const mark_deleted = document.getElementById("id_form-" + id + "-DELETE")
+    console.log("MARK_DELETED: " + mark_deleted.id)
     mark_deleted.setAttribute("checked", "true")
     const targeted_proofline = document.getElementById("proofline-form-" + id)
+    console.log("TARGETED_PROOFLINE: " + targeted_proofline.id)
     targeted_proofline.hidden = true
 }
 
 const inputFields = document.getElementsByClassName("text-replacement-enabled")
 for (let i of inputFields){
-    console.log(i)
+    // console.log(i)
     i.setAttribute("onkeydown", "replaceCharacter(this);")
 }

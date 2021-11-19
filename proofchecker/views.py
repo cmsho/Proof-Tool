@@ -137,13 +137,6 @@ def proof_checker(request):
     }
     return render(request, 'proofchecker/proof_checker.html', context)
 
-
-
-
-
-
-
-
 def proof_create_view(request):
     ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
     query_set = ProofLine.objects.none()
@@ -157,19 +150,28 @@ def proof_create_view(request):
             if 'check_proof' in request.POST:
                 proof = ProofObj(lines=[]) #
                 proof.premises = find_premises(parent.premises)
+                print('\nPREMISES: ' + str(proof.premises))
                 proof.conclusion = str(parent.conclusion)
+                print('CONCLUSION: ' + proof.conclusion + '\n')
 
                 for line in formset:
                     if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
+                        print("DELETE IS CHECKED: " + str(line.cleaned_data['DELETE']) + '\n')
+                        print("CLEANED DATA: " + str(line.cleaned_data)  + '\n')
                         proofline = ProofLineObj()
                         child = line.save(commit=False)
                         child.proof = parent
                         proofline.line_no = str(child.line_no)
+                        print('LINE #: ' + proofline.line_no)
                         proofline.expression = str(child.formula)
+                        print('\t EXPRESSION: ' + proofline.expression)
                         proofline.rule = str(child.rule)
+                        print('\t RULE: ' + proofline.rule)
                         proof.lines.append(proofline)
 
                 response = verify_proof(proof)
+                print("\nPROOF.IS_VALID: " + str(response.is_valid))
+                print("ERROR MESSAGE: " + str(response.err_msg))
 
             elif 'submit' in request.POST:
                 parent.created_by = request.user
@@ -188,14 +190,9 @@ def proof_create_view(request):
     }
     return render(request, 'proofchecker/proof_add_edit.html', context)
 
-
-
-
-
-
-
 def proof_update_view(request, pk=None):
     obj = get_object_or_404(Proof, pk=pk)
+    print("OBJ: " + str(obj))
     ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
     query_set = obj.proofline_set.all()
     form = ProofForm(request.POST or None, instance=obj)
@@ -211,13 +208,19 @@ def proof_update_view(request, pk=None):
                 proof.conclusion = str(parent.conclusion)
 
                 for line in formset:
+                    print(line)
                     if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
+                        print("DELETE IS CHECKED: " + str(line.cleaned_data['DELETE']) + '\n')
+                        print("CLEANED DATA: " + str(line.cleaned_data)  + '\n')
                         proofline = ProofLineObj()
                         child = line.save(commit=False)
                         child.proof = parent
                         proofline.line_no = str(child.line_no)
+                        print('LINE #: ' + proofline.line_no)
                         proofline.expression = str(child.formula)
+                        print('\t EXPRESSION: ' + proofline.expression)
                         proofline.rule = str(child.rule)
+                        print('\t RULE: ' + proofline.rule)
                         proof.lines.append(proofline)
 
                 response = verify_proof(proof)

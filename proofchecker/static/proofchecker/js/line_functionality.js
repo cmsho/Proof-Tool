@@ -3,9 +3,9 @@ headers = ['#', 'Expression', 'Justification', '', '', '', '']
 
 
 function replaceCharacter(ev) {
-    console.log(document.getElementById(ev.id));
+    // console.log(document.getElementById(ev.id));
     let txt = document.getElementById(ev.id).value;
-    console.log(txt);
+    // console.log(txt);
 
     txt = txt.replace("\\and", "∧");
     txt = txt.replace("\\or", "∨");
