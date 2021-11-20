@@ -155,7 +155,7 @@ def proof_create_view(request):
                 print('CONCLUSION: ' + proof.conclusion + '\n')
 
                 for line in formset:
-                    if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
+                    if len(line.cleaned_data) > 2 and not line.cleaned_data['DELETE']:
                         print("DELETE IS CHECKED: " + str(line.cleaned_data['DELETE']) + '\n')
                         print("CLEANED DATA: " + str(line.cleaned_data)  + '\n')
                         proofline = ProofLineObj()
@@ -177,7 +177,7 @@ def proof_create_view(request):
                 parent.created_by = request.user
                 parent.save()
                 for line in formset:
-                    if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
+                    if len(line.cleaned_data) > 2 and not line.cleaned_data['DELETE']:
                         child = line.save(commit=False)
                         child.proof = parent
                         child.save()
@@ -192,7 +192,7 @@ def proof_create_view(request):
 
 def proof_update_view(request, pk=None):
     obj = get_object_or_404(Proof, pk=pk)
-    print("OBJ: " + str(obj))
+    # print("OBJ: " + str(obj))
     ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
     query_set = obj.proofline_set.all()
     form = ProofForm(request.POST or None, instance=obj)
@@ -208,8 +208,8 @@ def proof_update_view(request, pk=None):
                 proof.conclusion = str(parent.conclusion)
 
                 for line in formset:
-                    print(line)
-                    if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
+                    if len(line.cleaned_data) > 2 and not line.cleaned_data['DELETE']:
+                        print(line.cleaned_data)
                         print("DELETE IS CHECKED: " + str(line.cleaned_data['DELETE']) + '\n')
                         print("CLEANED DATA: " + str(line.cleaned_data)  + '\n')
                         proofline = ProofLineObj()
@@ -230,7 +230,7 @@ def proof_update_view(request, pk=None):
                 parent.save()
 
                 for line in formset:
-                    if len(line.cleaned_data) > 0:
+                    if len(line.cleaned_data) > 2:
                         child = line.save(commit=False)
                         child.proof = parent
                         child.save()

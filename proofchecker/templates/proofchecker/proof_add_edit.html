@@ -27,6 +27,7 @@
 
         <thead id="column-titles">
             <tr class="font-weight-bold">
+                <td>ID</td>
                 <td>Line #</td>
                 <td>Expression</td>
                 <td>Rule</td>
@@ -37,6 +38,7 @@
             {% for line in formset %}
                 {% if not line.DELETE.value %}
                     <tr class="proofline-form" id="proofline-form-{{ forloop.counter0 }}">
+                        <td>{{ line.id }}</td>
                         <td>{{ line.line_no }}</td>
                         <td>{{ line.formula }}</td>
                         <td>{{ line.rule }}</td>
@@ -56,6 +58,7 @@
             {% endfor %}
 
             <tr id="empty-form" class="hidden">
+                <td>{{ formset.empty_form.id }}</td>
                 <td>{{ formset.empty_form.line_no }}</td>
                 <td>{{ formset.empty_form.formula }}</td>
                 <td>{{ formset.empty_form.rule }}</td>
@@ -68,7 +71,7 @@
                         value="Delete" onclick="removeProofline(this)">
                 </td>
                 <td class="hidden">
-                    {{ formset.empty_form.DELETE}}
+                    {{ formset.empty_form.DELETE }}
                 </td>
             </tr>
         </tbody>
@@ -98,12 +101,15 @@
                 {% for error in field.errors %}
                 <div class="row">
                     
-                    {% if line.line_no.value %}
-                    <p><strong>Error on line {{line.line_no.value}}, field {{ field.label_tag }}</strong> {{ error }}</p>
-                    {% else %}
-                    <p><strong>Error field {{ field.label_tag }}</strong> {{ error }}</p>
-
+                    <!-- Only display the errors if the line is not marked for deletion -->
+                    {% if not line.DELETE %}
+                        {% if line.line_no.value %}
+                        <p><strong>Error on line {{line.line_no.value}}, field {{ field.label_tag }}</strong> {{ error }}</p>
+                        {% else %}
+                        <p><strong>Error field {{ field.label_tag }}</strong> {{ error }}</p>
+                        {% endif %}
                     {% endif %}
+
                 </div>
                 {% endfor %}
             </div>
