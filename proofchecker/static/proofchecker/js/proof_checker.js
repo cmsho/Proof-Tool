@@ -2,7 +2,6 @@
  * A JavaScript file containing code that manipulates the behavior of the various form elements on the Validate Your Proof page
  */
 
-
 //Add Line button
 const addMoreBtn = document.getElementById("add-more")
 const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
