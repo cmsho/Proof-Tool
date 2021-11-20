@@ -1,0 +1,35 @@
+<a href="{% url 'all_proofs' %}">
+    <button class="btn btn-primary">
+        Back to All Proofs
+    </button>
+</a>
+
+<hr>
+
+<div class="card bg-light mb-3">
+    <div class="card-header">
+        <h1 style="text-align: center"><b>Proof {{ object.id }}</b></h5>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item"><b>Premise(s):</b> {{ object.premises }}</li>
+        <li class="list-group-item"><b>Conclusion:</b> {{ object.conclusion }}</li>
+        <li class="list-group-item"><b>Line Count:</b> {{ object.proofline_set.count }} </li>
+        <li class="list-group-item">
+            {% for line in object.get_prooflines %}
+                <p>{{ line }}</p>
+            {% endfor %}
+        </li>
+    </ul>
+
+    <div class="card-body">
+
+        {% if object.get_edit_url %}
+            <a href="{{ object.get_edit_url }}" class="card-link"> Edit </a>
+        {% endif %}
+        {% if object.get_delete_url %}
+            <a href="{{ object.get_delete_url }}" class="card-link"> Delete </a>
+        {% endif %}
+
+        <!-- <a href="{% url 'delete_proof' object.id %}" class="card-link"> Delete </a> -->
+    </div>
+</div>

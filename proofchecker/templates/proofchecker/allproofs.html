@@ -2,9 +2,10 @@
 
 {% block content %}
 
-    <a href="{% url 'add_proof' %}" class="btn btn-primary"> Add a new Proof </a>
+<a href="{% url 'add_proof' %}" class="btn btn-primary"> Add a new Proof </a>
 
 <hr>
+
 <div class="d-flex flex-row justify-content-start">
     <div class="row">
         {% for object in object_list %}
@@ -16,9 +17,10 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item"><b>Premise(s):</b> {{ object.premises }}</li>
                     <li class="list-group-item"><b>Conclusion:</b> {{ object.conclusion }}</li>
-                    <li class="list-group-item"><b>Lines:</b> {{ object.proofline_set.count }} </li>
+                    <li class="list-group-item"><b>Line Count:</b> {{ object.proofline_set.count }} </li>
                 </ul>
                 <div class="card-body">
+                <a href="{% url 'proof_detail' object.id %}" class="card-link"> Detail </a>
                 <a href="{% url 'update_proof' object.id %}" class="card-link"> Edit </a>
                 <a href="{% url 'delete_proof' object.id %}" class="card-link"> Delete </a>
                 </div>

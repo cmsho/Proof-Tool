@@ -51,14 +51,26 @@ class Proof(models.Model):
 
     def __str__(self):
         return ("Proof {}:\nPremises: {},\nConclusion: {}\nLine Count: {}").format(
-            self.pk,
+            self.id,
             self.premises,
             self.conclusion,
             self.proofline_set.count()
         )
 
     def get_absolute_url(self):
-        return "/proofs"
+        return reverse("proof_detail", kwargs={"id": self.id})
+
+    def get_hx_url(self):
+        return reverse("hx-detail", kwargs={"id": self.id})
+
+    def get_edit_url(self):
+        return reverse("update_proof", kwargs={"id": self.id})
+
+    def get_delete_url(self):
+        return reverse("delete_proof", kwargs={"id": self.id})
+
+    def get_prooflines(self):
+        return self.proofline_set.all()
 
 
 class ProofLine(models.Model):
@@ -73,6 +85,23 @@ class ProofLine(models.Model):
             self.formula,
             self.rule
         ))
+    
+    def get_absolute_url(self):
+        return self.proof.get_absolute_url()
+    
+    def get_delete_url(self):
+        kwargs = {
+            "parent_id": self.proof.id,
+            "id": self.id
+        }
+        return reverse("delete_proofline", kwargs=kwargs)
+    
+    def get_hx_edit_url(self):
+        kwargs = {
+            "parent_id": self.proof.id,
+            "id": self.id
+        }
+        return reverse("hx_proofline_detail", kwargs=kwargs)
 
 
 class Problem(models.Model):

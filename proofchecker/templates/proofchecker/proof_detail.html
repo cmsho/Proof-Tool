@@ -1,15 +1,10 @@
 {% extends 'proofchecker/base.html' %}
 {% load static %}
 {% block content %}
-    </div>
-    <p>{{ object.premise }}</p>
-    <p>{{ object.conclusion }}</p>
 
-    </div>
+<div hx-get='{{ hx_url }}' hx-trigger='revealed'>
+    <div class='htmx-indicator'>Loading...</div>
+</div>
 
 
-{% endblock %}
-
-{% block js_block %}
-    <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
 {% endblock %}
