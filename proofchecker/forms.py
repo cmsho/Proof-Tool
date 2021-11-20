@@ -11,7 +11,7 @@ class ProofForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProofForm, self).__init__(*args, **kwargs)
         for visible in self.visible_fields():
-            visible.field.widget.attrs['class'] = 'text-replacement-enabled'
+            visible.field.widget.attrs['onkeydown'] = 'replaceCharacter(this)'
 
 class ProofLineForm(forms.ModelForm):
     class Meta:
@@ -21,7 +21,8 @@ class ProofLineForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProofLineForm, self).__init__(*args, **kwargs)
         for visible in self.visible_fields():
-            visible.field.widget.attrs['class'] = 'text-replacement-enabled'
+            visible.field.widget.attrs['onkeydown'] = 'replaceCharacter(this)'
+
 
 
 class AssignmentForm(forms.ModelForm):

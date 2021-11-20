@@ -18,6 +18,22 @@
     display: none;
   }
 
+  .htmx-indicator {
+    display: none;
+  }
+
+  .htmx-request .htmx-indicator {
+    display: inline;
+  }
+
+  .htmx-inverted-indicator {
+    display: inline;
+  }
+
+  .htmx-request .htmx-indicator {
+    display: none;
+  }
+
   .left-side-navigation {
     padding-top: 20px;
     position: fixed;
