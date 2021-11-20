@@ -129,6 +129,9 @@ def proof_checker(request):
             "response": response
         }
 
+        if request.htmx:
+            return render(request, 'proofchecker/partials/proof_form.html', context)
+
         return render(request, 'proofchecker/proof_checker.html', context)
 
     context = {
@@ -136,12 +139,6 @@ def proof_checker(request):
         "formset": formset
     }
     return render(request, 'proofchecker/proof_checker.html', context)
-
-
-
-
-
-
 
 
 def proof_create_view(request):
@@ -187,12 +184,6 @@ def proof_create_view(request):
         "response": response
     }
     return render(request, 'proofchecker/proof_add_edit.html', context)
-
-
-
-
-
-
 
 def proof_update_view(request, pk=None):
     obj = get_object_or_404(Proof, pk=pk)
