@@ -81,3 +81,109 @@ function update_form_ids() {
         }
     }
 }
+
+// Helper function to set multiple attributes at once
+function setAttributes(el, attrs) {
+    for(var key in attrs) {
+        el.setAttribute(key, attrs[key]);
+    }
+}
+
+
+const beginProofBtn = document.getElementById("begin_proof")
+beginProofBtn.addEventListener("click", begin_proof)
+
+// Function to automatically populate premise and conclusion values
+function begin_proof() {
+
+    var premises = document.getElementById('id_premises').value
+    console.log(premises)
+    var conclusion = document.getElementById('id_conclusion').value
+    console.log(conclusion)
+
+    // Separate the premises
+    var premiseArray = premises.split(",").map(item => item.trim())
+    console.log(premiseArray)
+
+    var prooflineList = document.getElementById('proof-line-list')
+
+    for (i = 0; i < premiseArray.length; i++) {
+        console.log(`Writing line ${i}...`)
+        var premiseRow = document.createElement('tr')
+        premiseRow.setAttribute('class', 'proofline-form')
+
+        for (x = 0; x < 4; x++) {
+            var td = document.createElement('td')
+            var input = document.createElement('input')
+    
+            // ------------------------------------
+            // Set attributes for the input field
+    
+            // line_no
+            if (x == 0) {
+                var attrs = {
+                    "type": "text",
+                    "maxlength": "100",
+                    "onkeydown": "replaceCharacter(this)",
+                    "value": (i + 1)
+                }
+                setAttributes(input, attrs)
+            }
+    
+            // formula
+            if (x == 1) {
+                var attrs = {
+                    "type": "text",
+                    "maxlength": "255",
+                    "onkeydown": "replaceCharacter(this)",
+                    "value": `${premiseArray[i]}`
+                }
+                setAttributes(input, attrs)
+            }
+
+            // rule
+            if (x == 2) {
+                var attrs = {
+                    "type": "text",
+                    "maxlength": "255",
+                    "onkeydown": "replaceCharacter(this)",
+                    "value": "Premise"
+                }
+                setAttributes(input, attrs)
+            }
+    
+            // delete button
+            if (x == 3) {
+                var attrs = {
+                    "class": "delete-row btn btn-secondary",
+                    "type": "button",
+                    "value": "Delete Row",
+                    "onclick": "delete_form(this)"
+                }
+                setAttributes(input, attrs)
+            }
+    
+            // ------------------------------------
+    
+            // Add <input> in <td>, add <td> in <tr>
+            td.appendChild(input)
+            console.log(`TD: \n${td}`)
+            premiseRow.appendChild(td)
+            console.log(`Premise Row: \n${premiseRow}`)
+    
+        }
+    
+        // Add <tr> in <tbody>
+        prooflineList.appendChild(premiseRow)
+
+    }
+
+    // Update row IDs
+    update_form_ids()
+
+    // Update the form count
+    const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
+    let currentFormCount = currentProofLineForms.length
+    totalNewForms.setAttribute('value', currentFormCount)
+
+}
