@@ -4,6 +4,7 @@ from .utils.tfllex import lexer as tfllexer
 from .utils.numlex import lexer as numlexer
 from .utils.binarytree import Node
 
+# Objects
 class ProofObj:
     
     def __init__(self, premises=[], conclusion='', lines=[], created_by=''):
@@ -37,6 +38,44 @@ class ProofResponse:
     def __init__(self, is_valid=False, err_msg=None):
         self.is_valid = is_valid
         self.err_msg = err_msg
+
+
+# Parsing methods
+def depth(line_no):
+    """
+    Calculates the depth of a line number
+    """
+    return numparse.parser.parse(line_no, lexer=numlexer)
+
+def make_tree(string: str):
+    """
+    Function to construct a binary tree
+    """
+    return tflparse.parser.parse(string, lexer=tfllexer)
+
+def is_line_no(string: str):
+    """
+    Function to determine if a line number is valid
+    """
+    return numparse.parser.parse(string, lexer=numlexer)
+
+
+# Proof Verification
+def is_conclusion(current_line: ProofLineObj, proof: ProofObj):
+    """
+    Verify whether the current_line is the desired conclusion
+    """
+    response = ProofResponse
+    try:
+        current = make_tree(current_line.expression)
+        conclusion = make_tree(proof.conclusion)
+
+        if current == conclusion:
+            return True
+        
+        return False
+    except:
+        return False
 
 def is_valid_expression(expression: str):
     """
@@ -122,10 +161,19 @@ def verify_proof(proof: ProofObj):
 
     # If the last line is the desired conclusion, it is a full and complete proof
     if conclusion:
-        return response
+        if (last_line.rule.casefold() == 'assumption') or (last_line.rule.casefold() == 'assumpt'):
+            response.err_msg = "Proof cannot be concluded with an assumption"
+            return response            
+        elif depth(last_line.line_no) > 1:
+            response.err_msg = "Proof cannot be concluded within in a subproof"
+            return response
+        else:
+            response.is_valid = True
+            return response
 
     # If not, the proof is incomplete
     else:
+        response.is_valid = True
         response.err_msg = "All lines are valid, but the proof is incomplete"
         return response
 
@@ -196,12 +244,6 @@ def verify_rule(current_line: ProofLineObj, proof: ProofObj):
     response.err_msg = "Rule on line {} cannot be determined"\
         .format(str(current_line.line_no))
     return response
-
-def depth(line_no):
-    """
-    Calculates the depth of a line number
-    """
-    return numparse.parser.parse(line_no, lexer=numlexer)
 
 def verify_line_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
     """
@@ -297,36 +339,6 @@ def verify_subproof_citation(current_line: ProofLineObj, cited_line: ProofLineOb
     except:
         response.err_msg = "Line numbers are not formatted properly"
         return response
-
-
-def make_tree(string: str):
-    """
-    Function to construct a binary tree
-    """
-    return tflparse.parser.parse(string, lexer=tfllexer)
-
-def is_line_no(string: str):
-    """
-    Function to determine if a line number is valid
-    """
-    return numparse.parser.parse(string, lexer=numlexer)
-
-def is_conclusion(current_line: ProofLineObj, proof: ProofObj):
-    """
-    Verify whether the current_line is the desired conclusion
-    """
-    response = ProofResponse
-    try:
-        current = make_tree(current_line.expression)
-        conclusion = make_tree(proof.conclusion)
-
-        if current == conclusion:
-            return True
-        
-        return False
-    except:
-        return False
-
 
 def find_premises(premises: str):
     """
