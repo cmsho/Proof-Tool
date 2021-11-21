@@ -182,8 +182,13 @@ function begin_proof() {
     update_form_ids()
 
     // Update the form count
+    update_form_count()
+
+}
+
+function update_form_count(){
     const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
+    const currentProofLineForms = document.getElementsByClassName("proofline-form")
     let currentFormCount = currentProofLineForms.length
     totalNewForms.setAttribute('value', currentFormCount)
-
 }
