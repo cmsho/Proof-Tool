@@ -1,3 +1,17 @@
+function replaceCharacter(ev) {
+    // console.log(document.getElementById(ev.id));
+    let txt = document.getElementById(ev.id).value;
+    // console.log(txt);
+
+    txt = txt.replace("\\and", "∧");
+    txt = txt.replace("\\or", "∨");
+    txt = txt.replace("\\implies", "→");
+    txt = txt.replace("\\not", "¬");
+    txt = txt.replace("\\iff", "↔");
+    txt = txt.replace("\\contradiction", "⊥");
+    document.getElementById(ev.id).value = txt;
+}
+
 const addMoreBtn = document.getElementById("add-more")
 const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
 const currentProofLineForms = document.getElementsByClassName("proofline-form")
@@ -36,25 +50,36 @@ function delete_form(button){
     update_form_ids()
 }
 
-function replaceCharacter(ev) {
-    // console.log(document.getElementById(ev.id));
-    let txt = document.getElementById(ev.id).value;
-    // console.log(txt);
-
-    txt = txt.replace("\\and", "∧");
-    txt = txt.replace("\\or", "∨");
-    txt = txt.replace("\\implies", "→");
-    txt = txt.replace("\\not", "¬");
-    txt = txt.replace("\\iff", "↔");
-    txt = txt.replace("\\contradiction", "⊥");
-    document.getElementById(ev.id).value = txt;
-}
-
 function update_form_ids() {
     const forms = document.getElementsByClassName("proofline-form")
     for (i = 0; i < forms.length; i++) {
-        console.log(`Current form ID: ${forms[i].getAttribute('id')}`)
+
+        // Update the ID of each table row
         forms[i].setAttribute('id', `form-${i}`)
-        console.log(`New form ID: ${forms[i].getAttribute('id')} `)
+
+        // Update the ID of each input field (nested in <td>)
+        var children = forms[i].children
+        for (x = 0; x < children.length; x++) {
+
+            // Input field is child of <td>
+            var input = children[x].children[0]
+
+            // Rename all input fields
+            if (x==0) {
+                input.setAttribute('name', `form-${i}-line_no`)
+                input.setAttribute('id', `id_form-${i}-line_no`) 
+            }
+            if (x==1) {
+                input.setAttribute('name', `form-${i}-formula`)
+                input.setAttribute('id', `id_form-${i}-formula`)
+            }
+            if (x==2) {
+                input.setAttribute('name', `form-${i}-rule`)
+                input.setAttribute('id', `id_form-${i}-rule`)
+            }
+            if (x==3) {
+                input.setAttribute('id', `delete-btn-${i}`)
+            }  
+        }
     }
 }

@@ -21,29 +21,20 @@ def AssignmentPage(request):
 
 
 def proof_checker(request):
-    print("REQUEST: " + str(request) + "\n")
-    print("REQUEST.POST: " + str(request.POST) + "\n")
-    ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0)
+    ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
     qs = ProofLine.objects.none()
-    print("QUERYSET: " + str(qs) + "\n")
     form = ProofForm(request.POST or None)
-    print("FORM: " + str(form) + "\n")
     formset = ProofLineFormset(request.POST or None, queryset=qs)
-    print("FORMSET: " + str(formset) + "\n")
 
     if all([form.is_valid(), formset.is_valid()]):
-        
         # Create a new proof object
         proof = ProofObj(lines=[])
 
         # Grab premise and conclusion from the form
         # Assign them to the proof object
         parent = form.save(commit=False)
-        print("PARENT FORM: " + str(parent) + "\n")
         proof.premises = find_premises(parent.premises)
-        print('\nPREMISES: ' + str(proof.premises))
         proof.conclusion = str(parent.conclusion)
-        print('CONCLUSION: ' + proof.conclusion + '\n')
 
         for line in formset:
             # Create a proofline object
@@ -55,19 +46,14 @@ def proof_checker(request):
             child.proof = parent
             
             proofline.line_no = str(child.line_no)
-            print('LINE #: ' + proofline.line_no)
             proofline.expression = str(child.formula)
-            print('\t EXPRESSION: ' + proofline.expression)
             proofline.rule = str(child.rule)
-            print('\t RULE: ' + proofline.rule)
 
             # Append the proofline to the proof object's lines
             proof.lines.append(proofline)
 
         # Verify the proof!
         response = verify_proof(proof)
-        print("\nPROOF.IS_VALID: " + str(response.is_valid))
-        print("ERROR MESSAGE: " + str(response.err_msg))
 
         # Send the response back
         context = {
@@ -75,7 +61,6 @@ def proof_checker(request):
             "formset": formset,
             "response": response
         }
-
         return render(request, 'proofchecker/proof_checker.html', context)
 
     context = {

@@ -30,25 +30,27 @@
 
             <tbody id="proof-line-list">
                 {% for line in formset %}
-                    <tr class="proofline-form" id="form-{{ forloop.counter0 }}">
+                    <tr id="form-{{ forloop.counter0 }}" class="proofline-form">
                         <td>{{ line.line_no }}</td>
                         <td>{{ line.formula }}</td>
                         <td>{{ line.rule }}</td>
                         <td>
-                            <input class="delete-row" type="button" id="delete-btn-{{ forloop.counter0 }}" value="Delete" onclick="delete_form(this)">
+                            <input class="delete-row" type="button" id="delete-btn-{{ forloop.counter0 }}" value="Delete Row" onclick="delete_form(this)">
                         </td>
                     </tr>
                 {% endfor %}
-                
-                <tr id="empty-form" class="hidden">
-                    <td>{{ formset.empty_form.line_no }}</td>
-                    <td>{{ formset.empty_form.formula }}</td>
-                    <td>{{ formset.empty_form.rule }}</td>
-                    <td>
-                        <input class="delete-row" type="button" id="delete-btn-__prefix__" value="Delete" onclick="delete_form(this)">
-                    </td>
-                </tr>
+            
             </tbody>
+
+            <tr id="empty-form" class="hidden">
+                <td>{{ formset.empty_form.line_no }}</td>
+                <td>{{ formset.empty_form.formula }}</td>
+                <td>{{ formset.empty_form.rule }}</td>
+                <td>
+                    <input class="delete-row" type="button" id="delete-btn-__prefix__" value="Delete" onclick="delete_form(this)">
+                </td>
+            </tr>
+
 
         </table>
 
