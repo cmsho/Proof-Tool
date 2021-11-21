@@ -35,9 +35,7 @@ function add_new_form(event){
 function delete_form(button){
     // Delete the row
     var id = button.id.replace(/[^0-9]/g, "")
-    console.log("Button ID: " + id)
     const form_to_delete = document.getElementById("form-" + id)
-    console.log("Element to delete: " + form_to_delete)
     form_to_delete.remove()
 
     // Update the row count
