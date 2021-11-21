@@ -14,6 +14,10 @@
     padding-right: 10px;
   }
   
+  .hidden{
+    display: none;
+  }
+
   .left-side-navigation {
     padding-top: 20px;
     position: fixed;
