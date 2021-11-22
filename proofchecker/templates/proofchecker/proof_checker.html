@@ -36,7 +36,7 @@
                         <td>{{ line.formula }}</td>
                         <td>{{ line.rule }}</td>
                         <td>
-                            <input class="delete-row" type="button" id="delete-btn-{{ forloop.counter0 }}" value="Delete Row" onclick="delete_form(this)">
+                            <input class="delete-row btn btn-secondary" type="button" id="delete-btn-{{ forloop.counter0 }}" value="Delete Row" onclick="delete_form(this)">
                         </td>
                     </tr>
                 {% endfor %}
@@ -48,19 +48,19 @@
                 <td>{{ formset.empty_form.formula }}</td>
                 <td>{{ formset.empty_form.rule }}</td>
                 <td>
-                    <input class="delete-row" type="button" id="delete-btn-__prefix__" value="Delete Row" onclick="delete_form(this)">
+                    <input class="delete-row btn btn-secondary" type="button" id="delete-btn-__prefix__" value="Delete Row" onclick="delete_form(this)">
                 </td>
             </tr>
 
 
         </table>
 
-        <button id="add-more" type="button">Add Proof Line</button>
+        <button id="add-more" class="btn btn-secondary" type="button">Add Proof Line</button>
         {% endif %}
 
         <hr>
         <input type="text" class="hidden" id="check-proof">
-        <button type="submit" class="mb-3">Check Proof</button>
+        <button type="submit" class="btn btn-primary mb-3">Check Proof</button>
 
         <!-- Display validation errors from form fields-->
         {% for line in formset %}
