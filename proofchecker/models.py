@@ -50,10 +50,15 @@ class Proof(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"proof for premise : {self.premises}  conclusion {self.conclusion} "
+        return ("Proof {}:\nPremises: {},\nConclusion: {}\nLine Count: {}").format(
+            self.pk,
+            self.premises,
+            self.conclusion,
+            self.proofline_set.count()
+        )
 
     def get_absolute_url(self):
-        return f"/proofs/{self.pk}/update"
+        return "/proofs"
 
 
 class ProofLine(models.Model):
@@ -63,7 +68,11 @@ class ProofLine(models.Model):
     rule = models.CharField(max_length=255)
 
     def __str__(self):
-        return f"{self.line_no}+{self.formula}+{self.rule}"
+        return ('Line {}: {}, {}'.format(
+            self.line_no,
+            self.formula,
+            self.rule
+        ))
 
 
 class Problem(models.Model):

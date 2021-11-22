@@ -1,6 +1,9 @@
+from django.contrib import admin
 from django.urls import path
 
 from . import views
+
+admin.site.site_header = "ProofChecker Admin"
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -17,5 +20,5 @@ urlpatterns = [
     path("proofs/<pk>/delete/", views.ProofDeleteView.as_view(), name="delete_proof"),
     path("proofs/assignmentpage/", views.AssignmentPage, name='assignment_page'),
     path("proofs/checker/", views.proof_checker, name='proof_checker'),
-
+    path("proofs/singleproofchecker",views.single_proof_checker, name='single_proof_checker'),
 ]
