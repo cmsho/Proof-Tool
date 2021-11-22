@@ -17,8 +17,8 @@ const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
 const currentProofLineForms = document.getElementsByClassName("proofline-form")
 addMoreBtn.addEventListener("click", add_new_form)
 
-function add_new_form(event){
-    if (event){
+function add_new_form(event) {
+    if (event) {
         event.preventDefault()
     }
     let currentFormCount = currentProofLineForms.length
@@ -32,7 +32,7 @@ function add_new_form(event){
     formCopyTarget.append(emptyFormElement)
 }
 
-function delete_form(button){
+function delete_form(button) {
     // Delete the row
     var id = button.id.replace(/[^0-9]/g, "")
     const form_to_delete = document.getElementById("form-" + id)
@@ -63,28 +63,28 @@ function update_form_ids() {
             var input = children[x].children[0]
 
             // Rename all input fields
-            if (x==0) {
+            if (x == 0) {
                 input.setAttribute('name', `form-${i}-line_no`)
-                input.setAttribute('id', `id_form-${i}-line_no`) 
+                input.setAttribute('id', `id_form-${i}-line_no`)
             }
-            if (x==1) {
+            if (x == 1) {
                 input.setAttribute('name', `form-${i}-formula`)
                 input.setAttribute('id', `id_form-${i}-formula`)
             }
-            if (x==2) {
+            if (x == 2) {
                 input.setAttribute('name', `form-${i}-rule`)
                 input.setAttribute('id', `id_form-${i}-rule`)
             }
-            if (x==3) {
+            if (x == 3) {
                 input.setAttribute('id', `delete-btn-${i}`)
-            }  
+            }
         }
     }
 }
 
 // Helper function to set multiple attributes at once
 function setAttributes(el, attrs) {
-    for(var key in attrs) {
+    for (var key in attrs) {
         el.setAttribute(key, attrs[key]);
     }
 }
@@ -115,10 +115,10 @@ function begin_proof() {
         for (x = 0; x < 4; x++) {
             var td = document.createElement('td')
             var input = document.createElement('input')
-    
+
             // ------------------------------------
             // Set attributes for the input field
-    
+
             // line_no
             if (x == 0) {
                 var attrs = {
@@ -129,7 +129,7 @@ function begin_proof() {
                 }
                 setAttributes(input, attrs)
             }
-    
+
             // formula
             if (x == 1) {
                 var attrs = {
@@ -151,7 +151,7 @@ function begin_proof() {
                 }
                 setAttributes(input, attrs)
             }
-    
+
             // delete button
             if (x == 3) {
                 var attrs = {
@@ -162,17 +162,17 @@ function begin_proof() {
                 }
                 setAttributes(input, attrs)
             }
-    
+
             // ------------------------------------
-    
+
             // Add <input> in <td>, add <td> in <tr>
             td.appendChild(input)
             console.log(`TD: \n${td}`)
             premiseRow.appendChild(td)
             console.log(`Premise Row: \n${premiseRow}`)
-    
+
         }
-    
+
         // Add <tr> in <tbody>
         prooflineList.appendChild(premiseRow)
 
@@ -184,9 +184,13 @@ function begin_proof() {
     // Update the form count
     update_form_count()
 
+    // hide the begin_proof button
+    const beginProofBtn = document.getElementById("begin_proof");
+    beginProofBtn.style.display = 'none';
+
 }
 
-function update_form_count(){
+function update_form_count() {
     const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
     const currentProofLineForms = document.getElementsByClassName("proofline-form")
     let currentFormCount = currentProofLineForms.length
