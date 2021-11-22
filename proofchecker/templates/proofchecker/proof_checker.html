@@ -1,17 +1,15 @@
 {% extends 'proofchecker/base.html' %}
 {% load static %}
 {% block content %}
-     <style>
-        .hidden{
-            display: none;
-        }
-    </style>
+
     <h2><strong>ProofChecker v0.1: </strong>Validate your proof!</h2>
     <hr>
+
     <form action="" method="post">
         <div>
             {% csrf_token %}
             {{ form.as_table }}
+            <button id="begin_proof" class="btn btn-primary mx-2" type="button">Begin Proof</button>
         </div>
 
         <hr>
@@ -21,7 +19,7 @@
         {{ formset.management_form }}
 
         <!-- Display lines -->
-        <table class="table table-striped table-bordered table-hover table-sm table-responsive">
+        <table class="table table-hover table-sm table-responsive">
 
             <thead id="column-titles">
                 <tr class="font-weight-bold">
@@ -33,28 +31,36 @@
 
             <tbody id="proof-line-list">
                 {% for line in formset %}
-                    <tr class="proofline-form">
+                    <tr id="form-{{ forloop.counter0 }}" class="proofline-form">
                         <td>{{ line.line_no }}</td>
                         <td>{{ line.formula }}</td>
                         <td>{{ line.rule }}</td>
+                        <td>
+                            <input class="delete-row btn btn-secondary" type="button" id="delete-btn-{{ forloop.counter0 }}" value="Delete Row" onclick="delete_form(this)">
+                        </td>
                     </tr>
                 {% endfor %}
-                
-                <tr id="empty-form" class="hidden">
-                    <td>{{ formset.empty_form.line_no }}</td>
-                    <td>{{ formset.empty_form.formula }}</td>
-                    <td>{{ formset.empty_form.rule }}</td>
-                </tr>
+            
             </tbody>
+
+            <tr id="empty-form" class="hidden">
+                <td>{{ formset.empty_form.line_no }}</td>
+                <td>{{ formset.empty_form.formula }}</td>
+                <td>{{ formset.empty_form.rule }}</td>
+                <td>
+                    <input class="delete-row btn btn-secondary" type="button" id="delete-btn-__prefix__" value="Delete Row" onclick="delete_form(this)">
+                </td>
+            </tr>
+
 
         </table>
 
-        <button id="add-more" type="button">Add Proof Line</button>
+        <button id="add-more" class="btn btn-secondary" type="button">Add Proof Line</button>
         {% endif %}
 
         <hr>
         <input type="text" class="hidden" id="check-proof">
-        <button type="submit" class="mb-3">Check Proof</button>
+        <button type="submit" class="btn btn-primary mb-3">Check Proof</button>
 
         <!-- Display validation errors from form fields-->
         {% for line in formset %}
@@ -91,38 +97,8 @@
 
     </form>
 
-    <!-- Add line button -->
-    <script type="text/javascript">
-        const addMoreBtn = document.getElementById("add-more")
-        const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
-        const currentProofLineForms = document.getElementsByClassName("proofline-form")
-        addMoreBtn.addEventListener("click", add_new_form)
-        function add_new_form(event){
-            if (event){
-                event.preventDefault()
-            }
-            let currentFormCount = currentProofLineForms.length
-            const formCopyTarget = document.getElementById("proof-line-list")
-            const emptyFormElement = document.getElementById("empty-form").cloneNode(true)
-            emptyFormElement.setAttribute("class", "proofline-form")
-            emptyFormElement.setAttribute("id", `form-${currentFormCount}`)
-            const regex = new RegExp('__prefix__', 'g')
-            emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCount)
-            totalNewForms.setAttribute('value', currentFormCount + 1)
-            formCopyTarget.append(emptyFormElement)
-        }
-    </script>
-
-    <!-- Add symbol replacement functionality to input fields -->
-    <script type="text/javascript">
-        const inputFields = document.getElementsByClassName("text-replacement-enabled")
-
-        for (let i of inputFields){
-            console.log(i)
-            i.setAttribute("onkeydown", "replaceCharacter(this);")
-        }
-    </script>
-
 {% include 'proofchecker/right_navigation_menu.html' %}
+
+<script src="{% static 'js/proof_checker.js' %}"></script>
 
 {% endblock %}

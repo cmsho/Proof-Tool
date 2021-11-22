@@ -1,6 +1,9 @@
+from django.contrib import admin
 from django.urls import path
 
 from . import views
+
+admin.site.site_header = "ProofChecker Admin"
 
 urlpatterns = [
     path('', views.home, name='home'),
