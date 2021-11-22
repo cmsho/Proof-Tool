@@ -1,8 +1,8 @@
 {% extends 'proofchecker/base.html' %}
 {% load static %}
 {% block content %}
-     <style>
-        .hidden{
+    <style>
+        .hidden {
             display: none;
         }
     </style>
@@ -14,33 +14,55 @@
             {{ form.as_table }}
         </div>
         <hr>
-        <button id="add-more" type="button">Add Proof Line</button>
+        <div id="init_proof">
+            <button type="button" id="btn_init_proof" onclick="init_proof()">Start Proof</button>
+        </div>
         <hr>
         {% if formset %}
             {{ formset.management_form }}
-            <div id="proof-line-list">
-                {% for f in formset %}
-                    {% if not f.DELETE.value %}
-                        <div class="proofline-form" id="proofline-form-{{ forloop.counter0 }}">
-                            {{ f.as_table }}
-                            <input class="insert-row" type="button" id="id-form-btn-insert-row-{{ forloop.counter0 }}" value="Insert Row" onclick="add_new_form(this)">
-                            <input class="delete-row" type="button" id="id-form-btn-delete-row-{{ forloop.counter0 }}" value="Delete" onclick="removeProofline(this)">
-                        </div>
-                    {% endif %}
+            <table class="table table-striped table-bordered table-hover table-sm table-responsive">
+
+                <thead id="column-titles">
+                <tr class="font-weight-bold">
+                    <td>Line #</td>
+                    <td>Expression</td>
+                    <td>Rule</td>
+                </tr>
+                </thead>
+
+                <tbody id="proofline-list">
+                {% for line in formset %}
+                    <tr class="proofline_set" id="proofline_set-{{ forloop.counter0 }}">
+                        <td hidden>{{ line.id }} {{ line.DELETE }}</td>
+                        <td>{{ line.line_no }}</td>
+                        <td>{{ line.formula }}</td>
+                        <td>{{ line.rule }}</td>
+                        <td><input class="insert-row" type="button" id="id-form-btn-insert-row-{{ forloop.counter0 }}"
+                                   value="Insert Row" onclick="add_proofline_form(this)"></td>
+                        <td><input class="delete-row" type="button" id="id-form-btn-delete-row-{{ forloop.counter0 }}"
+                                   value="Delete" onclick="remove_proofline_form(this)"></td>
+                    </tr>
                 {% endfor %}
-            </div>
-            <div id="empty-form" class="hidden">
-                {{ formset.empty_form }}
-                <input class="insert-row" type="button" id="id-form-btn-insert-row-__prefix__" value="Insert Row" onclick="add_new_form(this)">
-                <input class="delete-row" type="button" id="id-form-btn-delete-row-__prefix__" value="Delete" onclick="removeProofline(this)">
-            </div>
+
+                <tr id="empty-form" class="hidden">
+                    <td hidden>{{ formset.empty_form.id }} {{ formset.empty_form.DELETE }}</td>
+                    <td>{{ formset.empty_form.line_no }}</td>
+                    <td>{{ formset.empty_form.formula }}</td>
+                    <td>{{ formset.empty_form.rule }}</td>
+                    <td><input class="insert-row" type="button" id="id-form-btn-insert-row-__prefix__"
+                               value="Insert Row" onclick="add_proofline_form(this)"></td>
+                    <td><input class="delete-row" type="button" id="id-form-btn-delete-row-__prefix__" value="Delete"
+                               onclick="remove_proofline_form(this)"></td>
+                </tr>
+                </tbody>
+            </table>
         {% endif %}
         <hr>
+
         {% if response.err_msg %}
-            <p> <strong>RESULT:</strong> {{ response.err_msg }} </p>
+            <p><strong>RESULT:</strong> {{ response.err_msg }} </p>
             <hr>
         {% endif %}
-        <input type="text" class="hidden" id="check-proof">
         <button name="check_proof" type="submit">Check Proof</button>
         <button name="submit" type="submit">Save</button>
     </form>
@@ -48,44 +70,88 @@
 
 
     <script type="text/javascript">
-        const addMoreBtn = document.getElementById("add-more")
-        const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
-        const currentProofLineForms = document.getElementsByClassName("proofline-form")
-        addMoreBtn.addEventListener("click", add_new_form)
-
-
-        function add_new_form(button) {
-           {# this is just a sample #}
-           {#if (button) {#}
-           {#    button.preventDefault()#}
-
-           let currentFormCount = currentProofLineForms.length
-           const formCopyTarget = document.getElementById("proof-line-list")
-
-           const emptyFormElement = document.getElementById("empty-form").cloneNode(true)
-           emptyFormElement.setAttribute("class", "proofline-form")
-           emptyFormElement.setAttribute("id", `proofline-form-${currentFormCount}`)
-
-           const regex = new RegExp('__prefix__', 'g')
-           emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCount)
-           totalNewForms.setAttribute('value', currentFormCount + 1)
-           formCopyTarget.append(emptyFormElement)
-        }
-
-
-        function removeProofline(button) {
-           var id = button.id.replace(/[^0-9]/g, "")
-           console.log(id)
-           const mark_deleted = document.getElementById("id_form-" + id + "-DELETE")
-           mark_deleted.setAttribute("checked", "true")
-           const targeted_prooflie = document.getElementById("proofline-form-" + id)
-           targeted_prooflie.hidden = true
-        }
-
         const inputFields = document.getElementsByClassName("text-replacement-enabled")
         for (let i of inputFields){
             console.log(i)
             i.setAttribute("onkeydown", "replaceCharacter(this);")
+        }
+
+        function get_total_proofline_form_count(){
+            return document.getElementsByClassName('proofline_set').length;
+        }
+
+        function get_total_formset_count_in_manager(){
+            return parseInt(document.getElementById('id_proofline_set-TOTAL_FORMS').value)
+        }
+
+        function set_total_formset_count_in_manager(value){
+            document.getElementById('id_proofline_set-TOTAL_FORMS').setAttribute('value', value);
+        }
+
+
+        function get_proofline_form_id_from_object_id(oObj){
+            return parseInt(oObj.id.replace(/[^0-9]/g, ""))
+        }
+
+        function init_proof(){
+            if (get_total_formset_count_in_manager() == 0) {
+                    append_new_form_in_proofline_formset(0)
+            }
+        }
+
+        function change_proofline_form_id(old_id, new_id){
+            const targeted_element = document.getElementById('proofline_set-'+old_id)
+            if (targeted_element != null) {
+                document.getElementById('proofline_set' + '-' + old_id).setAttribute('id', `${'proofline_set'}-${new_id}`)
+                const fields = ['id', 'DELETE', 'line_no', 'formula', 'rule'];
+                fields.forEach(function (field) {
+                    document.getElementById('id_proofline_set-' + old_id + '-' + field).setAttribute('name', `proofline_set-${new_id}-${field}`)
+                    document.getElementById('id_proofline_set-' + old_id + '-' + field).setAttribute('id', `id_proofline_set-${new_id}-${field}`)
+                })
+                document.getElementById('id-form-btn-insert-row-' + old_id).setAttribute('id', `id-form-btn-insert-row-${new_id}`)
+                document.getElementById('id-form-btn-delete-row-' + old_id).setAttribute('id', `id-form-btn-delete-row-${new_id}`)
+            }
+        }
+
+        function add_proofline_form(oObj){
+            append_new_form_in_proofline_formset(get_proofline_form_id_from_object_id(oObj)+1)
+        }
+
+        function remove_proofline_form(oObj){
+            remove_form_from_proofline_fomrset(get_proofline_form_id_from_object_id(oObj))
+        }
+
+        function append_new_form_in_proofline_formset(index){
+            var last_form_element_id = get_total_formset_count_in_manager()-1
+            for (var i = last_form_element_id; i >= index; i--) {
+              change_proofline_form_id(i, i+1)
+            }
+            const emptyFormElement = document.getElementById('empty-form').cloneNode(true)
+            emptyFormElement.setAttribute("class", 'proofline_set')
+            emptyFormElement.setAttribute("id", `proofline_set-${index}`)
+            const regex = new RegExp('__prefix__', 'g')
+            emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, index)
+
+            const proof_tbody = document.getElementById('proofline-list')
+            const proof_table_row = document.getElementById('proofline_set'+"-"+(index-1))
+            if (proof_table_row != null){
+                proof_table_row.after(emptyFormElement)
+            } else {
+                proof_tbody.append(emptyFormElement)
+            }
+            set_total_formset_count_in_manager(get_total_formset_count_in_manager()+1)
+        }
+
+        function remove_form_from_proofline_fomrset(index) {
+            document.getElementById('id_proofline_set-' + index + '-DELETE').setAttribute("checked", "true")
+            document.getElementById('proofline_set-' + index).remove();
+
+            var last_form_element_id = get_total_formset_count_in_manager()-1
+            for (var i = index+1; i <= last_form_element_id; i++) {
+              change_proofline_form_id(i, i-1)
+            }
+
+            set_total_formset_count_in_manager(get_total_formset_count_in_manager()-1)
         }
     </script>
 
