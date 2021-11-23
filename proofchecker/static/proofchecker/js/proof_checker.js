@@ -1,8 +1,14 @@
-function replaceCharacter(ev) {
-    // console.log(document.getElementById(ev.id));
-    let txt = document.getElementById(ev.id).value;
-    // console.log(txt);
+// Add event listeners to buttons
+const addMoreBtn = document.getElementById("add-more")
+addMoreBtn.addEventListener("click", add_form)
 
+const beginProofBtn = document.getElementById("begin_proof")
+beginProofBtn.addEventListener("click", begin_proof)
+
+
+// Text replacement - replaces escape commands with symbols
+function replaceCharacter(ev) {
+    let txt = document.getElementById(ev.id).value;
     txt = txt.replace("\\and", "∧");
     txt = txt.replace("\\or", "∨");
     txt = txt.replace("\\implies", "→");
@@ -12,42 +18,21 @@ function replaceCharacter(ev) {
     document.getElementById(ev.id).value = txt;
 }
 
-const addMoreBtn = document.getElementById("add-more")
-const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
-const currentProofLineForms = document.getElementsByClassName("proofline-form")
-addMoreBtn.addEventListener("click", add_new_form)
-
-function add_new_form(event){
-    if (event){
-        event.preventDefault()
+// Helper function to set multiple attributes at once
+function setAttributes(el, attrs) {
+    for(var key in attrs) {
+        el.setAttribute(key, attrs[key]);
     }
-    let currentFormCount = currentProofLineForms.length
-    const formCopyTarget = document.getElementById("proof-line-list")
-    const emptyFormElement = document.getElementById("empty-form").cloneNode(true)
-    emptyFormElement.setAttribute("class", "proofline-form")
-    emptyFormElement.setAttribute("id", `form-${currentFormCount}`)
-    const regex = new RegExp('__prefix__', 'g')
-    emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCount)
-    totalNewForms.setAttribute('value', currentFormCount + 1)
-    formCopyTarget.append(emptyFormElement)
 }
 
-function delete_form(button){
-    // Delete the row
-    var id = button.id.replace(/[^0-9]/g, "")
-    const form_to_delete = document.getElementById("form-" + id)
-    form_to_delete.remove()
-
-    // Update the row count
-    const currentProofLineForms = document.getElementsByClassName("proofline-form")
-    let currentFormCount = currentProofLineForms.length
+// Call this at end of any function that changes the amount of forms
+function update_form_count(){
     const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
+    let currentFormCount = document.getElementsByClassName("proofline-form").length
     totalNewForms.setAttribute('value', currentFormCount)
-
-    // Update row IDs
-    update_form_ids()
 }
 
+// Call this at the end of any function that changes the amount of forms
 function update_form_ids() {
     const forms = document.getElementsByClassName("proofline-form")
     for (i = 0; i < forms.length; i++) {
@@ -57,6 +42,7 @@ function update_form_ids() {
 
         // Update the ID of each input field (nested in <td>)
         var children = forms[i].children
+
         for (x = 0; x < children.length; x++) {
 
             // Input field is child of <td>
@@ -76,49 +62,107 @@ function update_form_ids() {
                 input.setAttribute('id', `id_form-${i}-rule`)
             }
             if (x==3) {
+                input.setAttribute('id', `insert-btn-${i}`)
+            }
+            if (x==4) {
                 input.setAttribute('id', `delete-btn-${i}`)
             }  
         }
     }
 }
 
-// Helper function to set multiple attributes at once
-function setAttributes(el, attrs) {
-    for(var key in attrs) {
-        el.setAttribute(key, attrs[key]);
+function get_total_forms_count() {
+    return document.getElementsByClassName("proofline-form").length
+}
+
+function get_total_forms_count_in_manager(){
+    return parseInt(document.getElementById('id_proofline_set-TOTAL_FORMS').value)
+}
+
+function set_total_forms_count_in_manager(value){
+    document.getElementById('id_proofline_set-TOTAL_FORMS').setAttribute('value', value)
+}
+
+function create_empty_form() {
+    const emptyFormElement = document.getElementById("empty-form").cloneNode(true)
+    emptyFormElement.setAttribute("class", "proofline-form")
+    return emptyFormElement
+}
+
+function get_form_id(obj){
+    return parseInt(obj.id.replace(/[^0-9]/g, ""))
+}
+
+// Inserts form below current line
+function insert_form(obj) {
+    insert_form_helper(get_form_id(obj)+1)
+}
+
+function insert_form_helper(index) {
+
+    const emptyFormElement = create_empty_form()
+    emptyFormElement.setAttribute("id", `form-${index}`)
+    const regex = new RegExp('__prefix__', 'g')
+    emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, index)
+
+    const proof_tbody = document.getElementById('proofline-list')
+    const proof_table_row = document.getElementById('form-'+(index-1))
+    if (proof_table_row != null){
+        proof_table_row.after(emptyFormElement)
+    } else {
+        proof_tbody.append(emptyFormElement)
     }
+
+    update_form_ids()
+    update_form_count()
+}
+
+// Adds new form at end of table
+function add_form(event){
+    if (event){
+        event.preventDefault()
+    }
+    const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
+    const currentProofLineForms = document.getElementsByClassName("proofline-form")
+    let currentFormCount = currentProofLineForms.length
+    const formCopyTarget = document.getElementById("proofline-list")
+    emptyFormElement = create_empty_form()
+    emptyFormElement.setAttribute("id", `form-${currentFormCount}`)
+    const regex = new RegExp('__prefix__', 'g')
+    emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCount)
+    formCopyTarget.append(emptyFormElement)
+    update_form_count()
 }
 
 
-const beginProofBtn = document.getElementById("begin_proof")
-beginProofBtn.addEventListener("click", begin_proof)
+function delete_form(obj){
+    var id = get_form_id(obj)
+    const form_to_delete = document.getElementById("form-" + id)
+    form_to_delete.remove()
 
-// Function to automatically populate premise and conclusion values
+    update_form_count()
+    update_form_ids()
+}
+
+
+// Automatically populate the premise values 
 function begin_proof() {
 
     var premises = document.getElementById('id_premises').value
-    console.log(premises)
-    var conclusion = document.getElementById('id_conclusion').value
-    console.log(conclusion)
-
-    // Separate the premises
     var premiseArray = premises.split(",").map(item => item.trim())
-    console.log(premiseArray)
-
-    var prooflineList = document.getElementById('proof-line-list')
+    var prooflineList = document.getElementById('proofline-list')
 
     for (i = 0; i < premiseArray.length; i++) {
-        console.log(`Writing line ${i}...`)
         var premiseRow = document.createElement('tr')
         premiseRow.setAttribute('class', 'proofline-form')
 
-        for (x = 0; x < 4; x++) {
+        for (x = 0; x < 5; x++) {
             var td = document.createElement('td')
             var input = document.createElement('input')
     
             // ------------------------------------
             // Set attributes for the input field
-    
+
             // line_no
             if (x == 0) {
                 var attrs = {
@@ -152,8 +196,19 @@ function begin_proof() {
                 setAttributes(input, attrs)
             }
     
-            // delete button
+            // insert button
             if (x == 3) {
+                var attrs = {
+                    "class": "insert-row btn btn-secondary",
+                    "type": "button",
+                    "value": "Insert Row",
+                    "onclick": "insert_form(this)"
+                }
+                setAttributes(input, attrs)
+            }
+
+            // delete button
+            if (x == 4) {
                 var attrs = {
                     "class": "delete-row btn btn-secondary",
                     "type": "button",
@@ -162,33 +217,16 @@ function begin_proof() {
                 }
                 setAttributes(input, attrs)
             }
-    
             // ------------------------------------
     
             // Add <input> in <td>, add <td> in <tr>
             td.appendChild(input)
-            console.log(`TD: \n${td}`)
             premiseRow.appendChild(td)
-            console.log(`Premise Row: \n${premiseRow}`)
-    
         }
-    
         // Add <tr> in <tbody>
         prooflineList.appendChild(premiseRow)
-
     }
 
-    // Update row IDs
     update_form_ids()
-
-    // Update the form count
     update_form_count()
-
-}
-
-function update_form_count(){
-    const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
-    const currentProofLineForms = document.getElementsByClassName("proofline-form")
-    let currentFormCount = currentProofLineForms.length
-    totalNewForms.setAttribute('value', currentFormCount)
 }
