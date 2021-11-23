@@ -56,10 +56,6 @@
         {% endif %}
         <hr>
 
-        {% if response.err_msg %}
-            <p><strong>RESULT:</strong> {{ response.err_msg }} </p>
-            <hr>
-        {% endif %}
         <!-- Display validation errors from form fields-->
         {% for line in formset %}
             {% for field in line %}
@@ -81,7 +77,19 @@
                 {% endif %}
             {% endfor %}
         {% endfor %}
-        <button name="check_proof" disabled="true" type="submit">Check Proof</button>
+
+        <!-- Display response from Proof Checker-->
+        {% if response %}
+
+        {% if response.err_msg %}
+        <p> <strong>Result:</strong> {{ response.err_msg }} </p>
+        {% else %}
+        <p> <strong>Result:</strong> The proof is valid and complete!</p>
+        {% endif %}
+            
+        {% endif %}
+        
+        <button name="check_proof"ntype="submit">Check Proof</button>
         <button name="submit" type="submit">Save</button>
     </form>
 
