@@ -29,12 +29,15 @@
                 </tr>
             </thead>
 
-            <tbody id="proof-line-list">
+            <tbody id="proofline-list">
                 {% for line in formset %}
                     <tr id="form-{{ forloop.counter0 }}" class="proofline-form">
                         <td>{{ line.line_no }}</td>
                         <td>{{ line.formula }}</td>
                         <td>{{ line.rule }}</td>
+                        <td>
+                            <input class="insert-row btn btn-secondary" type="button" id="insert-btn-{{ forloop.counter0 }}" value="Insert Row" onclick="insert_form(this)">
+                        </td>
                         <td>
                             <input class="delete-row btn btn-secondary" type="button" id="delete-btn-{{ forloop.counter0 }}" value="Delete Row" onclick="delete_form(this)">
                         </td>
@@ -47,6 +50,9 @@
                 <td>{{ formset.empty_form.line_no }}</td>
                 <td>{{ formset.empty_form.formula }}</td>
                 <td>{{ formset.empty_form.rule }}</td>
+                <td>
+                    <input class="insert-row btn btn-secondary" type="button" id="insert-btn-__prefix__" value="Insert Row" onclick="insert_form(this)">
+                </td>
                 <td>
                     <input class="delete-row btn btn-secondary" type="button" id="delete-btn-__prefix__" value="Delete Row" onclick="delete_form(this)">
                 </td>

@@ -1,98 +1,92 @@
 {% extends 'proofchecker/base.html' %}
 {% load static %}
 {% block content %}
-     <style>
-        .hidden{
-            display: none;
-        }
-    </style>
-    <h3>Proof {{ object.pk }}</h3>
+
+<h3>Proof {{ object.pk }}</h3>
+<hr>
+<form action="" method="post">
+    <div>
+        {% csrf_token %}
+        {{ form.as_table }}
+    </div>
     <hr>
-    <form action="" method="post">
-        <div>
-            {% csrf_token %}
-            {{ form.as_table }}
-        </div>
+    <div id="init_proof">
+        <button type="button" id="btn_init_proof" onclick="init_proof()">Start Proof</button>
+    </div>
+    <hr>
+    {% if formset %}
+        {{ formset.management_form }}
+        <!-- Display lines -->
+        <table class="table table-striped table-bordered table-hover table-sm table-responsive" id="proof-table">
+            <thead id="column-titles">
+                <tr class="font-weight-bold">
+                    <td>Line #</td>
+                    <td>Expression</td>
+                    <td>Rule</td>
+                </tr>
+            </thead>
+            <tbody id="proofline-list">
+                {% for line in formset %}
+                    <tr id="proofline_set-{{ forloop.counter0 }}" class="proofline_set">
+                        <td hidden>{{ line.id }}{{ line.DELETE }}</td>
+                        {% if line.DELETE.value  %}
+                            <td hidden>{{ line.line_no }}</td>
+                            <td hidden>{{ line.formula }}</td>
+                            <td hidden>{{ line.rule }}</td>
+                            <td hidden><input class="insert-row" type="button" id="id-form-btn-insert-row-{{ forloop.counter0 }}" value="Insert Row" onclick="add_proofline_form(this)"></td>
+                            <td hidden><input class="delete-row" type="button" id="id-form-btn-delete-row-{{ forloop.counter0 }}" value="Delete" onclick="remove_proofline_form(this)"></td>
+                        {% else %}
+                            <td>{{ line.line_no }}</td>
+                            <td>{{ line.formula }}</td>
+                            <td>{{ line.rule }}</td>
+                            <td><input class="insert-row" type="button" id="id-form-btn-insert-row-{{ forloop.counter0 }}" value="Insert Row" onclick="add_proofline_form(this)"></td>
+                            <td><input class="delete-row" type="button" id="id-form-btn-delete-row-{{ forloop.counter0 }}" value="Delete" onclick="remove_proofline_form(this)"></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                <tr id="empty-form" class="hidden">
+                    <td hidden>{{ formset.empty_form.id }}{{ formset.empty_form.DELETE }}</td>
+                    <td>{{ formset.empty_form.line_no }}</td>
+                    <td>{{ formset.empty_form.formula }}</td>
+                    <td>{{ formset.empty_form.rule }}</td>
+                    <td><input class="insert-row" type="button" id="id-form-btn-insert-row-__prefix__" value="Insert Row" onclick="add_proofline_form(this)"></td>
+                    <td><input class="delete-row" type="button" id="id-form-btn-delete-row-__prefix__" value="Delete" onclick="remove_new_proofline_form(this)"></td>
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
+    <hr>
+
+    {% if response.err_msg %}
+        <p><strong>RESULT:</strong> {{ response.err_msg }} </p>
         <hr>
-        <button id="add-more" type="button">Add Proof Line</button>
-        <hr>
-        {% if formset %}
-            {{ formset.management_form }}
-            <div id="proof-line-list">
-                {% for f in formset %}
-                    {% if not f.DELETE.value %}
-                        <div class="proofline-form" id="proofline-form-{{ forloop.counter0 }}">
-                            {{ f.as_table }}
-                            <input class="insert-row" type="button" id="id-form-btn-insert-row-{{ forloop.counter0 }}" value="Insert Row" onclick="add_new_form(this)">
-                            <input class="delete-row" type="button" id="id-form-btn-delete-row-{{ forloop.counter0 }}" value="Delete" onclick="removeProofline(this)">
-                        </div>
+    {% endif %}
+    <!-- Display validation errors from form fields-->
+    {% for line in formset %}
+        {% for field in line %}
+            {% if field.errors %}
+            <div class="container">
+                {% for error in field.errors %}
+                <div class="row">
+                    {% if line.line_no.value %}
+                    <p><strong>Error on line {{line.line_no.value}}:</strong> {{ error }}</p>
+                    {% elif error == "This field is required." %}
+                    <p><strong>Error:</strong> All fields are required</p>
+                    {% else %}
+                    <p><strong>Error:</strong> {{ error }}</p>
+
                     {% endif %}
+                </div>
                 {% endfor %}
             </div>
-            <div id="empty-form" class="hidden">
-                {{ formset.empty_form }}
-                <input class="insert-row" type="button" id="id-form-btn-insert-row-__prefix__" value="Insert Row" onclick="add_new_form(this)">
-                <input class="delete-row" type="button" id="id-form-btn-delete-row-__prefix__" value="Delete" onclick="removeProofline(this)">
-            </div>
-        {% endif %}
-        <hr>
-        {% if response.err_msg %}
-            <p> <strong>RESULT:</strong> {{ response.err_msg }} </p>
-            <hr>
-        {% endif %}
-        <input type="text" class="hidden" id="check-proof">
-        <button name="check_proof" type="submit">Check Proof</button>
-        <button name="submit" type="submit">Save</button>
-    </form>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    <button name="check_proof" type="submit">Check Proof</button>
+    <button name="submit" type="submit">Save</button>
+</form>
 
+<script src="{% static 'js/add_edit.js' %}"></script>
 
-
-    <script type="text/javascript">
-        const addMoreBtn = document.getElementById("add-more")
-        const totalNewForms = document.getElementById("id_form-TOTAL_FORMS")
-        const currentProofLineForms = document.getElementsByClassName("proofline-form")
-        addMoreBtn.addEventListener("click", add_new_form)
-
-
-        function add_new_form(button) {
-           {# this is just a sample #}
-           {#if (button) {#}
-           {#    button.preventDefault()#}
-
-           let currentFormCount = currentProofLineForms.length
-           const formCopyTarget = document.getElementById("proof-line-list")
-
-           const emptyFormElement = document.getElementById("empty-form").cloneNode(true)
-           emptyFormElement.setAttribute("class", "proofline-form")
-           emptyFormElement.setAttribute("id", `proofline-form-${currentFormCount}`)
-
-           const regex = new RegExp('__prefix__', 'g')
-           emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCount)
-           totalNewForms.setAttribute('value', currentFormCount + 1)
-           formCopyTarget.append(emptyFormElement)
-        }
-
-
-        function removeProofline(button) {
-           var id = button.id.replace(/[^0-9]/g, "")
-           console.log(id)
-           const mark_deleted = document.getElementById("id_form-" + id + "-DELETE")
-           mark_deleted.setAttribute("checked", "true")
-           const targeted_prooflie = document.getElementById("proofline-form-" + id)
-           targeted_prooflie.hidden = true
-        }
-
-        const inputFields = document.getElementsByClassName("text-replacement-enabled")
-        for (let i of inputFields){
-            console.log(i)
-            i.setAttribute("onkeydown", "replaceCharacter(this);")
-        }
-    </script>
-
-    {% include 'proofchecker/right_navigation_menu.html' %}
-{% endblock %}
-
-
-{% block js_block %}
-    <script type="text/javascript" src="{% static 'js/line_functionality.js' %}"></script>
+{% include 'proofchecker/right_navigation_menu.html' %}
 {% endblock %}
