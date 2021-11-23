@@ -1,3 +1,10 @@
+
+const inputFields = document.getElementsByClassName("text-replacement-enabled")
+for (let i of inputFields){
+    console.log(i)
+    i.setAttribute("onkeydown", "replaceCharacter(this);")
+}
+
 function get_total_proofline_form_count(){
     return document.getElementsByClassName('proofline_set').length;
 }
@@ -11,8 +18,8 @@ function set_total_formset_count_in_manager(value){
 }
 
 
-function get_proofline_form_id_from_object_id(oObj){
-    return parseInt(oObj.id.replace(/[^0-9]/g, ""))
+function get_proofline_form_id_from_object_id(object){
+    return parseInt(object.id.replace(/[^0-9]/g, ""))
 }
 
 function init_proof(){
@@ -38,40 +45,38 @@ function change_proofline_form_id(old_id, new_id){
 function push_down_proofline_forms(from_index){
     const last_form_element_id = get_total_formset_count_in_manager() - 1;
     for (let i = last_form_element_id; i >= from_index; i--) {
-        change_proofline_form_id(i, i+1)
+      change_proofline_form_id(i, i+1)
     }
 }
 
 function pull_up_proofline_forms(to_index){
     const last_form_element_id = get_total_formset_count_in_manager() - 1;
     for (let i = to_index+1; i <= last_form_element_id; i++) {
-        change_proofline_form_id(i, i-1)
+      change_proofline_form_id(i, i-1)
     }
 }
 
-function add_proofline_form(oObj){
-    append_new_form_in_proofline_formset(get_proofline_form_id_from_object_id(oObj)+1)
+function add_proofline_form(element){
+    append_new_form_in_proofline_formset(get_proofline_form_id_from_object_id(element))
 }
 
-function remove_proofline_form(oObj){
-    remove_existing_form_from_proofline_fomrset(get_proofline_form_id_from_object_id(oObj))
-}
-
-function remove_new_proofline_form(oObj){
-    remove_new_form_from_proofline_fomrset(get_proofline_form_id_from_object_id(oObj))
+function remove_proofline_form(element){
+    remove_from_proofline_fomrset(get_proofline_form_id_from_object_id(element))
 }
 
 function append_new_form_in_proofline_formset(index){
-    push_down_proofline_forms(index)
+    // push_down_proofline_forms(index)
+
+    const next_index = get_total_formset_count_in_manager();
 
     const emptyFormElement = document.getElementById('empty-form').cloneNode(true)
     emptyFormElement.setAttribute("class", 'proofline_set')
-    emptyFormElement.setAttribute("id", `proofline_set-${index}`)
+    emptyFormElement.setAttribute("id", `proofline_set-${next_index}`)
     const regex = new RegExp('__prefix__', 'g')
-    emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, index)
+    emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, next_index)
 
     const proof_tbody = document.getElementById('proofline-list')
-    const proof_table_row = document.getElementById('proofline_set'+"-"+(index-1))
+    const proof_table_row = document.getElementById('proofline_set'+"-"+(index))
     if (proof_table_row != null){
         proof_table_row.after(emptyFormElement)
     } else {
@@ -80,28 +85,12 @@ function append_new_form_in_proofline_formset(index){
     set_total_formset_count_in_manager(get_total_formset_count_in_manager()+1)
 }
 
-function remove_existing_form_from_proofline_fomrset(index) {
+function remove_from_proofline_fomrset(index) {
     document.getElementById('id_proofline_set-' + index + '-DELETE').setAttribute("checked", "true")
     document.getElementById('proofline_set-' + index).hidden = true;
-}
-
-function remove_new_form_from_proofline_fomrset(index) {
-    document.getElementById('id_proofline_set-' + index + '-DELETE').setAttribute("checked", "true")
-    document.getElementById('proofline_set-' + index).remove()
-    pull_up_proofline_forms(index)
-    set_total_formset_count_in_manager(get_total_formset_count_in_manager()-1)
-}
-
-function replaceCharacter(ev) {
-    console.log(document.getElementById(ev.id));
-    let txt = document.getElementById(ev.id).value;
-    console.log(txt);
-
-    txt = txt.replace("\\and", "∧");
-    txt = txt.replace("\\or", "∨");
-    txt = txt.replace("\\implies", "→");
-    txt = txt.replace("\\not", "¬");
-    txt = txt.replace("\\iff", "↔");
-    txt = txt.replace("\\contradiction", "⊥");
-    document.getElementById(ev.id).value = txt;
+    if (document.getElementById('id_proofline_set-' + index + '-id').value == ''){
+        document.getElementById('proofline_set-' + index).remove()
+        pull_up_proofline_forms(index)
+        set_total_formset_count_in_manager(get_total_formset_count_in_manager()-1)
+    }
 }
