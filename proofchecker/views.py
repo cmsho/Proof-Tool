@@ -81,14 +81,7 @@ def proof_create_view(request):
 
     if request.POST:
         if all([form.is_valid(), formset.is_valid()]):
-
             parent = form.save(commit=False)
-            parent.created_by = request.user
-            for line in formset:
-                    child = line.save(commit=False)
-                    child.proof = parent
-                    if len(line.cleaned_data) > 0 and line.cleaned_data['id'] is not None and line.cleaned_data['DELETE']:
-                        child.delete()
 
             if 'check_proof' in request.POST:
                 proof = ProofObj(lines=[]) #
@@ -111,13 +104,7 @@ def proof_create_view(request):
                 if len(formset.forms) > 0:
                     parent.created_by = request.user
                     parent.save()
-
-                    for line in formset:
-                        child = line.save(commit=False)
-                        child.proof = parent
-                        if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
-                            child.save()
-
+                    formset.save()
                     return HttpResponseRedirect(reverse('all_proofs'))
 
     context = {
@@ -132,7 +119,7 @@ def proof_create_view(request):
 def proof_update_view(request, pk=None):
     obj = get_object_or_404(Proof, pk=pk)
     ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0)
-    query_set = obj.proofline_set.all()
+    query_set = obj.proofline_set.all().order_by('line_no')
     form = ProofForm(request.POST or None, instance=obj)
     formset = ProofLineFormset(request.POST or None, queryset=query_set, instance=obj)
     response = None
@@ -140,15 +127,7 @@ def proof_update_view(request, pk=None):
 
     if request.POST:
         if all([form.is_valid(), formset.is_valid()]):
-
             parent = form.save(commit=False)
-            parent.created_by = request.user
-            for line in formset:
-                    child = line.save(commit=False)
-                    child.proof = parent
-                    if len(line.cleaned_data) > 0 and line.cleaned_data['id'] is not None and line.cleaned_data['DELETE']:
-                        child.delete()
-
             if 'check_proof' in request.POST:
                 proof = ProofObj(lines=[]) #
                 proof.premises = find_premises(parent.premises)
@@ -170,13 +149,7 @@ def proof_update_view(request, pk=None):
                 if len(formset.forms)>0:
                     parent.created_by = request.user
                     parent.save()
-
-                    for line in formset:
-                        child = line.save(commit=False)
-                        child.proof = parent
-                        if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
-                            child.save()
-
+                    formset.save()
                     return HttpResponseRedirect(reverse('all_proofs'))
 
     context = {
