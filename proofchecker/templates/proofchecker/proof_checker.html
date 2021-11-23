@@ -36,10 +36,12 @@
                         <td>{{ line.formula }}</td>
                         <td>{{ line.rule }}</td>
                         <td>
-                            <input class="insert-row btn btn-secondary" type="button" id="insert-btn-{{ forloop.counter0 }}" value="Insert Row" onclick="insert_form(this)">
+                            <input class="insert-row btn btn-secondary" type="button" name="form-{{ forloop.counter0 }}-insert-btn" 
+                            id="id_form-{{ forloop.counter0 }}-insert-btn" value="Insert Row" onclick="insert_form(this)">
                         </td>
                         <td>
-                            <input class="delete-row btn btn-secondary" type="button" id="delete-btn-{{ forloop.counter0 }}" value="Delete Row" onclick="delete_form(this)">
+                            <input class="delete-row btn btn-secondary" type="button" name="form-{{ forloop.counter0 }}-delete-btn" 
+                            id="id_form-{{ forloop.counter0 }}-delete-btn" value="Delete Row" onclick="delete_form(this)">
                         </td>
                     </tr>
                 {% endfor %}
@@ -51,10 +53,12 @@
                 <td>{{ formset.empty_form.formula }}</td>
                 <td>{{ formset.empty_form.rule }}</td>
                 <td>
-                    <input class="insert-row btn btn-secondary" type="button" id="insert-btn-__prefix__" value="Insert Row" onclick="insert_form(this)">
+                    <input class="insert-row btn btn-secondary" type="button" name="form-__prefix__-insert-btn" 
+                    id="id_form-__prefix__-insert-btn" value="Insert Row" onclick="insert_form(this)">
                 </td>
                 <td>
-                    <input class="delete-row btn btn-secondary" type="button" id="delete-btn-__prefix__" value="Delete Row" onclick="delete_form(this)">
+                    <input class="delete-row btn btn-secondary" type="button" name="form-__prefix__-delete-btn" 
+                    id="id_form-__prefix__-delete-btn" value="Delete Row" onclick="delete_form(this)">
                 </td>
             </tr>
 
