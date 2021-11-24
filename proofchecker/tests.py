@@ -882,9 +882,9 @@ class ProofTests(TestCase):
         when provided with a valid proof
         """
         # And Intro
-        line1 = ProofLineObj(1, 'A', 'Premise')
-        line2 = ProofLineObj(2, 'B', 'Premise')
-        line3 = ProofLineObj(3, 'A∧B', '∧I 1, 2')
+        line1 = ProofLineObj('1', 'A', 'Premise')
+        line2 = ProofLineObj('2', 'B', 'Premise')
+        line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
         proof = ProofObj(premises=['A', 'B'], conclusion='A∧B', lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_proof(proof)
@@ -892,8 +892,8 @@ class ProofTests(TestCase):
         self.assertEqual(result.err_msg, None)
 
         # And Elim
-        line1 = ProofLineObj(1, 'A∧B', 'Premise')
-        line2 = ProofLineObj(2, 'A', '∧E 1')
+        line1 = ProofLineObj('1', 'A∧B', 'Premise')
+        line2 = ProofLineObj('2', 'A', '∧E 1')
         proof = ProofObj(premises='A∧B', conclusion='A', lines=[])
         proof.lines.extend([line1, line2])
         result = verify_proof(proof)

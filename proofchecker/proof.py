@@ -1,3 +1,4 @@
+import re
 from proofchecker.utils.tfllex import IllegalCharacterError
 from .utils import tflparse, numparse
 from .utils.tfllex import lexer as tfllexer
@@ -340,7 +341,7 @@ def verify_subproof_citation(current_line: ProofLineObj, cited_line: ProofLineOb
         response.err_msg = "Line numbers are not formatted properly"
         return response
 
-def find_premises(premises: str):
+def get_premises(premises: str):
     """
     Take a string of comma separated-premises
     and return an array of premises
@@ -349,22 +350,9 @@ def find_premises(premises: str):
     premises = premises.split()
     return premises
 
-def find_line(rule: str, proof: ProofObj):
+def get_line(rule: str, proof: ProofObj):
     """
     Find a single line from a TFL rule
-    """
-    target_line_no = rule[3:len(rule)]
-    target_line_no = target_line_no.strip()
-    target_line = None
-    for line in proof.lines:
-        if str(target_line_no) == str(line.line_no):
-            target_line = line
-            break
-    return target_line
-
-def find_line_x_r(rule: str, proof: ProofObj):
-    """
-    Find a single line from the TFL rules X and R
     """
     target_line_no = rule[2:len(rule)]
     target_line_no = target_line_no.strip()
@@ -375,7 +363,20 @@ def find_line_x_r(rule: str, proof: ProofObj):
             break
     return target_line
 
-def find_lines(rule: str, proof: ProofObj):
+def get_line_DNE(rule: str, proof: ProofObj):
+    """
+    Find a single line for rule DNE
+    """
+    target_line_no = rule[3:len(rule)]
+    target_line_no = target_line_no.strip()
+    target_line = None
+    for line in proof.lines:
+        if str(target_line_no) == str(line.line_no):
+            target_line = line
+            break
+    return target_line
+
+def get_lines(rule: str, proof: ProofObj):
     """
     Find multiple lines from a TFL rule
     """
@@ -391,7 +392,7 @@ def find_lines(rule: str, proof: ProofObj):
                 break
     return target_lines
 
-def find_expressions(lines):
+def get_expressions(lines):
     """
     Returns an array of expressions from an array of ProofLines
     """
@@ -468,7 +469,7 @@ def verify_reiteration(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find line m
     try:
-        target_line = find_line_x_r(rule, proof)
+        target_line = get_line(rule, proof)
 
         # Verify if line citation is valid
         result = verify_line_citation(current_line, target_line)
@@ -507,7 +508,7 @@ def verify_explosion(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find line m
     try:
-        target_line = find_line_x_r(rule, proof)
+        target_line = get_line(rule, proof)
 
         # Verify if line citation is valid
         result = verify_line_citation(current_line, target_line)
@@ -545,7 +546,7 @@ def verify_and_intro(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find lines (m, n) 
     try:
-        target_lines = find_lines(rule, proof)
+        target_lines = get_lines(rule, proof)
 
         for line in target_lines:
             result = verify_line_citation(current_line, line)
@@ -554,7 +555,7 @@ def verify_and_intro(current_line: ProofLineObj, proof: ProofObj):
 
         # Search for lines (m, n) in the proof
         try:
-            expressions = find_expressions(target_lines)
+            expressions = get_expressions(target_lines)
             
             # Join the two expressions in a tree
             root_m_and_n = Node('∧')
@@ -595,7 +596,7 @@ def verify_and_elim(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find line m 
     try:
-        target_line = find_line(rule, proof)
+        target_line = get_line(rule, proof)
 
         # Verify if line citation is valid
         result = verify_line_citation(current_line, target_line)
@@ -641,7 +642,7 @@ def verify_or_intro(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find line m
     try:
-        target_line = find_line(rule, proof)
+        target_line = get_line(rule, proof)
 
         # Verify if line citation is valid
         result = verify_line_citation(current_line, target_line)
@@ -688,7 +689,7 @@ def verify_or_elim(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find lines (m, i-j, k-l)
     try:
-        target_lines = find_lines(rule, proof)
+        target_lines = get_lines(rule, proof)
 
         # Verify that line m citation is valid
         line_m_citation = verify_line_citation(current_line, target_lines[0])
@@ -703,7 +704,7 @@ def verify_or_elim(current_line: ProofLineObj, proof: ProofObj):
 
         # Search for lines m, i-j, k-l in the proof
         try:
-            expressions = find_expressions(target_lines)
+            expressions = get_expressions(target_lines)
         
             # Create trees for expressions on lines m, i, j, k, and l
             root_m = make_tree(expressions[0])
@@ -755,7 +756,7 @@ def verify_not_intro(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find lines (i-j)
     try:
-        target_lines = find_lines(rule, proof)
+        target_lines = get_lines(rule, proof)
 
         # Verify that subproof citation are valid
         for line in target_lines:
@@ -765,7 +766,7 @@ def verify_not_intro(current_line: ProofLineObj, proof: ProofObj):
 
         # Search for lines i-j in the proof
         try:
-            expressions = find_expressions(target_lines)
+            expressions = get_expressions(target_lines)
 
             # Create trees from the expressions on lines i-j
             root_i = make_tree(expressions[0])
@@ -810,7 +811,7 @@ def verify_not_elim(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find lines (m, n)
     try:
-        target_lines = find_lines(rule, proof)
+        target_lines = get_lines(rule, proof)
 
         # Verify that line citations are valid
         for line in target_lines:
@@ -820,7 +821,7 @@ def verify_not_elim(current_line: ProofLineObj, proof: ProofObj):
 
         # Search for lines (m, n) in the proof
         try:
-            expressions = find_expressions(target_lines)
+            expressions = get_expressions(target_lines)
 
             # Create trees from the expressions on lines (m, n)
             root_m = make_tree(expressions[0])
@@ -865,7 +866,7 @@ def verify_implies_intro(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find lines m-n
     try:
-        target_lines = find_lines(rule, proof)
+        target_lines = get_lines(rule, proof)
 
         # Verify that subproof citation are valid
         for line in target_lines:
@@ -875,7 +876,7 @@ def verify_implies_intro(current_line: ProofLineObj, proof: ProofObj):
         
         # Search for lines m-n in the proof
         try:
-            expressions = find_expressions(target_lines)
+            expressions = get_expressions(target_lines)
 
             root_m = make_tree(expressions[0])
             root_n = make_tree(expressions[1])
@@ -908,7 +909,7 @@ def verify_implies_elim(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find lines (m, n) 
     try:
-        target_lines = find_lines(rule, proof)
+        target_lines = get_lines(rule, proof)
 
         # Verify that line citations are valid
         for line in target_lines:
@@ -918,7 +919,7 @@ def verify_implies_elim(current_line: ProofLineObj, proof: ProofObj):
 
         # Search for lines (m, n) in the proof
         try:
-            expressions = find_expressions(target_lines)
+            expressions = get_expressions(target_lines)
             
             root_implies = make_tree(expressions[0])
 
@@ -954,7 +955,7 @@ def verify_indirect_proof(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find lines i-j
     try:
-        target_lines = find_lines(rule, proof)
+        target_lines = get_lines(rule, proof)
 
         # Verify that subproof citation are valid
         for line in target_lines:
@@ -964,7 +965,7 @@ def verify_indirect_proof(current_line: ProofLineObj, proof: ProofObj):
 
         # Search for lines i-j in the proof
         try:
-            expressions = find_expressions(target_lines)
+            expressions = get_expressions(target_lines)
 
             # Create trees from the expressions on lines i-j
             root_i = make_tree(expressions[0])
@@ -1008,7 +1009,7 @@ def verify_iff_intro(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find lines (i-j, k-l)
     try:
-        target_lines = find_lines(rule, proof)
+        target_lines = get_lines(rule, proof)
 
         # Verify that subproof citations are valid
         for line in target_lines:
@@ -1018,7 +1019,7 @@ def verify_iff_intro(current_line: ProofLineObj, proof: ProofObj):
 
         # Search for lines i-j, k-l in the proof
         try:
-            expressions = find_expressions(target_lines)
+            expressions = get_expressions(target_lines)
 
             # Create trees for expressions on lines i, j, k, and l
             root_i = make_tree(expressions[0])
@@ -1087,7 +1088,7 @@ def verify_iff_elim(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find lines (m, n) 
     try:
-        target_lines = find_lines(rule, proof)
+        target_lines = get_lines(rule, proof)
 
         for line in target_lines:
             result = verify_line_citation(current_line, line)
@@ -1096,7 +1097,7 @@ def verify_iff_elim(current_line: ProofLineObj, proof: ProofObj):
 
         # Search for lines (m, n) in the proof
         try:
-            expressions = find_expressions(target_lines)
+            expressions = get_expressions(target_lines)
             
             # Join the two expressions in a tree
             root_m = make_tree(expressions[0])
@@ -1140,7 +1141,7 @@ def verify_double_not_elim(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find line m
     try:
-        target_line = find_line(rule, proof)
+        target_line = get_line_DNE(rule, proof)
 
         # Verify if line citation is valid
         result = verify_line_citation(current_line, target_line)
