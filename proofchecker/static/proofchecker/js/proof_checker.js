@@ -221,47 +221,6 @@ function insert_row_parent_level(index) {
 
 
 
-function renumber_rows(direction, starting_point, prefix_value_list) {
-
-    // Forms that you'll iterate over
-    const forms = document.getElementsByClassName("proofline-form")
-    console.log(forms.length)
-    var number_of_forms = forms.length
-
-    // Get the prefix value string
-    var index_of_changing_element = prefix_value_list.length
-    var prefix_values_string = prefix_value_list.join('.')
-
-    // Set the counter and the stopping point specific row numbers are renumbered
-    var starting_form = (direction == 1) ? starting_point : number_of_forms - 1
-    var stopping_point = (direction == 1) ? number_of_forms : starting_point - 1
-
-    for (var current_form = starting_form; current_form != stopping_point; current_form += direction) {
-        console.log(forms[current_form])
-
-        // // Get the current form's row number
-        var current_row_number = forms[current_form].children[0].children[0].value
-        var current_row_number_list = current_row_number.split('.')
-
-        console.log("Current row")
-        console.log(current_row_number)
-        console.log(prefix_values_string)
-        console.log(["index", index_of_changing_element])
-
-        if (current_row_number.startsWith(prefix_values_string)) {
-            current_row_number_list[index_of_changing_element] = Number(current_row_number_list[index_of_changing_element]) + direction
-            var new_row_number = current_row_number_list.join('.')
-
-            forms[current_form].children[0].children[0].value = new_row_number
-        }
-
-    }
-
-    return
-}
-
-
-
 // Adds new form at end of table
 function add_form(event) {
     if (event) {
@@ -281,7 +240,7 @@ function add_form(event) {
         var previous_row_number = document.getElementById('form-' + (currentFormCount - 1)).children[0].children[0].value
         var new_row_number = `${Number(previous_row_number[0]) + 1}`
     } else {
-        var new_row_number = 1
+        var new_row_number = '1'
     }
     emptyFormElement.children[0].children[0].setAttribute("value", new_row_number)
     // emptyFormElement.children[0].children[0].setAttribute("readonly", true)
@@ -357,7 +316,7 @@ function delete_form(obj) {
     if ((index != index_of_last_row) & (final_value_of_row_being_deleted == "1") & (list_of_row_being_deleted.length > 1)) {
 
         // How to handle when a parent sub proof is deleted
-        if (string_of_prefix_below_deleted.startsWith(string_of_prefix_above_deleted)) {
+        if ((string_of_prefix_below_deleted.startsWith(string_of_prefix_above_deleted)) & (string_of_prefix_above_deleted.length >= 1)) {
             console.log("sub proof of sub proof")
             renumber_rows(direction, starting_point, list_of_row_above_deleted)
         }
@@ -368,6 +327,53 @@ function delete_form(obj) {
             renumber_rows(direction, starting_point, prefix_of_row_above_deleted)
         }
     }
+}
+
+
+function renumber_rows(direction, starting_point, prefix_value_list) {
+
+    // Forms that you'll iterate over
+    const forms = document.getElementsByClassName("proofline-form")
+    console.log(forms.length)
+    var number_of_forms = forms.length
+
+    // Get the prefix value string
+    var index_of_changing_element = prefix_value_list.length
+    var prefix_values_string = prefix_value_list.join('.')
+
+    // Set the counter and the stopping point specific row numbers are renumbered
+    var starting_form = (direction == 1) ? starting_point : number_of_forms - 1
+    var stopping_point = (direction == 1) ? number_of_forms : starting_point - 1
+
+    for (var current_form = starting_form; current_form != stopping_point; current_form += direction) {
+        console.log(forms[current_form])
+
+        // // Get the current form's row number
+        var current_row_number = forms[current_form].children[0].children[0].value
+        var current_row_number_list = current_row_number.split('.')
+
+        // console.log("Current row")
+        // console.log(current_row_number)
+        // console.log(prefix_values_string)
+        // console.log(["index", index_of_changing_element])
+
+        if (current_row_number.startsWith(prefix_values_string)) {
+            current_row_number_list[index_of_changing_element] = Number(current_row_number_list[index_of_changing_element]) + direction
+            var new_row_number = current_row_number_list.join('.')
+
+            forms[current_form].children[0].children[0].value = new_row_number
+        }
+
+
+        if (Math.abs((number_of_forms - 1) - current_form) >= 1) {
+            console.log("Not last row")
+
+        }
+
+
+    }
+
+    return
 }
 
 
