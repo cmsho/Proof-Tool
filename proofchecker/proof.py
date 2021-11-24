@@ -347,15 +347,29 @@ def get_premises(premises: str):
     and return an array of premises
     """
     premises = premises.replace(',', ' ')
-    premises = premises.split()
-    return premises
+    return premises.split()
+
+def get_line_no(rule):
+    """
+    Get a single line number in a TFL citation
+    """
+    target_line_no = rule[2:len(rule)]
+    return target_line_no.strip()
+
+def get_line_nos(rule):
+    """
+    Get multiple line numbers in a TFL citation
+    """
+    target_line_nos = rule[3:len(rule)]
+    target_line_nos = target_line_nos.replace('-', ' ')
+    target_line_nos = target_line_nos.replace(',', '')
+    return target_line_nos.split()
 
 def get_line(rule: str, proof: ProofObj):
     """
     Find a single line from a TFL rule
     """
-    target_line_no = rule[2:len(rule)]
-    target_line_no = target_line_no.strip()
+    target_line_no = get_line_no(rule)
     target_line = None
     for line in proof.lines:
         if str(target_line_no) == str(line.line_no):
@@ -380,10 +394,7 @@ def get_lines(rule: str, proof: ProofObj):
     """
     Find multiple lines from a TFL rule
     """
-    target_line_nos = rule[3:len(rule)]
-    target_line_nos = target_line_nos.replace('-', ' ')
-    target_line_nos = target_line_nos.replace(',', '')
-    target_line_nos = target_line_nos.split()
+    target_line_nos = get_line_nos(rule)
     target_lines = []
     for num in target_line_nos:
         for line in proof.lines:
@@ -391,6 +402,19 @@ def get_lines(rule: str, proof: ProofObj):
                 target_lines.append(line)
                 break
     return target_lines
+
+def get_lines_in_subproof(line_no: str, proof: ProofObj):
+    """
+    Returns the first and last line of a subproof
+    """
+    subproof = []
+    for line in proof:
+        if line.line_no.startswith('line_no'):
+            subproof.append(line)
+    if len(subproof) > 1:
+        return[subproof[0], subproof[len(subproof)-1]]
+    else:
+        return None
 
 def get_expressions(lines):
     """
@@ -748,7 +772,7 @@ def verify_or_elim(current_line: ProofLineObj, proof: ProofObj):
 
 def verify_not_intro(current_line: ProofLineObj, proof: ProofObj):
     """
-    Verify proper implementation of the rule ¬I m-n
+    Verify proper implementation of the rule ¬I m
     (Negation Introduction)
     """
     rule = clean_rule(current_line.rule)
