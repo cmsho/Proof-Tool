@@ -21,4 +21,5 @@ urlpatterns = [
     path("proofs/assignmentpage/", views.AssignmentPage, name='assignment_page'),
     path("proofs/checker/", views.proof_checker, name='proof_checker'),
     path("proofs/singleproofchecker",views.single_proof_checker, name='single_proof_checker'),
+    path("proofs/syntaxtest",views.SyntaxTestPage,name='syntax_test')
 ]
