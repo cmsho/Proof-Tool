@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .proof import ProofObj, ProofLineObj, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_double_not_elim, verify_iff_elim, verify_iff_intro, verify_line_citation, verify_explosion, verify_or_intro, \
+from .proof import ProofObj, ProofLineObj, get_line_no, get_line_nos, get_lines_in_subproof, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_double_not_elim, verify_iff_elim, verify_iff_intro, verify_line_citation, verify_explosion, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
     verify_not_elim, verify_indirect_proof, verify_premise, verify_reiteration, verify_rule, verify_proof, depth
 from .utils import numparse
@@ -71,7 +71,43 @@ class BinaryTreeTests(TestCase):
         self.assertEqual(b, c)
 
 class ProofTests(TestCase):
+
+    def test_get_line_no(self):
+        """
+        Test that the get_line_no method is working properly
+        """
+        rule1 = '¬I 2'
+        rule2 = '∧E 3.1'
+        rule3 = '∨I 4.12.3.5'
+        self.assertEqual(get_line_no(rule1), '2')
+        self.assertEqual(get_line_no(rule2), '3.1')
+        self.assertEqual(get_line_no(rule3), '4.12.3.5')
+
+    def test_get_line_nos(self):
+        """
+        Test that the get_line_nos method is working properly
+        """
+        rule1 = '∨E, 1, 2, 3'
+        rule2 = '→I 2-3'
+        self.assertEqual(get_line_nos(rule1), ['1', '2', '3'])
+        self.assertEqual(get_line_nos(rule2), ['2', '3'])
     
+    def test_get_lines_in_subproof(self):
+        """
+        Test that the get_lines_in_subproof method is working properly
+        """
+        line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
+        line2_1 = ProofLineObj('2.1', '(A∧C)', 'Assumption')
+        line2_2 = ProofLineObj('2.2', 'C', '∧E 2.1')
+        line3_1 = ProofLineObj('3.1', '(B∧C)', 'Assumption')
+        line3_2 = ProofLineObj('3.2', 'C', '∧E 2.1')
+        line4 = ProofLineObj('4', 'C', '∨E, 1, 2, 3')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2_1, line2_2, line3_1, line3_2, line4])
+        result = get_lines_in_subproof('2', proof)
+        self.assertEqual(result, [line2_1, line2_2])
+
+
     def test_proof_line(self):
         """
         Test that a ProofLine can be constructed appropriately

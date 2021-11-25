@@ -20,6 +20,9 @@ class ProofObj:
             result += str(line) +'\n'
         return result
 
+    def __iter__(self):
+        return (x for x in self.lines)
+
 class ProofLineObj:
 
     def __init__(self, line_no=None, expression=None, rule=None):
@@ -295,12 +298,6 @@ def verify_subproof_citation(current_line: ProofLineObj, cited_line: ProofLineOb
     Verify whether an subproof citation is valid
     Returns a ProofResponse with an error message if invalid
     """
-    # Currently subproof cited as lines i-j
-    #       i = first line of subproof (e.g. 2.1)
-    #       j = last line of subproof  (e.g. 2.4)
-    #
-    # TODO: Refactor code so citation
-    #       only requires one line     (e.g. 2)
 
     response = ProofResponse()
     
@@ -409,7 +406,7 @@ def get_lines_in_subproof(line_no: str, proof: ProofObj):
     """
     subproof = []
     for line in proof:
-        if line.line_no.startswith('line_no'):
+        if line.line_no.startswith(line_no):
             subproof.append(line)
     if len(subproof) > 1:
         return[subproof[0], subproof[len(subproof)-1]]
