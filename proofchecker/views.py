@@ -7,7 +7,7 @@ from django.forms import inlineformset_factory
 from .forms import ProofForm, ProofLineForm, AssignmentForm
 from .models import Proof, Problem, Assignment, Instructor, ProofLine
 from .json_to_object import ProofTemp
-from .proof import ProofObj, ProofLineObj, verify_proof, find_premises
+from .proof import ProofObj, ProofLineObj, verify_proof, get_premises, ProofResponse
 
 
 def home(request):
@@ -36,7 +36,7 @@ def proof_checker(request):
         # Grab premise and conclusion from the form
         # Assign them to the proof object
         parent = form.save(commit=False)
-        proof.premises = find_premises(parent.premises)
+        proof.premises = get_premises(parent.premises)
         proof.conclusion = str(parent.conclusion)
 
         for line in formset:
@@ -76,22 +76,20 @@ def proof_checker(request):
 
 
 
-
-
-
 def proof_create_view(request):
-    ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
+    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     query_set = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
-    formset = ProofLineFormset(request.POST or None, queryset=query_set)
+    formset = ProofLineFormset(request.POST or None, instance=form.instance, queryset=query_set)
     response = None
 
     if request.POST:
         if all([form.is_valid(), formset.is_valid()]):
             parent = form.save(commit=False)
+
             if 'check_proof' in request.POST:
                 proof = ProofObj(lines=[]) #
-                proof.premises = find_premises(parent.premises)
+                proof.premises = get_premises(parent.premises)
                 proof.conclusion = str(parent.conclusion)
 
                 for line in formset:
@@ -107,16 +105,14 @@ def proof_create_view(request):
                 response = verify_proof(proof)
 
             elif 'submit' in request.POST:
-                parent.created_by = request.user
-                parent.save()
-                for line in formset:
-                    if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
-                        child = line.save(commit=False)
-                        child.proof = parent
-                        child.save()
+                if len(formset.forms) > 0:
+                    parent.created_by = request.user
+                    parent.save()
+                    formset.save()
+                    return HttpResponseRedirect(reverse('all_proofs'))
 
-                return HttpResponseRedirect(reverse('all_proofs'))
     context = {
+        "object": form,
         "form": form,
         "formset": formset,
         "response": response
@@ -124,25 +120,20 @@ def proof_create_view(request):
     return render(request, 'proofchecker/proof_add_edit.html', context)
 
 
-
-
-
-
-
 def proof_update_view(request, pk=None):
     obj = get_object_or_404(Proof, pk=pk)
-    ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
-    query_set = obj.proofline_set.all()
+    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     form = ProofForm(request.POST or None, instance=obj)
-    formset = ProofLineFormset(request.POST or None, queryset=query_set)
+    formset = ProofLineFormset(request.POST or None, instance=obj, queryset=obj.proofline_set.order_by("ORDER"))
     response = None
+    validation_failure = False
 
     if request.POST:
-        parent = form.save(commit=False)
         if all([form.is_valid(), formset.is_valid()]):
+            parent = form.save(commit=False)
             if 'check_proof' in request.POST:
                 proof = ProofObj(lines=[]) #
-                proof.premises = find_premises(parent.premises)
+                proof.premises = get_premises(parent.premises)
                 proof.conclusion = str(parent.conclusion)
 
                 for line in formset:
@@ -158,25 +149,18 @@ def proof_update_view(request, pk=None):
                 response = verify_proof(proof)
 
             elif 'submit' in request.POST:
-                parent.created_by = request.user
-                parent.save()
-
-                for line in formset:
-                    if len(line.cleaned_data) > 0:
-                        child = line.save(commit=False)
-                        child.proof = parent
-                        child.save()
-
-                        if line.cleaned_data['DELETE']:
-                            child.delete()
-
-                return HttpResponseRedirect(reverse('all_proofs'))
+                if len(formset.forms)>0:
+                    parent.created_by = request.user
+                    parent.save()
+                    formset.save()
+                    return HttpResponseRedirect(reverse('all_proofs'))
 
     context = {
         "object": obj,
         "form": form,
         "formset": formset,
         "response": response
+
     }
     return render(request, 'proofchecker/proof_add_edit.html', context)
 
@@ -241,7 +225,7 @@ def single_proof_checker(request):
         # Grab premise and conclusion from the form
         # Assign them to the proof object
         parent = form.save(commit=False)
-        proof.premises = find_premises(parent.premises)
+        proof.premises = get_premises(parent.premises)
         print('\nPREMISES: ' + str(proof.premises))
         proof.conclusion = str(parent.conclusion)
         print('CONCLUSION: ' + proof.conclusion + '\n')

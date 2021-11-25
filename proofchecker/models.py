@@ -66,9 +66,11 @@ class ProofLine(models.Model):
     line_no = models.CharField(max_length=100, validators=[validate_line_no])
     formula = models.CharField(max_length=255, validators=[validate_formula])
     rule = models.CharField(max_length=255)
+    ORDER = models.IntegerField(null=True)
 
     def __str__(self):
         return ('Line {}: {}, {}'.format(
+            self.ORDER,
             self.line_no,
             self.formula,
             self.rule
