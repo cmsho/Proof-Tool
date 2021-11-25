@@ -6,7 +6,6 @@ from django.forms.models import modelformset_factory
 from django.forms import inlineformset_factory
 from .forms import ProofForm, ProofLineForm, AssignmentForm
 from .models import Proof, Problem, Assignment, Instructor, ProofLine
-from .json_to_object import ProofTemp
 from .proof import ProofObj, ProofLineObj, verify_proof, find_premises, ProofResponse
 
 
@@ -72,11 +71,12 @@ def proof_checker(request):
 
 
 
+
 def proof_create_view(request):
-    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0)
+    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     query_set = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
-    formset = ProofLineFormset(request.POST or None, queryset=query_set, instance=form.instance)
+    formset = ProofLineFormset(request.POST or None, instance=form.instance, queryset=query_set)
     response = None
 
     if request.POST:
@@ -118,10 +118,9 @@ def proof_create_view(request):
 
 def proof_update_view(request, pk=None):
     obj = get_object_or_404(Proof, pk=pk)
-    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0)
-    query_set = obj.proofline_set.all().order_by('line_no')
+    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     form = ProofForm(request.POST or None, instance=obj)
-    formset = ProofLineFormset(request.POST or None, queryset=query_set, instance=obj)
+    formset = ProofLineFormset(request.POST or None, instance=obj, queryset=obj.proofline_set.order_by("ORDER"))
     response = None
     validation_failure = False
 

@@ -83,6 +83,7 @@ function append_new_form_in_proofline_formset(index){
         proof_tbody.append(emptyFormElement)
     }
     set_total_formset_count_in_manager(get_total_formset_count_in_manager()+1)
+    reset_positonal_index()
 }
 
 function remove_from_proofline_fomrset(index) {
@@ -93,4 +94,26 @@ function remove_from_proofline_fomrset(index) {
         pull_up_proofline_forms(index)
         set_total_formset_count_in_manager(get_total_formset_count_in_manager()-1)
     }
+    reset_positonal_index()
+}
+
+
+function reset_positonal_index(){
+    const ORDER_fields = document.querySelectorAll('[id $= "-ORDER"]');
+    var pos_index = 0;
+    var index = null
+    for (let field of ORDER_fields){
+        if (field.id != null && field.id.indexOf("__prefix__")<0){
+            index = get_proofline_form_id_from_object_id(field)
+            if (!document.getElementById(`proofline_set-${index}`).hidden){
+                field.value = pos_index++
+                document.getElementById(`id_proofline_set-${index}-ORDER`).value = field.value
+            } else {
+                field.value = -1
+            }
+
+        }
+    }
+
+
 }
