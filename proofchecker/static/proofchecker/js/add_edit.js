@@ -32,7 +32,7 @@ function change_proofline_form_id(old_id, new_id){
     const targeted_element = document.getElementById('proofline_set-'+old_id)
     if (targeted_element != null) {
         document.getElementById('proofline_set-' + old_id).setAttribute('id', `proofline_set-${new_id}`)
-        const fields = ['id', 'DELETE', 'line_no', 'formula', 'rule'];
+        const fields = ['id', 'ORDER', 'DELETE', 'line_no', 'formula', 'rule'];
         fields.forEach(function (field) {
             document.getElementById('id_proofline_set-' + old_id + '-' + field).setAttribute('name', `proofline_set-${new_id}-${field}`)
             document.getElementById('id_proofline_set-' + old_id + '-' + field).setAttribute('id', `id_proofline_set-${new_id}-${field}`)
