@@ -35,38 +35,20 @@ function update_form_count(){
 // Call this at the end of any function that changes the amount of forms
 function update_form_ids() {
     const forms = document.getElementsByClassName("proofline-form")
+    const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'delete-btn']
+
     for (i = 0; i < forms.length; i++) {
 
         // Update the ID of each table row
         forms[i].setAttribute('id', `form-${i}`)
 
         // Update the ID of each input field (nested in <td>)
-        var children = forms[i].children
-
-        for (x = 0; x < children.length; x++) {
-
+        var tds = forms[i].children
+        for (x = 0; x < fields.length; x++) {
             // Input field is child of <td>
-            var input = children[x].children[0]
-
-            // Rename all input fields
-            if (x==0) {
-                input.setAttribute('name', `form-${i}-line_no`)
-                input.setAttribute('id', `id_form-${i}-line_no`) 
-            }
-            if (x==1) {
-                input.setAttribute('name', `form-${i}-formula`)
-                input.setAttribute('id', `id_form-${i}-formula`)
-            }
-            if (x==2) {
-                input.setAttribute('name', `form-${i}-rule`)
-                input.setAttribute('id', `id_form-${i}-rule`)
-            }
-            if (x==3) {
-                input.setAttribute('id', `insert-btn-${i}`)
-            }
-            if (x==4) {
-                input.setAttribute('id', `delete-btn-${i}`)
-            }  
+            var input = tds[x].children[0]
+            input.setAttribute('name', `form-${i}-${fields[x]}`)
+            input.setAttribute('id', `id_form-${i}-${fields[x]}`) 
         }
     }
 }
@@ -153,78 +135,25 @@ function begin_proof() {
     var prooflineList = document.getElementById('proofline-list')
 
     for (i = 0; i < premiseArray.length; i++) {
-        var premiseRow = document.createElement('tr')
-        premiseRow.setAttribute('class', 'proofline-form')
+        var newRow = create_empty_form()
+        var tds = newRow.children
 
-        for (x = 0; x < 5; x++) {
-            var td = document.createElement('td')
-            var input = document.createElement('input')
-    
-            // ------------------------------------
-            // Set attributes for the input field
-
+        for (x = 0; x < tds.length; x++) {
+            var input = tds[x].children[0]
             // line_no
             if (x == 0) {
-                var attrs = {
-                    "type": "text",
-                    "maxlength": "100",
-                    "onkeydown": "replaceCharacter(this)",
-                    "value": (i + 1)
-                }
-                setAttributes(input, attrs)
+                input.setAttribute("value", i+1)
             }
-    
             // formula
             if (x == 1) {
-                var attrs = {
-                    "type": "text",
-                    "maxlength": "255",
-                    "onkeydown": "replaceCharacter(this)",
-                    "value": `${premiseArray[i]}`
-                }
-                setAttributes(input, attrs)
+                input.setAttribute("value", `${premiseArray[i]}`)
             }
-
             // rule
             if (x == 2) {
-                var attrs = {
-                    "type": "text",
-                    "maxlength": "255",
-                    "onkeydown": "replaceCharacter(this)",
-                    "value": "Premise"
-                }
-                setAttributes(input, attrs)
+                input.setAttribute("value", 'Premise')
             }
-    
-            // insert button
-            if (x == 3) {
-                var attrs = {
-                    "class": "insert-row btn btn-secondary",
-                    "type": "button",
-                    "value": "Insert Row",
-                    "onclick": "insert_form(this)"
-                }
-                setAttributes(input, attrs)
-            }
-
-            // delete button
-            if (x == 4) {
-                var attrs = {
-                    "class": "delete-row btn btn-secondary",
-                    "type": "button",
-                    "value": "Delete Row",
-                    "onclick": "delete_form(this)"
-                }
-                setAttributes(input, attrs)
-            }
-            // ------------------------------------
-    
-            // Add <input> in <td>, add <td> in <tr>
-            td.appendChild(input)
-            premiseRow.appendChild(td)
         }
-        // Add <tr> in <tbody>
-        prooflineList.appendChild(premiseRow)
+        prooflineList.appendChild(newRow)
     }
 
     update_form_ids()
