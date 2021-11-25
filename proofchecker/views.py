@@ -6,7 +6,8 @@ from django.forms.models import modelformset_factory
 from django.forms import inlineformset_factory
 from .forms import ProofForm, ProofLineForm, AssignmentForm
 from .models import Proof, Problem, Assignment, Instructor, ProofLine
-from .proof import ProofObj, ProofLineObj, verify_proof, find_premises, ProofResponse
+from .json_to_object import ProofTemp
+from .proof import ProofObj, ProofLineObj, verify_proof, get_premises, ProofResponse
 
 
 def home(request):
@@ -32,7 +33,7 @@ def proof_checker(request):
         # Grab premise and conclusion from the form
         # Assign them to the proof object
         parent = form.save(commit=False)
-        proof.premises = find_premises(parent.premises)
+        proof.premises = get_premises(parent.premises)
         proof.conclusion = str(parent.conclusion)
 
         for line in formset:
@@ -85,7 +86,7 @@ def proof_create_view(request):
 
             if 'check_proof' in request.POST:
                 proof = ProofObj(lines=[]) #
-                proof.premises = find_premises(parent.premises)
+                proof.premises = get_premises(parent.premises)
                 proof.conclusion = str(parent.conclusion)
 
                 for line in formset:
@@ -129,7 +130,7 @@ def proof_update_view(request, pk=None):
             parent = form.save(commit=False)
             if 'check_proof' in request.POST:
                 proof = ProofObj(lines=[]) #
-                proof.premises = find_premises(parent.premises)
+                proof.premises = get_premises(parent.premises)
                 proof.conclusion = str(parent.conclusion)
 
                 for line in formset:
@@ -221,7 +222,7 @@ def single_proof_checker(request):
         # Grab premise and conclusion from the form
         # Assign them to the proof object
         parent = form.save(commit=False)
-        proof.premises = find_premises(parent.premises)
+        proof.premises = get_premises(parent.premises)
         print('\nPREMISES: ' + str(proof.premises))
         proof.conclusion = str(parent.conclusion)
         print('CONCLUSION: ' + proof.conclusion + '\n')
