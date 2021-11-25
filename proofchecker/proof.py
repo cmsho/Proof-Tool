@@ -374,6 +374,17 @@ def get_line(rule: str, proof: ProofObj):
             break
     return target_line
 
+def get_line_with_line_no(line_no: str, proof: ProofObj):
+    """
+    Find a single line using the line number
+    """
+    target_line = None
+    for line in proof.lines:
+        if line_no == str(line.line_no):
+            target_line = line
+            break
+    return target_line    
+
 def get_line_DNE(rule: str, proof: ProofObj):
     """
     Find a single line for rule DNE
@@ -702,15 +713,19 @@ def verify_or_intro(current_line: ProofLineObj, proof: ProofObj):
 
 def verify_or_elim(current_line: ProofLineObj, proof: ProofObj):
     """
-    Verify proper implementation of the rule ∨E m, i-j, k-l
+    Verify proper implementation of the rule ∨E m, i, j
     (Disjunction Elimination)
     """
     rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
-    # Attempt to find lines (m, i-j, k-l)
+    # Attempt to find lines (m, i, j)
     try:
-        target_lines = get_lines(rule, proof)
+        target_line_nos = get_line_nos(rule)
+        line_m = get_line_with_line_no(target_line_nos[0], proof)
+        lines_i = get_lines_in_subproof(target_line_nos[1], proof)
+        lines_j = get_lines_in_subproof(target_line_nos[2], proof)
+        target_lines = [line_m, lines_i[0], lines_i[1], lines_j[0], lines_j[1]]
 
         # Verify that line m citation is valid
         line_m_citation = verify_line_citation(current_line, target_lines[0])
@@ -760,10 +775,10 @@ def verify_or_elim(current_line: ProofLineObj, proof: ProofObj):
                     .format(str(target_lines[1].line_no),str(target_lines[3].line_no))
                 return response    
         except:
-            response.err_msg = "Line numbers are not specified correctly.  Disjunction Elimination: ∨E m, i-j, k-l"
+            response.err_msg = "Line numbers are not specified correctly.  Disjunction Elimination: ∨E m, i, j"
             return response        
     except:
-        response.err_msg = "Rule not formatted properly.  Disjunction Elimination: ∨E m, i-j, k-l"
+        response.err_msg = "Rule not formatted properly.  Disjunction Elimination: ∨E m, i, j"
         return response
 
 
@@ -777,7 +792,8 @@ def verify_not_intro(current_line: ProofLineObj, proof: ProofObj):
 
     # Attempt to find lines (i-j)
     try:
-        target_lines = get_lines(rule, proof)
+        target_line_no = get_line_no(rule)
+        target_lines = get_lines_in_subproof(target_line_no, proof)
 
         # Verify that subproof citation are valid
         for line in target_lines:
@@ -814,11 +830,11 @@ def verify_not_intro(current_line: ProofLineObj, proof: ProofObj):
                 return response
 
         except:
-            response.err_msg = "Line numbers are not specified correctly.  Negation Introduction: ¬I m-n"
+            response.err_msg = "Line numbers are not specified correctly.  Negation Introduction: ¬I m"
             return response        
 
     except:
-        response.err_msg = "Rule not formatted properly.  Negation Introduction: ¬I m-n"
+        response.err_msg = "Rule not formatted properly.  Negation Introduction: ¬I m"
         return response
 
 
@@ -879,15 +895,17 @@ def verify_not_elim(current_line: ProofLineObj, proof: ProofObj):
 
 def verify_implies_intro(current_line: ProofLineObj, proof: ProofObj):
     """
-    Verify proper implementation of the rule →I m-n
+    Verify proper implementation of the rule →I m
     (Conditional Introduction)
+    Note: m is a subproof citation
     """
     rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
-    # Attempt to find lines m-n
+    # Attempt to find first and last lines of subproof m
     try:
-        target_lines = get_lines(rule, proof)
+        target_line_no = get_line_no(rule)
+        target_lines = get_lines_in_subproof(target_line_no, proof)
 
         # Verify that subproof citation are valid
         for line in target_lines:
@@ -895,7 +913,7 @@ def verify_implies_intro(current_line: ProofLineObj, proof: ProofObj):
             if result.is_valid == False:
                 return result
         
-        # Search for lines m-n in the proof
+        # Search for lines in the proof
         try:
             expressions = get_expressions(target_lines)
 
@@ -912,7 +930,7 @@ def verify_implies_intro(current_line: ProofLineObj, proof: ProofObj):
                 return response
 
         except:
-            response.err_msg = "Line numbers are not specified correctly.  Conditional Introduction: →I m-n"
+            response.err_msg = "Line numbers are not specified correctly.  Conditional Introduction: →I m"
             return response
 
     except:
@@ -968,15 +986,16 @@ def verify_implies_elim(current_line: ProofLineObj, proof: ProofObj):
 
 def verify_indirect_proof(current_line: ProofLineObj, proof: ProofObj):
     """
-    Verify proper implementation of the rule IP i-j
+    Verify proper implementation of the rule IP m
     (Indirect Proof)
     """
     rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
-    # Attempt to find lines i-j
+    # Attempt to find lines m
     try:
-        target_lines = get_lines(rule, proof)
+        target_line_no = get_line_no(rule)
+        target_lines = get_lines_in_subproof(target_line_no, proof)
 
         # Verify that subproof citation are valid
         for line in target_lines:
@@ -1013,24 +1032,27 @@ def verify_indirect_proof(current_line: ProofLineObj, proof: ProofObj):
                 return response
 
         except:
-            response.err_msg = "Line numbers are not specified correctly.  Indirect Proof: IP i-j"
+            response.err_msg = "Line numbers are not specified correctly.  Indirect Proof: IP m"
             return response        
 
     except:
-        response.err_msg = "Rule not formatted properly.  Indirect Proof: IP i-j"
+        response.err_msg = "Rule not formatted properly.  Indirect Proof: IP m"
         return response
 
 def verify_iff_intro(current_line: ProofLineObj, proof: ProofObj):
     """
-    Verify the rule ↔I i-j, k-l
+    Verify the rule ↔I i, j
     (Biconditional Introduction)
     """
     rule = clean_rule(current_line.rule)
     response = ProofResponse()
 
-    # Attempt to find lines (i-j, k-l)
+    # Attempt to find lines in subproofs i and j
     try:
-        target_lines = get_lines(rule, proof)
+        target_line_nos = get_line_nos(rule)
+        lines_i = get_lines_in_subproof(target_line_nos[0], proof)
+        lines_j = get_lines_in_subproof(target_line_nos[1], proof)
+        target_lines = [lines_i[0], lines_i[1], lines_j[0], lines_j[1]]
 
         # Verify that subproof citations are valid
         for line in target_lines:
@@ -1093,10 +1115,10 @@ def verify_iff_intro(current_line: ProofLineObj, proof: ProofObj):
                     .format(str(target_lines[0].line_no),str(target_lines[3].line_no))
                 return response
         except:
-            response.err_msg = "Line numbers are not specified correctly.  ↔I i-j, k-l"
+            response.err_msg = "Line numbers are not specified correctly.  ↔I i, j"
             return response        
     except:
-        response.err_msg = "Rule not formatted properly.  ↔I i-j, k-l"
+        response.err_msg = "Rule not formatted properly.  ↔I i, j"
         return response
 
 def verify_iff_elim(current_line: ProofLineObj, proof: ProofObj):
