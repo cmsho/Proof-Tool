@@ -16,7 +16,7 @@ class ProofForm(forms.ModelForm):
 class ProofLineForm(forms.ModelForm):
     class Meta:
         model = ProofLine
-        fields = ['line_no', 'formula', 'rule']
+        fields = ['ORDER', 'line_no', 'formula', 'rule']
 
     def __init__(self, *args, **kwargs):
         super(ProofLineForm, self).__init__(*args, **kwargs)
