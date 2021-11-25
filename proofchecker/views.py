@@ -19,6 +19,9 @@ def home(request):
 def AssignmentPage(request):
     return render(request, "proofchecker/assignment_page.html")
 
+def SyntaxTestPage(request):
+    return render(request, "proofchecker/syntax_test.html")
+
 
 def proof_checker(request):
     ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
