@@ -72,11 +72,12 @@ def proof_checker(request):
 
 
 
+
 def proof_create_view(request):
-    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0)
+    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     query_set = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
-    formset = ProofLineFormset(request.POST or None, queryset=query_set, instance=form.instance)
+    formset = ProofLineFormset(request.POST or None, instance=form.instance, queryset=query_set)
     response = None
 
     if request.POST:
@@ -118,10 +119,9 @@ def proof_create_view(request):
 
 def proof_update_view(request, pk=None):
     obj = get_object_or_404(Proof, pk=pk)
-    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0)
-    query_set = obj.proofline_set.all().order_by('line_no')
+    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     form = ProofForm(request.POST or None, instance=obj)
-    formset = ProofLineFormset(request.POST or None, queryset=query_set, instance=obj)
+    formset = ProofLineFormset(request.POST or None, instance=obj, queryset=obj.proofline_set.order_by("ORDER"))
     response = None
     validation_failure = False
 
