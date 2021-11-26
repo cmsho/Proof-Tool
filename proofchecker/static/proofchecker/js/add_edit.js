@@ -1,4 +1,6 @@
 
+document.addEventListener('DOMContentLoaded', sortTable(), false);
+
 const inputFields = document.getElementsByClassName("text-replacement-enabled")
 for (let i of inputFields){
     console.log(i)
@@ -22,9 +24,16 @@ function get_proofline_form_id_from_object_id(object){
     return parseInt(object.id.replace(/[^0-9]/g, ""))
 }
 
-function init_proof(){
+function start_proof(element){
+    const premises_value = document.getElementById('id_premises').value;
+    const conclusion_value = document.getElementById('id_conclusion').value;
+
     if (get_total_formset_count_in_manager() == 0) {
         append_new_form_in_proofline_formset(0)
+        if (premises_value != '' && conclusion_value != '') {
+            element.remove()
+            document.getElementById('init_proof').innerHTML = '<Strong>Problem: ' + premises_value + ' ∴ ' + conclusion_value + '</Strong>'
+        }
     }
 }
 
@@ -114,6 +123,36 @@ function reset_positonal_index(){
 
         }
     }
+}
 
 
+function sortTable() {
+    var i, x, y;
+    var switching = true;
+
+    // Run loop until no switching is needed
+    while (switching) {
+        switching = false;
+        var rows = document.getElementsByClassName('proofline_set')
+        // Loop to go through all rows
+        for (i = 1; i < (rows.length - 1); i++) {
+            var switch_flag = false;
+
+            // Fetch 2 elements that need to be compared
+            x = rows[i].getElementsByTagName("input")[2].value
+            y = rows[i+1].getElementsByTagName("input")[2].value
+
+            // Check if 2 rows need to be switched
+            if (parseInt(x) > parseInt(y)) {
+                // If yes, mark Switch as needed and break loop
+                switch_flag = true;
+                break;
+            }
+        }
+        if (switch_flag) {
+            // Function to switch rows and mark switch as completed
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+        }
+    }
 }
