@@ -114,6 +114,9 @@ function insert_form_helper(index) {
 
     update_form_ids()
     update_form_count()
+
+    // hide_conclude_button()
+
 }
 
 
@@ -177,6 +180,7 @@ function generate_new_subproof_row_number(index) {
     // Update the row number of the new row
     document.getElementById('form-' + (index)).children[0].children[0].value = `${original_row_number_of_clicked_button}.2`
 
+    // hide_conclude_button()
 }
 
 
@@ -186,7 +190,7 @@ function insert_row_parent_level(index) {
     var row_above_added = document.getElementById('form-' + (index - 1))
     var line_number_of_row_above_added = row_above_added.children[0].children[0].value
 
-    console.log(index)
+    // console.log(index)
 
     // Get list of row being deleted
     var list_of_row_above_added = line_number_of_row_above_added.split('.')
@@ -200,17 +204,21 @@ function insert_row_parent_level(index) {
 
     // Create the new row number
     var new_row_number = prefix_of_row_above_added
-    console.log(new_row_number)
+    // console.log(new_row_number)
 
     new_row_number[new_row_number.length - 1] = `${Number(new_row_number[new_row_number.length - 1]) + 1}`
-    console.log(new_row_number)
+    // console.log(new_row_number)
     document.getElementById('form-' + (index)).children[0].children[0].value = new_row_number.join('.')
 
 
     var direction = 1
     var starting_point = index + 1
-    var prefix_value_list = new_row_number
+    // var prefix_value_list = new_row_number
 
+    var prefix_value_list = new_row_number.length > 1 ? new_row_number : []
+
+    console.log("Prefix value")
+    console.log(prefix_value_list)
 
 
     renumber_rows(direction, starting_point, prefix_value_list)
@@ -363,19 +371,75 @@ function renumber_rows(direction, starting_point, prefix_value_list) {
 
             forms[current_form].children[0].children[0].value = new_row_number
         }
+    }
+
+    // hide_conclude_button()
+}
 
 
-        if (Math.abs((number_of_forms - 1) - current_form) >= 1) {
-            console.log("Not last row")
+function hide_conclude_button() {
+    // Forms that you'll iterate over
+    const forms = document.getElementsByClassName("proofline-form")
+    // console.log(forms.length)
+    var number_of_forms = forms.length - 1
 
-        }
+    for (var current_form = 0; current_form <= number_of_forms; current_form++) {
+        console.log(["row", current_form])
+
+        console.log(document.getElementById(`form-${current_form}`))
+
+        document.getElementById(`form-${current_form}`).children[5].children[0].style.visibility = 'hidden'
+
+        // console.log(forms[current_form].children[0].children[0].value)
+        // console.log(forms[current_form])
+
+        // if (current_form < number_of_forms) {
+
+        //     var line_number_of_current_row = forms[current_form].children[0].children[0].value
+
+        //     // Get list of row being deleted
+        //     var list_of_current_row = line_number_of_current_row.split('.')
+        //     // Get the prefix of the row being deleted
+        //     var prefix_of_current_row = list_of_current_row.slice(0, -1)
+        //     // Get string of prefix of row being deleted
+        //     var string_of_prefix_current_row = prefix_of_current_row.join('.')
+        //     // Get the last value of the row being deleted
+        //     var final_value_of_current_row = list_of_current_row.slice(-1)
+
+
+
+
+        //     var line_number_of_next_row = forms[current_form + 1].children[0].children[0].value
+
+        //     // Get list of row below deleted
+        //     var list_of_next_row = line_number_of_next_row.split('.')
+        //     // Get the prefix of the row below deleted
+        //     var prefix_of_next_row = list_of_next_row.slice(0, -1)
+        //     // Get the string of the prefix below deleted
+        //     var string_of_prefix_next_row = prefix_of_next_row.join('.')
+
+        //     // console.log("row")
+        //     // console.log(list_of_current_row, list_of_next_row)
+
+        //     // console.log(prefix_of_current_row.join('.'))
+        //     // console.log(prefix_of_next_row.join('.'))
+
+        //     if (prefix_of_current_row.join('.') == prefix_of_next_row.join('.') || list_of_current_row.length <= 1) {
+        //         // console.log("end of a subproof")
+        //         // console.log(forms[current_form].children[5].children[0])
+        //         forms[current_form].children[5].children[0].style.visibility = 'hidden'
+        //     }
+        // }
+        // if (forms[current_form].children[0].children[0].value.split('.') <= 1) {
+        //     console.log(`${current_form}-here`)
+        //     // console.log(forms[current_form].children[5].children[0])
+        //     forms[current_form].children[5].children[0].style.visibility = 'hidden'
+        // }
 
 
     }
 
-    return
 }
-
 
 // Automatically populate the premise values 
 function begin_proof() {
