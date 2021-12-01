@@ -190,8 +190,6 @@ function insert_row_parent_level(index) {
     var row_above_added = document.getElementById('form-' + (index - 1))
     var line_number_of_row_above_added = row_above_added.children[0].children[0].value
 
-    // console.log(index)
-
     // Get list of row being deleted
     var list_of_row_above_added = line_number_of_row_above_added.split('.')
     // Get the prefix of the row being deleted
@@ -257,53 +255,103 @@ function add_form(event) {
     update_form_count()
 }
 
+function get_row(index) {
+
+    var row_object = document.getElementById('form-' + (index))
+    // Get line number of the row
+    var line_number_of_row = row_object.children[0].children[0].value
+    // Get list of number of row
+    var list_of_line_number = line_number_of_row.split('.')
+    // Get the prefix of the row 
+    var prefix_of_row = list_of_line_number.slice(0, -1)
+    // Get the string of the prefix
+    var string_of_prefix = prefix_of_row.join('.')
+    // Get the final value of row
+    var final_value = list_of_line_number.slice(-1)
+
+    var row = {
+        // Get object of the row
+        "row_object": row_object,
+        // Get line number of the row
+        "line_number_of_row": line_number_of_row,
+        // Get list of number of row
+        "list_of_line_number": list_of_line_number,
+        // Get the prefix of the row 
+        "prefix_of_row": prefix_of_row,
+        // Get the string of the prefix
+        "string_of_prefix": string_of_prefix,
+        // Get the final value of row
+        "final_value": final_value,
+    }
+    return row
+}
 
 
-function delete_form(obj) {
+function get_rows(obj) {
 
-    // Get index of row being deleted and the index of the last row
+    // Get index of the row where the button was clicked
     var index = get_form_id(obj)
     var forms = document.getElementsByClassName("proofline-form")
     var index_of_last_row = forms.length - 1
 
-    // If not first row get the row before the one being deleted
+    // Get row above where the button was clicked if it's not the first row
     if (index != 0) {
-        var row_above_deleted = document.getElementById('form-' + (index - 1))
-        var line_number_of_row_above_deleted = row_above_deleted.children[0].children[0].value
-        // Create list of row above deleted
-        var list_of_row_above_deleted = line_number_of_row_above_deleted.split('.')
-        // Get the prefix of the row above deleted
-        var prefix_of_row_above_deleted = list_of_row_above_deleted.slice(0, -1)
-        // Get string of the prefix of row above deleted
-        var string_of_prefix_above_deleted = prefix_of_row_above_deleted.join('.')
+        // Get object of the row
+        var row_above_button_click = document.getElementById('form-' + (index - 1))
+        // Get line number of the row
+        var line_number_of_row_above = row_above_button_click.children[0].children[0].value
+        // Get list of number of the row
+        var list_of_line_number_of_row_above = line_number_of_row_above.split('.')
+        // Get the prefix of the row
+        var prefix_of_row_above = list_of_line_number_of_row_above.slice(0, -1)
+        // Get the string of the prefix of the row above 
+        var string_of_prefix_above_row = prefix_of_row_above.join('.')
     }
 
-    // Get the row being deleted
-    var row_being_deleted = document.getElementById('form-' + (index))
-    var line_number_of_row_being_deleted = row_being_deleted.children[0].children[0].value
+    // Get row the button was clicked on
+    // Get object of the row
+    var row_of_button_click = document.getElementById('form-' + (index))
+    // Get line number of the row
+    var line_number_of_row = row_above_button_click.children[0].children[0].value
+    // Get list of number of row
+    var list_of_line_number = line_number_of_row.split('.')
+    // Get the prefix of the row 
+    var prefix_of_row = list_of_line_number.slice(0, -1)
+    // Get the string of the prefix
+    var string_of_prefix = prefix_of_row.join('.')
+    // Get the final value of row
+    var final_value = list_of_line_number.slice(-1)
 
-    // Get list of row being deleted
-    var list_of_row_being_deleted = line_number_of_row_being_deleted.split('.')
-    // Get the prefix of the row being deleted
-    var prefix_of_row_being_deleted = list_of_row_being_deleted.slice(0, -1)
-    // Get string of prefix of row being deleted
-    var string_of_prefix_being_deleted = prefix_of_row_being_deleted.join('.')
-    // Get the last value of the row being deleted
-    var final_value_of_row_being_deleted = list_of_row_being_deleted.slice(-1)
-
-
-    var string_of_prefix_below_deleted = ""
-    // If not last row get the row after the row being deleted
+    var string_of_prefix_below_row = ""
+    // Get row after where the button was clicked
     if (index != index_of_last_row) {
-        var row_below_deleted = document.getElementById('form-' + (index + 1))
-        var line_number_of_row_below_deleted = row_below_deleted.children[0].children[0].value
+        // Get object of the row
+        var row_below_button_click = document.getElementById('form-' + (index + 1))
+        // Get line number of the row
+        var line_number_of_row_below = row_below_button_click.children[0].children[0].value
+        // Get list of number of the row
+        var list_of_line_number_of_row_below = line_number_of_row_below.split('.')
+        // Get prefix of the row
+        var prefix_of_row_below = list_of_line_number_of_row_below.slice(0, -1)
+        // Get the string of the prefix of the row above 
+        var string_of_prefix_below_row = prefix_of_row_below.join('.')
+    }
 
-        // Get list of row below deleted
-        var list_of_row_below_deleted = line_number_of_row_below_deleted.split('.')
-        // Get the prefix of the row below deleted
-        var prefix_of_row_below_deleted = list_of_row_below_deleted.slice(0, -1)
-        // Get the string of the prefix below deleted
-        var string_of_prefix_below_deleted = prefix_of_row_below_deleted.join('.')
+}
+
+
+function delete_form(obj) {
+    var index = get_form_id(obj)
+    var forms = document.getElementsByClassName("proofline-form")
+    var index_of_last_row = forms.length - 1
+
+    if (index != 0) {
+        var above_row = get_row(index - 1)
+    }
+    var button_row = get_row(index)
+
+    if (index != index_of_last_row) {
+        var below_row = get_row(index + 1)
     }
 
     // Delete row
@@ -312,30 +360,108 @@ function delete_form(obj) {
     update_form_count()
     update_form_ids()
 
-
     // Set the direction of the renumbering to -1 to start from the end of the forms
     var direction = -1
     // Set the starting point of the renumbering to the index of the removed line
     var starting_point = index
 
-    renumber_rows(direction, starting_point, prefix_of_row_being_deleted)
+    renumber_rows(direction, starting_point, button_row.prefix_of_row)
 
     // If a sub proof is being deleted
-    if ((index != index_of_last_row) & (final_value_of_row_being_deleted == "1") & (list_of_row_being_deleted.length > 1)) {
+    if ((index != index_of_last_row) & (button_row.final_value == "1") & (button_row.list_of_line_number.length > 1)) {
 
         // How to handle when a parent sub proof is deleted
-        if ((string_of_prefix_below_deleted.startsWith(string_of_prefix_above_deleted)) & (string_of_prefix_above_deleted.length >= 1)) {
+        if ((below_row.string_of_prefix.startsWith(above_row.string_of_prefix)) & (above_row.string_of_prefix.length >= 1)) {
             console.log("sub proof of sub proof")
-            renumber_rows(direction, starting_point, list_of_row_above_deleted)
+            renumber_rows(direction, starting_point, above_row.list_of_line_number)
         }
         // How to handle all other cases
-        else if (string_of_prefix_being_deleted != string_of_prefix_below_deleted) {
+        else if (button_row.string_of_prefix != below_row.string_of_prefix) {
             console.log("Deleting subproof")
-            console.log(prefix_of_row_above_deleted)
-            renumber_rows(direction, starting_point, prefix_of_row_above_deleted)
+            renumber_rows(direction, starting_point, above_row.prefix_of_row)
         }
     }
+
 }
+
+
+// function delete_form_former(obj) {
+
+//     // Get index of row being deleted and the index of the last row
+//     var index = get_form_id(obj)
+//     var forms = document.getElementsByClassName("proofline-form")
+//     var index_of_last_row = forms.length - 1
+
+//     // If not first row get the row before the one being deleted
+//     if (index != 0) {
+//         var row_above_deleted = document.getElementById('form-' + (index - 1))
+//         var line_number_of_row_above_deleted = row_above_deleted.children[0].children[0].value
+//         // Create list of row above deleted
+//         var list_of_row_above_deleted = line_number_of_row_above_deleted.split('.')
+//         // Get the prefix of the row above deleted
+//         var prefix_of_row_above_deleted = list_of_row_above_deleted.slice(0, -1)
+//         // Get string of the prefix of row above deleted
+//         var string_of_prefix_above_deleted = prefix_of_row_above_deleted.join('.')
+//     }
+
+//     // Get the row being deleted
+//     var row_being_deleted = document.getElementById('form-' + (index))
+//     var line_number_of_row_being_deleted = row_being_deleted.children[0].children[0].value
+
+//     // Get list of row being deleted
+//     var list_of_row_being_deleted = line_number_of_row_being_deleted.split('.')
+//     // Get the prefix of the row being deleted
+//     var prefix_of_row_being_deleted = list_of_row_being_deleted.slice(0, -1)
+//     // Get string of prefix of row being deleted
+//     var string_of_prefix_being_deleted = prefix_of_row_being_deleted.join('.')
+//     // Get the last value of the row being deleted
+//     var final_value_of_row_being_deleted = list_of_row_being_deleted.slice(-1)
+
+
+//     var string_of_prefix_below_deleted = ""
+//     // If not last row get the row after the row being deleted
+//     if (index != index_of_last_row) {
+//         var row_below_deleted = document.getElementById('form-' + (index + 1))
+//         var line_number_of_row_below_deleted = row_below_deleted.children[0].children[0].value
+
+//         // Get list of row below deleted
+//         var list_of_row_below_deleted = line_number_of_row_below_deleted.split('.')
+//         // Get the prefix of the row below deleted
+//         var prefix_of_row_below_deleted = list_of_row_below_deleted.slice(0, -1)
+//         // Get the string of the prefix below deleted
+//         var string_of_prefix_below_deleted = prefix_of_row_below_deleted.join('.')
+//     }
+
+//     // Delete row
+//     const form_to_delete = document.getElementById("form-" + index)
+//     form_to_delete.remove()
+//     update_form_count()
+//     update_form_ids()
+
+
+//     // Set the direction of the renumbering to -1 to start from the end of the forms
+//     var direction = -1
+//     // Set the starting point of the renumbering to the index of the removed line
+//     var starting_point = index
+
+//     renumber_rows(direction, starting_point, prefix_of_row_being_deleted)
+
+//     // If a sub proof is being deleted
+//     if ((index != index_of_last_row) & (final_value_of_row_being_deleted == "1") & (list_of_row_being_deleted.length > 1)) {
+
+//         // How to handle when a parent sub proof is deleted
+//         if ((string_of_prefix_below_deleted.startsWith(string_of_prefix_above_deleted)) & (string_of_prefix_above_deleted.length >= 1)) {
+//             console.log("sub proof of sub proof")
+//             renumber_rows(direction, starting_point, list_of_row_above_deleted)
+//         }
+//         // How to handle all other cases
+//         else if (string_of_prefix_being_deleted != string_of_prefix_below_deleted) {
+//             console.log("Deleting subproof")
+//             console.log(prefix_of_row_above_deleted)
+//             renumber_rows(direction, starting_point, prefix_of_row_above_deleted)
+//         }
+//     }
+// }
 
 
 function renumber_rows(direction, starting_point, prefix_value_list) {
