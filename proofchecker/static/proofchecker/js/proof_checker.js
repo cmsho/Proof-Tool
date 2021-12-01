@@ -93,7 +93,8 @@ function create_subproof(obj) {
 function conclude_subproof(obj) {
     insert_form_helper(get_form_id(obj) + 1)
 
-    insert_row_parent_level(get_form_id(obj) + 1)
+    // insert_row_parent_level(get_form_id(obj) + 1)
+    insert_row_parent_level(get_form_id(obj))
 }
 
 
@@ -183,46 +184,64 @@ function generate_new_subproof_row_number(index) {
     // hide_conclude_button()
 }
 
-
 function insert_row_parent_level(index) {
+    var button_row = get_row(index)
 
-    // Get the row being deleted
-    var row_above_added = document.getElementById('form-' + (index - 1))
-    var line_number_of_row_above_added = row_above_added.children[0].children[0].value
-
-    // Get list of row being deleted
-    var list_of_row_above_added = line_number_of_row_above_added.split('.')
-    // Get the prefix of the row being deleted
-    var prefix_of_row_above_added = list_of_row_above_added.slice(0, -1)
-    // Get string of prefix of row being deleted
-    var string_of_prefix_above_added = prefix_of_row_above_added.join('.')
-    // Get the last value of the row being deleted
-    var final_value_of_row_above_added = list_of_row_above_added.slice(-1)
-
-
-    // Create the new row number
-    var new_row_number = prefix_of_row_above_added
-    // console.log(new_row_number)
-
+    // Get prefix of the new row number
+    var new_row_number = button_row.prefix_of_row
+    // Add one to the final value of the new_row_number
     new_row_number[new_row_number.length - 1] = `${Number(new_row_number[new_row_number.length - 1]) + 1}`
-    // console.log(new_row_number)
-    document.getElementById('form-' + (index)).children[0].children[0].value = new_row_number.join('.')
-
+    // Construct new row number string and attach it to the new row
+    document.getElementById('form-' + (index + 1)).children[0].children[0].value = new_row_number.join('.')
 
     var direction = 1
-    var starting_point = index + 1
-    // var prefix_value_list = new_row_number
-
+    var starting_point = index + 2
+    // if it's an integer than use an empty list for the prefix 
     var prefix_value_list = new_row_number.length > 1 ? new_row_number : []
 
-    console.log("Prefix value")
-    console.log(prefix_value_list)
-
-
     renumber_rows(direction, starting_point, prefix_value_list)
-
-
 }
+
+
+// function insert_row_parent_level_former(index) {
+
+//     // Get the row being deleted
+//     var row_above_added = document.getElementById('form-' + (index - 1))
+//     var line_number_of_row_above_added = row_above_added.children[0].children[0].value
+
+//     // Get list of row being deleted
+//     var list_of_row_above_added = line_number_of_row_above_added.split('.')
+//     // Get the prefix of the row being deleted
+//     var prefix_of_row_above_added = list_of_row_above_added.slice(0, -1)
+//     // Get string of prefix of row being deleted
+//     var string_of_prefix_above_added = prefix_of_row_above_added.join('.')
+//     // Get the last value of the row being deleted
+//     var final_value_of_row_above_added = list_of_row_above_added.slice(-1)
+
+
+//     // Create the new row number
+//     var new_row_number = prefix_of_row_above_added
+//     // console.log(new_row_number)
+
+//     new_row_number[new_row_number.length - 1] = `${Number(new_row_number[new_row_number.length - 1]) + 1}`
+//     // console.log(new_row_number)
+//     document.getElementById('form-' + (index)).children[0].children[0].value = new_row_number.join('.')
+
+
+//     var direction = 1
+//     var starting_point = index + 1
+//     // var prefix_value_list = new_row_number
+
+//     var prefix_value_list = new_row_number.length > 1 ? new_row_number : []
+
+//     console.log("Prefix value")
+//     console.log(prefix_value_list)
+
+
+//     renumber_rows(direction, starting_point, prefix_value_list)
+
+
+// }
 
 
 
@@ -287,57 +306,57 @@ function get_row(index) {
 }
 
 
-function get_rows(obj) {
+// function get_rows(obj) {
 
-    // Get index of the row where the button was clicked
-    var index = get_form_id(obj)
-    var forms = document.getElementsByClassName("proofline-form")
-    var index_of_last_row = forms.length - 1
+//     // Get index of the row where the button was clicked
+//     var index = get_form_id(obj)
+//     var forms = document.getElementsByClassName("proofline-form")
+//     var index_of_last_row = forms.length - 1
 
-    // Get row above where the button was clicked if it's not the first row
-    if (index != 0) {
-        // Get object of the row
-        var row_above_button_click = document.getElementById('form-' + (index - 1))
-        // Get line number of the row
-        var line_number_of_row_above = row_above_button_click.children[0].children[0].value
-        // Get list of number of the row
-        var list_of_line_number_of_row_above = line_number_of_row_above.split('.')
-        // Get the prefix of the row
-        var prefix_of_row_above = list_of_line_number_of_row_above.slice(0, -1)
-        // Get the string of the prefix of the row above 
-        var string_of_prefix_above_row = prefix_of_row_above.join('.')
-    }
+//     // Get row above where the button was clicked if it's not the first row
+//     if (index != 0) {
+//         // Get object of the row
+//         var row_above_button_click = document.getElementById('form-' + (index - 1))
+//         // Get line number of the row
+//         var line_number_of_row_above = row_above_button_click.children[0].children[0].value
+//         // Get list of number of the row
+//         var list_of_line_number_of_row_above = line_number_of_row_above.split('.')
+//         // Get the prefix of the row
+//         var prefix_of_row_above = list_of_line_number_of_row_above.slice(0, -1)
+//         // Get the string of the prefix of the row above 
+//         var string_of_prefix_above_row = prefix_of_row_above.join('.')
+//     }
 
-    // Get row the button was clicked on
-    // Get object of the row
-    var row_of_button_click = document.getElementById('form-' + (index))
-    // Get line number of the row
-    var line_number_of_row = row_above_button_click.children[0].children[0].value
-    // Get list of number of row
-    var list_of_line_number = line_number_of_row.split('.')
-    // Get the prefix of the row 
-    var prefix_of_row = list_of_line_number.slice(0, -1)
-    // Get the string of the prefix
-    var string_of_prefix = prefix_of_row.join('.')
-    // Get the final value of row
-    var final_value = list_of_line_number.slice(-1)
+//     // Get row the button was clicked on
+//     // Get object of the row
+//     var row_of_button_click = document.getElementById('form-' + (index))
+//     // Get line number of the row
+//     var line_number_of_row = row_above_button_click.children[0].children[0].value
+//     // Get list of number of row
+//     var list_of_line_number = line_number_of_row.split('.')
+//     // Get the prefix of the row 
+//     var prefix_of_row = list_of_line_number.slice(0, -1)
+//     // Get the string of the prefix
+//     var string_of_prefix = prefix_of_row.join('.')
+//     // Get the final value of row
+//     var final_value = list_of_line_number.slice(-1)
 
-    var string_of_prefix_below_row = ""
-    // Get row after where the button was clicked
-    if (index != index_of_last_row) {
-        // Get object of the row
-        var row_below_button_click = document.getElementById('form-' + (index + 1))
-        // Get line number of the row
-        var line_number_of_row_below = row_below_button_click.children[0].children[0].value
-        // Get list of number of the row
-        var list_of_line_number_of_row_below = line_number_of_row_below.split('.')
-        // Get prefix of the row
-        var prefix_of_row_below = list_of_line_number_of_row_below.slice(0, -1)
-        // Get the string of the prefix of the row above 
-        var string_of_prefix_below_row = prefix_of_row_below.join('.')
-    }
+//     var string_of_prefix_below_row = ""
+//     // Get row after where the button was clicked
+//     if (index != index_of_last_row) {
+//         // Get object of the row
+//         var row_below_button_click = document.getElementById('form-' + (index + 1))
+//         // Get line number of the row
+//         var line_number_of_row_below = row_below_button_click.children[0].children[0].value
+//         // Get list of number of the row
+//         var list_of_line_number_of_row_below = line_number_of_row_below.split('.')
+//         // Get prefix of the row
+//         var prefix_of_row_below = list_of_line_number_of_row_below.slice(0, -1)
+//         // Get the string of the prefix of the row above 
+//         var string_of_prefix_below_row = prefix_of_row_below.join('.')
+//     }
 
-}
+// }
 
 
 function delete_form(obj) {
@@ -486,11 +505,6 @@ function renumber_rows(direction, starting_point, prefix_value_list) {
         var current_row_number = forms[current_form].children[0].children[0].value
         var current_row_number_list = current_row_number.split('.')
 
-        // console.log("Current row")
-        // console.log(current_row_number)
-        // console.log(prefix_values_string)
-        // console.log(["index", index_of_changing_element])
-
         if (current_row_number.startsWith(prefix_values_string)) {
             current_row_number_list[index_of_changing_element] = Number(current_row_number_list[index_of_changing_element]) + direction
             var new_row_number = current_row_number_list.join('.')
@@ -498,8 +512,6 @@ function renumber_rows(direction, starting_point, prefix_value_list) {
             forms[current_form].children[0].children[0].value = new_row_number
         }
     }
-
-    // hide_conclude_button()
 }
 
 
