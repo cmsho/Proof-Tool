@@ -80,7 +80,8 @@ function insert_form(obj) {
     insert_form_helper(get_form_id(obj) + 1)
 
     // function by thomas to insert a new row at the current level
-    insert_row_current_level(get_form_id(obj) + 1)
+    // insert_row_current_level(get_form_id(obj) + 1)
+    insert_row_current_level(get_form_id(obj))
 
 }
 
@@ -116,56 +117,65 @@ function insert_form_helper(index) {
     update_form_ids()
     update_form_count()
 
-    // hide_conclude_button()
-
 }
 
 
-// function by thomas to insert a new row at the current level
 function insert_row_current_level(index) {
-
-    // since the new row is already inserted via the insert_form_helper this function is for assigning the correct row number
-
-
-    // Get the new row
-    var new_row = document.getElementById('form-' + (index))
-    var new_row_number = new_row.children[0].children[0].value
-
-
-    // retrieve the row where the button was clicked
-    const row_number_of_clicked_button = document.getElementById('form-' + (index - 1)).children[0].children[0].value
-
-    console.log(row_number_of_clicked_button)
-
-    // Split the row number of clicked button value
-    var row_number_of_clicked_button_list = row_number_of_clicked_button.split('.')
-
-    // Get the prefix of the row number of button clicked
-    var prefix_value_list = row_number_of_clicked_button_list.slice(0, -1)
+    // Get the button row
+    var button_row = get_row(index)
 
     // If it has no subproof numbering then add one to the previous row number
-    if (prefix_value_list.length == 0) {
-        var prefix_value_string = prefix_value_list.join('.')
-        new_row_number = `${Number(row_number_of_clicked_button) + 1}`
-        new_row.children[0].children[0].value = new_row_number
+    if (button_row.prefix_of_row.length == 0) {
+        document.getElementById('form-' + (index + 1)).children[0].children[0].value = `${Number(button_row.line_number_of_row) + 1}`
     }
     // if it has subproof number then take the last number and add one to it
     else {
-        var prefix_value_string = prefix_value_list.join('.')
-        var last_value = row_number_of_clicked_button_list.at(-1)
-        new_row_number = `${prefix_value_string}.${Number(last_value) + 1}`
-        new_row.children[0].children[0].value = new_row_number
+        document.getElementById('form-' + (index + 1)).children[0].children[0].value = `${button_row.string_of_prefix}.${Number(button_row.final_value) + 1}`
     }
-
-    console.log("new_row_number")
-    console.log(new_row_number)
-
-    // Set the starting point for the renumbering
-    var direction = 1;
-    var starting_point = index + 1
-
-    renumber_rows(direction, starting_point, prefix_value_list)
 }
+
+
+// function insert_row_current_level_former(index) {
+
+//     // Get the new row
+//     var new_row = document.getElementById('form-' + (index))
+//     var new_row_number = new_row.children[0].children[0].value
+
+
+//     // retrieve the row where the button was clicked
+//     const row_number_of_clicked_button = document.getElementById('form-' + (index - 1)).children[0].children[0].value
+
+//     console.log(row_number_of_clicked_button)
+
+//     // Split the row number of clicked button value
+//     var row_number_of_clicked_button_list = row_number_of_clicked_button.split('.')
+
+//     // Get the prefix of the row number of button clicked
+//     var prefix_value_list = row_number_of_clicked_button_list.slice(0, -1)
+
+//     // If it has no subproof numbering then add one to the previous row number
+//     if (prefix_value_list.length == 0) {
+//         var prefix_value_string = prefix_value_list.join('.')
+//         new_row_number = `${Number(row_number_of_clicked_button) + 1}`
+//         new_row.children[0].children[0].value = new_row_number
+//     }
+//     // if it has subproof number then take the last number and add one to it
+//     else {
+//         var prefix_value_string = prefix_value_list.join('.')
+//         var last_value = row_number_of_clicked_button_list.at(-1)
+//         new_row_number = `${prefix_value_string}.${Number(last_value) + 1}`
+//         new_row.children[0].children[0].value = new_row_number
+//     }
+
+//     console.log("new_row_number")
+//     console.log(new_row_number)
+
+//     // Set the starting point for the renumbering
+//     var direction = 1;
+//     var starting_point = index + 1
+
+//     renumber_rows(direction, starting_point, prefix_value_list)
+// }
 
 
 function generate_new_subproof_row_number(index) {
