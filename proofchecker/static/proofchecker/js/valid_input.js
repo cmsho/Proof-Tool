@@ -39,10 +39,11 @@ function invalidPremiseInputMessage(string){
 
     let errorString = "";
     errorString = string;
+    let premiseHeader = "Premise Error: ";
 
     let errorDiv = document.getElementById('valid-premise-div');
 
-    errorDiv.innerHTML = errorString;
+    errorDiv.innerHTML = premiseHeader.bold() + errorString;
 }
 
 
@@ -50,10 +51,11 @@ function invalidConclusionInputMessage(string){
 
     let errorString = "";
     errorString = string;
+    let conclusionHeader = "Conclusion Error: ";
 
     let errorDiv = document.getElementById('valid-conclusion-div');
 
-    errorDiv.innerHTML = errorString;
+    errorDiv.innerHTML = conclusionHeader.bold() + errorString;
 }
 
 function clearPremiseErrorDiv()

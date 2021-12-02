@@ -108,11 +108,11 @@ function isValidTFL(string) {
             }    
         }            
         else{
-            return "Your premise or conclusion does not have balanced parantheses." ;
+            return "This statement does not have balanced parantheses." ;
         }
     }
     else{
-        return "Your premise or conclusion has at least one invalid TFL symbol." ;
+        return "This statement has at least one invalid TFL symbol." ;
     }
 
     //If we reached this line, everything checks out
