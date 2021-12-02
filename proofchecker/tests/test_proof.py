@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from .proof import ProofObj, ProofLineObj, get_line_no, get_line_nos, get_lines_in_subproof, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_double_not_elim, verify_iff_elim, verify_iff_intro, verify_line_citation, verify_explosion, verify_or_intro, \
+from ..proof import ProofObj, ProofLineObj, get_line_no, get_line_nos, get_lines_in_subproof, is_conclusion, verify_and_intro, verify_and_elim, verify_assumption, verify_double_not_elim, verify_iff_elim, verify_iff_intro, verify_line_citation, verify_explosion, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
     verify_not_elim, verify_indirect_proof, verify_premise, verify_reiteration, verify_rule, verify_proof, depth
 
