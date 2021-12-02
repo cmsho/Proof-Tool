@@ -22,7 +22,11 @@
                 <td>Rule</td>
             </tr>
         </thead>
-
+        <div id="valid-premise-div">
+        </div>
+        <div id="valid-conclusion-div">
+        </div>
+        <br>
         <tbody id="proofline-list">
             {% for line in formset %}
             <tr id="form-{{ forloop.counter0 }}" class="proofline-form">
@@ -116,6 +120,7 @@
 
 {% include 'proofchecker/right_navigation_menu.html' %}
 
+<script src="{% static 'js/syntax.js' %}"></script>
 <script src="{% static 'js/proof_checker.js' %}"></script>
 <script src="{% static 'js/valid_input.js' %}"></script>
 
