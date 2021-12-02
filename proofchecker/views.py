@@ -6,7 +6,6 @@ from django.forms.models import modelformset_factory
 from django.forms import inlineformset_factory
 from .forms import ProofForm, ProofLineForm, AssignmentForm
 from .models import Proof, Problem, Assignment, Instructor, ProofLine
-from .json_to_object import ProofTemp
 from .proof import ProofObj, ProofLineObj, verify_proof, get_premises, ProofResponse
 
 
@@ -14,7 +13,6 @@ def home(request):
     proofs = Proof.objects.all()
     context = {"proofs": proofs}
     return render(request, "proofchecker/home.html", context)
-
 
 def AssignmentPage(request):
     return render(request, "proofchecker/assignment_page.html")
@@ -71,9 +69,6 @@ def proof_checker(request):
         "formset": formset
     }
     return render(request, 'proofchecker/proof_checker.html', context)
-
-
-
 
 
 def proof_create_view(request):
@@ -178,7 +173,6 @@ class ProofDeleteView(DeleteView):
     template_name = "proofchecker/delete_proof.html"
     success_url = "/proofs/"
 
-
 class ProblemView(ListView):
     model = Problem
     template_name = "proofchecker/problems.html"
@@ -198,73 +192,12 @@ class AssignmentCreateView(CreateView):
         form.instance.created_by = Instructor.objects.get(user=self.request.user)
         return super().form_valid(form)
 
-
 class AssignmentUpdateView(UpdateView):
     model = Assignment
     template_name = "proofchecker/update_assignment.html"
     form_class = AssignmentForm
 
-
 class AssignmentDeleteView(DeleteView):
     model = Assignment
     template_name = "proofchecker/delete_assignment.html"
     success_url = "/assignments/"
-
-
-def single_proof_checker(request):
-    ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0)
-    qs = ProofLine.objects.none()
-    form = ProofForm(request.POST or None)
-    formset = ProofLineFormset(request.POST or None, queryset=qs)
-
-    if all([form.is_valid(), formset.is_valid()]):
-        
-        # Create a new proof object
-        proof = ProofObj(lines=[])
-
-        # Grab premise and conclusion from the form
-        # Assign them to the proof object
-        parent = form.save(commit=False)
-        proof.premises = get_premises(parent.premises)
-        print('\nPREMISES: ' + str(proof.premises))
-        proof.conclusion = str(parent.conclusion)
-        print('CONCLUSION: ' + proof.conclusion + '\n')
-
-        for line in formset:
-            # Create a proofline object
-            proofline = ProofLineObj()
-
-            # Grab the line_no, formula, and expression from the form
-            # Assign them to the proofline object
-            child = line.save(commit=False)
-            child.proof = parent
-            
-            proofline.line_no = str(child.line_no)
-            print('LINE #: ' + proofline.line_no)
-            proofline.expression = str(child.formula)
-            print('\t EXPRESSION: ' + proofline.expression)
-            proofline.rule = str(child.rule)
-            print('\t RULE: ' + proofline.rule)
-
-            # Append the proofline to the proof object's lines
-            proof.lines.append(proofline)
-
-        # Verify the proof!
-        response = verify_proof(proof)
-        print("\nPROOF.IS_VALID: " + str(response.is_valid))
-        print("ERROR MESSAGE: " + str(response.err_msg))
-
-        # Send the response back
-        context = {
-            "form": form,
-            "formset": formset,
-            "response": response
-        }
-
-        return render(request, 'proofchecker/single_proof_checker.html', context)
-
-    context = {
-        "form": form,
-        "formset": formset
-    }
-    return render(request, 'proofchecker/single_proof_checker.html', context)
