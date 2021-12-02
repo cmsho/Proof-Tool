@@ -87,12 +87,12 @@ def is_valid_expression(expression: str):
     Returns a Boolean (True/False)
     """
     # Verify the expression is valid
+
+    if expression == "":
+        return False
     try:
         expression = make_tree(expression)
-        if expression == None:
-            return False
-        else:
-            return True
+        return True
     except:
         return False
 
@@ -102,15 +102,15 @@ def verify_expression(expression: str):
     Returns a ProofResponse
     """
     response = ProofResponse()
+    if expression == "":
+        response.err_msg = "Expression cannot be an empty string"
+        return response
     # Verify the expression is valid
     try:
-        expression = make_tree(expression)
-        if expression == None:
-            response.err_msg = "Expression cannot be an empty string"
-            return response
-        else:
-            response.is_valid = True
-            return response
+        exp = make_tree(expression)
+        response.is_valid = True
+        return response
+
     except IllegalCharacterError as char_err:
         response.err_msg = "{} in expression {}"\
             .format(char_err.message, str(expression))
@@ -138,13 +138,15 @@ def verify_proof(proof: ProofObj):
             response.err_msg = "One or more lines is missing a line number"
             return response
 
+        # Verify the line has an expression
+        if (not line.expression) or (line.expression == ''):
+            response.err_msg = "No expression on line {}"\
+                .format(str(line.line_no))
+            return response
+
         # Verify the expression is valid
         try:
-            expression = make_tree(line.expression)
-            if expression == None:
-                response.err_msg = "No expression on line {}"\
-                    .format(str(line.line_no))
-                return response
+            make_tree(line.expression)
         except IllegalCharacterError as char_err:
             response.err_msg = "{} on line {}"\
                 .format(char_err.message, str(line.line_no))
@@ -169,7 +171,7 @@ def verify_proof(proof: ProofObj):
             response.err_msg = "Proof cannot be concluded with an assumption"
             return response            
         elif depth(last_line.line_no) > 1:
-            response.err_msg = "Proof cannot be concluded within in a subproof"
+            response.err_msg = "Proof cannot be concluded within a subproof"
             return response
         else:
             response.is_valid = True
@@ -191,12 +193,16 @@ def clean_rule(rule: str):
     if rule[0] == 'v':
         clean_rule = '∨' + rule[1:len(rule)]
         return clean_rule
+    if rule[0] == '>':
+        clean_rule = '→' + rule[1:len(rule)]
+        return clean_rule
+    if rule[0:2] == '->':
+        clean_rule = '→' + rule[2:len(rule)]
+        return clean_rule
     if rule[0] in '~-':
         clean_rule = '¬' + rule[1:len(rule)]
         return clean_rule
-    if (rule[0] == '>') or (rule[0:2] == '->'):
-        clean_rule = '→' + rule[1:len(rule)]
-        return clean_rule
+
     return rule
 
 def verify_rule(current_line: ProofLineObj, proof: ProofObj):
