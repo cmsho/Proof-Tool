@@ -9,9 +9,13 @@ function isValidPremiseInput()
 {
     let premiseInput = "";
     premiseInput = premisesBox.value;
-    if(premiseInput != "" && premiseInput.includes('@'))
+    if(premiseInput != "" && !isValidTFL(premiseInput).includes("This is a valid TFL statement."))
     {
-        invalidInputMessage();
+        invalidPremiseInputMessage(isValidTFL(premiseInput));
+    }
+    else
+    {
+        clearPremiseErrorDiv();
     }
 }
 
@@ -20,13 +24,46 @@ function isValidConclusionInput()
     let conclusionInput = "";
     conclusionInput = conclusionBox.value;
 
-    if(conclusionInput != "" && conclusionInput.includes('@'))
+    if(conclusionInput != "" && !isValidTFL(conclusionInput).includes("This is a valid TFL statement."))
     {
-        invalidInputMessage();
+        invalidConclusionInputMessage(isValidTFL(conclusionInput));
+    }
+    else
+    {
+        clearConclusionErrorDiv();
     }
 }
 
 
-function invalidInputMessage(){
-    alert("The input is invalid");
+function invalidPremiseInputMessage(string){
+
+    let errorString = "";
+    errorString = string;
+
+    let errorDiv = document.getElementById('valid-premise-div');
+
+    errorDiv.innerHTML = errorString;
+}
+
+
+function invalidConclusionInputMessage(string){
+
+    let errorString = "";
+    errorString = string;
+
+    let errorDiv = document.getElementById('valid-conclusion-div');
+
+    errorDiv.innerHTML = errorString;
+}
+
+function clearPremiseErrorDiv()
+{
+    let errorDiv = document.getElementById('valid-premise-div');
+    errorDiv.innerHTML = "";
+}
+
+function clearConclusionErrorDiv()
+{
+    let errorDiv = document.getElementById('valid-conclusion-div');
+    errorDiv.innerHTML = "";
 }

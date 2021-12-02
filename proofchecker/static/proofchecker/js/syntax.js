@@ -72,11 +72,13 @@ function isValidTFL(string) {
                     {
                         if(left == '')
                         {
-                            return false;
+                            return "The left side of the main logical operator (" + line.charAt(operatorIndex) + ") is empty!";
+                            //return false;
                         }
                         if(right == '')
                         {
-                            return false;
+                            return "The right side of the main logical operator (" + line.charAt(operatorIndex) + ") is empty!";
+                            //return false;
                         }
                     }
 
@@ -85,22 +87,37 @@ function isValidTFL(string) {
                     let rightIsValid = isValidTFL(right);
 
                     if(!(leftIsValid && rightIsValid))
-                    {
-                        return false;
+                    {                       
+                        let substringError = "";
+
+                        if(!leftIsValid)
+                        {
+                            substringError = substringError + "The left substring of the main operator (" + line.charAt(operatorIndex) + ") is invalid! ";
+                        }
+                               
+                        if(!rightIsValid)
+                        {
+                            substringError = substringError + "The right substring of the main operator (" + line.charAt(operatorIndex) + ") is invalid!";
+                        }
+                     
+                        
+                         
+                        return substringError;
                     }
                 }
             }    
         }            
         else{
-            return false;
+            return "Your premise or conclusion does not have balanced parantheses." ;
         }
     }
     else{
-        return false;
+        return "Your premise or conclusion has at least one invalid TFL symbol." ;
     }
 
     //If we reached this line, everything checks out
-    return true;
+
+    return "This is a valid TFL statement.";
 
 }
 
@@ -435,7 +452,7 @@ function test_is_valid_TFL_with_one_operator(self){
     //self.assertIs(Syntax.is_valid_TFL(str4), True)
     //self.assertIs(Syntax.is_valid_TFL(str5), True)
 	
-    if(isValidTFL(str1) && isValidTFL(str2) && isValidTFL(str3) && isValidTFL(str4) && isValidTFL(str5))
+    if(isValidTFL(str1) == "This is a valid TFL statement." && isValidTFL(str2) == "This is a valid TFL statement." && isValidTFL(str3) == "This is a valid TFL statement." && isValidTFL(str4) == "This is a valid TFL statement." && isValidTFL(str5) == "This is a valid TFL statement.")
     {
         alert("Test 11 success");
     }
@@ -453,7 +470,7 @@ function test_is_valid_TFL_with_multiple_operators(self){
     let str2 = '(A∧B)∨[(¬C→D)∧(A↔Z)]'
     //self.assertIs(Syntax.is_valid_TFL(str1), True)
     //self.assertIs(Syntax.is_valid_TFL(str2), True)
-    if(isValidTFL(str1) && isValidTFL(str2))
+    if(isValidTFL(str1) == "This is a valid TFL statement." && isValidTFL(str2) == "This is a valid TFL statement.")
     {
         alert("Test 12 success");
     }
@@ -472,7 +489,7 @@ function test_is_valid_TFL_with_invalid_input(self)
     let unbalanced_parens = '[A∧B)]';
     //self.assertIs(Syntax.is_valid_TFL(invalid_symbols), False)
     //self.assertIs(Syntax.is_valid_TFL(unbalanced_parens), False)
-    if(!isValidTFL(invalid_symbols) && !isValidTFL(unbalanced_parens))
+    if(isValidTFL(invalid_symbols) != "This is a valid TFL statement." && isValidTFL(unbalanced_parens) != "This is a valid TFL statement.")
     {
         alert("Test 13 success");
     }
