@@ -13,6 +13,17 @@ class ProofForm(forms.ModelForm):
         for visible in self.visible_fields():
             visible.field.widget.attrs['onkeydown'] = 'replaceCharacter(this)'
 
+class ProofCheckerForm(forms.ModelForm):
+    class Meta:
+        model = ProofLine
+        fields = ['line_no', 'formula', 'rule']
+
+    def __init__(self, *args, **kwargs):
+        super(ProofCheckerForm, self).__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['onkeydown'] = 'replaceCharacter(this)'
+
+
 class ProofLineForm(forms.ModelForm):
     class Meta:
         model = ProofLine

@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.forms.models import modelformset_factory
 from django.forms import inlineformset_factory
-from .forms import ProofForm, ProofLineForm, AssignmentForm
+from .forms import ProofCheckerForm, ProofForm, ProofLineForm, AssignmentForm
 from .models import Proof, Problem, Assignment, Instructor, ProofLine
 from .proof import ProofObj, ProofLineObj, verify_proof, get_premises, ProofResponse
 
@@ -22,7 +22,7 @@ def SyntaxTestPage(request):
 
 
 def proof_checker(request):
-    ProofLineFormset = modelformset_factory(ProofLine, form=ProofLineForm, extra=0, can_delete=True)
+    ProofLineFormset = modelformset_factory(ProofLine, form=ProofCheckerForm, extra=0)
     qs = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
     formset = ProofLineFormset(request.POST or None, queryset=qs)
