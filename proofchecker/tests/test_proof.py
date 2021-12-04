@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from ..proof import ProofObj, ProofLineObj, clean_rule, get_line_no, get_line_nos, get_lines_in_subproof, get_premises, is_conclusion, is_valid_expression, verify_and_intro, verify_and_elim, verify_assumption, verify_double_not_elim, verify_expression, verify_iff_elim, verify_iff_intro, verify_line_citation, verify_explosion, verify_or_intro, \
     verify_or_elim, verify_implies_intro, verify_implies_elim, verify_not_intro, \
-    verify_not_elim, verify_indirect_proof, verify_premise, verify_reiteration, verify_rule, verify_proof, depth
+    verify_not_elim, verify_indirect_proof, verify_premise, verify_reiteration, verify_rule, verify_proof, depth, verify_subproof_citation
 
 
 
@@ -172,6 +172,30 @@ class HelpersTests(TestCase):
         self.assertFalse(res4.is_valid)
         self.assertEqual(res4.err_msg, "Illegal character '!' in expression A!")
 
+    def test_verify_subproof_citation(self):
+        """
+        Test that the verify_subproof_citation method works properly
+        """
+        # Test with cited line within an unclosed subproof.
+        line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
+        line2 = ProofLineObj('2.1.1', 'A∧C', 'Assumption')
+        line3 = ProofLineObj('2.1.2', 'C', '∧E 2.1')
+        line4 = ProofLineObj('3', 'C', '∧E 2.1')
+        result = verify_subproof_citation(line4, line2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg,\
+            'Line 2.1.1 occurs within a subproof that has not been closed prior to line 3')
+        
+        # Test with cited line after current line
+        line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
+        line2 = ProofLineObj('2', 'C', '∧E 3.1')
+        line3 = ProofLineObj('3.1', 'A∧C', 'Assumption')
+        line4 = ProofLineObj('3.2', 'C', '∧E 3.1')
+        result = verify_subproof_citation(line2, line3)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg,\
+            'Invalid citation: line 3.1 occurs after line 2')
+
 class ProofTests(TestCase):
 
     def test_verify_line_citation(self):
@@ -210,9 +234,9 @@ class ProofTests(TestCase):
         line1 = ProofLineObj('1', 'A∧B', '∧I 1, 2')
         line2 = ProofLineObj('2.a', 'B', 'Premise')
         result = verify_line_citation(line1, line2)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg,\
-            "Line numbers are not formatted properly")
+            "Line citations are not formatted properly")
 
     def test_is_conclusion(self):
         """
@@ -301,19 +325,17 @@ class ProofTests(TestCase):
         proof = ProofObj(premises='A', lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_assumption(line2)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test with invalid input
-        # Test with valid input
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2.1', 'B', 'Assumption')
         line3 = ProofLineObj('2.2', 'C', 'Assumption')
         proof = ProofObj(premises='A', lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_assumption(line3)
-        self.assertEqual(result.is_valid, False)
-        self.assertEqual(result.err_msg, 'Assumptions can only exist at the start of a subproof')                  
-
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Assumptions can only exist at the start of a subproof')        
 
     def test_verify_rule(self):
         """
@@ -326,7 +348,7 @@ class ProofTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test and_elim
         line1 = ProofLineObj('1', 'A∧B', 'Premise')
@@ -334,7 +356,7 @@ class ProofTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_rule(line2, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test or_intro
         line1 = ProofLineObj('1', 'A', 'Premise')
@@ -342,7 +364,7 @@ class ProofTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_rule(line2, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test or_elim
         line1 = ProofLineObj('1', 'A∨B', 'Premise')
@@ -354,7 +376,7 @@ class ProofTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_rule(line6, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test not_intro
         line1 = ProofLineObj('1.1', 'A', 'Premise')
@@ -363,7 +385,7 @@ class ProofTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test not_elim
         line1 = ProofLineObj('1', '¬A', 'Premise')
@@ -372,7 +394,7 @@ class ProofTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test implies_intro
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
@@ -381,7 +403,7 @@ class ProofTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test implies_elim
         line1 = ProofLineObj('1', 'A→B', 'Premise')
@@ -390,7 +412,7 @@ class ProofTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test indirect_proof
         line1 = ProofLineObj('1.1', '¬A', 'Premise')
@@ -399,7 +421,66 @@ class ProofTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_rule(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
+
+        # Test explosion
+        line1 = ProofLineObj('1', '⊥', 'Premise')
+        line2 = ProofLineObj('2', 'B', 'X 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_rule(line2, proof)
+        self.assertTrue(result.is_valid)
+
+        # Test reiteration
+        line1 = ProofLineObj('1', 'A', 'Premise')
+        line2 = ProofLineObj('2', 'A', 'R 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_rule(line2, proof)
+        self.assertTrue(result.is_valid)
+
+        # Test double not elim
+        line1 = ProofLineObj('1', '¬¬A', 'Assumption')
+        line2 = ProofLineObj('2', 'A', 'DNE 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_rule(line2, proof)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        # Test iff intro
+        line1 = ProofLineObj('1.1', 'A', 'Assumption')
+        line2 = ProofLineObj('1.2', 'B', 'Assumption')
+        line3 = ProofLineObj('2.1', 'B', 'Assumption')
+        line4 = ProofLineObj('2.2', 'A', 'Assumption')
+        line5 = ProofLineObj('3', 'A↔B', '↔I 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5])
+        result = verify_rule(line5, proof)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        # Test iff elim
+        line1 = ProofLineObj('1', 'A↔B', 'Assumption')
+        line2 = ProofLineObj('2', 'A', 'Assumption')
+        line3 = ProofLineObj('3', 'B', '↔E 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_rule(line3, proof)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+    def test_verify_rule_with_invalid_rule(self):
+        """
+        Test that verify_rule returns proper error
+        if a rule cannot be determined
+        """
+        line1 = ProofLineObj('1', 'A∧B', 'Premise')
+        line2 = ProofLineObj('2', 'A', 'E 1')
+        proof = ProofObj(premises='A∧B', conclusion='A', lines=[line1, line2])
+        result = verify_rule(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, "Rule on line 2 cannot be determined")
 
     def test_verify_proof_with_no_lines(self):
         """
@@ -478,7 +559,7 @@ class ProofTests(TestCase):
         proof = ProofObj(premises=['A', 'B'], conclusion='A∧B', lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_proof(proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
         # And Elim
@@ -487,7 +568,7 @@ class ProofTests(TestCase):
         proof = ProofObj(premises='A∧B', conclusion='A', lines=[])
         proof.lines.extend([line1, line2])
         result = verify_proof(proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
         # Or Intro/Elim
@@ -500,7 +581,7 @@ class ProofTests(TestCase):
         proof = ProofObj(premises='AvB', conclusion='AvB', lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_proof(proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
 
@@ -515,7 +596,7 @@ class ProofTests(TestCase):
         proof = ProofObj(premises='Hello', lines=[])
         proof.lines.extend([line1])
         result = verify_proof(proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Illegal character 'e' on line 1")
 
         # Test a proof with an valid characters but invalid syntax
@@ -523,7 +604,7 @@ class ProofTests(TestCase):
         proof = ProofObj(premises='A∧', lines=[])
         proof.lines.extend([line1])
         result = verify_proof(proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Syntax error on line 1")
     
         # Test with a valid but incomplete proof
@@ -533,7 +614,7 @@ class ProofTests(TestCase):
         proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[])
         proof.lines.extend([line1, line2])
         result = verify_proof(proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, "All lines are valid, but the proof is incomplete")
 
 
@@ -550,7 +631,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_and_intro(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test with invalid conjunction
         line1 = ProofLineObj('1', 'A', 'Premise')
@@ -559,7 +640,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_and_intro(line3, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The conjunction of lines 1 and 2 does not equal line 3")
 
         # Test with invalid line specification
@@ -569,7 +650,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_and_intro(line3, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Conjunction Introduction: ∧I m, n")        
 
     def test_verify_and_elim(self):
@@ -582,7 +663,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_and_elim(line2, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2 = ProofLineObj('2.1', 'A∧C', 'Assumption')
@@ -590,7 +671,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_and_elim(line3, proof)
-        self.assertEqual(result.is_valid, True) 
+        self.assertTrue(result.is_valid) 
 
         # Test with invalid conclusion
         line1 = ProofLineObj('1', 'A∧B', 'Premise')
@@ -598,7 +679,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_and_elim(line2, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
     
     def test_verify_or_intro(self):
@@ -611,7 +692,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_or_intro(line2, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test with invalid conclusion
         line1 = ProofLineObj('1', 'A', 'Premise')
@@ -619,8 +700,16 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_or_intro(line2, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
+
+        # Test with invalid line citation
+        line1 = ProofLineObj('1', 'A', 'Premise')
+        line2 = ProofLineObj('2', 'A∨B', '∨I 3')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_or_intro(line2, proof)
+        self.assertFalse(result.is_valid)
 
     def test_verify_or_elim(self):
         """
@@ -636,19 +725,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
-        self.assertEqual(result.is_valid, True)
-
-        # Test with valid input
-        line1 = ProofLineObj('1', 'A∨B', 'Premise')
-        line2 = ProofLineObj('2.1', 'A', 'Assumption')
-        line3 = ProofLineObj('2.2', 'C', 'Assumption')
-        line4 = ProofLineObj('3.1', 'B', 'Assumption')
-        line5 = ProofLineObj('3.2', 'C', 'Assumption')
-        line6 = ProofLineObj('4', 'C', '∨E 1, 2, 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5, line6])
-        result = verify_or_elim(line6, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test with unequivalent expressions
         line1 = ProofLineObj('1', 'A∨B', 'Premise')
@@ -660,7 +737,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expressions on lines 2.2, 3.2 and 4 are not equivalent")
 
         # Test with improper disjunction
@@ -673,7 +750,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expression on line 3.1 is not part of the disjunction on line 1")
 
         # Test with improper disjunction
@@ -686,7 +763,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expression on line 2.1 is not part of the disjunction on line 1")
 
         # Test with only one half of disjunction
@@ -699,7 +776,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5, line6])
         result = verify_or_elim(line6, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expressions on lines 2.1 and 3.1 should be different")
 
     def test_verify_not_intro(self):
@@ -713,7 +790,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_intro(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test without contradiction
         line1 = ProofLineObj('1.1', 'A', 'Premise')
@@ -722,7 +799,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_intro(line3, proof)
-        self.assertEqual(result.is_valid, False)   
+        self.assertFalse(result.is_valid)   
         self.assertEqual(result.err_msg, "Line 1.2 should be '⊥' (Contradiction)")
 
         # Test without proper negation
@@ -732,7 +809,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_intro(line3, proof)
-        self.assertEqual(result.is_valid, False)   
+        self.assertFalse(result.is_valid)   
         self.assertEqual(result.err_msg, "Line 2 is not the negation of line 1.1")
 
     def test_verify_not_elim(self):
@@ -746,7 +823,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_elim(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test without contradiction
         line1 = ProofLineObj('1', '¬A', 'Premise')
@@ -755,7 +832,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_elim(line3, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 3 should be '⊥' (Contradiction)")
 
         # Test without proper contradiction
@@ -765,7 +842,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_elim(line3, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 1 is not the negation of line 2")
 
         # Test with improper line specification
@@ -775,7 +852,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_not_elim(line3, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Negation Elimination: ¬E m, n")
 
 
@@ -790,7 +867,26 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_intro(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
+
+        # Test with invalid input
+        line1 = ProofLineObj('1.1', 'A∧B', 'Premise')
+        line2 = ProofLineObj('1.2', 'B', '∧E 1.1')
+        line3 = ProofLineObj('2', '(A∧B)→C', '→I 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_implies_intro(line3, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'The expressions on lines 1.1 and 1.2 do not match the implication on line 2')
+
+        # Test with invalid citation
+        line1 = ProofLineObj('1.1', 'A∧B', 'Premise')
+        line2 = ProofLineObj('1.2', 'B', '∧E 1.1')
+        line3 = ProofLineObj('2', '(A∧B)→B', '→I 3')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = verify_implies_intro(line3, proof)
+        self.assertFalse(result.is_valid)
 
     def test_verify_implies_elim(self):
         """
@@ -803,7 +899,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_elim(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test with invalid elimination
         line1 = ProofLineObj('1', 'A→B', 'Premise')
@@ -812,7 +908,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_elim(line3, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'The expressions on lines 2 and 3 do not match the implication on line 1')
 
         # Test with improper line specification
@@ -822,7 +918,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_implies_elim(line3, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Line numbers are not specified correctly.  Conditional Elimination (Modus Ponens): →E m, n')
 
     def test_verify_indirect_proof(self):
@@ -836,7 +932,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_indirect_proof(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test without contradition
         line1 = ProofLineObj('1.1', '¬A', 'Premise')
@@ -845,7 +941,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_indirect_proof(line3, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 1.2 should be '⊥' (Contradiction)")
 
         # Test with improper negation
@@ -855,7 +951,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_indirect_proof(line3, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 1.1 is not the negation of line 2")
 
     def test_verify_iff_intro(self):
@@ -871,7 +967,19 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5])
         result = verify_iff_intro(line5, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        # Test with valid input (all equiv)
+        line1 = ProofLineObj('1.1', 'A', 'Assumption')
+        line2 = ProofLineObj('1.2', 'A', 'Assumption')
+        line3 = ProofLineObj('2.1', 'A', 'Assumption')
+        line4 = ProofLineObj('2.2', 'A', 'Assumption')
+        line5 = ProofLineObj('3', 'A↔A', '↔I 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5])
+        result = verify_iff_intro(line5, proof)
+        self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
         # Test with unequivalent expressions
@@ -883,7 +991,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5])
         result = verify_iff_intro(line5, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'The expressions on lines 1.2 and 2.1 are not equivalent')
 
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
@@ -894,7 +1002,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5])
         result = verify_iff_intro(line5, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'The expressions on lines 1.1 and 2.2 are not equivalent')
 
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
@@ -905,7 +1013,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5])
         result = verify_iff_intro(line5, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Left side of line 3 does not equal either of the expressions on lines 1.2 and 2.2')
 
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
@@ -916,7 +1024,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5])
         result = verify_iff_intro(line5, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Right side of line 3 does not equal either of the expressions on lines 1.2 and 2.2')
 
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
@@ -927,8 +1035,21 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3, line4, line5])
         result = verify_iff_intro(line5, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Invalid introduction on line 3')
+
+        # Test with invalid conclusion
+        line1 = ProofLineObj('1.1', 'A', 'Assumption')
+        line2 = ProofLineObj('1.2', 'B', 'Assumption')
+        line3 = ProofLineObj('2.1', 'B', 'Assumption')
+        line4 = ProofLineObj('2.2', 'A', 'Assumption')
+        line5 = ProofLineObj('3', 'A↔A', '↔I 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3, line4, line5])
+        result = verify_iff_intro(line5, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, \
+            'Left side and right side of line 3 are equiavlent, but lines 1.1 and 1.2 are not equivalent')
 
     def test_verify_iff_elim(self):
         """
@@ -941,7 +1062,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_iff_elim(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
         line1 = ProofLineObj('1', 'A↔B', 'Assumption')
@@ -950,7 +1071,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_iff_elim(line3, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
         # Test with invalid input
@@ -960,7 +1081,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_iff_elim(line3, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expressions on lines 2 and 3 do not represent both the left and right side of the expression on line 1")
 
         # Test with invalid input
@@ -970,7 +1091,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_iff_elim(line3, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expression on line 2 does not represent the left or right side of the expression on line 1")
 
         # Test with invalid input
@@ -980,7 +1101,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2, line3])
         result = verify_iff_elim(line3, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expression on line 3 does not represent the left or right side of the expression on line 1")
 
     def test_verify_double_not_elim(self):
@@ -993,7 +1114,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_double_not_elim(line2, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
         # Test with invalid input
@@ -1002,7 +1123,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_double_not_elim(line2, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Lines 1 and 2 are not equivalent')
 
         # Test with invalid input
@@ -1011,7 +1132,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_double_not_elim(line2, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Line 1 is not an instance of double-not operators')
 
         # Test with invalid input
@@ -1020,7 +1141,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_double_not_elim(line2, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The main logical operator on line 1 is not '¬'")
 
     def test_verify_explosion(self):
@@ -1033,7 +1154,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_explosion(line2, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test without contradiction
         line1 = ProofLineObj('1', 'A', 'Premise')
@@ -1041,8 +1162,16 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_explosion(line2, proof)
-        self.assertEqual(result.is_valid, False)
+        self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 1 should be '⊥' (Contradiction)")
+
+        # Test with invalid line citation
+        line1 = ProofLineObj('1', '⊥', 'Premise')
+        line2 = ProofLineObj('2', 'B', 'X 3')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_explosion(line2, proof)
+        self.assertFalse(result.is_valid)
 
     def test_verify_reiteration(self):
         """
@@ -1054,7 +1183,7 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_reiteration(line2, proof)
-        self.assertEqual(result.is_valid, True)
+        self.assertTrue(result.is_valid)
 
         # Test with unequivalent expressions
         line1 = ProofLineObj('1', 'A', 'Premise')
@@ -1062,5 +1191,13 @@ class RuleTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_reiteration(line2, proof)
-        self.assertEqual(result.is_valid, False)
-        self.assertEqual(result.err_msg, 'Lines 1 and 2 are not equivalent')    
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Lines 1 and 2 are not equivalent')
+
+        # Test with invalid line citation
+        line1 = ProofLineObj('1', 'A', 'Premise')
+        line2 = ProofLineObj('2', 'A', 'R 3')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = verify_reiteration(line2, proof)
+        self.assertFalse(result.is_valid)

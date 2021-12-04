@@ -72,26 +72,26 @@ def p_error(p):
 # Build the parser
 parser = yacc.yacc()
 
-def test():
-    while True:
-        try:
-            s = input('TFL > ')
-        except EOFError:
-            break
-        if not s: continue
-        result = parser.parse(s)
-        print(result)
+# def test():
+#     while True:
+#         try:
+#             s = input('TFL > ')
+#         except EOFError:
+#             break
+#         if not s: continue
+#         result = parser.parse(s)
+#         print(result)
 
-# Invalid syntax
-class TFLSyntaxError(Exception):
-    """
-    Raised when the parser determines the TFL syntax is invalid 
+# # Invalid syntax
+# class TFLSyntaxError(Exception):
+#     """
+#     Raised when the parser determines the TFL syntax is invalid 
 
-    Attributes:
-        expression -- input expression in which teh error occurred
-        message -- explanation of the error
-    """
+#     Attributes:
+#         expression -- input expression in which teh error occurred
+#         message -- explanation of the error
+#     """
 
-    def __init__(self, expression, message):
-        self.expression = expression
-        self.message = message
+#     def __init__(self, expression, message):
+#         self.expression = expression
+#         self.message = message

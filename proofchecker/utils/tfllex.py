@@ -41,14 +41,14 @@ def t_error(t):
 # Build the lexer
 lexer = lex.lex()
 
-# Test it output
-def test(data):
-    lexer.input(data)
-    while True:
-            tok = lexer.token()
-            if not tok:
-                break
-            print(tok)
+# # Test it output
+# def test(data):
+#     lexer.input(data)
+#     while True:
+#             tok = lexer.token()
+#             if not tok:
+#                 break
+#             print(tok)
 
 # Illegal Character
 class IllegalCharacterError(Exception):

@@ -296,7 +296,7 @@ def verify_line_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
         return response
 
     except:
-        response.err_msg = "Line numbers are not formatted properly"
+        response.err_msg = "Line citations are not formatted properly"
         return response
 
 def verify_subproof_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
@@ -940,7 +940,7 @@ def verify_implies_intro(current_line: ProofLineObj, proof: ProofObj):
             return response
 
     except:
-        print("Rule not formatted properly.  Conditional Introduction: →I m-n")
+        response.err_msg = "Rule not formatted properly.  Conditional Introduction: →I m"
         return response
 
 
