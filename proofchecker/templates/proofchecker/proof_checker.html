@@ -42,12 +42,12 @@
                         value="Create Subproof" onclick="create_subproof(this)">
                 </td>
                 <td>
-                    <input class="conclude-subproof btn btn-secondary" type="button" name="form-{{ forloop.counter0 }}-conclude-subproof-btn"
-                        id="id_form-{{ forloop.counter0 }}-conclude-subproof-btn" value="Conclude Subproof" onclick="conclude_subproof(this)">
-                </td>
-                <td>
                     <input class="delete-row btn btn-secondary" type="button" name="form-{{ forloop.counter0 }}-delete-btn" id="id_form-{{ forloop.counter0 }}-delete-btn"
                         value="Delete Row" onclick="delete_form(this)">
+                </td>
+                <td>
+                    <input class="conclude-subproof btn btn-secondary" type="button" name="form-{{ forloop.counter0 }}-conclude-subproof-btn"
+                        id="id_form-{{ forloop.counter0 }}-conclude-subproof-btn" value="Conclude Subproof" onclick="conclude_subproof(this)">
                 </td>
             </tr>
             {% endfor %}
@@ -67,12 +67,12 @@
                     value="Create Subproof" onclick="create_subproof(this)">
             </td>
             <td>
-                <input class="conclude-subproof btn btn-secondary" type="button" name="form-__prefix__-conclude-subproof-btn" id="id_form-__prefix__-conclude_subproof-btn"
-                    value="Conclude Subproof" onclick="conclude_subproof(this)">
-            </td>
-            <td>
                 <input class="delete-row btn btn-secondary" type="button" name="form-__prefix__-delete-btn" id="id_form-__prefix__-delete-btn"
                     value="Delete Row" onclick="delete_form(this)">
+            </td>
+            <td>
+                <input class="conclude-subproof btn btn-secondary" type="button" name="form-__prefix__-conclude-subproof-btn" id="id_form-__prefix__-conclude_subproof-btn"
+                    value="Conclude Subproof" onclick="conclude_subproof(this)">
             </td>
         </tr>
 
@@ -122,6 +122,4 @@
 
 <script src="{% static 'js/syntax.js' %}"></script>
 <script src="{% static 'js/proof_checker.js' %}"></script>
-<script src="{% static 'js/valid_input.js' %}"></script>
-
-{% endblock %}
+<script src="{% static 'js/valid_input.js' %}"></script> {% endblock %}

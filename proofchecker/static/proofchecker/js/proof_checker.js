@@ -165,7 +165,7 @@ function insert_row_current_level(index) {
     var direction = 1;
     var starting_point = index + 2
 
-    var prefix_value_list = button_row.prefix_of_row.length > 1 ? button_row.prefix_of_row : []
+    var prefix_value_list = button_row.prefix_of_row.length >= 1 ? button_row.prefix_of_row : []
     renumber_rows(direction, starting_point, prefix_value_list)
 }
 
@@ -234,6 +234,8 @@ function add_form(event) {
     // Added by Thomas Above
     formCopyTarget.append(emptyFormElement)
     update_form_count()
+    hide_conclude_button()
+
 }
 
 
@@ -334,10 +336,10 @@ function hide_conclude_button() {
         if (current_form < number_of_forms) {
             var next_row = get_row(current_form + 1)
             if (current_row.string_of_prefix == next_row.string_of_prefix) {
-                document.getElementById(`form-${current_form}`).children[5].children[0].style.visibility = 'hidden'
+                document.getElementById(`form-${current_form}`).children[6].children[0].style.visibility = 'hidden'
             }
         } else if (current_row.list_of_line_number.length <= 1) {
-            document.getElementById(`form-${current_form}`).children[5].children[0].style.visibility = 'hidden'
+            document.getElementById(`form-${current_form}`).children[6].children[0].style.visibility = 'hidden'
             break
         }
 
