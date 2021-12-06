@@ -6,10 +6,11 @@ const ATOMIC = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
-const CONNECTIVES = ['∧', '∨', '¬', '→', '↔']
-const PARENS = ['(', '[', '{', ')', ']', '}']
-const OPEN_PARENS=['(', '[', '{']
-const CLOSED_PARENS=[')', ']', '}']
+const CONNECTIVES = ['∧', '∨', '¬', '→', '↔','^', '&', 'v', '>', '->', '<->', '-', '~']
+const PARENS = ['(', '[', '{', ')', ']', '}'];
+const OPEN_PARENS=['(', '[', '{'];
+const CLOSED_PARENS=[')', ']', '}'];
+const DELIMITERS = [','];
 
 function isValidTFL(string) {
 
@@ -179,7 +180,7 @@ function hasValidSymbols(string){
     //Verifies that all characters in a string are valid TFL symbols
     for(var i = 0; i < line.length; i++)
     {
-        if(!(ATOMIC.includes(line.charAt(i)) || CONNECTIVES.includes(line.charAt(i)) || PARENS.includes(line.charAt(i))))
+        if(!(ATOMIC.includes(line.charAt(i)) || CONNECTIVES.includes(line.charAt(i)) || PARENS.includes(line.charAt(i)) || DELIMITERS.includes(line.charAt(i))))
         {
             return false;
         }
@@ -438,7 +439,7 @@ function test_is_valid_TFL_with_atomic_sentence()
     }
 }
 
-function test_is_valid_TFL_with_one_operator(self){
+function test_is_valid_TFL_with_one_operator(){
 
     //is_valid_TFL should return true if provided a well-formed formula (WFF) with one operator
     let str1 = 'A∧B';
@@ -463,7 +464,7 @@ function test_is_valid_TFL_with_one_operator(self){
 	
 }
 
-function test_is_valid_TFL_with_multiple_operators(self){
+function test_is_valid_TFL_with_multiple_operators(){
     //is_valid_TFL should return true if provided a WFF with multiple operators
 
     let str1 = '(A∧B)∨C'
@@ -482,7 +483,7 @@ function test_is_valid_TFL_with_multiple_operators(self){
 
 }
 
-function test_is_valid_TFL_with_invalid_input(self)
+function test_is_valid_TFL_with_invalid_input()
 {
     //is_valid_TFL should return false if provided with a string that does not conform to TFL sentence rules
     let invalid_symbols = 'A+Z';
@@ -497,4 +498,20 @@ function test_is_valid_TFL_with_invalid_input(self)
     {
         alert("Test 13 failure");
     }
+}
+
+function test_valid_symbols_with_comma_expression(sting)
+{
+    //An input string that delimits clauses with commmas should be accepted
+    let str = 'AvB,A→B,B→C';
+
+    if(hasValidSymbols(str))
+    {
+        alert("Test 14 success");
+    }
+    else
+    {
+        alert("Test 14 failure");
+    }
+
 }
