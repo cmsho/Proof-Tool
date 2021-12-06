@@ -70,7 +70,6 @@ class ProofLine(models.Model):
 
     def __str__(self):
         return ('Line {}: {}, {}'.format(
-            self.ORDER,
             self.line_no,
             self.formula,
             self.rule
