@@ -14,8 +14,10 @@ def home(request):
     context = {"proofs": proofs}
     return render(request, "proofchecker/home.html", context)
 
+
 def AssignmentPage(request):
     return render(request, "proofchecker/assignment_page.html")
+
 
 def SyntaxTestPage(request):
     return render(request, "proofchecker/syntax_test.html")
@@ -45,7 +47,7 @@ def proof_checker(request):
             # Assign them to the proofline object
             child = line.save(commit=False)
             child.proof = parent
-            
+
             proofline.line_no = str(child.line_no)
             proofline.expression = str(child.formula)
             proofline.rule = str(child.rule)
@@ -83,7 +85,7 @@ def proof_create_view(request):
             parent = form.save(commit=False)
 
             if 'check_proof' in request.POST:
-                proof = ProofObj(lines=[]) #
+                proof = ProofObj(lines=[])  #
                 proof.premises = get_premises(parent.premises)
                 proof.conclusion = str(parent.conclusion)
 
@@ -127,7 +129,7 @@ def proof_update_view(request, pk=None):
         if all([form.is_valid(), formset.is_valid()]):
             parent = form.save(commit=False)
             if 'check_proof' in request.POST:
-                proof = ProofObj(lines=[]) #
+                proof = ProofObj(lines=[])  #
                 proof.premises = get_premises(parent.premises)
                 proof.conclusion = str(parent.conclusion)
 
@@ -144,7 +146,7 @@ def proof_update_view(request, pk=None):
                 response = verify_proof(proof)
 
             elif 'submit' in request.POST:
-                if len(formset.forms)>0:
+                if len(formset.forms) > 0:
                     parent.created_by = request.user
                     parent.save()
                     formset.save()
@@ -168,36 +170,13 @@ class ProofView(ListView):
 class ProofDetailView(DetailView):
     model = Proof
 
+
 class ProofDeleteView(DeleteView):
     model = Proof
     template_name = "proofchecker/delete_proof.html"
     success_url = "/proofs/"
 
+
 class ProblemView(ListView):
     model = Problem
     template_name = "proofchecker/problems.html"
-
-
-class AssignmentView(ListView):
-    model = Assignment
-    template_name = "proofchecker/assignments.html"
-
-
-class AssignmentCreateView(CreateView):
-    model = Assignment
-    template_name = "proofchecker/add_assignment.html"
-    form_class = AssignmentForm
-
-    def form_valid(self, form):
-        form.instance.created_by = Instructor.objects.get(user=self.request.user)
-        return super().form_valid(form)
-
-class AssignmentUpdateView(UpdateView):
-    model = Assignment
-    template_name = "proofchecker/update_assignment.html"
-    form_class = AssignmentForm
-
-class AssignmentDeleteView(DeleteView):
-    model = Assignment
-    template_name = "proofchecker/delete_assignment.html"
-    success_url = "/assignments/"

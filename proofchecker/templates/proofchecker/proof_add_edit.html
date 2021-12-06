@@ -19,7 +19,6 @@
             <table class="table table-striped table-bordered table-hover table-sm table-responsive" id="proof-table">
                 <thead id="column-titles">
                     <tr class="font-weight-bold">
-                        <td>Pos Indx #</td>
                         <td>Line #</td>
                         <td>Expression</td>
                         <td>Rule</td>
@@ -28,16 +27,14 @@
                 <tbody id="proofline-list">
                     {% for line in formset %}
                         <tr id="proofline_set-{{ forloop.counter0 }}" class="proofline_set">
-                            <td class="td-hidden" hidden>{{ line.id }}{{ line.DELETE }}</td>
+                            <td class="td-hidden" hidden>{{ line.id }}{{ line.DELETE }}{{ line.ORDER }}</td>
                             {% if line.DELETE.value  %}
-                                <td hidden>{{ line.ORDER }}</td>
                                 <td hidden>{{ line.line_no }}</td>
                                 <td hidden>{{ line.formula }}</td>
                                 <td hidden>{{ line.rule }}</td>
                                 <td hidden><input class="insert-row" type="button" id="id-form-btn-insert-row-{{ forloop.counter0 }}" value="Insert Row" onclick="add_proofline_form(this)"></td>
                                 <td hidden><input class="delete-row" type="button" id="id-form-btn-delete-row-{{ forloop.counter0 }}" value="Delete" onclick="remove_proofline_form(this)"></td>
                             {% else %}
-                                <td>{{ line.ORDER }}</td>
                                 <td>{{ line.line_no }}</td>
                                 <td>{{ line.formula }}</td>
                                 <td>{{ line.rule }}</td>
@@ -47,8 +44,7 @@
                         </tr>
                     {% endfor %}
                     <tr id="empty-form" class="hidden">
-                        <td class="td-hidden" hidden>{{ formset.empty_form.id }}{{ formset.empty_form.DELETE }}</td>
-                        <td>{{ formset.empty_form.ORDER }}</td>
+                        <td class="td-hidden" hidden>{{ formset.empty_form.id }}{{ formset.empty_form.DELETE }}{{ formset.empty_form.ORDER }}</td>
                         <td>{{ formset.empty_form.line_no }}</td>
                         <td>{{ formset.empty_form.formula }}</td>
                         <td>{{ formset.empty_form.rule }}</td>

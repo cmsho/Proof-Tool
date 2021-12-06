@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
 from django.views.generic import CreateView
 from django.views.generic import TemplateView
+from django.contrib import messages
 
 # Create your views here.
 from accounts.forms import StudentSignUpForm, InstructorSignUpForm
@@ -24,6 +25,8 @@ class StudentSignUpView(CreateView):
 
     def form_valid(self, form):
         user = form.save()
+        username = form.cleaned_data.get('username')
+        messages.success(self.request,f'Account created for {username}')
         return redirect('login')
 
 
@@ -38,4 +41,6 @@ class InstructorSignUpView(CreateView):
 
     def form_valid(self, form):
         user = form.save()
+        username = form.cleaned_data.get('username')
+        messages.success(self.request, f'Account created for {username}')
         return redirect('login')
