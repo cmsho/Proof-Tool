@@ -1,6 +1,8 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.forms.models import modelformset_factory
 from django.forms import inlineformset_factory
@@ -73,6 +75,7 @@ def proof_checker(request):
     return render(request, 'proofchecker/proof_checker.html', context)
 
 
+@login_required
 def proof_create_view(request):
     ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     query_set = ProofLine.objects.none()
@@ -117,6 +120,7 @@ def proof_create_view(request):
     return render(request, 'proofchecker/proof_add_edit.html', context)
 
 
+@login_required
 def proof_update_view(request, pk=None):
     obj = get_object_or_404(Proof, pk=pk)
     ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
@@ -162,9 +166,14 @@ def proof_update_view(request, pk=None):
     return render(request, 'proofchecker/proof_add_edit.html', context)
 
 
-class ProofView(ListView):
+class ProofView(LoginRequiredMixin,ListView):
     model = Proof
     template_name = "proofchecker/allproofs.html"
+
+    def get_queryset(self):
+        return Proof.objects.filter(created_by=self.request.user)
+
+
 
 
 class ProofDetailView(DetailView):
