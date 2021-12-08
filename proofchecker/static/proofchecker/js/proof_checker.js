@@ -178,6 +178,9 @@ function generate_new_subproof_row_number(index) {
 
     // Update row number of clicked button
     document.getElementById('form-' + (index - 1)).children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
+    document.getElementById('form-' + (index - 1)).children[2].children[0].value = 'Assumption'
+
+
 
     // Update the row number of the new row
     document.getElementById('form-' + (index)).children[0].children[0].value = `${original_row_number_of_clicked_button}.2`
@@ -266,11 +269,10 @@ function delete_form(obj) {
 
     renumber_rows(direction, starting_point, button_row.prefix_of_row)
 
+
     // If a sub proof is being deleted
     if ((index != index_of_last_row) & (button_row.final_value == "1") & (button_row.list_of_line_number.length > 1)) {
 
-        console.log(["below", below_row.string_of_prefix])
-        console.log(["above", above_row.string_of_prefix])
 
         // How to handle when a parent sub proof is deleted
         if ((below_row.string_of_prefix.startsWith(above_row.string_of_prefix)) & (above_row.string_of_prefix.length >= 1)) {
@@ -283,6 +285,7 @@ function delete_form(obj) {
             renumber_rows(direction, starting_point, above_row.prefix_of_row)
         }
     }
+
     hide_conclude_button()
 
 }
@@ -369,13 +372,28 @@ function begin_proof() {
             if (x == 2) {
                 input.setAttribute("value", 'Premise')
             }
+            if (i == 0) {
+                if (x == 4) {
+                    input.style.visibility = 'hidden'
+                }
+                if (x == 5) {
+                    input.style.visibility = 'hidden'
+                }
+                if (x == 6) {
+                    input.style.visibility = 'hidden'
+                }
+            }
         }
+
+
+
+
         prooflineList.appendChild(newRow)
     }
 
     update_form_ids()
     update_form_count()
-
+    hide_conclude_button()
 }
 
 
