@@ -328,7 +328,7 @@ function hide_conclude_button() {
     for (var current_form = 0; current_form <= number_of_forms; current_form++) {
         var current_row = get_row(current_form)
         if (current_form == 0) {
-            document.getElementById(`form-${current_form}`).children[5].children[0].style.visibility = 'hidden'
+            document.getElementById(`form-${current_form}`).children[6].children[0].style.visibility = 'hidden'
         }
         else if (current_form < number_of_forms) {
             var next_row = get_row(current_form + 1)
