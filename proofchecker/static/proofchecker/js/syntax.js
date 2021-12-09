@@ -6,11 +6,11 @@ const ATOMIC = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
-const CONNECTIVES = ['∧', '∨', '¬', '→', '↔','^', '&', 'v', '>', '->', '<->', '-', '~']
+const CONNECTIVES = ['∧', '∨', '¬', '→', '→', '↔','^', '&', 'v', '>', '->', '<->', '-', '~']
 const PARENS = ['(', '[', '{', ')', ']', '}'];
 const OPEN_PARENS=['(', '[', '{'];
 const CLOSED_PARENS=[')', ']', '}'];
-const DELIMITERS = [','];
+const DELIMITERS = [',', ' '];
 
 function isValidTFL(string) {
 
