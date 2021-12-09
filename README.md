@@ -14,3 +14,9 @@ These are the dependencies:
 - On the command line, run 'python manage.py migrate' to migrate data models to the SQLite database
 - On the command line, run 'python manage.py runserver' to initiate the server
 - Open an internet browser and navigate to http://127.0.0.1:8000/
+
+# How to Test
+- On the command line, run 'python manage.py test' to execute tests
+- To run the code coverage tool, on the command line, run 'coverage run manage.py test'
+- To view a code coverage report, on the command line, run 'coverage report' (after previous step)
+- To view an HTML version of the code coverage report, on the command line, run 'coverage html' and then navigate to the 'htmlcov' directory
