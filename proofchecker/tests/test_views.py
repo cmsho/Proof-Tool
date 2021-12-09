@@ -64,14 +64,17 @@ class ProofCreateViewTest(TestCase):
         test_user2.save()
 
     def test_view_url_exists_at_desired_location(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
         response = self.client.get('/proofs/new/')
         self.assertEqual(response.status_code, 200)
     
     def test_view_url_accessible_by_name(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
         response = self.client.get(reverse('add_proof'))
         self.assertEqual(response.status_code, 200)
 
     def test_view_uses_correct_template(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
         response = self.client.get(reverse('add_proof'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'proofchecker/proof_add_edit.html')
@@ -112,30 +115,38 @@ class ProofViewTest(TestCase):
         number_of_proofs = 13
 
         # Create test user
-        user = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
-        user.save()
+        # Create two users
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+
+        test_user1.save()
+        test_user2.save()
 
         for _ in range(number_of_proofs):
             Proof.objects.create(
                 premises = 'AvB',
                 conclusion = '∧',
-                created_by = user
+                created_by = test_user1
             )
 
     def test_view_url_exists_at_desired_location(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
         response = self.client.get('/proofs/')
         self.assertEqual(response.status_code, 200)
     
     def test_view_url_accessible_by_name(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
         response = self.client.get(reverse('all_proofs'))
         self.assertEqual(response.status_code, 200)
 
     def test_view_uses_correct_template(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
         response = self.client.get(reverse('all_proofs'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'proofchecker/allproofs.html')
 
     def test_lists_all_proofs(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
         response = self.client.get(reverse('all_proofs'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['proof_list']), 13)
