@@ -20,3 +20,9 @@ These are the dependencies:
 - To run the code coverage tool, on the command line, run 'coverage run manage.py test'
 - To view a code coverage report, on the command line, run 'coverage report' (after previous step)
 - To view an HTML version of the code coverage report, on the command line, run 'coverage html' and then navigate to the 'htmlcov' directory
+
+# Documentation
+The following documentation can be found in the 'docs' folder:
+- Requirements Specification and Use Cases
+- Architecture and Design Specification
+- Test Plan
