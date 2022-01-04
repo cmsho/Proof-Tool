@@ -1,0 +1,1 @@
+web: gunicorn prooftool.wsgi --log-file -

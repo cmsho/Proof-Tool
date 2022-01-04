@@ -9,6 +9,10 @@ django-debug-toolbar = "*"
 django-crispy-forms = "*"
 coverage = "*"
 django-htmx = "*"
+gunicorn = "*"
+dj-database-url = "*"
+psycopg2-binary = "*"
+whitenoise = "*"
 
 [dev-packages]
 

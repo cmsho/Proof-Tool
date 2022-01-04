@@ -1,0 +1,131 @@
+.right-side-navigation {
+  padding-top: 20px;
+  padding-left: 5px;
+  padding-right: 5px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 250px; /* Same as main margin-right*/
+  height: 100%;
+  background: #072a4d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.btn-group button {
+  background-color: white;
+  border: 3px solid #072a4d;
+  color: #072a4d;
+  padding: 10px 15px;
+  cursor: pointer;
+  float: left;
+  font-weight: bold;
+}
+.btn-group button:not(:last-child) {
+  border-right: none; /* Prevent double borders */
+}
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Add a background color on hover */
+.btn-group button:hover {
+  background-color: #afafaf;
+}
+
+
+
+#menu{
+  height: 80%;
+  width: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  text-align: right;
+  overflow: auto;
+}
+
+#main-header{
+  font-weight:bold;
+  font-size: 25px;
+  text-decoration: underline;
+}
+
+#sub-header{
+  font-weight:bold;
+  font-size: 18px;
+  text-decoration: underline;
+  padding-top:6px;
+}
+
+#item-name{
+  font-weight:bold;
+  font-size: 16px;
+  padding-top:6px;
+  padding-left:2px;
+  padding-bottom: 0px;
+}
+
+#instruction{
+  padding-left: 3px;
+  padding-bottom: 3px;
+  color: #072a4d;
+}
+
+table{
+  table-layout: fixed;
+  width:100%;
+  background-color: #bdd4ebbe;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#info-information {
+  text-align: left;
+  display: visible;
+}
+
+#left{
+  color: #072a4d;
+  width: 55%;
+  /* text-align: left; */
+}
+
+#center{
+  width: 35%;
+  font-weight:bold;
+  text-decoration: underline;
+  /* text-align: left; */
+}
+
+#right{
+  text-align: right;
+  width: 10%;
+}
+
+#left-proof{
+  text-align: left;
+  width:30%;
+}
+
+
+#info-table{
+  width:90%;
+}
+
+
+#rules-information {
+  text-align:left;
+  display:none;
+}
+
+#other-information {
+  display:none;
+}
