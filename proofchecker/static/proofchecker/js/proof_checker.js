@@ -2,8 +2,8 @@
 const addMoreBtn = document.getElementById("add-more")
 addMoreBtn.addEventListener("click", add_form)
 
-const beginProofBtn = document.getElementById("begin_proof")
-beginProofBtn.addEventListener("click", begin_proof)
+// const beginProofBtn = document.getElementById("begin_proof")
+// beginProofBtn.addEventListener("click", begin_proof)
 
 
 // Text replacement - replaces escape commands with symbols
@@ -343,15 +343,33 @@ function hide_conclude_button() {
             break
         }
     }
+}
+
+//delete children from any DOM element
+function delete_children(element) {
+        var first = element.firstElementChild;
+        while (first) {
+            first.remove();
+            first = element.firstElementChild;
+        }
+}
+
+//restart proof
+function restart_proof(element){
+    var prooflineList = document.getElementById('proofline-list')
+
+    delete_children(prooflineList)
+    start_proof(document.getElementById("btn_start_proof"))
 
 }
 
 // Automatically populate the premise values 
-function begin_proof() {
+function start_proof(element) {
 
     var premises = document.getElementById('id_premises').value
     var premiseArray = premises.split(",").map(item => item.trim())
     var prooflineList = document.getElementById('proofline-list')
+
 
     for (i = 0; i < premiseArray.length; i++) {
         var newRow = create_empty_form()
@@ -385,15 +403,17 @@ function begin_proof() {
             }
         }
 
-
-
-
         prooflineList.appendChild(newRow)
     }
 
     update_form_ids()
     update_form_count()
     hide_conclude_button()
+    element.hidden=true
+    document.getElementById("btn_restart_proof").classList.remove("hidden")
+
+
+
 }
 
 
