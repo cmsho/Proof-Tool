@@ -349,6 +349,7 @@ def get_premises(premises: str):
     Take a string of comma separated-premises
     and return an array of premises
     """
+    premises = premises.replace(' ', '')
     premises = premises.replace(',', ' ')
     return premises.split()
 
