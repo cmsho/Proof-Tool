@@ -59,11 +59,16 @@ class BinaryTreeTests(TestCase):
         c = []
         d = []
 
+        e = yacc.parser.parse('A ∧ B', lexer=tfllexer)
+        f = []
+
         tree_to_string(a, c)
         tree_to_string(b, d)
+        tree_to_string(e, f)
 
         self.assertEqual(''.join(c), '∨(∧(A)(B))(C)')
         self.assertEqual(''.join(d), '∧(A)(∨(B)(C))')
+        self.assertEqual(''.join(f), '∧(A)(B)')
     
     def test_string_to_tree(self):
         """
