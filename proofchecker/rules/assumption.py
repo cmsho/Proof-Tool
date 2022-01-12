@@ -1,4 +1,4 @@
-from proofchecker.proof import ProofObj, ProofLineObj, ProofResponse
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from .rule import Rule
 
 class Assumption(Rule):

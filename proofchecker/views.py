@@ -8,7 +8,9 @@ from django.forms.models import modelformset_factory
 from django.forms import inlineformset_factory
 from .forms import ProofCheckerForm, ProofForm, ProofLineForm, AssignmentForm
 from .models import Proof, Problem, Assignment, Instructor, ProofLine
-from .proof import ProofObj, ProofLineObj, verify_proof, get_premises, ProofResponse
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
+from proofchecker.proofs.proofutils import get_premises
+from proofchecker.proofs.proofchecker import verify_proof
 
 
 def home(request):

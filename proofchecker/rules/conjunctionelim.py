@@ -1,4 +1,5 @@
-from proofchecker.proof import ProofObj, ProofLineObj, ProofResponse, Node, clean_rule, get_line, make_tree, verify_line_citation
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
+from proofchecker.proofs.proofutils import Node, clean_rule, get_line, make_tree, verify_line_citation
 from .rule import Rule
 
 class ConjunctionElim(Rule):

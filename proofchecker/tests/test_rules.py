@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from proofchecker.proof import ProofObj, ProofLineObj
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
 from proofchecker.rules.assumption import Assumption
 from proofchecker.rules.biconditionalelim import BiconditionalElim
 from proofchecker.rules.biconditionalintro import BiconditionalIntro
@@ -17,6 +17,24 @@ from proofchecker.rules.negationelim import NegationElim
 from proofchecker.rules.negationintro import NegationIntro
 from proofchecker.rules.premise import Premise
 from proofchecker.rules.reiteration import Reiteration
+
+from proofchecker.rules.rulechecker import RuleChecker
+
+
+class RuleCheckerTests(TestCase):
+
+    def test_get_rule(self):
+        checker = RuleChecker()
+        str1 = '∧E'
+        str2 = '∨I'
+        str3 = '¬E'
+        str4 = '↔I'
+        str5 = '↔E'
+        self.assertTrue(isinstance(checker.get_rule(str1), ConjunctionElim))
+        self.assertTrue(isinstance(checker.get_rule(str2), DisjunctionIntro))
+        self.assertTrue(isinstance(checker.get_rule(str3), NegationElim))
+        self.assertTrue(isinstance(checker.get_rule(str4), BiconditionalIntro))
+        self.assertTrue(isinstance(checker.get_rule(str5), BiconditionalElim))
 
 
 class RuleTests(TestCase):

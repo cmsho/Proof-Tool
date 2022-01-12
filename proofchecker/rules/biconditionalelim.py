@@ -1,4 +1,5 @@
-from proofchecker.proof import ProofObj, ProofLineObj, ProofResponse, clean_rule, get_lines, verify_line_citation, make_tree, get_expressions
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
+from proofchecker.proofs.proofutils import clean_rule, get_lines, verify_line_citation, make_tree, get_expressions
 from .rule import Rule
 
 class BiconditionalElim(Rule):

@@ -1,4 +1,5 @@
-from proofchecker.proof import ProofObj, ProofLineObj, ProofResponse, clean_rule, make_tree, get_lines, verify_line_citation, get_expressions
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
+from proofchecker.proofs.proofutils import clean_rule, make_tree, get_lines, verify_line_citation, get_expressions
 from .rule import Rule
 
 class NegationElim(Rule):

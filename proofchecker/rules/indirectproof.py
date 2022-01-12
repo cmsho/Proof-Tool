@@ -1,4 +1,5 @@
-from proofchecker.proof import ProofObj, ProofLineObj, ProofResponse, clean_rule, get_line_no, verify_subproof_citation, make_tree, get_expressions, get_lines_in_subproof
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
+from proofchecker.proofs.proofutils import clean_rule, get_line_no, verify_subproof_citation, make_tree, get_expressions, get_lines_in_subproof
 from .rule import Rule
 
 class IndirectProof(Rule):

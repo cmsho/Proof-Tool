@@ -1,4 +1,5 @@
-from proofchecker.proof import ProofObj, ProofLineObj, ProofResponse, make_tree
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
+from proofchecker.proofs.proofutils import make_tree
 from .rule import Rule
 
 class Premise(Rule):

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from proofchecker.proof import ProofObj, ProofLineObj
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
 
 class Rule(ABC):
     """

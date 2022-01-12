@@ -1,10 +1,10 @@
 from django.test import TestCase
-from ..utils import numparse
-from ..utils import tflparse as yacc
-from ..utils.binarytree import Node, inorder, postorder, preorder, tree_to_string, string_to_tree
-from ..utils.numlex import lexer as numlexer
-from ..utils.syntax import Syntax
-from ..utils.tfllex import IllegalCharacterError, lexer as tfllexer
+from proofchecker.utils import numparse
+from proofchecker.utils import tflparse as yacc
+from proofchecker.utils.binarytree import Node, inorder, postorder, preorder, tree_to_string, string_to_tree
+from proofchecker.utils.numlex import lexer as numlexer
+from proofchecker.utils.syntax import Syntax
+from proofchecker.utils.tfllex import IllegalCharacterError, lexer as tfllexer
 
 class BinaryTreeTests(TestCase):
 

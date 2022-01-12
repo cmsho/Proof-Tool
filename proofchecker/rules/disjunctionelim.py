@@ -1,4 +1,5 @@
-from proofchecker.proof import ProofObj, ProofLineObj, ProofResponse, clean_rule, get_line_nos, verify_line_citation, \
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
+from proofchecker.proofs.proofutils import clean_rule, get_line_nos, verify_line_citation, \
     make_tree, get_line_with_line_no, get_lines_in_subproof, verify_subproof_citation, get_expressions
 from .rule import Rule
 

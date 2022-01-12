@@ -1,4 +1,5 @@
-from proofchecker.proof import ProofObj, ProofLineObj, ProofResponse, clean_rule, get_line, verify_line_citation, make_tree
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
+from proofchecker.proofs.proofutils import clean_rule, get_line, verify_line_citation, make_tree
 from .rule import Rule
 
 class DisjunctionIntro(Rule):
