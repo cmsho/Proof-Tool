@@ -10,6 +10,7 @@ from proofchecker.rules.conjunctionintro import ConjunctionIntro
 from proofchecker.rules.conjunctionelim import ConjunctionElim
 from proofchecker.rules.disjunctionintro import DisjunctionIntro
 from proofchecker.rules.disjunctionelim import DisjunctionElim
+from proofchecker.rules.disjunctivesyllogism import DisjunctiveSyllogism
 from proofchecker.rules.doublenegationelim import DoubleNegationElim
 from proofchecker.rules.explosion import Explosion
 from proofchecker.rules.indirectproof import IndirectProof
@@ -37,7 +38,7 @@ class RuleCheckerTests(TestCase):
         self.assertTrue(isinstance(checker.get_rule(str5), BiconditionalElim))
 
 
-class RuleTests(TestCase):
+class BasicRuleTests(TestCase):
 
     def test_premise(self):
         # Test with proper input
@@ -587,6 +588,66 @@ class RuleTests(TestCase):
         self.assertEqual(result.err_msg, "Line 1.1 is not the negation of line 2")
 
 
+    def test_explosion(self):
+        rule = Explosion()
+
+        # Test with proper input
+        line1 = ProofLineObj('1', '⊥', 'Premise')
+        line2 = ProofLineObj('2', 'B', 'X 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertTrue(result.is_valid)
+
+        # Test without contradiction
+        line1 = ProofLineObj('1', 'A', 'Premise')
+        line2 = ProofLineObj('2', 'B', 'X 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, "Line 1 should be '⊥' (Contradiction)")
+
+        # Test with invalid line citation
+        line1 = ProofLineObj('1', '⊥', 'Premise')
+        line2 = ProofLineObj('2', 'B', 'X 3')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+
+
+class DerivedRuleTests(TestCase):
+
+    def test_reiteration(self):
+        rule = Reiteration()
+
+        # Test with proper input
+        line1 = ProofLineObj('1', 'A', 'Premise')
+        line2 = ProofLineObj('2', 'A', 'R 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertTrue(result.is_valid)
+
+        # Test with unequivalent expressions
+        line1 = ProofLineObj('1', 'A', 'Premise')
+        line2 = ProofLineObj('2', 'B', 'R 1')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Lines 1 and 2 are not equivalent')
+
+        # Test with invalid line citation
+        line1 = ProofLineObj('1', 'A', 'Premise')
+        line2 = ProofLineObj('2', 'A', 'R 3')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+
+
     def test_double_negation_elim(self):
         rule = DoubleNegationElim()
 
@@ -627,59 +688,74 @@ class RuleTests(TestCase):
         self.assertEqual(result.err_msg, "The main logical operator on line 1 is not '¬'")
 
 
-    def test_explosion(self):
-        rule = Explosion()
+    def test_disjunctive_syllogism(self):
+        rule = DisjunctiveSyllogism()
 
-        # Test with proper input
-        line1 = ProofLineObj('1', '⊥', 'Premise')
-        line2 = ProofLineObj('2', 'B', 'X 1')
+        # Test with valid input
+        line1 = ProofLineObj('1', 'AvB', 'Premise')
+        line2 = ProofLineObj('2', '~A', 'Premise')
+        line3 = ProofLineObj('3', 'B', 'DS 1, 2')
         proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        result = rule.verify(line2, proof)
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
         self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
 
-        # Test without contradiction
-        line1 = ProofLineObj('1', 'A', 'Premise')
-        line2 = ProofLineObj('2', 'B', 'X 1')
+        line1 = ProofLineObj('1', 'AvB', 'Premise')
+        line2 = ProofLineObj('2', '~B', 'Premise')
+        line3 = ProofLineObj('3', 'A', 'DS 1, 2')
         proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        result = rule.verify(line2, proof)
-        self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Line 1 should be '⊥' (Contradiction)")
-
-        # Test with invalid line citation
-        line1 = ProofLineObj('1', '⊥', 'Premise')
-        line2 = ProofLineObj('2', 'B', 'X 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        result = rule.verify(line2, proof)
-        self.assertFalse(result.is_valid)
-
-
-    def test_reiteration(self):
-        rule = Reiteration()
-
-        # Test with proper input
-        line1 = ProofLineObj('1', 'A', 'Premise')
-        line2 = ProofLineObj('2', 'A', 'R 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        result = rule.verify(line2, proof)
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
         self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
 
-        # Test with unequivalent expressions
-        line1 = ProofLineObj('1', 'A', 'Premise')
-        line2 = ProofLineObj('2', 'B', 'R 1')
+        # Test with line 1 not representing a disjunction
+        line1 = ProofLineObj('1', 'A^B', 'Premise')
+        line2 = ProofLineObj('2', '~A', 'Premise')
+        line3 = ProofLineObj('3', 'B', 'DS 1, 2')
         proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        result = rule.verify(line2, proof)
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'Lines 1 and 2 are not equivalent')
+        self.assertEquals(result.err_msg, 'The root of line 1 should be a disjunction (∨) when applying disjunctive syllogism')
 
-        # Test with invalid line citation
-        line1 = ProofLineObj('1', 'A', 'Premise')
-        line2 = ProofLineObj('2', 'A', 'R 3')
+        # Test with line 2 not representing a negation
+        line1 = ProofLineObj('1', 'AvB', 'Premise')
+        line2 = ProofLineObj('2', 'A', 'Premise')
+        line3 = ProofLineObj('3', 'B', 'DS 1, 2')
         proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        result = rule.verify(line2, proof)
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
         self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The root of line 2 should be a negation (¬) when applying disjunctive syllogism')
+
+        # Test with line 2 representing a negation, but not of the left or right of line 1
+        line1 = ProofLineObj('1', 'AvB', 'Premise')
+        line2 = ProofLineObj('2', '~C', 'Premise')
+        line3 = ProofLineObj('3', 'B', 'DS 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Line 2 should be the negation of either the left or right half of line 1')
+
+        # Test with line 3 not representing the left or right of line 1
+        line1 = ProofLineObj('1', 'AvB', 'Premise')
+        line2 = ProofLineObj('2', '~A', 'Premise')
+        line3 = ProofLineObj('3', 'C', 'DS 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Line 3 should be equivalent to either the left or right half of line 1')
+
+        # Test with lines 2 and 3 representing same atomic sentence
+        line1 = ProofLineObj('1', 'AvB', 'Premise')
+        line2 = ProofLineObj('2', '~A', 'Premise')
+        line3 = ProofLineObj('3', 'A', 'DS 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Line 2 and line 3 should not represent the same half of the disjunction on line 1')
