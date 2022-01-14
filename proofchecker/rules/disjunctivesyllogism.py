@@ -78,9 +78,9 @@ class DisjunctiveSyllogism(Rule):
                 return response
             
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Conditional Elimination (Modus Ponens): →E m, n"
+                response.err_msg = "Line numbers are not specified correctly.  Disjunctive Syllogism: DS m, n"
                 return response
 
         except:
-            response.err_msg = "Rule not formatted properly.  Conditional Elimination (Modus Ponens): →E m, n"
+            response.err_msg = "Rule not formatted properly.  Disjunctive Syllogism: DS m, n"
             return response

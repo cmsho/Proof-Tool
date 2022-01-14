@@ -20,6 +20,7 @@ class BiconditionalElim(Rule):
         try:
             target_lines = get_lines(rule, proof)
 
+            # Verify that the line citations are valid
             for line in target_lines:
                 result = verify_line_citation(current_line, line)
                 if result.is_valid == False:

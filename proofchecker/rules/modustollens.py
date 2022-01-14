@@ -84,9 +84,9 @@ class ModusTollens(Rule):
                 return response
             
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Conditional Elimination (Modus Ponens): →E m, n"
+                response.err_msg = "Line numbers are not specified correctly.  Modus Tollens: MT m, n"
                 return response
 
         except:
-            response.err_msg = "Rule not formatted properly.  Conditional Elimination (Modus Ponens): →E m, n"
+            response.err_msg = "Rule not formatted properly.  Modus Tollens: MT m, n"
             return response
