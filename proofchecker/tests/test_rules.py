@@ -14,6 +14,7 @@ from proofchecker.rules.disjunctivesyllogism import DisjunctiveSyllogism
 from proofchecker.rules.doublenegationelim import DoubleNegationElim
 from proofchecker.rules.explosion import Explosion
 from proofchecker.rules.indirectproof import IndirectProof
+from proofchecker.rules.modustollens import ModusTollens
 from proofchecker.rules.negationelim import NegationElim
 from proofchecker.rules.negationintro import NegationIntro
 from proofchecker.rules.premise import Premise
@@ -759,3 +760,67 @@ class DerivedRuleTests(TestCase):
         result = rule.verify(line3, proof)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Line 2 and line 3 should not represent the same half of the disjunction on line 1')
+
+
+    def test_modus_tollens(self):
+        rule = ModusTollens()
+
+        # Test with valid input
+        line1 = ProofLineObj('1', 'A→B', 'Premise')
+        line2 = ProofLineObj('2', '~B', 'Premise')
+        line3 = ProofLineObj('3', '~A', 'MT 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # Test with line 1 not representing an implication
+        line1 = ProofLineObj('1', 'A^B', 'Premise')
+        line2 = ProofLineObj('2', '~B', 'Premise')
+        line3 = ProofLineObj('3', '~A', 'MT 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The root of line 1 should be an implication (→) when applying modus tollens')
+
+        # Test with line 2 not representing a negation
+        line1 = ProofLineObj('1', 'A→B', 'Premise')
+        line2 = ProofLineObj('2', 'B', 'Premise')
+        line3 = ProofLineObj('3', '~A', 'MT 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The root of line 2 should be a negation (¬) when applying modus tollens')
+
+        # Test with line 3 not representing a negation
+        line1 = ProofLineObj('1', 'A→B', 'Premise')
+        line2 = ProofLineObj('2', '~B', 'Premise')
+        line3 = ProofLineObj('3', 'A', 'MT 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The root of line 3 should be a negation (¬) when applying modus tollens')
+
+        # Test with line 2 representing negation of wrong half (left) of line 1
+        line1 = ProofLineObj('1', 'A→B', 'Premise')
+        line2 = ProofLineObj('2', '~A', 'Premise')
+        line3 = ProofLineObj('3', '~A', 'MT 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Line 2 should be the negation of the right half of line 1')
+
+        # Test with line 3 representing negation of wrong half (right) of line 1
+        line1 = ProofLineObj('1', 'A→B', 'Premise')
+        line2 = ProofLineObj('2', '~B', 'Premise')
+        line3 = ProofLineObj('3', '~B', 'MT 1, 2')
+        proof = ProofObj(lines=[])
+        proof.lines.extend([line1, line2, line3])
+        result = rule.verify(line3, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Line 3 should be the negation of the left half of line 1')

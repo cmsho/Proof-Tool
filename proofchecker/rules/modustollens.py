@@ -1,18 +1,18 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import clean_rule, get_lines, verify_line_citation, \
     make_tree, get_expressions
-from proofchecker.utils.binarytree import Node
+from proofchecker.utils.binarytree import Node, inorder
 from .rule import Rule
 
-class DisjunctiveSyllogism(Rule):
+class ModusTollens(Rule):
 
-    name = "Disjunctive Syllogism"
-    symbols = "DS"
+    name = "Modus Tollens"
+    symbols = "MT"
 
     def verify(self, current_line: ProofLineObj, proof: ProofObj):
         """
-        Verify proper implementation of the rule DS m, n
-        (Disjunctive Syllogism)
+        Verify proper implementation of the rule MT m, n
+        (Modus Tollens)
         """
         rule = clean_rule(current_line.rule)
         response = ProofResponse()
@@ -38,35 +38,41 @@ class DisjunctiveSyllogism(Rule):
                 # Create a tree for current line
                 root_current = make_tree(current_line.expression)
 
-                # Line m should be a disjunction
-                if root_m.value != '∨':
-                    response.err_msg = "The root of line {} should be a disjunction (∨) when applying disjunctive syllogism"\
+                # Line m should be an implication
+                if root_m.value != '→':
+                    response.err_msg = "The root of line {} should be an implication (→) when applying modus tollens"\
                         .format(str(target_lines[0].line_no))
                     return response
 
                 # Line n should be a negation
                 if root_n.value != '¬':
-                    response.err_msg = "The root of line {} should be a negation (¬) when applying disjunctive syllogism"\
+                    response.err_msg = "The root of line {} should be a negation (¬) when applying modus tollens"\
                         .format(str(target_lines[1].line_no))
                     return response
 
+                # Current line should be a negation
+                if root_current.value != '¬':
+                    response.err_msg = "The root of line {} should be a negation (¬) when applying modus tollens"\
+                        .format(str(current_line.line_no))
+                    return response
+
                 try:
-                    # Line n should be the negation of the left or right of line m
-                    if (root_n.right != root_m.left) and (root_n.right != root_m.right):
-                        response.err_msg = "Line {} should be the negation of either the left or right half of line {}"\
+                    # Line n should be the negation of the right of line m
+                    if root_n.right != root_m.right:
+                        response.err_msg = "Line {} should be the negation of the right half of line {}"\
                             .format(str(target_lines[1].line_no), str(target_lines[0].line_no))
                         return response
                     
-                    # The current line should be equivalent to either the left or right of line m
-                    if (root_current != root_m.left) and (root_current != root_m.right):
-                        response.err_msg = "Line {} should be equivalent to either the left or right half of line {}"\
+                    # The current line should be the negation of the left of line m
+                    if root_current.right != root_m.left:
+                        response.err_msg = "Line {} should be the negation of the left half of line {}"\
                             .format(str(current_line.line_no), str(target_lines[0].line_no))
                         return response
 
-                    # The atomic sentence on the current line should not be the same as line n
-                    if (root_current == root_n.right):
-                        response.err_msg = "Line {} and line {} should not represent the same half of the disjunction on line {}"\
-                            .format(str(target_lines[1].line_no), str(current_line.line_no), str(target_lines[0].line_no))
+                    # The current line should not be equivalent to line n
+                    if (root_current == root_n):
+                        response.err_msg = "Line {} and line {} should not be equivalent"\
+                            .format(str(target_lines[1].line_no), str(current_line.line_no))
                         return response
 
                 except: 
