@@ -1,3 +1,9 @@
+
+document.addEventListener('DOMContentLoaded', setStartRestartButtonAtBeginning(), false);
+
+
+
+
 // Add event listeners to buttons
 const addMoreBtn = document.getElementById("add-more")
 addMoreBtn.addEventListener("click", add_form)
@@ -412,8 +418,14 @@ function start_proof(element) {
     element.hidden=true
     document.getElementById("btn_restart_proof").classList.remove("hidden")
 
+}
 
 
+function setStartRestartButtonAtBeginning(){
+    if (document.getElementById('id_form-0-rule')!=null && document.getElementById('id_form-0-rule').value != ''){
+        document.getElementById("btn_start_proof").hidden = true
+        document.getElementById("btn_restart_proof").classList.remove("hidden")
+    }
 }
 
 
