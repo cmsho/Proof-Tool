@@ -4,7 +4,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from proofchecker.proof import is_line_no, make_tree
+from proofchecker.proofs.proofutils import is_line_no, make_tree
 
 def validate_line_no(value):
     try:
