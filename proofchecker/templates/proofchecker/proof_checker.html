@@ -31,7 +31,7 @@
         <br>
         <tbody id="proofline-list">
             {% for line in formset %}
-            <tr id="form-{{ forloop.counter0 }}" class="proofline-form">
+            <tr id="proofline_set-{{ forloop.counter0 }}" class="proofline_set">
                 <td>{{ line.line_no }}</td>
                 <td>{{ line.formula }}</td>
                 <td>{{ line.rule }}</td>
@@ -51,6 +51,7 @@
                     <input class="conclude-subproof btn btn-secondary" type="button" name="form-{{ forloop.counter0 }}-conclude-subproof-btn"
                         id="id_form-{{ forloop.counter0 }}-conclude-subproof-btn" value="Conclude Subproof" onclick="conclude_subproof(this)">
                 </td>
+                <td class="td-hidden" hidden>{{ line.id }}{{ line.DELETE }}{{ line.ORDER }}</td>
             </tr>
             {% endfor %}
 
@@ -76,6 +77,7 @@
                 <input class="conclude-subproof btn btn-secondary" type="button" name="form-__prefix__-conclude-subproof-btn" id="id_form-__prefix__-conclude_subproof-btn"
                     value="Conclude Subproof" onclick="conclude_subproof(this)">
             </td>
+            <td class="td-hidden" hidden>{{ formset.empty_form.id }}{{ formset.empty_form.DELETE }}{{ formset.empty_form.ORDER }}</td>
         </tr>
 
 
