@@ -28,47 +28,54 @@ def SyntaxTestPage(request):
 
 
 def proof_checker(request):
-    ProofLineFormset = modelformset_factory(ProofLine, form=ProofCheckerForm, extra=0)
-    qs = ProofLine.objects.none()
+    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
+    query_set = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
-    formset = ProofLineFormset(request.POST or None, queryset=qs)
+    formset = ProofLineFormset(request.POST or None, instance=form.instance, queryset=query_set)
+    response = None
 
-    if all([form.is_valid(), formset.is_valid()]):
-        # Create a new proof object
-        proof = ProofObj(lines=[])
+    if request.POST:
+        if all([form.is_valid(), formset.is_valid()]):
 
-        # Grab premise and conclusion from the form
-        # Assign them to the proof object
-        parent = form.save(commit=False)
-        proof.premises = get_premises(parent.premises)
-        proof.conclusion = str(parent.conclusion)
+            parent = form.save(commit=False)
 
-        for line in formset:
-            # Create a proofline object
-            proofline = ProofLineObj()
+            if 'check_proof' in request.POST:
+                # Create a new proof object
+                proof = ProofObj(lines=[])
 
-            # Grab the line_no, formula, and expression from the form
-            # Assign them to the proofline object
-            child = line.save(commit=False)
-            child.proof = parent
+                # Grab premise and conclusion from the form
+                # Assign them to the proof object
+                # parent = form.save(commit=False)
+                proof.premises = get_premises(parent.premises)
+                proof.conclusion = str(parent.conclusion)
 
-            proofline.line_no = str(child.line_no)
-            proofline.expression = str(child.formula)
-            proofline.rule = str(child.rule)
+                for line in formset:
+                    # Create a proofline object
+                    proofline = ProofLineObj()
 
-            # Append the proofline to the proof object's lines
-            proof.lines.append(proofline)
+                    # Grab the line_no, formula, and expression from the form
+                    # Assign them to the proofline object
+                    child = line.save(commit=False)
+                    child.proof = parent
 
-        # Verify the proof!
-        response = verify_proof(proof)
+                    proofline.line_no = str(child.line_no)
+                    proofline.expression = str(child.formula)
+                    proofline.rule = str(child.rule)
 
-        # Send the response back
-        context = {
-            "form": form,
-            "formset": formset,
-            "response": response
-        }
-        return render(request, 'proofchecker/proof_checker.html', context)
+                    # Append the proofline to the proof object's lines
+                    proof.lines.append(proofline)
+
+                # Verify the proof!
+                response = verify_proof(proof)
+
+                # Send the response back
+                context = {
+                    "form": form,
+                    "formset": formset,
+                    "response": response
+                }
+
+                return render(request, 'proofchecker/proof_checker.html', context)
 
     context = {
         "form": form,
