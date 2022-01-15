@@ -50,20 +50,21 @@ def proof_checker(request):
                 proof.conclusion = str(parent.conclusion)
 
                 for line in formset:
-                    # Create a proofline object
-                    proofline = ProofLineObj()
+                    if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
+                        # Create a proofline object
+                        proofline = ProofLineObj()
 
-                    # Grab the line_no, formula, and expression from the form
-                    # Assign them to the proofline object
-                    child = line.save(commit=False)
-                    child.proof = parent
+                        # Grab the line_no, formula, and expression from the form
+                        # Assign them to the proofline object
+                        child = line.save(commit=False)
+                        child.proof = parent
 
-                    proofline.line_no = str(child.line_no)
-                    proofline.expression = str(child.formula)
-                    proofline.rule = str(child.rule)
+                        proofline.line_no = str(child.line_no)
+                        proofline.expression = str(child.formula)
+                        proofline.rule = str(child.rule)
 
-                    # Append the proofline to the proof object's lines
-                    proof.lines.append(proofline)
+                        # Append the proofline to the proof object's lines
+                        proof.lines.append(proofline)
 
                 # Verify the proof!
                 response = verify_proof(proof)

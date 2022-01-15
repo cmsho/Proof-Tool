@@ -2,7 +2,7 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // list of variables  to store dom element ids/classes/names (difference between inlineformset vs modelformset
 // ---------------------------------------------------------------------------------------------------------------------
-const FORMSET_PREFIX                = "proofline_set-";                 // for modelformset - "form-"
+const FORMSET_PREFIX                = "proofline_set";                 // for modelformset - "form-"
 const FORMSET_TOTALFORMS_ID         = "id_proofline_set-TOTAL_FORMS";   // for modelformset - "id_form-TOTAL_FORMS"
 const FORMSET_TBODY_ID              = "proofline-list";                 // for modelformset - "proofline-list"
 const FORMSET_TR_CLASS              = "proofline_set ";                 // for modelformset - "proofline-form"
@@ -58,15 +58,15 @@ function update_form_ids() {
     for (i = 0; i < forms.length; i++) {
 
         // Update the ID of each table row
-        forms[i].setAttribute('id', `${FORMSET_PREFIX}${i}`)
+        forms[i].setAttribute('id', `${FORMSET_PREFIX}-${i}`)
 
         // Update the ID of each input field (nested in <td>)
         var tds = forms[i].children
         for (x = 0; x < fields.length; x++) {
             // Input field is child of <td>
             var input = tds[x].children[0]
-            input.setAttribute('name', `${FORMSET_PREFIX}${i}-${fields[x]}`)
-            input.setAttribute('id', `id_${FORMSET_PREFIX}${i}-${fields[x]}`)
+            input.setAttribute('name', `${FORMSET_PREFIX}-${i}-${fields[x]}`)
+            input.setAttribute('id', `id_${FORMSET_PREFIX}-${i}-${fields[x]}`)
         }
     }
 }
@@ -120,12 +120,12 @@ function conclude_subproof(obj) {
 function insert_form_helper(index) {
 
     const emptyFormElement = create_empty_form()
-    emptyFormElement.setAttribute("id", `${FORMSET_PREFIX}${index}`)
+    emptyFormElement.setAttribute("id", `${FORMSET_PREFIX}-${index}`)
     const regex = new RegExp('__prefix__', 'g')
     emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, index)
 
     const proof_tbody = document.getElementById(FORMSET_TBODY_ID)
-    const proof_table_row = document.getElementById(FORMSET_PREFIX + (index - 1))
+    const proof_table_row = document.getElementById(FORMSET_PREFIX + '-' + (index - 1))
     if (proof_table_row != null) {
         proof_table_row.after(emptyFormElement)
     } else {
@@ -138,7 +138,7 @@ function insert_form_helper(index) {
 }
 function get_row(index) {
 
-    var row_object = document.getElementById(FORMSET_PREFIX + (index))
+    var row_object = document.getElementById(FORMSET_PREFIX + '-' + (index))
     // Get line number of the row
     var line_number_of_row = row_object.children[0].children[0].value
     // Get list of number of row
@@ -174,11 +174,11 @@ function insert_row_current_level(index) {
 
     // If it has no subproof numbering then add one to the previous row number
     if (button_row.prefix_of_row.length == 0) {
-        document.getElementById(FORMSET_PREFIX + (index + 1)).children[0].children[0].value = `${Number(button_row.line_number_of_row) + 1}`
+        document.getElementById(FORMSET_PREFIX + '-' + (index + 1)).children[0].children[0].value = `${Number(button_row.line_number_of_row) + 1}`
     }
     // if it has subproof number then take the last number and add one to it
     else {
-        document.getElementById(FORMSET_PREFIX + (index + 1)).children[0].children[0].value = `${button_row.string_of_prefix}.${Number(button_row.final_value) + 1}`
+        document.getElementById(FORMSET_PREFIX + '-' + (index + 1)).children[0].children[0].value = `${button_row.string_of_prefix}.${Number(button_row.final_value) + 1}`
     }
     var direction = 1;
     var starting_point = index + 2
@@ -191,17 +191,17 @@ function insert_row_current_level(index) {
 function generate_new_subproof_row_number(index) {
 
     // Get the row that the button was clicked
-    var row_number_of_clicked_button = document.getElementById(FORMSET_PREFIX + (index - 1)).children[0].children[0].value
+    var row_number_of_clicked_button = document.getElementById(FORMSET_PREFIX + '-' + (index - 1)).children[0].children[0].value
     const original_row_number_of_clicked_button = row_number_of_clicked_button
 
     // Update row number of clicked button
-    document.getElementById(FORMSET_PREFIX + (index - 1)).children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
-    document.getElementById(FORMSET_PREFIX + (index - 1)).children[2].children[0].value = 'Assumption'
+    document.getElementById(FORMSET_PREFIX + '-' + (index - 1)).children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
+    document.getElementById(FORMSET_PREFIX + '-' + (index - 1)).children[2].children[0].value = 'Assumption'
 
 
 
     // Update the row number of the new row
-    document.getElementById(FORMSET_PREFIX + (index)).children[0].children[0].value = `${original_row_number_of_clicked_button}.2`
+    document.getElementById(FORMSET_PREFIX + '-' + (index)).children[0].children[0].value = `${original_row_number_of_clicked_button}.2`
 
 }
 
@@ -213,7 +213,7 @@ function insert_row_parent_level(index) {
     // Add one to the final value of the new_row_number
     new_row_number[new_row_number.length - 1] = `${Number(new_row_number[new_row_number.length - 1]) + 1}`
     // Construct new row number string and attach it to the new row
-    document.getElementById(FORMSET_PREFIX + (index + 1)).children[0].children[0].value = new_row_number.join('.')
+    document.getElementById(FORMSET_PREFIX + '-' + (index + 1)).children[0].children[0].value = new_row_number.join('.')
 
     var direction = 1
     var starting_point = index + 2
@@ -239,13 +239,13 @@ function add_form(event) {
     let currentFormCount = currentProofLineForms.length
     const formCopyTarget = document.getElementById(FORMSET_TBODY_ID)
     emptyFormElement = create_empty_form()
-    emptyFormElement.setAttribute("id", `${FORMSET_PREFIX}${currentFormCount}`)
+    emptyFormElement.setAttribute("id", `${FORMSET_PREFIX}-${currentFormCount}`)
     const regex = new RegExp('__prefix__', 'g')
     emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCount)
 
     // Added by Thomas Below
     if (currentFormCount > 0) {
-        var previous_row_number = document.getElementById(FORMSET_PREFIX + (currentFormCount - 1)).children[0].children[0].value
+        var previous_row_number = document.getElementById(FORMSET_PREFIX + '-' + (currentFormCount - 1)).children[0].children[0].value
         var new_row_number = `${Number(previous_row_number[0]) + 1}`
     } else {
         var new_row_number = '1'
@@ -275,7 +275,7 @@ function delete_form(obj) {
     }
 
     // Delete row
-    const form_to_delete = document.getElementById("form-" + index)
+    const form_to_delete = document.getElementById(FORMSET_PREFIX + '-' + index)
     form_to_delete.remove()
     update_form_count()
     update_form_ids()
@@ -349,15 +349,15 @@ function hide_conclude_button() {
     for (var current_form = 0; current_form <= number_of_forms; current_form++) {
         var current_row = get_row(current_form)
         if (current_form == 0) {
-            document.getElementById(`${FORMSET_PREFIX}${current_form}`).children[6].children[0].style.visibility = 'hidden'
+            document.getElementById(`${FORMSET_PREFIX}-${current_form}`).children[6].children[0].style.visibility = 'hidden'
         }
         else if (current_form < number_of_forms) {
             var next_row = get_row(current_form + 1)
             if (current_row.string_of_prefix == next_row.string_of_prefix) {
-                document.getElementById(`${FORMSET_PREFIX}${current_form}`).children[6].children[0].style.visibility = 'hidden'
+                document.getElementById(`${FORMSET_PREFIX}-${current_form}`).children[6].children[0].style.visibility = 'hidden'
             }
         } else if (current_row.list_of_line_number.length <= 1) {
-            document.getElementById(`${FORMSET_PREFIX}${current_form}`).children[6].children[0].style.visibility = 'hidden'
+            document.getElementById(`${FORMSET_PREFIX}-${current_form}`).children[6].children[0].style.visibility = 'hidden'
             break
         }
     }
@@ -434,7 +434,7 @@ function start_proof(element) {
 
 
 function setStartRestartButtonAtBeginning(){
-    if (document.getElementById('id_form-0-rule')!=null && document.getElementById('id_form-0-rule').value != ''){
+    if (document.getElementById(`id_${FORMSET_PREFIX}-0-rule`)!=null && document.getElementById(`id_${FORMSET_PREFIX}-0-rule`).value != ''){
         document.getElementById("btn_start_proof").hidden = true
         document.getElementById("btn_restart_proof").classList.remove("hidden")
     }
@@ -445,7 +445,7 @@ function setStartRestartButtonAtBeginning(){
 // function insert_row_parent_level_former(index) {
 
 //     // Get the row being deleted
-//     var row_above_added = document.getElementById(FORMSET_PREFIX + (index - 1))
+//     var row_above_added = document.getElementById(FORMSET_PREFIX + '-' + (index - 1))
 //     var line_number_of_row_above_added = row_above_added.children[0].children[0].value
 
 //     // Get list of row being deleted
@@ -464,7 +464,7 @@ function setStartRestartButtonAtBeginning(){
 
 //     new_row_number[new_row_number.length - 1] = `${Number(new_row_number[new_row_number.length - 1]) + 1}`
 //     // console.log(new_row_number)
-//     document.getElementById(FORMSET_PREFIX + (index)).children[0].children[0].value = new_row_number.join('.')
+//     document.getElementById(FORMSET_PREFIX + '-' + (index)).children[0].children[0].value = new_row_number.join('.')
 
 
 //     var direction = 1
@@ -491,7 +491,7 @@ function setStartRestartButtonAtBeginning(){
 
 //     // If not first row get the row before the one being deleted
 //     if (index != 0) {
-//         var row_above_deleted = document.getElementById(FORMSET_PREFIX + (index - 1))
+//         var row_above_deleted = document.getElementById(FORMSET_PREFIX + '-' + (index - 1))
 //         var line_number_of_row_above_deleted = row_above_deleted.children[0].children[0].value
 //         // Create list of row above deleted
 //         var list_of_row_above_deleted = line_number_of_row_above_deleted.split('.')
@@ -502,7 +502,7 @@ function setStartRestartButtonAtBeginning(){
 //     }
 
 //     // Get the row being deleted
-//     var row_being_deleted = document.getElementById(FORMSET_PREFIX + (index))
+//     var row_being_deleted = document.getElementById(FORMSET_PREFIX + '-' + (index))
 //     var line_number_of_row_being_deleted = row_being_deleted.children[0].children[0].value
 
 //     // Get list of row being deleted
@@ -518,7 +518,7 @@ function setStartRestartButtonAtBeginning(){
 //     var string_of_prefix_below_deleted = ""
 //     // If not last row get the row after the row being deleted
 //     if (index != index_of_last_row) {
-//         var row_below_deleted = document.getElementById(FORMSET_PREFIX + (index + 1))
+//         var row_below_deleted = document.getElementById(FORMSET_PREFIX + '-' + (index + 1))
 //         var line_number_of_row_below_deleted = row_below_deleted.children[0].children[0].value
 
 //         // Get list of row below deleted
@@ -571,7 +571,7 @@ function setStartRestartButtonAtBeginning(){
 //     // Get row above where the button was clicked if it's not the first row
 //     if (index != 0) {
 //         // Get object of the row
-//         var row_above_button_click = document.getElementById(FORMSET_PREFIX + (index - 1))
+//         var row_above_button_click = document.getElementById(FORMSET_PREFIX + '-' + (index - 1))
 //         // Get line number of the row
 //         var line_number_of_row_above = row_above_button_click.children[0].children[0].value
 //         // Get list of number of the row
@@ -584,7 +584,7 @@ function setStartRestartButtonAtBeginning(){
 
 //     // Get row the button was clicked on
 //     // Get object of the row
-//     var row_of_button_click = document.getElementById(FORMSET_PREFIX + (index))
+//     var row_of_button_click = document.getElementById(FORMSET_PREFIX + '-' + (index))
 //     // Get line number of the row
 //     var line_number_of_row = row_above_button_click.children[0].children[0].value
 //     // Get list of number of row
@@ -600,7 +600,7 @@ function setStartRestartButtonAtBeginning(){
 //     // Get row after where the button was clicked
 //     if (index != index_of_last_row) {
 //         // Get object of the row
-//         var row_below_button_click = document.getElementById(FORMSET_PREFIX + (index + 1))
+//         var row_below_button_click = document.getElementById(FORMSET_PREFIX + '-' + (index + 1))
 //         // Get line number of the row
 //         var line_number_of_row_below = row_below_button_click.children[0].children[0].value
 //         // Get list of number of the row
@@ -616,12 +616,12 @@ function setStartRestartButtonAtBeginning(){
 // function insert_row_current_level_former(index) {
 
 //     // Get the new row
-//     var new_row = document.getElementById(FORMSET_PREFIX + (index))
+//     var new_row = document.getElementById(FORMSET_PREFIX + '-' + (index))
 //     var new_row_number = new_row.children[0].children[0].value
 
 
 //     // retrieve the row where the button was clicked
-//     const row_number_of_clicked_button = document.getElementById(FORMSET_PREFIX + (index - 1)).children[0].children[0].value
+//     const row_number_of_clicked_button = document.getElementById(FORMSET_PREFIX + '-' + (index - 1)).children[0].children[0].value
 
 //     console.log(row_number_of_clicked_button)
 
