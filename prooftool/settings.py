@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'debug_toolbar',
+    'accounts',
     'django.contrib.admin',
     'crispy_forms',
     'django.contrib.auth',
@@ -43,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "django_htmx",
     'proofchecker',
-    'accounts',
+
 ]
 
 MIDDLEWARE = [
@@ -129,7 +130,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
-    'proofchecker/static/proofchecker/' 
+    'proofchecker/static/proofchecker/'
 ]
 
 # Default primary key field type
@@ -139,4 +140,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # customized user model
 AUTH_USER_MODEL = 'proofchecker.User'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
-LOGIN_REDIRECT_URL= 'home'
+LOGIN_REDIRECT_URL = 'home'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
