@@ -224,8 +224,7 @@ def get_line_DNE(rule: str, proof: ProofObj):
     """
     Find a single line for rule DNE
     """
-    target_line_no = rule[3:len(rule)]
-    target_line_no = target_line_no.strip()
+    target_line_no = rule[3:len(rule)].strip()
     target_line = None
     for line in proof.lines:
         if str(target_line_no) == str(line.line_no):

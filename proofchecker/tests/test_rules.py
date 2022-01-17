@@ -8,6 +8,7 @@ from proofchecker.rules.conditionalelim import ConditionalElim
 from proofchecker.rules.conditionalintro import ConditionalIntro
 from proofchecker.rules.conjunctionintro import ConjunctionIntro
 from proofchecker.rules.conjunctionelim import ConjunctionElim
+from proofchecker.rules.demorgan import DeMorgan
 from proofchecker.rules.disjunctionintro import DisjunctionIntro
 from proofchecker.rules.disjunctionelim import DisjunctionElim
 from proofchecker.rules.disjunctivesyllogism import DisjunctiveSyllogism
@@ -878,3 +879,149 @@ class DerivedRuleTests(TestCase):
         result = rule.verify(line5, proof)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The expressions on lines 1.2 and 2.2 should be equivalent to the expression on line 3')
+
+    def test_de_morgan(self):
+        rule = DeMorgan()
+
+        ### Case 1
+        # Test with valid input
+        line1 = ProofLineObj('1', '¬(A∧B)', 'Assumption')
+        line2 = ProofLineObj('2', '¬A∨¬B', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # Test where line 2 is not a disjunction
+        line1 = ProofLineObj('1', '¬(A∧B)', 'Assumption')
+        line2 = ProofLineObj('2', '¬A∧¬B', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 is the negation of a conjuction, line 2 should be a disjunction (∨) when applying the first De Morgan rule.')
+
+        # Test where the sentences on line 2 are not negations of the sentences on line 1
+        line1 = ProofLineObj('1', '¬(A∧B)', 'Assumption')
+        line2 = ProofLineObj('2', '¬C∨¬B', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
+
+        # Test where the sentences on line 2 are not negations of the sentences on line 1
+        line1 = ProofLineObj('1', '¬(A∧B)', 'Assumption')
+        line2 = ProofLineObj('2', '¬A∨¬C', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
+
+
+        ### Case 2
+        # Test with valid input
+        line1 = ProofLineObj('1', '¬A∨¬B', 'Assumption')
+        line2 = ProofLineObj('2', '¬(A∧B)', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # Test where line 2 is not the negation of a conjunction
+        line1 = ProofLineObj('1', '¬A∨¬B', 'Assumption')
+        line2 = ProofLineObj('2', 'A∧B', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 is a disjunction, line 2 should be the negation of a conjunction (∧) when applying the second De Morgan rule.')
+
+        # Test where line 2 is not the negation of a conjunction
+        line1 = ProofLineObj('1', '¬A∨¬B', 'Assumption')
+        line2 = ProofLineObj('2', '¬(A∨B)', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 is a disjunction, line 2 should be the negation of a conjunction (∧) when applying the second De Morgan rule.')
+
+        # Test where the sentences on line 1 are not negations of the sentences on line 2 
+        line1 = ProofLineObj('1', '¬A∨¬B', 'Assumption')
+        line2 = ProofLineObj('2', '¬(C∧B)', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
+
+        # Test where the sentences on line 1 are not negations of the sentences on line 2 
+        line1 = ProofLineObj('1', '¬A∨¬C', 'Assumption')
+        line2 = ProofLineObj('2', '¬(A∧B)', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
+
+
+        ### Case 3
+        # Test with valid input
+        line1 = ProofLineObj('1', '¬(A∨B)', 'Assumption')
+        line2 = ProofLineObj('2', '¬A∧¬B', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # Test where line 2 is not a conjunction
+        line1 = ProofLineObj('1', '¬(A∨B)', 'Assumption')
+        line2 = ProofLineObj('2', '¬A∨¬B', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 is the negation of a disjunction, line 2 should be a conjunction (∧) when applying the third De Morgan rule.')
+
+        # Test where the sentences on line 2 are not negations of the sentences on line 1
+        line1 = ProofLineObj('1', '¬(A∨B)', 'Assumption')
+        line2 = ProofLineObj('2', '¬C∧¬B', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
+
+        # Test where the sentences on line 2 are not negations of the sentences on line 1
+        line1 = ProofLineObj('1', '¬(A∨B)', 'Assumption')
+        line2 = ProofLineObj('2', '¬A∧¬C', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
+
+
+        ### Case 4
+        # Test with valid input
+        line1 = ProofLineObj('1', '¬A∧¬B', 'Assumption')
+        line2 = ProofLineObj('2', '¬(A∨B)', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # Test where line 2 is not a disjunction
+        line1 = ProofLineObj('1', '¬A∧¬B', 'Assumption')
+        line2 = ProofLineObj('2', '¬(A∧B)', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 is a conjunction, line 2 should be the negation of a disjunction (∨) when applying the fourth De Morgan rule.')
+
+        # Test where the sentences on line 2 are not negations of the sentences on line 1
+        line1 = ProofLineObj('1', '¬A∧¬B', 'Assumption')
+        line2 = ProofLineObj('2', '¬(C∨B)', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
+
+        # Test where the sentences on line 2 are not negations of the sentences on line 1
+        line1 = ProofLineObj('1', '¬A∧¬C', 'Assumption')
+        line2 = ProofLineObj('2', '¬(A∨B)', 'DeM 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
