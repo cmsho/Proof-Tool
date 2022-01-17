@@ -12,6 +12,7 @@ from proofchecker.rules.disjunctionintro import DisjunctionIntro
 from proofchecker.rules.disjunctionelim import DisjunctionElim
 from proofchecker.rules.disjunctivesyllogism import DisjunctiveSyllogism
 from proofchecker.rules.doublenegationelim import DoubleNegationElim
+from proofchecker.rules.excludedmiddle import ExcludedMiddle
 from proofchecker.rules.explosion import Explosion
 from proofchecker.rules.indirectproof import IndirectProof
 from proofchecker.rules.modustollens import ModusTollens
@@ -769,8 +770,7 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A→B', 'Premise')
         line2 = ProofLineObj('2', '~B', 'Premise')
         line3 = ProofLineObj('3', '~A', 'MT 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof)
         self.assertTrue(result.is_valid)
         self.assertEquals(result.err_msg, None)
@@ -779,8 +779,7 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A^B', 'Premise')
         line2 = ProofLineObj('2', '~B', 'Premise')
         line3 = ProofLineObj('3', '~A', 'MT 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The root of line 1 should be an implication (→) when applying modus tollens')
@@ -789,8 +788,7 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A→B', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', '~A', 'MT 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The root of line 2 should be a negation (¬) when applying modus tollens')
@@ -799,8 +797,7 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A→B', 'Premise')
         line2 = ProofLineObj('2', '~B', 'Premise')
         line3 = ProofLineObj('3', 'A', 'MT 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The root of line 3 should be a negation (¬) when applying modus tollens')
@@ -809,8 +806,7 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A→B', 'Premise')
         line2 = ProofLineObj('2', '~A', 'Premise')
         line3 = ProofLineObj('3', '~A', 'MT 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Line 2 should be the negation of the right half of line 1')
@@ -819,8 +815,66 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A→B', 'Premise')
         line2 = ProofLineObj('2', '~B', 'Premise')
         line3 = ProofLineObj('3', '~B', 'MT 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Line 3 should be the negation of the left half of line 1')
+
+
+    def test_excluded_middle(self):
+        rule = ExcludedMiddle()
+
+        # Test with valid input
+        line1 = ProofLineObj('1.1', 'A', 'Assumption')
+        line2 = ProofLineObj('1.2', 'B', 'Assumption')
+        line3 = ProofLineObj('2.1', '¬A', 'Assumption')
+        line4 = ProofLineObj('2.2', 'B', 'Assumption')
+        line5 = ProofLineObj('3', 'B', 'LEM 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
+        result = rule.verify(line5, proof)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        
+        # Test where line j.1 does not negate i.1 input
+        line1 = ProofLineObj('1.1', 'A', 'Assumption')
+        line2 = ProofLineObj('1.2', 'B', 'Assumption')
+        line3 = ProofLineObj('2.1', '¬B', 'Assumption')
+        line4 = ProofLineObj('2.2', 'B', 'Assumption')
+        line5 = ProofLineObj('3', 'B', 'LEM 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
+        result = rule.verify(line5, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The expression on line 2.1 should be the negation of line 1.1')
+
+        line1 = ProofLineObj('1.1', 'A', 'Assumption')
+        line2 = ProofLineObj('1.2', 'B', 'Assumption')
+        line3 = ProofLineObj('2.1', 'C', 'Assumption')
+        line4 = ProofLineObj('2.2', 'B', 'Assumption')
+        line5 = ProofLineObj('3', 'B', 'LEM 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
+        result = rule.verify(line5, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The expression on line 2.1 should be the negation of line 1.1')
+
+        # Test where lines i.x and j.x are not equivalent
+        line1 = ProofLineObj('1.1', 'A', 'Assumption')
+        line2 = ProofLineObj('1.2', 'B', 'Assumption')
+        line3 = ProofLineObj('2.1', '¬A', 'Assumption')
+        line4 = ProofLineObj('2.2', 'C', 'Assumption')
+        line5 = ProofLineObj('3', 'B', 'LEM 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
+        result = rule.verify(line5, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The expressions on lines 1.2 and 2.2 should be equivalent')
+
+        # Test where lines i.x and j.x are not equivalent to current line
+        line1 = ProofLineObj('1.1', 'A', 'Assumption')
+        line2 = ProofLineObj('1.2', 'B', 'Assumption')
+        line3 = ProofLineObj('2.1', '¬A', 'Assumption')
+        line4 = ProofLineObj('2.2', 'B', 'Assumption')
+        line5 = ProofLineObj('3', 'C', 'LEM 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
+        result = rule.verify(line5, proof)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The expressions on lines 1.2 and 2.2 should be equivalent to the expression on line 3')
