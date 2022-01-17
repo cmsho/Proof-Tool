@@ -206,24 +206,21 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(lines=[line1, line2, line3])
         result = verify_rule(line3, proof)
         self.assertTrue(result.is_valid)
 
         # Test and_elim
         line1 = ProofLineObj('1', 'A∧B', 'Premise')
         line2 = ProofLineObj('2', 'A', '∧E 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
+        proof = ProofObj(lines=[line1, line2])
         result = verify_rule(line2, proof)
         self.assertTrue(result.is_valid)
 
         # Test or_intro
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'A∨B', '∨I 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
+        proof = ProofObj(lines=[line1, line2])
         result = verify_rule(line2, proof)
         self.assertTrue(result.is_valid)
 
@@ -234,8 +231,7 @@ class ProofCheckerTests(TestCase):
         line4 = ProofLineObj('3.1', 'B', 'Assumption')
         line5 = ProofLineObj('3.2', 'C', 'Assumption')
         line6 = ProofLineObj('4', 'C', '∨E 1, 2, 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
         result = verify_rule(line6, proof)
         self.assertTrue(result.is_valid)
 
@@ -243,8 +239,7 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1.1', 'A', 'Premise')
         line2 = ProofLineObj('1.2', '⊥', 'Premise')
         line3 = ProofLineObj('2', '¬A', '¬I 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(lines=[line1, line2, line3])
         result = verify_rule(line3, proof)
         self.assertTrue(result.is_valid)
 
@@ -252,8 +247,7 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1', '¬A', 'Premise')
         line2 = ProofLineObj('2', 'A', 'Premise')
         line3 = ProofLineObj('3', '⊥', '¬E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(lines=[line1, line2, line3])
         result = verify_rule(line3, proof)
         self.assertTrue(result.is_valid)
 
@@ -261,8 +255,7 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
         line2 = ProofLineObj('1.2', 'B', 'Assumption')
         line3 = ProofLineObj('2', 'A→B', '→I 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(lines=[line1, line2, line3])
         result = verify_rule(line3, proof)
         self.assertTrue(result.is_valid)
 
@@ -270,8 +263,7 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1', 'A→B', 'Premise')
         line2 = ProofLineObj('2', 'A', 'Premise')
         line3 = ProofLineObj('3', 'B', '→E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(lines=[line1, line2, line3])
         result = verify_rule(line3, proof)
         self.assertTrue(result.is_valid)
 
@@ -279,18 +271,36 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1.1', '¬A', 'Premise')
         line2 = ProofLineObj('1.2', '⊥', 'Premise')
         line3 = ProofLineObj('2', 'A', 'IP 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(lines=[line1, line2, line3])
         result = verify_rule(line3, proof)
         self.assertTrue(result.is_valid)
 
         # Test explosion
         line1 = ProofLineObj('1', '⊥', 'Premise')
         line2 = ProofLineObj('2', 'B', 'X 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
+        proof = ProofObj(lines=[line1, line2])
         result = verify_rule(line2, proof)
         self.assertTrue(result.is_valid)
+
+        # Test iff intro
+        line1 = ProofLineObj('1.1', 'A', 'Assumption')
+        line2 = ProofLineObj('1.2', 'B', 'Assumption')
+        line3 = ProofLineObj('2.1', 'B', 'Assumption')
+        line4 = ProofLineObj('2.2', 'A', 'Assumption')
+        line5 = ProofLineObj('3', 'A↔B', '↔I 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
+        result = verify_rule(line5, proof)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        # Test iff elim
+        line1 = ProofLineObj('1', 'A↔B', 'Assumption')
+        line2 = ProofLineObj('2', 'A', 'Assumption')
+        line3 = ProofLineObj('3', 'B', '↔E 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = verify_rule(line3, proof)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
 
         # Test reiteration
         line1 = ProofLineObj('1', 'A', 'Premise')
@@ -306,28 +316,6 @@ class ProofCheckerTests(TestCase):
         proof = ProofObj(lines=[])
         proof.lines.extend([line1, line2])
         result = verify_rule(line2, proof)
-        self.assertTrue(result.is_valid)
-        self.assertEqual(result.err_msg, None)
-
-        # Test iff intro
-        line1 = ProofLineObj('1.1', 'A', 'Assumption')
-        line2 = ProofLineObj('1.2', 'B', 'Assumption')
-        line3 = ProofLineObj('2.1', 'B', 'Assumption')
-        line4 = ProofLineObj('2.2', 'A', 'Assumption')
-        line5 = ProofLineObj('3', 'A↔B', '↔I 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5])
-        result = verify_rule(line5, proof)
-        self.assertTrue(result.is_valid)
-        self.assertEqual(result.err_msg, None)
-
-        # Test iff elim
-        line1 = ProofLineObj('1', 'A↔B', 'Assumption')
-        line2 = ProofLineObj('2', 'A', 'Assumption')
-        line3 = ProofLineObj('3', 'B', '↔E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        result = verify_rule(line3, proof)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
