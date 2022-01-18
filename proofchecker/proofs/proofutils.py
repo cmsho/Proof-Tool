@@ -1,9 +1,9 @@
 import re
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.utils.tfllex import IllegalCharacterError
-from ..utils import tflparse, numparse
-from ..utils.tfllex import lexer as tfllexer
-from ..utils.numlex import lexer as numlexer
+from proofchecker.utils.tfllexer import IllegalCharacterError
+from ..utils import numparser, tflparser
+from ..utils.tfllexer import lexer as tfllexer
+from ..utils.numlexer import lexer as numlexer
 from ..utils.binarytree import Node
 
 # Parsing methods
@@ -11,19 +11,19 @@ def depth(line_no):
     """
     Calculates the depth of a line number
     """
-    return numparse.parser.parse(line_no, lexer=numlexer)
+    return numparser.parser.parse(line_no, lexer=numlexer)
 
 def make_tree(string: str):
     """
     Function to construct a binary tree
     """
-    return tflparse.parser.parse(string, lexer=tfllexer)
+    return tflparser.parser.parse(string, lexer=tfllexer)
 
 def is_line_no(string: str):
     """
     Function to determine if a line number is valid
     """
-    return numparse.parser.parse(string, lexer=numlexer)
+    return numparser.parser.parse(string, lexer=numlexer)
 
 
 # Proof Verification
