@@ -1,25 +1,26 @@
-.right-side-navigation {
+/* .right-side-navigation {
   padding-top: 20px;
   padding-left: 5px;
   padding-right: 5px;
   position: fixed;
   top: 0;
   right: 0;
-  width: 250px; /* Same as main margin-right*/
+  width: 250px; 
   height: 100%;
   background: #072a4d;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
+} */
 
 .btn-group button {
+  margin-left: 8px;
   background-color: white;
   border: 3px solid #072a4d;
   color: #072a4d;
   padding: 10px 15px;
   cursor: pointer;
-  float: left;
+  float: left;  
   font-weight: bold;
 }
 .btn-group button:not(:last-child) {
@@ -41,13 +42,13 @@
 
 
 #menu{
-  height: 80%;
+  margin-left: 8px;
+  height: 100%;
   width: 100%;
   background: white;
   border: 1px solid #ccc;
   display: flex;
   flex-direction: column;
-  /* align-items: center; */
   text-align: right;
   overflow: auto;
 }
