@@ -2,10 +2,10 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // list of variables  to store dom element ids/classes/names (difference between inlineformset vs modelformset
 // ---------------------------------------------------------------------------------------------------------------------
-const FORMSET_PREFIX                = "proofline_set";                 // for modelformset - "form-"
-const FORMSET_TOTALFORMS_ID         = "id_proofline_set-TOTAL_FORMS";   // for modelformset - "id_form-TOTAL_FORMS"
-const FORMSET_TBODY_ID              = "proofline-list";                 // for modelformset - "proofline-list"
-const FORMSET_TR_CLASS              = "proofline_set";                 // for modelformset - "proofline-form"
+const FORMSET_PREFIX = "proofline_set";                 // for modelformset - "form-"
+const FORMSET_TOTALFORMS_ID = "id_proofline_set-TOTAL_FORMS";   // for modelformset - "id_form-TOTAL_FORMS"
+const FORMSET_TBODY_ID = "proofline-list";                 // for modelformset - "proofline-list"
+const FORMSET_TR_CLASS = "proofline_set";                 // for modelformset - "proofline-form"
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -27,12 +27,28 @@ addMoreBtn.addEventListener("click", add_form)
 // Text replacement - replaces escape commands with symbols
 function replaceCharacter(ev) {
     let txt = document.getElementById(ev.id).value;
+
+    // Conjunction
     txt = txt.replace("\\and", "∧");
+    // Disjunction
     txt = txt.replace("\\or", "∨");
+    // Conditional
     txt = txt.replace("\\implies", "→");
+    // Negation
     txt = txt.replace("\\not", "¬");
+    // Biconditional
     txt = txt.replace("\\iff", "↔");
-    txt = txt.replace("\\contradiction", "⊥");
+    // Contradiction
+    txt = txt.replace("\\falsum", "⊥");
+    // Universal Quantifier
+    txt = txt.replace("\\forall", "∀");
+    // Existential Quantifier
+    txt = txt.replace("\\exists", "∃");
+    // Set Membership
+    txt = txt.replace("\\in", "∈");
+
+    console.log(txt);
+
     document.getElementById(ev.id).value = txt;
 }
 
@@ -365,15 +381,15 @@ function hide_conclude_button() {
 
 //delete children from any DOM element
 function delete_children(element) {
-        var first = element.firstElementChild;
-        while (first) {
-            first.remove();
-            first = element.firstElementChild;
-        }
+    var first = element.firstElementChild;
+    while (first) {
+        first.remove();
+        first = element.firstElementChild;
+    }
 }
 
 //restart proof
-function restart_proof(element){
+function restart_proof(element) {
     var prooflineList = document.getElementById(FORMSET_TBODY_ID)
 
     delete_children(prooflineList)
@@ -427,14 +443,14 @@ function start_proof(element) {
     update_form_ids()
     update_form_count()
     hide_conclude_button()
-    element.hidden=true
+    element.hidden = true
     document.getElementById("btn_restart_proof").classList.remove("hidden")
 
 }
 
 
-function setStartRestartButtonAtBeginning(){
-    if (document.getElementById(`id_${FORMSET_PREFIX}-0-rule`)!=null && document.getElementById(`id_${FORMSET_PREFIX}-0-rule`).value != ''){
+function setStartRestartButtonAtBeginning() {
+    if (document.getElementById(`id_${FORMSET_PREFIX}-0-rule`) != null && document.getElementById(`id_${FORMSET_PREFIX}-0-rule`).value != '') {
         document.getElementById("btn_start_proof").hidden = true
         document.getElementById("btn_restart_proof").classList.remove("hidden")
     }
