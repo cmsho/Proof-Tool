@@ -83,7 +83,7 @@
             {% endif %}
 
         </nav>
-        <main class=" main ">
+        <main class="main">
             <div class="container">
                 {% if messages %} {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}">
@@ -93,7 +93,7 @@
             </div>
             {% block content %}{% endblock %}
         </main>
-        <nav class="nav-right ">
+        <nav class="nav-right">
             <div class="nav-right__border"></div>
             {% include 'proofchecker/right_navigation_menu.html' %}
         </nav>
