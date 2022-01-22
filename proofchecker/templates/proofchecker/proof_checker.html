@@ -57,7 +57,9 @@
                                         id="id_form-{{ forloop.counter0 }}-conclude-subproof-btn" value="Conclude Subproof" onclick="conclude_subproof(this)">
                                 </td>
 
-                            <td>{{ line.id }}{{ line.DELETE }}{{ line.ORDER }}</td>
+                            <td>{{ line.id }}<td>
+                            <td>{{ line.DELETE }}</td>
+                            <td>{{ line.ORDER }}</td>
                         </tr>
                     {% endfor %}
 
@@ -83,7 +85,9 @@
                 <input class="conclude-subproof btn btn-secondary" type="button" name="form-__prefix__-conclude-subproof-btn" id="id_form-__prefix__-conclude_subproof-btn"
                     value="Conclude Subproof" onclick="conclude_subproof(this)">
             </td>
-            <td class="td-hidden" hidden>{{ formset.empty_form.id }}{{ formset.empty_form.DELETE }}{{ formset.empty_form.ORDER }}</td>
+            <td>{{ formset.empty_form.id }}
+            <td>{{ formset.empty_form.DELETE }}</td>
+            <td>{{ formset.empty_form.ORDER }}</td>
         </tr>
 
 
