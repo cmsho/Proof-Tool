@@ -9,32 +9,30 @@ const FORMSET_TR_CLASS              = "proofline_set";                 // for mo
 
 // ---------------------------------------------------------------------------------------------------------------------
 
+document.addEventListener('DOMContentLoaded', reloadPage(), false);
 
+function reloadPage(){
+    //this function will run on page load
 
-document.addEventListener('DOMContentLoaded', setStartRestartButtonAtBeginning(), false);
+    //will sort proof table based on ORDER field
+    sortTable()
+    //will decide which button to display between start and restart
+    setStartRestartButtonAtBeginning()
+}
+// ---------------------------------------------------------------------------------------------------------------------
 
-
-
-
-// Add event listeners to buttons
-const addMoreBtn = document.getElementById("add-more")
-addMoreBtn.addEventListener("click", add_form)
+// << not using add_more button anymore >>
+// // Add event listeners to buttons
+// const addMoreBtn = document.getElementById("add-more")
+// addMoreBtn.addEventListener("click", add_form)
 
 // const beginProofBtn = document.getElementById("begin_proof")
 // beginProofBtn.addEventListener("click", begin_proof)
 
 
-// Text replacement - replaces escape commands with symbols
-function replaceCharacter(ev) {
-    let txt = document.getElementById(ev.id).value;
-    txt = txt.replace("\\and", "∧");
-    txt = txt.replace("\\or", "∨");
-    txt = txt.replace("\\implies", "→");
-    txt = txt.replace("\\not", "¬");
-    txt = txt.replace("\\iff", "↔");
-    txt = txt.replace("\\contradiction", "⊥");
-    document.getElementById(ev.id).value = txt;
-}
+// ---------------------------------------------------------------------------------------------------------------------
+// Helper functions
+// ---------------------------------------------------------------------------------------------------------------------
 
 // Helper function to set multiple attributes at once
 function setAttributes(el, attrs) {
@@ -45,29 +43,21 @@ function setAttributes(el, attrs) {
 
 // Call this at end of any function that changes the amount of forms
 function update_form_count() {
-    const totalNewForms = document.getElementById(FORMSET_TOTALFORMS_ID)
+    const fomrsetManagerTotalFormCounter = document.getElementById(FORMSET_TOTALFORMS_ID)
     let currentFormCount = document.getElementsByClassName(FORMSET_TR_CLASS).length
-    totalNewForms.setAttribute('value', currentFormCount)
+    fomrsetManagerTotalFormCounter.setAttribute('value', currentFormCount)
 }
 
 // Call this at the end of any function that changes the amount of forms
-function update_form_ids() {
-    const forms = document.getElementsByClassName(FORMSET_TR_CLASS)
-    const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'create-subproof-btn', 'conclude-subproof-btn', 'delete-btn']
-
-    for (i = 0; i < forms.length; i++) {
-
-        // Update the ID of each table row
-        forms[i].setAttribute('id', `${FORMSET_PREFIX}-${i}`)
-
-        // Update the ID of each input field (nested in <td>)
-        var tds = forms[i].children
-        for (x = 0; x < fields.length; x++) {
-            // Input field is child of <td>
-            var input = tds[x].children[0]
-            input.setAttribute('name', `${FORMSET_PREFIX}-${i}-${fields[x]}`)
-            input.setAttribute('id', `id_${FORMSET_PREFIX}-${i}-${fields[x]}`)
-        }
+function update_form_ids(old_id, new_id){
+    const targeted_element = document.getElementById(FORMSET_PREFIX + '-'+old_id)
+    if (targeted_element != null) {
+        document.getElementById(FORMSET_PREFIX + '-' + old_id).setAttribute('id', `${FORMSET_PREFIX}-${new_id}`)
+        const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'create-subproof-btn', 'conclude-subproof-btn', 'delete-btn']
+        fields.forEach(function (field) {
+            document.getElementById('id_'+FORMSET_PREFIX +'-' + old_id + '-' + field).setAttribute('name', `${FORMSET_PREFIX}-${new_id}-${field}`)
+            document.getElementById('id_'+FORMSET_PREFIX +'-' + old_id + '-' + field).setAttribute('id', `id_${FORMSET_PREFIX}-${new_id}-${field}`)
+        })
     }
 }
 
@@ -83,9 +73,12 @@ function set_total_forms_count_in_manager(value) {
     document.getElementById(FORMSET_TOTALFORMS_ID).setAttribute('value', value)
 }
 
-function create_empty_form() {
-    const emptyFormElement = document.getElementById("empty-form").cloneNode(true)
+function create_empty_form(index) {
+    const emptyFormElement = document.getElementById('empty-form').cloneNode(true)
     emptyFormElement.setAttribute("class", FORMSET_TR_CLASS)
+    emptyFormElement.setAttribute("id", `${FORMSET_PREFIX}-${index}`)
+    const regex = new RegExp('__prefix__', 'g')
+    emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, index)
     return emptyFormElement
 }
 
@@ -93,37 +86,81 @@ function get_form_id(obj) {
     return parseInt(obj.id.replace(/[^0-9]/g, ""))
 }
 
-// Inserts form below current line
-function insert_form(obj) {
-    insert_form_helper(get_form_id(obj) + 1)
-
-    insert_row_current_level(get_form_id(obj))
-    hide_conclude_button()
-
+//delete children from any DOM element
+function delete_children(element) {
+        var first = element.firstElementChild;
+        while (first) {
+            first.remove();
+            first = element.firstElementChild;
+        }
 }
 
-function create_subproof(obj) {
-    insert_form_helper(get_form_id(obj) + 1)
+function reset_positonal_index(){
+    const ORDER_fields = document.querySelectorAll('[id $= "-ORDER"]');
+    var pos_index = 0;
+    var index = null
+    for (let field of ORDER_fields){
+        if (field.id != null && field.id.indexOf("__prefix__")<0){
+            index = get_form_id(field)
+            if (!document.getElementById(`${FORMSET_PREFIX}-${index}`).hidden){
+                field.value = pos_index++
+                document.getElementById(`id_${FORMSET_PREFIX}-${index}-ORDER`).value = field.value
+            } else {
+                field.value = -1
+            }
 
-    generate_new_subproof_row_number(get_form_id(obj) + 1)
-    hide_conclude_button()
+        }
+    }
 }
 
-function conclude_subproof(obj) {
-    insert_form_helper(get_form_id(obj) + 1)
+function sortTable() {
+    var i, x, y;
+    var switching = true;
 
-    insert_row_parent_level(get_form_id(obj))
-    hide_conclude_button()
+    // Run loop until no switching is needed
+    while (switching) {
+        switching = false;
+        var rows = document.getElementsByClassName(FORMSET_TR_CLASS)
+        // Loop to go through all rows
+        for (i = 1; i < (rows.length - 1); i++) {
+            var switch_flag = false;
+
+            // Fetch 2 elements that need to be compared
+            x = rows[i].getElementsByTagName("input")[9].value
+            y = rows[i+1].getElementsByTagName("input")[9].value
+            console.log(x)
+
+            // Check if 2 rows need to be switched
+            if (parseInt(x) > parseInt(y)) {
+                // If yes, mark Switch as needed and break loop
+                switch_flag = true;
+                break;
+            }
+        }
+        if (switch_flag) {
+            // Function to switch rows and mark switch as completed
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+        }
+    }
 }
 
+
+// Text replacement - replaces escape commands with symbols
+function replaceCharacter(ev) {
+    let txt = document.getElementById(ev.id).value;
+    txt = txt.replace("\\and", "∧");
+    txt = txt.replace("\\or", "∨");
+    txt = txt.replace("\\implies", "→");
+    txt = txt.replace("\\not", "¬");
+    txt = txt.replace("\\iff", "↔");
+    txt = txt.replace("\\contradiction", "⊥");
+    document.getElementById(ev.id).value = txt;
+}
 
 function insert_form_helper(index) {
-
-    const emptyFormElement = create_empty_form()
-    emptyFormElement.setAttribute("id", `${FORMSET_PREFIX}-${index}`)
-    const regex = new RegExp('__prefix__', 'g')
-    emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, index)
-
+    const getNextIndex = get_total_forms_count();
+    const emptyFormElement = create_empty_form(getNextIndex)
     const proof_tbody = document.getElementById(FORMSET_TBODY_ID)
     const proof_table_row = document.getElementById(FORMSET_PREFIX + '-' + (index - 1))
     if (proof_table_row != null) {
@@ -131,11 +168,13 @@ function insert_form_helper(index) {
     } else {
         proof_tbody.append(emptyFormElement)
     }
-
-    update_form_ids()
+    //update_form_ids()
     update_form_count()
-
+    reset_positonal_index()
 }
+
+
+
 function get_row(index) {
 
     var row_object = document.getElementById(FORMSET_PREFIX + '-' + (index))
@@ -167,6 +206,95 @@ function get_row(index) {
     return row
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+
+
+function setStartRestartButtonAtBeginning(){
+    if (document.getElementById(`id_${FORMSET_PREFIX}-0-rule`)!=null && document.getElementById(`id_${FORMSET_PREFIX}-0-rule`).value != ''){
+        document.getElementById("btn_start_proof").hidden = true
+        document.getElementById("btn_restart_proof").classList.remove("hidden")
+    }
+}
+
+// Automatically populate the premise values
+function start_proof(element) {
+    var premises = document.getElementById('id_premises').value
+    var premiseArray = premises.split(",").map(item => item.trim())
+    var prooflineTableBody = document.getElementById(FORMSET_TBODY_ID)
+    
+    for (i = 0; i < premiseArray.length; i++) {
+        var newRow = create_empty_form(i)
+        var tds = newRow.children
+
+        for (x = 0; x < tds.length; x++) {
+            var input = tds[x].children[0]
+            // line_no
+            if (x == 0) {
+                input.setAttribute("readonly", true)
+                input.setAttribute("value", i + 1)
+            }
+            // formula
+            if (x == 1) {
+                input.setAttribute("value", `${premiseArray[i]}`)
+            }
+            // rule
+            if (x == 2) {
+                input.setAttribute("value", 'Premise')
+            }
+            // if (i == 0) {
+            //     if (x == 4) {
+            //         input.style.visibility = 'hidden'
+            //     }
+            //     if (x == 5) {
+            //         input.style.visibility = 'hidden'
+            //     }
+            //     if (x == 6) {
+            //         input.style.visibility = 'hidden'
+            //     }
+            // }
+        }
+        prooflineTableBody.appendChild(newRow)
+    }
+    update_form_count()
+    hide_conclude_button()
+    element.hidden=true
+    document.getElementById("btn_restart_proof").classList.remove("hidden")
+    reset_positonal_index()
+}
+
+//restart proof
+function restart_proof(element){
+    var prooflineList = document.getElementById(FORMSET_TBODY_ID)
+    delete_children(prooflineList)
+    start_proof(document.getElementById("btn_start_proof"))
+}
+
+// Inserts form below current line
+function insert_form(obj) {
+    insert_form_helper(get_form_id(obj) + 1)
+    insert_row_current_level(get_form_id(obj))
+    hide_conclude_button()
+    reset_positonal_index()
+}
+
+
+function create_subproof(obj) {
+    insert_form_helper(get_form_id(obj) + 1)
+
+    generate_new_subproof_row_number(get_form_id(obj) + 1)
+    hide_conclude_button()
+    reset_positonal_index()
+}
+
+function conclude_subproof(obj) {
+    insert_form_helper(get_form_id(obj) + 1)
+
+    insert_row_parent_level(get_form_id(obj))
+    hide_conclude_button()
+    reset_positonal_index()
+}
+
+
 
 function insert_row_current_level(index) {
     // Get the button row
@@ -185,6 +313,7 @@ function insert_row_current_level(index) {
 
     var prefix_value_list = button_row.prefix_of_row.length >= 1 ? button_row.prefix_of_row : []
     renumber_rows(direction, starting_point, prefix_value_list)
+    reset_positonal_index()
 }
 
 
@@ -226,6 +355,7 @@ function insert_row_parent_level(index) {
     var prefix_value_list = button_row.prefix_of_row.length > 1 ? button_row.prefix_of_row : []
 
     renumber_rows(direction, starting_point, prefix_value_list)
+    reset_positonal_index()
 }
 
 
@@ -256,11 +386,46 @@ function add_form(event) {
     formCopyTarget.append(emptyFormElement)
     update_form_count()
     hide_conclude_button()
+    reset_positonal_index()
 }
 
 
 
-function delete_form(obj) {
+
+function delete_form(obj){
+    remove_from_proofline_fomrset(get_form_id(obj))
+}
+
+function remove_from_proofline_fomrset(index) {
+    //mark checkbox true
+    document.getElementById('id_'+FORMSET_PREFIX+'-' + index + '-DELETE').setAttribute("checked", "true")
+    // document.getElementById('id_'+FORMSET_PREFIX+'-' + index + '-line_no').setAttribute("value", "*del*")
+    //hide row
+    // document.getElementById(FORMSET_PREFIX+'-' + index).hidden = true;
+
+    //if id fields is empty that means this deleted (hidden now) row is a new row.. not existing one.. so we can actually remove it.
+    if (document.getElementById('id_'+FORMSET_PREFIX+'-' + index + '-id').value == ''){
+        document.getElementById(FORMSET_PREFIX+'-' + index).remove()
+        pull_up_proofline_forms(index)
+        set_total_formset_count_in_manager(get_total_formset_count_in_manager()-1)
+    }
+    reset_positonal_index()
+}
+
+function pull_up_proofline_forms(to_index){
+    const last_form_element_id = get_total_formset_count_in_manager() - 1;
+    for (let i = to_index+1; i <= last_form_element_id; i++) {
+      change_proofline_form_id(i, i-1)
+    }
+}
+
+function set_total_formset_count_in_manager(value){
+    document.getElementById('id_'+FORMSET_PREFIX+'-TOTAL_FORMS').setAttribute('value', value);
+}
+
+
+
+function delete_form_old(obj) {
     var index = get_form_id(obj)
     var forms = document.getElementsByClassName(FORMSET_TBODY_ID)
     var index_of_last_row = forms.length - 1
@@ -312,7 +477,7 @@ function delete_form(obj) {
 function renumber_rows(direction, starting_point, prefix_value_list) {
 
     // Forms that you'll iterate over
-    const forms = document.getElementsByClassName(FORMSET_TBODY_ID)
+    const forms = document.getElementsByClassName(FORMSET_TR_CLASS)
     console.log(forms.length)
     var number_of_forms = forms.length
 
@@ -363,84 +528,27 @@ function hide_conclude_button() {
     }
 }
 
-//delete children from any DOM element
-function delete_children(element) {
-        var first = element.firstElementChild;
-        while (first) {
-            first.remove();
-            first = element.firstElementChild;
-        }
-}
-
-//restart proof
-function restart_proof(element){
-    var prooflineList = document.getElementById(FORMSET_TBODY_ID)
-
-    delete_children(prooflineList)
-    start_proof(document.getElementById("btn_start_proof"))
-
-}
-
-// Automatically populate the premise values
-function start_proof(element) {
-
-    var premises = document.getElementById('id_premises').value
-    var premiseArray = premises.split(",").map(item => item.trim())
-    var prooflineList = document.getElementById(FORMSET_TBODY_ID)
 
 
-    for (i = 0; i < premiseArray.length; i++) {
-        var newRow = create_empty_form()
-        var tds = newRow.children
+function update_form_ids_old() {
+    const forms = document.getElementsByClassName(FORMSET_TR_CLASS)
+    const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'create-subproof-btn', 'conclude-subproof-btn', 'delete-btn']
 
-        for (x = 0; x < tds.length; x++) {
+    for (i = 0; i < forms.length; i++) {
+
+        // Update the ID of each table row
+        forms[i].setAttribute('id', `${FORMSET_PREFIX}-${i}`)
+
+        // Update the ID of each input field (nested in <td>)
+        var tds = forms[i].children
+        for (x = 0; x < fields.length; x++) {
+            // Input field is child of <td>
             var input = tds[x].children[0]
-            // line_no
-            if (x == 0) {
-                input.setAttribute("readonly", true)
-                input.setAttribute("value", i + 1)
-            }
-            // formula
-            if (x == 1) {
-                input.setAttribute("value", `${premiseArray[i]}`)
-            }
-            // rule
-            if (x == 2) {
-                input.setAttribute("value", 'Premise')
-            }
-            if (i == 0) {
-                if (x == 4) {
-                    input.style.visibility = 'hidden'
-                }
-                if (x == 5) {
-                    input.style.visibility = 'hidden'
-                }
-                if (x == 6) {
-                    input.style.visibility = 'hidden'
-                }
-            }
+            input.setAttribute('name', `${FORMSET_PREFIX}-${i}-${fields[x]}`)
+            input.setAttribute('id', `id_${FORMSET_PREFIX}-${i}-${fields[x]}`)
         }
-
-        prooflineList.appendChild(newRow)
-    }
-
-    update_form_ids()
-    update_form_count()
-    hide_conclude_button()
-    element.hidden=true
-    document.getElementById("btn_restart_proof").classList.remove("hidden")
-
-}
-
-
-function setStartRestartButtonAtBeginning(){
-    if (document.getElementById(`id_${FORMSET_PREFIX}-0-rule`)!=null && document.getElementById(`id_${FORMSET_PREFIX}-0-rule`).value != ''){
-        document.getElementById("btn_start_proof").hidden = true
-        document.getElementById("btn_restart_proof").classList.remove("hidden")
     }
 }
-
-
 
 // function insert_row_parent_level_former(index) {
 
