@@ -2,7 +2,7 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import make_tree, is_conclusion, depth, clean_rule
 from proofchecker.rules.rulechecker import RuleChecker
-from proofchecker.utils.tfllex import IllegalCharacterError
+from proofchecker.utils.tfllexer import IllegalCharacterError
 
 def verify_proof(proof: ProofObj):
     """
