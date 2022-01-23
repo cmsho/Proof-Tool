@@ -200,13 +200,13 @@ function delete_row(deleted_row_index) {
     deleted_row.classList.add("table-secondary")
     //mark checkbox true
     document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-DELETE').setAttribute("checked", "true")
-    document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-insert-btn').disabled = true
-    document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-create_subproof-btn').disabled = true
-    document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-delete-btn').disabled = true
-    document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-conclude_subproof-btn').disabled = true
+    // document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-insert-btn').disabled = true
+    // document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-create_subproof-btn').disabled = true
+    // document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-delete-btn').disabled = true
+    // document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-conclude_subproof-btn').disabled = true
 
     //hide row
-    // document.getElementById(FORMSET_PREFIX+'-' + index).hidden = true;
+    document.getElementById(FORMSET_PREFIX+'-' + deleted_row_index).hidden = true;
     renumber_rows(-1, deleted_row)
     deleted_row.children[0].children[0].value = '0'
 
@@ -328,7 +328,6 @@ function sort_table() {
             // Fetch 2 elements that need to be compared
             x = rows[i].getElementsByTagName("input")[9].value
             y = rows[i + 1].getElementsByTagName("input")[9].value
-            console.log(x)
 
             // Check if 2 rows need to be switched
             if (parseInt(x) > parseInt(y)) {
@@ -550,9 +549,6 @@ function updateFormsetId(old_id, new_id) {
         fields.forEach(function (field) {
             document.getElementById('id_' + FORMSET_PREFIX + '-' + old_id + '-' + field).setAttribute('name', `${FORMSET_PREFIX}-${new_id}-${field}`)
             document.getElementById('id_' + FORMSET_PREFIX + '-' + old_id + '-' + field).setAttribute('id', `id_${FORMSET_PREFIX}-${new_id}-${field}`)
-
-            //this is temporary for debugging purpose. added index in INSERT ROW button value
-            if (field === 'insert-btn') document.getElementById(`id_${FORMSET_PREFIX}-${new_id}-${field}`).setAttribute('value', `Insert Row ${new_id}`)
         })
     }
 }

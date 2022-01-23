@@ -25,7 +25,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td>DEL.ORDER</td>
+                        <td></td>
                     </tr>
                 </thead>
                 <div id="valid-premise-div"/>
@@ -34,7 +34,7 @@
                 <tbody id="proofline-list">
                     {% for line in formset %}
                         {% if line.DELETE.value  %}
-                            <tr id="proofline_set-{{ forloop.counter0 }}" class="proofline_set">
+                            <tr id="proofline_set-{{ forloop.counter0 }}" class="proofline_set hidden">
                         {% else %}
                             <tr id="proofline_set-{{ forloop.counter0 }}" class="proofline_set">
                         {% endif %}
@@ -44,7 +44,7 @@
                                 <td>{{ line.rule }}</td>
                                 <td>
                                     <input class="insert-row btn btn-secondary" type="button" name="proofline_set-{{ forloop.counter0 }}-insert-btn" id="id_proofline_set-{{ forloop.counter0 }}-insert-btn"
-                                        value="Insert Row {{ forloop.counter0 }}" onclick="insert_form(this)">
+                                        value="Insert Row" onclick="insert_form(this)">
                                 </td>
                                 <td>
                                     <input class="create_subproof btn btn-secondary" type="button" name="proofline_set-{{ forloop.counter0 }}-create_subproof-btn" id="id_proofline_set-{{ forloop.counter0 }}-create_subproof-btn"
@@ -59,7 +59,7 @@
                                         id="id_proofline_set-{{ forloop.counter0 }}-conclude_subproof-btn" value="Conclude Subproof" onclick="conclude_subproof(this)">
                                 </td>
 
-                            <td>{{ line.id }}{{ line.DELETE }}{{ line.ORDER }}</td>
+                            <td hidden>{{ line.id }}{{ line.DELETE }}{{ line.ORDER }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -69,7 +69,7 @@
                     <td>{{ formset.empty_form.rule }}</td>
                     <td>
                         <input class="insert-row btn btn-secondary" type="button" name="proofline_set-__prefix__-insert-btn" id="id_proofline_set-__prefix__-insert-btn"
-                            value="Insert Row __prefix__" onclick="insert_form(this)">
+                            value="Insert Row" onclick="insert_form(this)">
                     </td>
                     <td>
                         <input class="create_subproof btn btn-secondary" type="button" name="proofline_set-__prefix__-create_subproof-btn" id="id_proofline_set-__prefix__-create_subproof-btn"
@@ -83,7 +83,7 @@
                         <input class="conclude_subproof btn btn-secondary" type="button" name="proofline_set-__prefix__-conclude_subproof-btn" id="id_proofline_set-__prefix__-conclude_subproof-btn"
                             value="Conclude Subproof" onclick="conclude_subproof(this)">
                     </td>
-                    <td>{{ formset.empty_form.id }}{{ formset.empty_form.DELETE }}{{ formset.empty_form.ORDER }}</td>
+                    <td hidden>{{ formset.empty_form.id }}{{ formset.empty_form.DELETE }}{{ formset.empty_form.ORDER }}</td>
                 </tr>
             </table>
         {% endif %}
