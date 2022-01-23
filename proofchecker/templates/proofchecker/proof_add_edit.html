@@ -9,7 +9,7 @@
             {% csrf_token %}
             {{ form.as_table }}
             <button id="btn_start_proof" class="btn btn-primary mx-2" type="button" onclick="start_proof(this)" >Start Proof</button>
-            <button id="btn_restart_proof" class="btn btn-primary mx-2 hidden" type="button" onclick="restart_proof(this)" >Restart Proof</button>
+            <button id="btn_restart_proof" class="btn btn-primary mx-2 hidden" type="button" onclick="restart_proof()" >Restart Proof</button>
         </div>
         <hr>
         {% if formset %}
@@ -34,7 +34,7 @@
                 <tbody id="proofline-list">
                     {% for line in formset %}
                         {% if line.DELETE.value  %}
-                            <tr id="proofline_set-{{ forloop.counter0 }}" class="proofline_set hidden">
+                            <tr id="proofline_set-{{ forloop.counter0 }}" class="proofline_set">
                         {% else %}
                             <tr id="proofline_set-{{ forloop.counter0 }}" class="proofline_set">
                         {% endif %}
@@ -43,20 +43,20 @@
                                 <td>{{ line.formula }}</td>
                                 <td>{{ line.rule }}</td>
                                 <td>
-                                    <input class="insert-row btn btn-secondary" type="button" name="form-{{ forloop.counter0 }}-insert-btn" id="id_form-{{ forloop.counter0 }}-insert-btn"
+                                    <input class="insert-row btn btn-secondary" type="button" name="proofline_set-{{ forloop.counter0 }}-insert-btn" id="id_proofline_set-{{ forloop.counter0 }}-insert-btn"
                                         value="Insert Row {{ forloop.counter0 }}" onclick="insert_form(this)">
                                 </td>
                                 <td>
-                                    <input class="create-subproof btn btn-secondary" type="button" name="form-{{ forloop.counter0 }}-create-subproof-btn" id="id_form-{{ forloop.counter0 }}-create-subproof-btn"
+                                    <input class="create_subproof btn btn-secondary" type="button" name="proofline_set-{{ forloop.counter0 }}-create_subproof-btn" id="id_proofline_set-{{ forloop.counter0 }}-create_subproof-btn"
                                         value="Create Subproof" onclick="create_subproof(this)">
                                 </td>
                                 <td>
-                                    <input class="delete-row btn btn-secondary" type="button" name="form-{{ forloop.counter0 }}-delete-btn" id="id_form-{{ forloop.counter0 }}-delete-btn"
+                                    <input class="delete-row btn btn-secondary" type="button" name="proofline_set-{{ forloop.counter0 }}-delete-btn" id="id_proofline_set-{{ forloop.counter0 }}-delete-btn"
                                         value="Delete Row" onclick="delete_form(this)">
                                 </td>
                                 <td>
-                                    <input class="conclude-subproof btn btn-secondary" type="button" name="form-{{ forloop.counter0 }}-conclude-subproof-btn"
-                                        id="id_form-{{ forloop.counter0 }}-conclude-subproof-btn" value="Conclude Subproof" onclick="conclude_subproof(this)">
+                                    <input class="conclude_subproof btn btn-secondary" type="button" name="proofline_set-{{ forloop.counter0 }}-conclude_subproof-btn"
+                                        id="id_proofline_set-{{ forloop.counter0 }}-conclude_subproof-btn" value="Conclude Subproof" onclick="conclude_subproof(this)">
                                 </td>
 
                             <td>{{ line.id }}{{ line.DELETE }}{{ line.ORDER }}</td>
@@ -68,19 +68,19 @@
                     <td>{{ formset.empty_form.formula }}</td>
                     <td>{{ formset.empty_form.rule }}</td>
                     <td>
-                        <input class="insert-row btn btn-secondary" type="button" name="form-__prefix__-insert-btn" id="id_form-__prefix__-insert-btn"
+                        <input class="insert-row btn btn-secondary" type="button" name="proofline_set-__prefix__-insert-btn" id="id_proofline_set-__prefix__-insert-btn"
                             value="Insert Row __prefix__" onclick="insert_form(this)">
                     </td>
                     <td>
-                        <input class="create-subproof btn btn-secondary" type="button" name="form-__prefix__-create-subproof-btn" id="id_form-__prefix__-create_subproof-btn"
+                        <input class="create_subproof btn btn-secondary" type="button" name="proofline_set-__prefix__-create_subproof-btn" id="id_proofline_set-__prefix__-create_subproof-btn"
                             value="Create Subproof" onclick="create_subproof(this)">
                     </td>
                     <td>
-                        <input class="delete-row btn btn-secondary" type="button" name="form-__prefix__-delete-btn" id="id_form-__prefix__-delete-btn"
+                        <input class="delete-row btn btn-secondary" type="button" name="proofline_set-__prefix__-delete-btn" id="id_proofline_set-__prefix__-delete-btn"
                             value="Delete Row" onclick="delete_form(this)">
                     </td>
                     <td>
-                        <input class="conclude-subproof btn btn-secondary" type="button" name="form-__prefix__-conclude-subproof-btn" id="id_form-__prefix__-conclude_subproof-btn"
+                        <input class="conclude_subproof btn btn-secondary" type="button" name="proofline_set-__prefix__-conclude_subproof-btn" id="id_proofline_set-__prefix__-conclude_subproof-btn"
                             value="Conclude Subproof" onclick="conclude_subproof(this)">
                     </td>
                     <td>{{ formset.empty_form.id }}{{ formset.empty_form.DELETE }}{{ formset.empty_form.ORDER }}</td>
