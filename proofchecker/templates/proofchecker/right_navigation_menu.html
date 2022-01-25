@@ -1,116 +1,118 @@
 {% load static %}
 
-<div class="btn-group">
-    <button id="info" onclick="showInformation(this.id)">Info</button>
-    <button id="rules" onclick="showInformation(this.id)">Rules</button>
-    <button id="other" onclick="showInformation(this.id)">Other</button>
-</div>
-
-<div id="menu">
-    <div id="info-information">
-        <div id="main-header">How to use:</div>
-
-        <div id="sub-header">Entering symbols:</div>
-
-        <div id="instruction"> To enter math symbols, use the bold escape commands below while typing.</div>
-        <table id="info-table">
-            <tbody>
-                <tr>
-                    <td id="left">Conjunction</td>
-                    <td id="center">\and</td>
-                    <td id="right">∧</td>
-                </tr>
-                <tr>
-                    <td id="left">Disjunction</td>
-                    <td id="center">\or</td>
-                    <td id="right">∨</td>
-                </tr>
-                <tr>
-                    <td id="left">Negation</td>
-                    <td id="center">\not</td>
-                    <td id="right">¬</td>
-                </tr>
-                <tr>
-                    <td id="left">Conditional</td>
-                    <td id="center">\implies</td>
-                    <td id="right">→</td>
-                </tr>
-                <tr>
-                    <td id="left">Biconditional</td>
-                    <td id="center">\iff</td>
-                    <td id="right">↔</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div id="sub-header">Premises:</div>
-
-        <div id="instruction"> Separate premises using commas.</div>
-
-        <div id="sub-header">Row numbering:</div>
-
-        <div id="instruction"> Row numbers are represented as a combination of numbers and decimal points.</div>
-        <table id="info-table">
-            <tbody>
-                <tr>
-                    <td id="left-proof">1</td>
-                    <td id="left">Not a subproof</td>
-                </tr>
-                <tr>
-                    <td id="left-proof">2.1</td>
-                    <td id="left">subproof of 2</td>
-                </tr>
-                <tr>
-                    <td id="left-proof">2.2.1</td>
-                    <td id="left">subproof of 2.2 </td>
-                </tr>
-                <tr>
-                    <td id="left-proof">2.2.2</td>
-                    <td id="left">subproof of 2.2</td>
-                </tr>
-            </tbody>
-        </table>
-
+<div class="full-menu">
+    <div class="btn-group">
+        <button id="info" onclick="showInformation(this.id)">Info</button>
+        <button id="rules" onclick="showInformation(this.id)">Rules</button>
+        <button id="other" onclick="showInformation(this.id)">Other</button>
     </div>
 
-    <div id="rules-information">
-        <div id="main-header">Rules:</div>
+    <div id="menu">
+        <div id="info-information">
+            <div id="main-header">How to use:</div>
 
-        <div id="item-name">Conjunction:</div>
-        <img src="{% static 'proofchecker/images/and_intro.png' %}" alt="Conjunction Introduction" class="py-3 px-1">
-        <img src="{% static 'proofchecker/images/and_elim1.png' %}" alt="Conjunction Elimination" class="py-3 px-1">
-        <img src="{% static 'proofchecker/images/and_elim2.png' %}" alt="Conjunction Elimination" class="py-3 px-1">
+            <div id="sub-header">Entering symbols:</div>
+
+            <div id="instruction"> To enter math symbols, use the bold escape commands below while typing.</div>
+            <table id="info-table">
+                <tbody>
+                    <tr>
+                        <td id="left">Conjunction</td>
+                        <td id="center">\and</td>
+                        <td id="right">∧</td>
+                    </tr>
+                    <tr>
+                        <td id="left">Disjunction</td>
+                        <td id="center">\or</td>
+                        <td id="right">∨</td>
+                    </tr>
+                    <tr>
+                        <td id="left">Negation</td>
+                        <td id="center">\not</td>
+                        <td id="right">¬</td>
+                    </tr>
+                    <tr>
+                        <td id="left">Conditional</td>
+                        <td id="center">\implies</td>
+                        <td id="right">→</td>
+                    </tr>
+                    <tr>
+                        <td id="left">Biconditional</td>
+                        <td id="center">\iff</td>
+                        <td id="right">↔</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div id="sub-header">Premises:</div>
+
+            <div id="instruction"> Separate premises using commas.</div>
+
+            <div id="sub-header">Row numbering:</div>
+
+            <div id="instruction"> Row numbers are represented as a combination of numbers and decimal points.</div>
+            <table id="info-table">
+                <tbody>
+                    <tr>
+                        <td id="left-proof">1</td>
+                        <td id="left">Not a subproof</td>
+                    </tr>
+                    <tr>
+                        <td id="left-proof">2.1</td>
+                        <td id="left">subproof of 2</td>
+                    </tr>
+                    <tr>
+                        <td id="left-proof">2.2.1</td>
+                        <td id="left">subproof of 2.2 </td>
+                    </tr>
+                    <tr>
+                        <td id="left-proof">2.2.2</td>
+                        <td id="left">subproof of 2.2</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+        <div id="rules-information">
+            <div id="main-header">Rules:</div>
+
+            <div id="item-name">Conjunction:</div>
+            <img src="{% static 'proofchecker/images/and_intro.png' %}" alt="Conjunction Introduction" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/and_elim1.png' %}" alt="Conjunction Elimination" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/and_elim2.png' %}" alt="Conjunction Elimination" class="py-3 px-1">
 
 
-        <div id="item-name">Disjunction:</div>
-        <img src="{% static 'proofchecker/images/or_intro1.png' %}" alt="Disjunction Introduction" class="py-3 px-1">
-        <img src="{% static 'proofchecker/images/or_intro2.png' %}" alt="Disjunction Introduction" class="py-3 px-1">
-        <img src="{% static 'proofchecker/images/or_elim.png' %}" alt="Disjunction Elimination" class="py-3 px-1">
+            <div id="item-name">Disjunction:</div>
+            <img src="{% static 'proofchecker/images/or_intro1.png' %}" alt="Disjunction Introduction" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/or_intro2.png' %}" alt="Disjunction Introduction" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/or_elim.png' %}" alt="Disjunction Elimination" class="py-3 px-1">
 
-        <div id="item-name">Negation:</div>
-        <img src="{% static 'proofchecker/images/not_intro.png' %}" alt="Negation Introduction" class="py-3 px-1">
-        <img src="{% static 'proofchecker/images/not_elim.png' %}" alt="Negation Elimination" class="py-3 px-1">
+            <div id="item-name">Negation:</div>
+            <img src="{% static 'proofchecker/images/not_intro.png' %}" alt="Negation Introduction" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/not_elim.png' %}" alt="Negation Elimination" class="py-3 px-1">
 
-        <div id="item-name">Conditional:</div>
-        <img src="{% static 'proofchecker/images/implies_intro.png' %}" alt="Conditional Introduction" class="py-3 px-1">
-        <img src="{% static 'proofchecker/images/implies_elim.png' %}" alt="Conditional Elimination" class="py-3 px-1">
+            <div id="item-name">Conditional:</div>
+            <img src="{% static 'proofchecker/images/implies_intro.png' %}" alt="Conditional Introduction" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/implies_elim.png' %}" alt="Conditional Elimination" class="py-3 px-1">
 
-        <div id="item-name">Biconditional:</div>
-        <img src="{% static 'proofchecker/images/iff_intro.png' %}" alt="Biconditional Introduction" class="py-3 px-1">
-        <img src="{% static 'proofchecker/images/iff_elim1.png' %}" alt="Biconditional Elimination" class="py-3 px-1">
-        <img src="{% static 'proofchecker/images/iff_elim2.png' %}" alt="Biconditional Elimination" class="py-3 px-1">
+            <div id="item-name">Biconditional:</div>
+            <img src="{% static 'proofchecker/images/iff_intro.png' %}" alt="Biconditional Introduction" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/iff_elim1.png' %}" alt="Biconditional Elimination" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/iff_elim2.png' %}" alt="Biconditional Elimination" class="py-3 px-1">
 
-        <div id="item-name">Indirect Proof:</div>
-        <img src="{% static 'proofchecker/images/indirect_proof.png' %}" alt="Indirect Proof" class="py-3 px-1">
+            <div id="item-name">Indirect Proof:</div>
+            <img src="{% static 'proofchecker/images/indirect_proof.png' %}" alt="Indirect Proof" class="py-3 px-1">
 
-        <div id="item-name">Explosion:</div>
-        <img src="{% static 'proofchecker/images/explosion.png' %}" alt="Explosion" class="py-3 px-1">
+            <div id="item-name">Explosion:</div>
+            <img src="{% static 'proofchecker/images/explosion.png' %}" alt="Explosion" class="py-3 px-1">
+
+        </div>
+
+        <div id="other-information">
+            This is where other info goes.
+        </div>
+
 
     </div>
-
-    <div id="other-information">
-        This is where other info goes.
-    </div>
-
-
 </div>
