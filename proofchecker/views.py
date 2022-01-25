@@ -49,7 +49,7 @@ def proof_checker(request):
                 proof.premises = get_premises(parent.premises)
                 proof.conclusion = str(parent.conclusion)
 
-                for line in formset:
+                for line in formset.ordered_forms:
                     if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
                         # Create a proofline object
                         proofline = ProofLineObj()
@@ -102,7 +102,7 @@ def proof_create_view(request):
                 proof.premises = get_premises(parent.premises)
                 proof.conclusion = str(parent.conclusion)
 
-                for line in formset:
+                for line in formset.ordered_forms:
                     if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
                         proofline = ProofLineObj()
                         child = line.save(commit=False)
@@ -147,7 +147,7 @@ def proof_update_view(request, pk=None):
                 proof.premises = get_premises(parent.premises)
                 proof.conclusion = str(parent.conclusion)
 
-                for line in formset:
+                for line in formset.ordered_forms:
                     if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
                         proofline = ProofLineObj()
                         child = line.save(commit=False)

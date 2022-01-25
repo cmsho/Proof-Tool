@@ -2,7 +2,7 @@ from proofchecker.utils.ply.lex import lex
 from .ply import yacc 
 
 from .binarytree import Node
-from .tfllex import tokens
+from .tfllexer import tokens
 
 # Ordered lowest to highest
 precedence = (

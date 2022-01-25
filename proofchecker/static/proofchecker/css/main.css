@@ -41,7 +41,7 @@ body{
 .nav-right{
   position:absolute;
   right:0px;
-  width:200px;
+  width:250px;
   height:inherit;
   background-color: #072a4d;
   transition: width 0.2s;
