@@ -23,7 +23,9 @@ body{
 
 .main{
   height: inherit;
-  padding: 0;
+  /* width:100%-450px; */
+  margin-left:20px;
+  width:100%;
   padding-left: var(--nav-border-width);
   padding-right: var(--nav-border-width);
   overflow-y:auto;
@@ -43,7 +45,7 @@ body{
   right:0px;
   width:250px;
   height:inherit;
-  background-color: #072a4d;
+  background-color: white;
   transition: width 0.2s;
   flex-shrink:0;
 }
@@ -58,6 +60,7 @@ body{
 
 .nav-right--collapsed{
   width:var(--nav-icon-width);
+  background-color: #072a4d;
 }
 
 .nav-right--collapsed .nav-right__label{
