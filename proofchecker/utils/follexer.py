@@ -15,7 +15,9 @@ tokens = [
     'IFF',
     'LPAREN',
     'RPAREN',
-    'BOOL'
+    'BOOL',
+    'EQUALS',
+    'COMMA'
 ]
 
 # Regular expression rules for simple tokens
@@ -26,13 +28,15 @@ t_DOMAIN=r'[S-Z]'
 t_QUANTIFIER=r'(∀|∃)'
 t_MEMBERSHIP=r'(∈)'
 t_AND=r'(∧|\^|\&)'
-t_OR=r'(∨|v)'
+t_OR=r'(∨|\|)'
 t_NOT=r'(¬|~|-)'
 t_IMPLIES=r'(→|>|(->))'
 t_IFF=r'(↔|(<->))'
 t_LPAREN=r'((\()|(\[)|(\{))'
 t_RPAREN=r'((\))|(\])|(\}))'
 t_BOOL=r'((True)|(TRUE)|(False)|(FALSE)|⊥)'
+t_EQUALS = r'(=)'
+t_COMMA = r'(,)'
 
 # Define a rule so we can track line numbers
 def t_newline(t):
@@ -46,22 +50,22 @@ t_ignore  = ' \t'
 def t_error(t):
     expression = t
     message = "Illegal character '%s'" % t.value[0]
-    raise IllegalCharacterError(expression, message)
+    raise IllegalCharacterFOLError(expression, message)
 
 # Build the lexer
 lexer = lex.lex()
 
-# # Test it output
-# def test(data):
-#     lexer.input(data)
-#     while True:
-#             tok = lexer.token()
-#             if not tok:
-#                 break
-#             print(tok)
+# Test it output
+def test(data):
+    lexer.input(data)
+    while True:
+            tok = lexer.token()
+            if not tok:
+                break
+            print(tok)
 
 # Illegal Character
-class IllegalCharacterError(Exception):
+class IllegalCharacterFOLError(Exception):
     """
     Raised when the scanner encounters an illegal character
 
