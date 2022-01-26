@@ -38,8 +38,15 @@
         <nav class="nav-left">
 
             <div class="nav-left__border">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="32" fill="currentColor" class="bi bi-chevron-double-right" viewBox="0 0 16 16"
-                    preserveAspectRatio="none">
+                <svg id="left-nav-close-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="32" fill="currentColor" class="bi bi-chevron-double-right"
+                    viewBox="0 0 16 16" preserveAspectRatio="none">
+                    <path fill-rule="evenodd" d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708z"
+                    />
+                    <path fill-rule="evenodd" d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708z"
+                    />
+                </svg>
+                <svg id="left-nav-open-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="32" fill="currentColor" class="bi bi-chevron-double-right"
+                    viewBox="0 0 16 16" preserveAspectRatio="none">
                     <path fill-rule="evenodd" d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708z"
                     />
                     <path fill-rule="evenodd" d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708z"
@@ -102,7 +109,22 @@
             {% block content %}{% endblock %}
         </main>
         <nav class="nav-right">
-            <div class="nav-right__border"></div>
+            <div class="nav-right__border">
+                <svg id="right-nav-close-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="32" fill="currentColor" class="bi bi-chevron-double-right"
+                    viewBox="0 0 16 16" preserveAspectRatio="none">
+                    <path fill-rule="evenodd" d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708z"
+                    />
+                    <path fill-rule="evenodd" d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708z"
+                    />
+                </svg>
+                <svg id="right-nav-open-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="32" fill="currentColor" class="bi bi-chevron-double-right"
+                    viewBox="0 0 16 16" preserveAspectRatio="none">
+                    <path fill-rule="evenodd" d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708z"
+                    />
+                    <path fill-rule="evenodd" d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708z"
+                    />
+                </svg>
+            </div>
             <span class="nav-right__label">
                 {% include 'proofchecker/right_navigation_menu.html' %}
             </span>
@@ -117,6 +139,7 @@
 
             const navLeft = document.querySelector(".nav-left");
             const navLeftBorder = navLeft.querySelector(".nav-left__border");
+            // const navLeftArrow = document.getElementsByClassName("left-nav-arrow");
 
             if (localStorage.getItem(lsKeyLeft) === "true") {
                 navLeft.classList.add(leftCollapsedClass);
@@ -125,6 +148,26 @@
             navLeftBorder.addEventListener("click", () => {
                 navLeft.classList.toggle(leftCollapsedClass);
                 localStorage.setItem(lsKeyLeft, navLeft.classList.contains(leftCollapsedClass));
+                console.log(navLeft.classList);
+                if (navLeft.classList[1] == "nav-left--collapsed") {
+                    console.log("collapsed");
+
+                    var navLeftOpenArrow = document.getElementById("left-nav-open-arrow");
+                    var navLeftCloseArrow = document.getElementById("left-nav-close-arrow");
+                    navLeftCloseArrow.style.display = "none";
+                    navLeftOpenArrow.style.display = "block";
+                    // navLeftCloseArrow.setAttribute("diplay", "none");
+                    // navLeftOpenArrow.setAttribute("diplay", "visible");
+
+
+                    // navLeftArrow.style.transform = 'rotate(180deg)';
+                    // navLeftArrow.setAttribute("transform", "rotate(360)");
+                } else {
+                    var navLeftOpenArrow = document.getElementById("left-nav-open-arrow");
+                    var navLeftCloseArrow = document.getElementById("left-nav-close-arrow");
+                    navLeftCloseArrow.style.display = "block";
+                    navLeftOpenArrow.style.display = "none";
+                }
             })
 
         }
@@ -145,6 +188,21 @@
             navRightBorder.addEventListener("click", () => {
                 navRight.classList.toggle(rightCollapsedClass);
                 localStorage.setItem(lsKeyRight, navRight.classList.contains(rightCollapsedClass));
+
+                if (navRight.classList[1] == "nav-right--collapsed") {
+                    console.log("collapsed");
+
+                    var navRightOpenArrow = document.getElementById("right-nav-open-arrow");
+                    var navRightCloseArrow = document.getElementById("right-nav-close-arrow");
+                    navRightCloseArrow.style.display = "none";
+                    navRightOpenArrow.style.display = "block";
+
+                } else {
+                    var navRightOpenArrow = document.getElementById("right-nav-open-arrow");
+                    var navRightCloseArrow = document.getElementById("right-nav-close-arrow");
+                    navRightCloseArrow.style.display = "block";
+                    navRightOpenArrow.style.display = "none";
+                }
             });
 
         }
