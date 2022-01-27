@@ -1,11 +1,13 @@
 from django.test import TestCase
-from proofchecker.utils import follexer
+from proofchecker.utils import folparser
 from proofchecker.utils import numparser
 from proofchecker.utils import tflparser
 from proofchecker.utils.binarytree import Node, inorder, postorder, preorder, tree_to_string, string_to_tree
 from proofchecker.utils.numlexer import lexer as numlexer
 from proofchecker.utils.syntax import Syntax
 from proofchecker.utils.tfllexer import IllegalCharacterError, lexer as tfllexer
+from proofchecker.utils.tfllexer import IllegalCharacterError as err, lexer as follexer
+
 
 class BinaryTreeTests(TestCase):
 
