@@ -194,7 +194,7 @@ def get_line_nos(rule):
     """
     target_line_nos = rule[3:len(rule)]
     target_line_nos = target_line_nos.replace('-', ' ')
-    target_line_nos = target_line_nos.replace(',', '')
+    target_line_nos = target_line_nos.replace(',', ' ')
     return target_line_nos.split()
 
 def get_line(rule: str, proof: ProofObj):
