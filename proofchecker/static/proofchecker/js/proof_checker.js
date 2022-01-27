@@ -48,7 +48,7 @@ function start_proof(element) {
     const prooflineTableBody = document.getElementById(FORMSET_TBODY_ID);
 
     for (let i = 0; i < premiseArray.length; i++) {
-        let newRow = insert_form_helper(i)
+        let newRow = insert_form_helper(getTotalFormsCount())
         let tds = newRow.children
 
         for (let x = 0; x < tds.length; x++) {
@@ -198,13 +198,9 @@ function insert_row_parent_level(index) {
  */
 function delete_row(deleted_row_index) {
     const deleted_row = document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index);
-    deleted_row.classList.add("table-secondary")
+
     //mark checkbox true
     document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-DELETE').setAttribute("checked", "true")
-    // document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-insert-btn').disabled = true
-    // document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-create_subproof-btn').disabled = true
-    // document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-delete-btn').disabled = true
-    // document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-conclude_subproof-btn').disabled = true
 
     //hide row
     document.getElementById(FORMSET_PREFIX+'-' + deleted_row_index).hidden = true;
@@ -280,9 +276,14 @@ function get_form_id(obj) {
  * delete children from any DOM element
  */
 function delete_all_prooflines() {
-    const rows = document.getElementsByClassName(FORMSET_TR_CLASS);
-    for(let i = 0; i < rows.length; i++) {
-        delete_form(rows[i]);
+    if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
+        let row = document.getElementById(`${FORMSET_PREFIX}-0`)
+
+        while (row !== null) {
+            let nextRow = row.nextElementSibling;
+            delete_form(row);
+            row = nextRow;
+        }
     }
 }
 
