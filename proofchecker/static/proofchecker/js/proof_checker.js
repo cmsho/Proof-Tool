@@ -24,6 +24,7 @@ function reload_page() {
     sort_table()
     //will decide which button to display between start and restart
     setStartRestartButtonAtBeginning()
+    hide_conclude_button()
 }
 
 
@@ -124,6 +125,7 @@ function conclude_subproof(obj) {
     insert_row_parent_level(get_form_id(obj))
     hide_conclude_button()
     reset_order_fields()
+    obj.disabled = true
 }
 
 /**
@@ -131,6 +133,7 @@ function conclude_subproof(obj) {
  */
 function delete_form(obj) {
     delete_row(get_form_id(obj))
+    hide_conclude_button()
 }
 
 
@@ -557,24 +560,28 @@ function updateFormsetId(old_id, new_id) {
 
 /**
  * hides conclude subproof button wherever applicable
- * ***** NEED TO WORK ON IT *****
  */
 function hide_conclude_button() {
-    const forms = document.getElementsByClassName(FORMSET_TBODY_ID)
-    const number_of_forms = forms.length - 1;
+    let curr_form_obj = document.getElementById(`${FORMSET_PREFIX}-0`)
+    let next_form_obj = getNextValidRow(curr_form_obj)
 
-    for (let current_form = 0; current_form <= number_of_forms; current_form++) {
-        const current_row = get_row(current_form);
-        if (current_form === 0) {
-            document.getElementById(`${FORMSET_PREFIX}-${current_form}`).children[6].children[0].style.visibility = 'hidden'
-        } else if (current_form < number_of_forms) {
-            const next_row = get_row(current_form + 1);
-            if (current_row.string_of_prefix == next_row.string_of_prefix) {
-                document.getElementById(`${FORMSET_PREFIX}-${current_form}`).children[6].children[0].style.visibility = 'hidden'
+    while (curr_form_obj !== null || next_form_obj !== null) {
+        const current_row_info = getObjectsRowInfo(curr_form_obj)
+        if (current_row_info.list_of_line_number.length === 1){
+            curr_form_obj.children[6].children[0].hidden = true
+        }
+
+        if (next_form_obj !== null) {
+            const next_row_info = getObjectsRowInfo(next_form_obj)
+            if (current_row_info.list_of_line_number.length > 1) {
+                if (current_row_info.string_of_prefix === next_row_info.string_of_prefix) {
+                    curr_form_obj.children[6].children[0].hidden = true
+                }
             }
-        } else if (current_row.list_of_line_number.length <= 1) {
-            document.getElementById(`${FORMSET_PREFIX}-${current_form}`).children[6].children[0].style.visibility = 'hidden'
-            break
+            curr_form_obj = next_form_obj
+            next_form_obj = getNextValidRow(curr_form_obj)
+        } else {
+            break;
         }
     }
 }
