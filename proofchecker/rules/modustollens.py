@@ -9,7 +9,7 @@ class ModusTollens(Rule):
     name = "Modus Tollens"
     symbols = "MT"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper implementation of the rule MT m, n
         (Modus Tollens)
@@ -32,11 +32,11 @@ class ModusTollens(Rule):
                 expressions = get_expressions(target_lines)
                 
                 # Create trees for lines m and n
-                root_m = make_tree(expressions[0])
-                root_n = make_tree(expressions[1])
+                root_m = make_tree(expressions[0], parser)
+                root_n = make_tree(expressions[1], parser)
 
                 # Create a tree for current line
-                root_current = make_tree(current_line.expression)
+                root_current = make_tree(current_line.expression, parser)
 
                 # Line m should be an implication
                 if root_m.value != '→':

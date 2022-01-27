@@ -9,7 +9,7 @@ class ExcludedMiddle(Rule):
     name = "Law of Excluded Middle"
     symbols = "LEM"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper implementation of the rule LEM i, j
         (Law of Excluded Middle)
@@ -35,11 +35,11 @@ class ExcludedMiddle(Rule):
                 expressions = get_expressions(target_lines)
             
                 # Create trees for expressions on lines i, j, k, and l
-                root_i_1 = make_tree(expressions[0])
-                root_i_x = make_tree(expressions[1])
-                root_j_1 = make_tree(expressions[2])
-                root_j_x = make_tree(expressions[3])
-                root_current = make_tree(current_line.expression)
+                root_i_1 = make_tree(expressions[0], parser)
+                root_i_x = make_tree(expressions[1], parser)
+                root_j_1 = make_tree(expressions[2], parser)
+                root_j_x = make_tree(expressions[3], parser)
+                root_current = make_tree(current_line.expression, parser)
 
                 # Verify the expression on line i.1 is the negation of line j.1
                 neg_i_1 = Node('¬')

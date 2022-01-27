@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from proofchecker.proofs.proofutils import is_line_no, make_tree
+from proofchecker.utils import tflparser
 
 def validate_line_no(value):
     try:
@@ -17,7 +18,8 @@ def validate_line_no(value):
 
 def validate_formula(value):
     try:
-        make_tree(value)
+        parser=tflparser.parser
+        make_tree(value, parser)
     except:
         raise ValidationError(
             _('%(value)s is not a valid expression'),

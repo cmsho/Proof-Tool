@@ -8,7 +8,7 @@ class DeMorgan(Rule):
     name = "De Morgan"
     symbols = "DeM"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper impelmentation of the rule DeM m
         (De Morgan Rules)
@@ -27,8 +27,8 @@ class DeMorgan(Rule):
 
             try: 
                 expression = target_line.expression
-                root_m = make_tree(expression)
-                current = make_tree(current_line.expression)
+                root_m = make_tree(expression, parser)
+                current = make_tree(current_line.expression, parser)
 
                 if root_m.value == '¬':
                     

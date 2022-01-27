@@ -2,9 +2,10 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import make_tree, is_conclusion, depth, clean_rule
 from proofchecker.rules.rulechecker import RuleChecker
+from proofchecker.utils import tflparser
 from proofchecker.utils.tfllexer import IllegalCharacterError
 
-def verify_proof(proof: ProofObj):
+def verify_proof(proof: ProofObj, parser):
     """
     Verify if a proof is valid, line by line.  
     Returns a ProofResponse, which contains an error message if invalid
@@ -30,7 +31,7 @@ def verify_proof(proof: ProofObj):
 
         # Verify the expression is valid
         try:
-            make_tree(line.expression)
+            make_tree(line.expression, parser)
         except IllegalCharacterError as char_err:
             response.err_msg = "{} on line {}"\
                 .format(char_err.message, str(line.line_no))
@@ -41,12 +42,13 @@ def verify_proof(proof: ProofObj):
             return response
         
         # Verify the rule is valid
-        response = verify_rule(line, proof)
+        response = verify_rule(line, proof, parser)
         if not response.is_valid:
             return response
 
+    parser = tflparser.parser
     last_line = proof.lines[len(proof.lines)-1]
-    conclusion = is_conclusion(last_line, proof)
+    conclusion = is_conclusion(last_line, proof, parser)
     response.is_valid = True
 
     # If the last line is the desired conclusion, it is a full and complete proof
@@ -67,7 +69,7 @@ def verify_proof(proof: ProofObj):
         response.err_msg = "All lines are valid, but the proof is incomplete"
         return response
 
-def verify_rule(current_line: ProofLineObj, proof: ProofObj):
+def verify_rule(current_line: ProofLineObj, proof: ProofObj, parser):
     """
     Determines what rule is being applied, then calls the appropriate
     function to verify the rule is applied correctly
@@ -83,4 +85,4 @@ def verify_rule(current_line: ProofLineObj, proof: ProofObj):
             .format(str(current_line.line_no))
         return response     
     else:
-        return rule.verify(current_line, proof)
+        return rule.verify(current_line, proof, parser)

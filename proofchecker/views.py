@@ -6,6 +6,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.forms.models import modelformset_factory
 from django.forms import inlineformset_factory
+
+from proofchecker.utils import tflparser
 from .forms import ProofCheckerForm, ProofForm, ProofLineForm, AssignmentForm
 from .models import Proof, Problem, Assignment, Instructor, ProofLine
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
@@ -66,8 +68,9 @@ def proof_checker(request):
                         # Append the proofline to the proof object's lines
                         proof.lines.append(proofline)
 
+                parser = tflparser.parser
                 # Verify the proof!
-                response = verify_proof(proof)
+                response = verify_proof(proof, parser)
 
                 # Send the response back
                 context = {
@@ -112,7 +115,8 @@ def proof_create_view(request):
                         proofline.rule = str(child.rule)
                         proof.lines.append(proofline)
 
-                response = verify_proof(proof)
+                parser = tflparser.parser
+                response = verify_proof(proof, parser)
 
             elif 'submit' in request.POST:
                 if len(formset.forms) > 0:
@@ -157,7 +161,8 @@ def proof_update_view(request, pk=None):
                         proofline.rule = str(child.rule)
                         proof.lines.append(proofline)
 
-                response = verify_proof(proof)
+                parser = tflparser.parser
+                response = verify_proof(proof, parser)
 
             elif 'submit' in request.POST:
                 if len(formset.forms) > 0:

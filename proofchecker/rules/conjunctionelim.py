@@ -7,7 +7,7 @@ class ConjunctionElim(Rule):
     name = 'Conjunction Elimination'
     symbols = '∧E'
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper implementation of the rule ∧E m
         (Conjunction Elimination)
@@ -29,12 +29,12 @@ class ConjunctionElim(Rule):
                 expression = target_line.expression
                 
                 # Create trees for the left and right side of the target expression
-                root_target = make_tree(expression)
+                root_target = make_tree(expression, parser)
                 root_left = root_target.left
                 root_right = root_target.right
 
                 # Create a tree from the current expression
-                root_current = make_tree(current_line.expression)
+                root_current = make_tree(current_line.expression, parser)
 
                 # Compare the trees
                 if (root_current == root_left) or (root_current == root_right):

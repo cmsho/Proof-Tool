@@ -7,7 +7,7 @@ class ConditionalElim(Rule):
     name = "Conditional Elimination"
     symbols = "→E"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper implementation of the rule →E m, n
         (Conditional Elimination (Modus Ponens))
@@ -29,11 +29,11 @@ class ConditionalElim(Rule):
             try:
                 expressions = get_expressions(target_lines)
                 
-                root_implies = make_tree(expressions[0])
+                root_implies = make_tree(expressions[0], parser)
 
                 root_combined = Node('→')
-                root_combined.left = make_tree(expressions[1])
-                root_combined.right = make_tree(current_line.expression)
+                root_combined.left = make_tree(expressions[1], parser)
+                root_combined.right = make_tree(current_line.expression, parser)
 
                 # Compare the trees
                 if root_implies == root_combined:

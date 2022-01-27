@@ -7,7 +7,7 @@ class ConditionalIntro(Rule):
     name = "Conditional Introduction"
     symbols = "→I"
         
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper implementation of the rule →I m
         (Conditional Introduction)
@@ -31,9 +31,9 @@ class ConditionalIntro(Rule):
             try:
                 expressions = get_expressions(target_lines)
 
-                root_m = make_tree(expressions[0])
-                root_n = make_tree(expressions[1])
-                root_current = make_tree(current_line.expression)
+                root_m = make_tree(expressions[0], parser)
+                root_n = make_tree(expressions[1], parser)
+                root_current = make_tree(current_line.expression, parser)
 
                 if (root_current.left == root_m) and (root_current.right == root_n):
                     response.is_valid = True

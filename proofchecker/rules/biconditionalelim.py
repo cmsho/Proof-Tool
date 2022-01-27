@@ -1,3 +1,4 @@
+from email import parser
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import clean_rule, get_lines, verify_line_citation, make_tree, get_expressions
 from .rule import Rule
@@ -8,7 +9,7 @@ class BiconditionalElim(Rule):
     symbols = "↔E"
 
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify the rule ↔E m, n
         (Biconditional Elimination)
@@ -31,9 +32,9 @@ class BiconditionalElim(Rule):
                 expressions = get_expressions(target_lines)
                 
                 # Join the two expressions in a tree
-                root_m = make_tree(expressions[0])
-                root_n = make_tree(expressions[1])
-                root_current = make_tree(current_line.expression)
+                root_m = make_tree(expressions[0], parser)
+                root_n = make_tree(expressions[1], parser)
+                root_current = make_tree(current_line.expression, parser)
 
                 # Compare the trees
                 if (root_n == root_m.left) or (root_n == root_m.right):
