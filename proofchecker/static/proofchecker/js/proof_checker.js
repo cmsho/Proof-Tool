@@ -1,10 +1,17 @@
 // ---------------------------------------------------------------------------------------------------------------------
 // list of variables  to store dom element ids/classes/names (difference between inlineformset vs modelformset
 // ---------------------------------------------------------------------------------------------------------------------
+const FORMSET_PREFIX = "proofline_set";                         // for modelformset - "form-"
+const FORMSET_TOTALFORMS_ID = "id_proofline_set-TOTAL_FORMS";   // for modelformset - "id_form-TOTAL_FORMS"
+const FORMSET_TBODY_ID = "proofline-list";                      // for modelformset - "proofline-list"
+const FORMSET_TR_CLASS = "proofline_set";                       // for modelformset - "proofline-form"
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', reload_page, false);
 
 
+// ---------------------------------------------------------------------------------------------------------------------
 // functions
 // ---------------------------------------------------------------------------------------------------------------------
 /**
