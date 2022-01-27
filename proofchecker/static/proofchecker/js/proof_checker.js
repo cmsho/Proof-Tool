@@ -24,6 +24,7 @@ function reload_page() {
     sort_table()
     //will decide which button to display between start and restart
     setStartRestartButtonAtBeginning()
+    hide_conclude_button()
 }
 
 
@@ -47,7 +48,7 @@ function start_proof(element) {
     const prooflineTableBody = document.getElementById(FORMSET_TBODY_ID);
 
     for (let i = 0; i < premiseArray.length; i++) {
-        let newRow = insert_form_helper(i)
+        let newRow = insert_form_helper(getTotalFormsCount())
         let tds = newRow.children
 
         for (let x = 0; x < tds.length; x++) {
@@ -90,9 +91,7 @@ function start_proof(element) {
  * this function restarts proof by removing all rows and calling startProof method
  */
 function restart_proof() {
-    const prooflineList = document.getElementById(FORMSET_TBODY_ID);
-    //delete all childs from Tbody and calls start_proof method
-    delete_children(prooflineList)
+    delete_all_prooflines()
     start_proof(document.getElementById("btn_start_proof"))
 }
 
@@ -124,6 +123,7 @@ function conclude_subproof(obj) {
     insert_row_parent_level(get_form_id(obj))
     hide_conclude_button()
     reset_order_fields()
+    obj.disabled = true
 }
 
 /**
@@ -131,6 +131,7 @@ function conclude_subproof(obj) {
  */
 function delete_form(obj) {
     delete_row(get_form_id(obj))
+    hide_conclude_button()
 }
 
 
@@ -197,13 +198,9 @@ function insert_row_parent_level(index) {
  */
 function delete_row(deleted_row_index) {
     const deleted_row = document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index);
-    deleted_row.classList.add("table-secondary")
+
     //mark checkbox true
     document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-DELETE').setAttribute("checked", "true")
-    // document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-insert-btn').disabled = true
-    // document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-create_subproof-btn').disabled = true
-    // document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-delete-btn').disabled = true
-    // document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-conclude_subproof-btn').disabled = true
 
     //hide row
     document.getElementById(FORMSET_PREFIX+'-' + deleted_row_index).hidden = true;
@@ -278,11 +275,15 @@ function get_form_id(obj) {
 /**
  * delete children from any DOM element
  */
-function delete_children(element) {
-    let first = element.firstElementChild;
-    while (first) {
-        first.remove();
-        first = element.firstElementChild;
+function delete_all_prooflines() {
+    if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
+        let row = document.getElementById(`${FORMSET_PREFIX}-0`)
+
+        while (row !== null) {
+            let nextRow = row.nextElementSibling;
+            delete_form(row);
+            row = nextRow;
+        }
     }
 }
 
@@ -557,24 +558,28 @@ function updateFormsetId(old_id, new_id) {
 
 /**
  * hides conclude subproof button wherever applicable
- * ***** NEED TO WORK ON IT *****
  */
 function hide_conclude_button() {
-    const forms = document.getElementsByClassName(FORMSET_TBODY_ID)
-    const number_of_forms = forms.length - 1;
+    let curr_form_obj = document.getElementById(`${FORMSET_PREFIX}-0`)
+    let next_form_obj = getNextValidRow(curr_form_obj)
 
-    for (let current_form = 0; current_form <= number_of_forms; current_form++) {
-        const current_row = get_row(current_form);
-        if (current_form === 0) {
-            document.getElementById(`${FORMSET_PREFIX}-${current_form}`).children[6].children[0].style.visibility = 'hidden'
-        } else if (current_form < number_of_forms) {
-            const next_row = get_row(current_form + 1);
-            if (current_row.string_of_prefix == next_row.string_of_prefix) {
-                document.getElementById(`${FORMSET_PREFIX}-${current_form}`).children[6].children[0].style.visibility = 'hidden'
+    while (curr_form_obj !== null || next_form_obj !== null) {
+        const current_row_info = getObjectsRowInfo(curr_form_obj)
+        if (current_row_info.list_of_line_number.length === 1){
+            curr_form_obj.children[6].children[0].hidden = true
+        }
+
+        if (next_form_obj !== null) {
+            const next_row_info = getObjectsRowInfo(next_form_obj)
+            if (current_row_info.list_of_line_number.length > 1) {
+                if (current_row_info.string_of_prefix === next_row_info.string_of_prefix) {
+                    curr_form_obj.children[6].children[0].hidden = true
+                }
             }
-        } else if (current_row.list_of_line_number.length <= 1) {
-            document.getElementById(`${FORMSET_PREFIX}-${current_form}`).children[6].children[0].style.visibility = 'hidden'
-            break
+            curr_form_obj = next_form_obj
+            next_form_obj = getNextValidRow(curr_form_obj)
+        } else {
+            break;
         }
     }
 }
