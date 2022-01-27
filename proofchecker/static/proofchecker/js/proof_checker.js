@@ -91,9 +91,7 @@ function start_proof(element) {
  * this function restarts proof by removing all rows and calling startProof method
  */
 function restart_proof() {
-    const prooflineList = document.getElementById(FORMSET_TBODY_ID);
-    //delete all childs from Tbody and calls start_proof method
-    delete_children(prooflineList)
+    delete_all_prooflines()
     start_proof(document.getElementById("btn_start_proof"))
 }
 
@@ -281,11 +279,10 @@ function get_form_id(obj) {
 /**
  * delete children from any DOM element
  */
-function delete_children(element) {
-    let first = element.firstElementChild;
-    while (first) {
-        first.remove();
-        first = element.firstElementChild;
+function delete_all_prooflines() {
+    const rows = document.getElementsByClassName(FORMSET_TR_CLASS);
+    for(let i = 0; i < rows.length; i++) {
+        delete_form(rows[i]);
     }
 }
 
