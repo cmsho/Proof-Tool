@@ -510,7 +510,7 @@ function checkIfRowIsUnique(currRow, prevRow, nextRow){
         if (nextRow !== null) {
             if (currRowInfo.list_of_line_number.length === nextRowInfo.list_of_line_number.length && currRowInfo.string_of_prefix === nextRowInfo.string_of_prefix) {
                 return false;
-            } else if (nextRowInfo.list_of_line_number.length > currRowInfo.list_of_line_number.length && nextRowInfo.string_of_prefix.includes(currRowInfo.string_of_prefix)){
+            } else if (nextRowInfo.list_of_line_number.length > currRowInfo.list_of_line_number.length && nextRowInfo.string_of_prefix.startsWith(currRowInfo.string_of_prefix)){
                 return false;
             }
         }
@@ -519,7 +519,7 @@ function checkIfRowIsUnique(currRow, prevRow, nextRow){
             if (currRowInfo.list_of_line_number.length === prevRowInfo.list_of_line_number.length && currRowInfo.string_of_prefix === prevRowInfo.string_of_prefix) {
                 return false;
             }
-            if (prevRowInfo.list_of_line_number.length > currRowInfo.list_of_line_number.length && prevRowInfo.string_of_prefix.includes(currRowInfo.string_of_prefix)){
+            if (prevRowInfo.list_of_line_number.length > currRowInfo.list_of_line_number.length && prevRowInfo.string_of_prefix.startsWith(currRowInfo.string_of_prefix)){
                 return false;
             }
         }
@@ -529,34 +529,10 @@ function checkIfRowIsUnique(currRow, prevRow, nextRow){
             if (prevRowInfo.list_of_line_number.length < currRowInfo.list_of_line_number.length && currRowInfo.list_of_line_number.length > nextRowInfo.list_of_line_number.length){
                 return true
             }
-
         }
         return true;
     }
 }
-            /*
-            * curr > prev
-            * curr < prev
-            * curr = prev   X
-            *
-            * curr > next
-            * curr < next
-            * curr = next   X
-            *
-        * prev = curr = next        x
-        * prev = curr > next        X
-        * prev = curr < next
-        * prev > curr = next
-        * prev < curr = next
-        * prev > curr > next
-        * prev > curr < next
-        * prev < curr < next
-        * prev < curr > next        x
-        *
-        *
-            * */
-
-
 
 function renumber_rows(direction, newlyChangedRow) {
 
