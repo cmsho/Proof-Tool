@@ -16,10 +16,10 @@ def validate_line_no(value):
             params={'value': value},
         )
 
+# TODO: This has to adjust based on parser... need to fix
 def validate_formula(value):
     try:
-        parser=tflparser.parser
-        make_tree(value, parser)
+        make_tree(value, tflparser.parser)
     except:
         raise ValidationError(
             _('%(value)s is not a valid expression'),
@@ -66,7 +66,8 @@ class Proof(models.Model):
 class ProofLine(models.Model):
     proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
     line_no = models.CharField(max_length=100, validators=[validate_line_no])
-    formula = models.CharField(max_length=255, validators=[validate_formula])
+    # TODO: Add a validator for the formula field.
+    formula = models.CharField(max_length=255)
     rule = models.CharField(max_length=255)
     ORDER = models.IntegerField(null=True)
 
