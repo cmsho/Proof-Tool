@@ -46,7 +46,6 @@ def verify_proof(proof: ProofObj, parser):
         if not response.is_valid:
             return response
 
-    parser = tflparser.parser
     last_line = proof.lines[len(proof.lines)-1]
     conclusion = is_conclusion(last_line, proof, parser)
     response.is_valid = True

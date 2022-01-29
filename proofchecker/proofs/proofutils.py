@@ -18,7 +18,7 @@ def make_tree(string: str, parser):
     """
     Function to construct a binary tree
     """
-    return parser.parse(string, lexer=tfllexer)
+    return parser.parse(string, lexer=parser.lexer)
 
 def is_line_no(string: str):
     """

@@ -68,7 +68,10 @@ def proof_checker(request):
                         # Append the proofline to the proof object's lines
                         proof.lines.append(proofline)
 
+                # TODO: If user selects TFL, use TFL parser
+                #       If user selects FOL, use FOL parser
                 parser = tflparser.parser
+
                 # Verify the proof!
                 response = verify_proof(proof, parser)
 
@@ -115,7 +118,10 @@ def proof_create_view(request):
                         proofline.rule = str(child.rule)
                         proof.lines.append(proofline)
 
+                # TODO: If user selects TFL, use TFL parser
+                #       If user selects FOL, use FOL parser
                 parser = tflparser.parser
+
                 response = verify_proof(proof, parser)
 
             elif 'submit' in request.POST:
@@ -161,7 +167,10 @@ def proof_update_view(request, pk=None):
                         proofline.rule = str(child.rule)
                         proof.lines.append(proofline)
 
+                # TODO: If user selects TFL, use TFL parser
+                #       If user selects FOL, use FOL parser
                 parser = tflparser.parser
+
                 response = verify_proof(proof, parser)
 
             elif 'submit' in request.POST:

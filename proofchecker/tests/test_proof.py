@@ -39,8 +39,7 @@ class ProofObjTests(TestCase):
         line3_1 = ProofLineObj('3.1', '(B∧C)', 'Assumption')
         line3_2 = ProofLineObj('3.2', 'C', '∧E 2.1')
         line4 = ProofLineObj('4', 'C', '∨E, 1, 2, 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2_1, line2_2, line3_1, line3_2, line4])
+        proof = ProofObj(lines=[line1, line2_1, line2_2, line3_1, line3_2, line4])
         self.assertEqual(len(proof.lines), 6)
 
     def test_proof_obj_to_string(self):
@@ -86,8 +85,7 @@ class GettersTests(TestCase):
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2_1 = ProofLineObj('2.1', '(A∧C)', 'Assumption')
         line2_2 = ProofLineObj('2.2', 'C', '∧E 2.1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2_1, line2_2])
+        proof = ProofObj(lines=[line1, line2_1, line2_2])
         result = get_lines_in_subproof('2', proof)
         self.assertEqual(result, [line2_1, line2_2])
 
@@ -97,8 +95,7 @@ class GettersTests(TestCase):
         """
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2_1 = ProofLineObj('2.1', '(A∧C)', 'Assumption')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2_1])
+        proof = ProofObj(lines=[line1, line2_1])
         result = get_lines_in_subproof('2', proof)
         self.assertEqual(result, None)
     
@@ -320,8 +317,7 @@ class ProofCheckerTests(TestCase):
         # Test reiteration
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'A', 'R 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
+        proof = ProofObj(lines=[line1, line2])
         parser = tflparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
@@ -329,8 +325,7 @@ class ProofCheckerTests(TestCase):
         # Test double not elim
         line1 = ProofLineObj('1', '¬¬A', 'Assumption')
         line2 = ProofLineObj('2', 'A', 'DNE 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
+        proof = ProofObj(lines=[line1, line2])
         parser = tflparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
@@ -387,16 +382,14 @@ class ProofTests(TestCase):
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(premises=['A', 'B'], conclusion='A∧B', lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(premises=['A', 'B'], conclusion='A∧B', lines=[line1, line2, line3])
         result = is_conclusion(line3, proof, parser)
         self.assertTrue(result)
 
         # Test with incomplete proof
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2 = ProofLineObj('2', '(A∧C)', '∨E 1')
-        proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[])
-        proof.lines.extend([line1, line2])
+        proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[line1, line2])
         result = is_conclusion(line2, proof, parser)
         self.assertFalse(result)
 
@@ -404,8 +397,7 @@ class ProofTests(TestCase):
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(premises=['A', 'B'], conclusion='A∧', lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(premises=['A', 'B'], conclusion='A∧', lines=[line1, line2, line3])
         result = is_conclusion(line3, proof, parser)
         self.assertFalse(result)
 
@@ -502,8 +494,7 @@ class ProofTests(TestCase):
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(premises=['A', 'B'], conclusion='A∧B', lines=[])
-        proof.lines.extend([line1, line2, line3])
+        proof = ProofObj(premises=['A', 'B'], conclusion='A∧B', lines=[line1, line2, line3])
         parser = tflparser.parser
         result = verify_proof(proof, parser)
         self.assertTrue(result.is_valid)
@@ -512,8 +503,7 @@ class ProofTests(TestCase):
         # And Elim
         line1 = ProofLineObj('1', 'A∧B', 'Premise')
         line2 = ProofLineObj('2', 'A', '∧E 1')
-        proof = ProofObj(premises='A∧B', conclusion='A', lines=[])
-        proof.lines.extend([line1, line2])
+        proof = ProofObj(premises='A∧B', conclusion='A', lines=[line1, line2])
         parser = tflparser.parser
         result = verify_proof(proof, parser)
         self.assertTrue(result.is_valid)
@@ -526,8 +516,7 @@ class ProofTests(TestCase):
         line4 = ProofLineObj('3.1', 'B', 'Assumption')
         line5 = ProofLineObj('3.2', 'AvB', 'vI 3.1')
         line6 = ProofLineObj('4', 'AvB', 'vE 1, 2, 3')
-        proof = ProofObj(premises='AvB', conclusion='AvB', lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        proof = ProofObj(premises='AvB', conclusion='AvB', lines=[line1, line2, line3, line4, line5, line6])
         parser = tflparser.parser
         result = verify_proof(proof, parser)
         self.assertTrue(result.is_valid)
@@ -542,8 +531,7 @@ class ProofTests(TestCase):
         """
         # Test a proof with an invalid character
         line1 = ProofLineObj('1', 'Hello', 'Premise')
-        proof = ProofObj(premises='Hello', lines=[])
-        proof.lines.extend([line1])
+        proof = ProofObj(premises='Hello', lines=[line1])
         parser = tflparser.parser
         result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
@@ -551,8 +539,7 @@ class ProofTests(TestCase):
 
         # Test a proof with an valid characters but invalid syntax
         line1 = ProofLineObj('1', 'A∧', 'Premise')
-        proof = ProofObj(premises='A∧', lines=[])
-        proof.lines.extend([line1])
+        proof = ProofObj(premises='A∧', lines=[line1])
         parser = tflparser.parser
         result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
@@ -562,8 +549,7 @@ class ProofTests(TestCase):
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2 = ProofLineObj('2.1', '(A∧C)', 'Assumption')
         line3 = ProofLineObj('2.2', 'C', '∧E 2.1')
-        proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[])
-        proof.lines.extend([line1, line2])
+        proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[line1, line2])
         parser = tflparser.parser
         result = verify_proof(proof, parser)
         self.assertTrue(result.is_valid)
