@@ -45,14 +45,14 @@ class RuleCheckerTests(TestCase):
 class BasicRuleTests(TestCase):
 
     def test_premise(self):
-        # Test with proper input
         rule = Premise()
+        parser = tflparser.parser
+
+        # Test with proper input
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(premises=['A', 'B'], lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(premises=['A', 'B'], lines=[line1, line2, line3])
         result1 = rule.verify(line1, proof, parser)
         result2 = rule.verify(line2, proof, parser)
         self.assertTrue(result1.is_valid)
@@ -62,9 +62,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(premises='A', lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(premises='A', lines=[line1, line2, line3])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Expression on line 2 is not a premise")
@@ -73,9 +71,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'C', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(premises=['A', 'B'], lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(premises=['A', 'B'], lines=[line1, line2, line3])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Expression on line 2 not found in premises")
@@ -84,9 +80,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B∧', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(premises='A', lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(premises='A', lines=[line1, line2, line3])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "One or more premises is invalid")
@@ -95,14 +89,14 @@ class BasicRuleTests(TestCase):
         """
         Test that the function verify_assumption is working properly
         """
-        # Test with valid input
         rule = Assumption()
+        parser = tflparser.parser
+        
+        # Test with valid input
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2.1', 'B', 'Assumption')
         line3 = ProofLineObj('2.2', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(premises='A', lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(premises='A', lines=[line1, line2, line3])
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
 
@@ -110,23 +104,20 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2.1', 'B', 'Assumption')
         line3 = ProofLineObj('2.2', 'C', 'Assumption')
-        proof = ProofObj(premises='A', lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(premises='A', lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Assumptions can only exist at the start of a subproof')     
 
     def test_conjunction_intro(self):
         rule = ConjunctionIntro()
-
+        parser = tflparser.parser
+        
         # Test with proper input
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
 
@@ -134,9 +125,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'C', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The conjunction of lines 1 and 2 does not equal line 3")
@@ -145,62 +134,52 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Conjunction Introduction: ∧I m, n")    
     
     def test_conjunction_elim(self):
         rule = ConjunctionElim()
+        parser = tflparser.parser
 
         # Test with proper input
         line1 = ProofLineObj('1', 'A∧B', 'Premise')
         line2 = ProofLineObj('2', 'A', '∧E 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
 
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2 = ProofLineObj('2.1', 'A∧C', 'Assumption')
         line3 = ProofLineObj('2.2', 'C', '∧E 2.1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid) 
 
         # Test with invalid conclusion
         line1 = ProofLineObj('1', 'A∧B', 'Premise')
         line2 = ProofLineObj('2', 'C', '∧E 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
 
     def test_disjunction_intro(self):
         rule = DisjunctionIntro()
+        parser = tflparser.parser
 
         # Test with valid input
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'A∨B', '∨I 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test with invalid conclusion
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B∨C', '∨I 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
@@ -208,15 +187,14 @@ class BasicRuleTests(TestCase):
         # Test with invalid line citation
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'A∨B', '∨I 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
 
 
     def test_disjunction_elim(self): 
         rule = DisjunctionElim()
+        parser = tflparser.parser
 
         # Test with valid input
         line1 = ProofLineObj('1', 'A∨B', 'Premise')
@@ -225,9 +203,7 @@ class BasicRuleTests(TestCase):
         line4 = ProofLineObj('3.1', 'B', 'Assumption')
         line5 = ProofLineObj('3.2', 'C', 'Assumption')
         line6 = ProofLineObj('4', 'C', '∨E 1, 2, 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5, line6])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
         result = rule.verify(line6, proof, parser)
         self.assertTrue(result.is_valid)
 
@@ -238,8 +214,7 @@ class BasicRuleTests(TestCase):
         line4 = ProofLineObj('3.1', 'B', 'Assumption')
         line5 = ProofLineObj('3.2', 'D', 'Assumption')
         line6 = ProofLineObj('4', 'C', '∨E 1, 2, 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5, line6])
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
         result = rule.verify(line6, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expressions on lines 2.2, 3.2 and 4 are not equivalent")
@@ -251,9 +226,7 @@ class BasicRuleTests(TestCase):
         line4 = ProofLineObj('3.1', 'D', 'Assumption')
         line5 = ProofLineObj('3.2', 'C', 'Assumption')
         line6 = ProofLineObj('4', 'C', '∨E 1, 2, 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5, line6])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
         result = rule.verify(line6, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expression on line 3.1 is not part of the disjunction on line 1")
@@ -265,9 +238,7 @@ class BasicRuleTests(TestCase):
         line4 = ProofLineObj('3.1', 'B', 'Assumption')
         line5 = ProofLineObj('3.2', 'C', 'Assumption')
         line6 = ProofLineObj('4', 'C', '∨E 1, 2, 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5, line6])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
         result = rule.verify(line6, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expression on line 2.1 is not part of the disjunction on line 1")
@@ -279,9 +250,7 @@ class BasicRuleTests(TestCase):
         line4 = ProofLineObj('3.1', 'A', 'Assumption')
         line5 = ProofLineObj('3.2', 'C', 'Assumption')
         line6 = ProofLineObj('4', 'C', '∨E 1, 2, 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5, line6])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
         result = rule.verify(line6, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expressions on lines 2.1 and 3.1 should be different")
@@ -289,14 +258,13 @@ class BasicRuleTests(TestCase):
 
     def test_negation_intro(self):
         rule = NegationIntro()
+        parser = tflparser.parser
 
         # Test with valid input
         line1 = ProofLineObj('1.1', 'A', 'Premise')
         line2 = ProofLineObj('1.2', '⊥', 'Premise')
         line3 = ProofLineObj('2', '¬A', '¬I 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
 
@@ -304,9 +272,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1.1', 'A', 'Premise')
         line2 = ProofLineObj('1.2', 'B', 'Premise')
         line3 = ProofLineObj('2', '¬A', '¬I 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)   
         self.assertEqual(result.err_msg, "Line 1.2 should be '⊥' (Contradiction)")
@@ -315,9 +281,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1.1', 'A', 'Premise')
         line2 = ProofLineObj('1.2', '⊥', 'Premise')
         line3 = ProofLineObj('2', '¬B', '¬I 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)   
         self.assertEqual(result.err_msg, "Line 2 is not the negation of line 1.1")
@@ -325,14 +289,13 @@ class BasicRuleTests(TestCase):
 
     def test_negation_elim(self):
         rule = NegationElim()
+        parser = tflparser.parser
 
         # Test with valid input
         line1 = ProofLineObj('1', '¬A', 'Premise')
         line2 = ProofLineObj('2', 'A', 'Premise')
         line3 = ProofLineObj('3', '⊥', '¬E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
 
@@ -340,9 +303,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬A', 'Premise')
         line2 = ProofLineObj('2', 'A', 'Premise')
         line3 = ProofLineObj('3', 'B', '¬E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 3 should be '⊥' (Contradiction)")
@@ -351,9 +312,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', '⊥', '¬E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 1 is not the negation of line 2")
@@ -362,9 +321,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬A', 'Premise')
         line2 = ProofLineObj('2', 'A', 'Premise')
         line3 = ProofLineObj('3', '⊥', '¬E 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Negation Elimination: ¬E m, n")
@@ -372,14 +329,13 @@ class BasicRuleTests(TestCase):
 
     def test_conditional_intro(self):
         rule = ConditionalIntro()
+        parser = tflparser.parser
         
         # Test with valid input
         line1 = ProofLineObj('1.1', 'A∧B', 'Premise')
         line2 = ProofLineObj('1.2', 'B', '∧E 1.1')
         line3 = ProofLineObj('2', '(A∧B)→B', '→I 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
 
@@ -387,9 +343,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1.1', 'A∧B', 'Premise')
         line2 = ProofLineObj('1.2', 'B', '∧E 1.1')
         line3 = ProofLineObj('2', '(A∧B)→C', '→I 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'The expressions on lines 1.1 and 1.2 do not match the implication on line 2')
@@ -398,23 +352,20 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1.1', 'A∧B', 'Premise')
         line2 = ProofLineObj('1.2', 'B', '∧E 1.1')
         line3 = ProofLineObj('2', '(A∧B)→B', '→I 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
 
 
     def test_conditional_elim(self):
         rule = ConditionalElim()
+        parser = tflparser.parser
 
         # Test with valid input
         line1 = ProofLineObj('1', 'A→B', 'Premise')
         line2 = ProofLineObj('2', 'A', 'Premise')
         line3 = ProofLineObj('3', 'B', '→E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
 
@@ -422,9 +373,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A→B', 'Premise')
         line2 = ProofLineObj('2', 'A', 'Premise')
         line3 = ProofLineObj('3', 'C', '→E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'The expressions on lines 2 and 3 do not match the implication on line 1')
@@ -433,9 +382,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A→B', 'Premise')
         line2 = ProofLineObj('2', 'A', 'Premise')
         line3 = ProofLineObj('3', 'B', '→E 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Line numbers are not specified correctly.  Conditional Elimination (Modus Ponens): →E m, n')
@@ -443,6 +390,7 @@ class BasicRuleTests(TestCase):
 
     def test_biconditional_intro(self):
         rule = BiconditionalIntro()
+        parser = tflparser.parser
 
         # Test with valid input
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
@@ -450,9 +398,7 @@ class BasicRuleTests(TestCase):
         line3 = ProofLineObj('2.1', 'B', 'Assumption')
         line4 = ProofLineObj('2.2', 'A', 'Assumption')
         line5 = ProofLineObj('3', 'A↔B', '↔I 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
@@ -463,9 +409,7 @@ class BasicRuleTests(TestCase):
         line3 = ProofLineObj('2.1', 'A', 'Assumption')
         line4 = ProofLineObj('2.2', 'A', 'Assumption')
         line5 = ProofLineObj('3', 'A↔A', '↔I 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
@@ -476,9 +420,7 @@ class BasicRuleTests(TestCase):
         line3 = ProofLineObj('2.1', 'B', 'Assumption')
         line4 = ProofLineObj('2.2', 'A', 'Assumption')
         line5 = ProofLineObj('3', 'A↔B', '↔I 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'The expressions on lines 1.2 and 2.1 are not equivalent')
@@ -488,9 +430,7 @@ class BasicRuleTests(TestCase):
         line3 = ProofLineObj('2.1', 'B', 'Assumption')
         line4 = ProofLineObj('2.2', 'C', 'Assumption')
         line5 = ProofLineObj('3', 'A↔B', '↔I 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'The expressions on lines 1.1 and 2.2 are not equivalent')
@@ -500,9 +440,7 @@ class BasicRuleTests(TestCase):
         line3 = ProofLineObj('2.1', 'B', 'Assumption')
         line4 = ProofLineObj('2.2', 'A', 'Assumption')
         line5 = ProofLineObj('3', 'C↔B', '↔I 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Left side of line 3 does not equal either of the expressions on lines 1.2 and 2.2')
@@ -512,9 +450,7 @@ class BasicRuleTests(TestCase):
         line3 = ProofLineObj('2.1', 'B', 'Assumption')
         line4 = ProofLineObj('2.2', 'A', 'Assumption')
         line5 = ProofLineObj('3', 'A↔C', '↔I 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Right side of line 3 does not equal either of the expressions on lines 1.2 and 2.2')
@@ -524,9 +460,7 @@ class BasicRuleTests(TestCase):
         line3 = ProofLineObj('2.1', 'A', 'Assumption')
         line4 = ProofLineObj('2.2', 'A', 'Assumption')
         line5 = ProofLineObj('3', 'A↔B', '↔I 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Invalid introduction on line 3')
@@ -537,9 +471,7 @@ class BasicRuleTests(TestCase):
         line3 = ProofLineObj('2.1', 'B', 'Assumption')
         line4 = ProofLineObj('2.2', 'A', 'Assumption')
         line5 = ProofLineObj('3', 'A↔A', '↔I 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, \
@@ -548,14 +480,13 @@ class BasicRuleTests(TestCase):
 
     def test_biconditional_elim(self):
         rule = BiconditionalElim()
+        parser = tflparser.parser
 
         # Test with valid input
         line1 = ProofLineObj('1', 'A↔B', 'Assumption')
         line2 = ProofLineObj('2', 'A', 'Assumption')
         line3 = ProofLineObj('3', 'B', '↔E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
@@ -563,9 +494,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A↔B', 'Assumption')
         line2 = ProofLineObj('2', 'B', 'Assumption')
         line3 = ProofLineObj('3', 'A', '↔E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
@@ -574,9 +503,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A↔B', 'Assumption')
         line2 = ProofLineObj('2', 'A', 'Assumption')
         line3 = ProofLineObj('3', 'A', '↔E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expressions on lines 2 and 3 do not represent both the left and right side of the expression on line 1")
@@ -585,9 +512,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A↔B', 'Assumption')
         line2 = ProofLineObj('2', 'C', 'Assumption')
         line3 = ProofLineObj('3', 'A', '↔E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expression on line 2 does not represent the left or right side of the expression on line 1")
@@ -596,9 +521,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A↔B', 'Assumption')
         line2 = ProofLineObj('2', 'A', 'Assumption')
         line3 = ProofLineObj('3', 'C', '↔E 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The expression on line 3 does not represent the left or right side of the expression on line 1")
@@ -606,14 +529,13 @@ class BasicRuleTests(TestCase):
 
     def test_indirect_proof(self):
         rule = IndirectProof()
+        parser = tflparser.parser
 
         # Test with valid input
         line1 = ProofLineObj('1.1', '¬A', 'Premise')
         line2 = ProofLineObj('1.2', '⊥', 'X')
         line3 = ProofLineObj('2', 'A', 'IP 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
 
@@ -621,9 +543,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1.1', '¬A', 'Premise')
         line2 = ProofLineObj('1.2', 'B', 'Premise')
         line3 = ProofLineObj('2', 'A', 'IP 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 1.2 should be '⊥' (Contradiction)")
@@ -632,9 +552,7 @@ class BasicRuleTests(TestCase):
         line1 = ProofLineObj('1.1', '¬A', 'Premise')
         line2 = ProofLineObj('1.2', '⊥', 'Premise')
         line3 = ProofLineObj('2', 'B', 'IP 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 1.1 is not the negation of line 2")
@@ -642,22 +560,19 @@ class BasicRuleTests(TestCase):
 
     def test_explosion(self):
         rule = Explosion()
+        parser = tflparser.parser
 
         # Test with proper input
         line1 = ProofLineObj('1', '⊥', 'Premise')
         line2 = ProofLineObj('2', 'B', 'X 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test without contradiction
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'X 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 1 should be '⊥' (Contradiction)")
@@ -665,9 +580,7 @@ class BasicRuleTests(TestCase):
         # Test with invalid line citation
         line1 = ProofLineObj('1', '⊥', 'Premise')
         line2 = ProofLineObj('2', 'B', 'X 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
 
@@ -676,22 +589,19 @@ class DerivedRuleTests(TestCase):
 
     def test_reiteration(self):
         rule = Reiteration()
+        parser = tflparser.parser
 
         # Test with proper input
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'A', 'R 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test with unequivalent expressions
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'R 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Lines 1 and 2 are not equivalent')
@@ -699,22 +609,19 @@ class DerivedRuleTests(TestCase):
         # Test with invalid line citation
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'A', 'R 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
 
 
     def test_double_negation_elim(self):
         rule = DoubleNegationElim()
+        parser = tflparser.parser
 
         # Test with valid input
         line1 = ProofLineObj('1', '¬¬A', 'Assumption')
         line2 = ProofLineObj('2', 'A', 'DNE 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
@@ -722,9 +629,7 @@ class DerivedRuleTests(TestCase):
         # Test with invalid input
         line1 = ProofLineObj('1', '¬¬A', 'Assumption')
         line2 = ProofLineObj('2', 'B', 'DNE 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Lines 1 and 2 are not equivalent')
@@ -732,9 +637,7 @@ class DerivedRuleTests(TestCase):
         # Test with invalid input
         line1 = ProofLineObj('1', '¬A', 'Assumption')
         line2 = ProofLineObj('2', 'A', 'DNE 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Line 1 is not an instance of double-not operators')
@@ -742,9 +645,7 @@ class DerivedRuleTests(TestCase):
         # Test with invalid input
         line1 = ProofLineObj('1', 'A^B', 'Assumption')
         line2 = ProofLineObj('2', 'A', 'DNE 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "The main logical operator on line 1 is not '¬'")
@@ -752,14 +653,13 @@ class DerivedRuleTests(TestCase):
 
     def test_disjunctive_syllogism(self):
         rule = DisjunctiveSyllogism()
+        parser = tflparser.parser
 
         # Test with valid input
         line1 = ProofLineObj('1', 'AvB', 'Premise')
         line2 = ProofLineObj('2', '~A', 'Premise')
         line3 = ProofLineObj('3', 'B', 'DS 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEquals(result.err_msg, None)
@@ -767,9 +667,7 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', 'AvB', 'Premise')
         line2 = ProofLineObj('2', '~B', 'Premise')
         line3 = ProofLineObj('3', 'A', 'DS 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEquals(result.err_msg, None)
@@ -778,9 +676,7 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', 'A^B', 'Premise')
         line2 = ProofLineObj('2', '~A', 'Premise')
         line3 = ProofLineObj('3', 'B', 'DS 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The root of line 1 should be a disjunction (∨) when applying disjunctive syllogism')
@@ -789,9 +685,7 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', 'AvB', 'Premise')
         line2 = ProofLineObj('2', 'A', 'Premise')
         line3 = ProofLineObj('3', 'B', 'DS 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The root of line 2 should be a negation (¬) when applying disjunctive syllogism')
@@ -800,9 +694,7 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', 'AvB', 'Premise')
         line2 = ProofLineObj('2', '~C', 'Premise')
         line3 = ProofLineObj('3', 'B', 'DS 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Line 2 should be the negation of either the left or right half of line 1')
@@ -811,9 +703,7 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', 'AvB', 'Premise')
         line2 = ProofLineObj('2', '~A', 'Premise')
         line3 = ProofLineObj('3', 'C', 'DS 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Line 3 should be equivalent to either the left or right half of line 1')
@@ -822,9 +712,7 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', 'AvB', 'Premise')
         line2 = ProofLineObj('2', '~A', 'Premise')
         line3 = ProofLineObj('3', 'A', 'DS 1, 2')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2, line3])
-        parser = tflparser.parser
+        proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Line 2 and line 3 should not represent the same half of the disjunction on line 1')
@@ -832,13 +720,13 @@ class DerivedRuleTests(TestCase):
 
     def test_modus_tollens(self):
         rule = ModusTollens()
+        parser = tflparser.parser
 
         # Test with valid input
         line1 = ProofLineObj('1', 'A→B', 'Premise')
         line2 = ProofLineObj('2', '~B', 'Premise')
         line3 = ProofLineObj('3', '~A', 'MT 1, 2')
         proof = ProofObj(lines=[line1, line2, line3])
-        parser = tflparser.parser
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEquals(result.err_msg, None)
@@ -848,7 +736,6 @@ class DerivedRuleTests(TestCase):
         line2 = ProofLineObj('2', '~B', 'Premise')
         line3 = ProofLineObj('3', '~A', 'MT 1, 2')
         proof = ProofObj(lines=[line1, line2, line3])
-        parser = tflparser.parser
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The root of line 1 should be an implication (→) when applying modus tollens')
@@ -858,7 +745,6 @@ class DerivedRuleTests(TestCase):
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', '~A', 'MT 1, 2')
         proof = ProofObj(lines=[line1, line2, line3])
-        parser = tflparser.parser
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The root of line 2 should be a negation (¬) when applying modus tollens')
@@ -868,7 +754,6 @@ class DerivedRuleTests(TestCase):
         line2 = ProofLineObj('2', '~B', 'Premise')
         line3 = ProofLineObj('3', 'A', 'MT 1, 2')
         proof = ProofObj(lines=[line1, line2, line3])
-        parser = tflparser.parser
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The root of line 3 should be a negation (¬) when applying modus tollens')
@@ -878,7 +763,6 @@ class DerivedRuleTests(TestCase):
         line2 = ProofLineObj('2', '~A', 'Premise')
         line3 = ProofLineObj('3', '~A', 'MT 1, 2')
         proof = ProofObj(lines=[line1, line2, line3])
-        parser = tflparser.parser
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Line 2 should be the negation of the right half of line 1')
@@ -888,7 +772,6 @@ class DerivedRuleTests(TestCase):
         line2 = ProofLineObj('2', '~B', 'Premise')
         line3 = ProofLineObj('3', '~B', 'MT 1, 2')
         proof = ProofObj(lines=[line1, line2, line3])
-        parser = tflparser.parser
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Line 3 should be the negation of the left half of line 1')
@@ -896,6 +779,7 @@ class DerivedRuleTests(TestCase):
 
     def test_excluded_middle(self):
         rule = ExcludedMiddle()
+        parser = tflparser.parser
 
         # Test with valid input
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
@@ -904,7 +788,6 @@ class DerivedRuleTests(TestCase):
         line4 = ProofLineObj('2.2', 'B', 'Assumption')
         line5 = ProofLineObj('3', 'B', 'LEM 1, 2')
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
-        parser = tflparser.parser
         result = rule.verify(line5, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEquals(result.err_msg, None)
@@ -917,7 +800,6 @@ class DerivedRuleTests(TestCase):
         line4 = ProofLineObj('2.2', 'B', 'Assumption')
         line5 = ProofLineObj('3', 'B', 'LEM 1, 2')
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
-        parser = tflparser.parser
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The expression on line 2.1 should be the negation of line 1.1')
@@ -928,7 +810,6 @@ class DerivedRuleTests(TestCase):
         line4 = ProofLineObj('2.2', 'B', 'Assumption')
         line5 = ProofLineObj('3', 'B', 'LEM 1, 2')
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
-        parser = tflparser.parser
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The expression on line 2.1 should be the negation of line 1.1')
@@ -940,7 +821,6 @@ class DerivedRuleTests(TestCase):
         line4 = ProofLineObj('2.2', 'C', 'Assumption')
         line5 = ProofLineObj('3', 'B', 'LEM 1, 2')
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
-        parser = tflparser.parser
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The expressions on lines 1.2 and 2.2 should be equivalent')
@@ -958,13 +838,13 @@ class DerivedRuleTests(TestCase):
 
     def test_de_morgan(self):
         rule = DeMorgan()
+        parser = tflparser.parser
 
         ### Case 1
         # Test with valid input
         line1 = ProofLineObj('1', '¬(A∧B)', 'Assumption')
         line2 = ProofLineObj('2', '¬A∨¬B', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEquals(result.err_msg, None)
@@ -973,7 +853,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬(A∧B)', 'Assumption')
         line2 = ProofLineObj('2', '¬A∧¬B', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'If line 1 is the negation of a conjuction, line 2 should be a disjunction (∨) when applying the first De Morgan rule.')
@@ -982,7 +861,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬(A∧B)', 'Assumption')
         line2 = ProofLineObj('2', '¬C∨¬B', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
@@ -991,7 +869,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬(A∧B)', 'Assumption')
         line2 = ProofLineObj('2', '¬A∨¬C', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
@@ -1002,7 +879,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬A∨¬B', 'Assumption')
         line2 = ProofLineObj('2', '¬(A∧B)', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEquals(result.err_msg, None)
@@ -1011,7 +887,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬A∨¬B', 'Assumption')
         line2 = ProofLineObj('2', 'A∧B', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'If line 1 is a disjunction, line 2 should be the negation of a conjunction (∧) when applying the second De Morgan rule.')
@@ -1020,7 +895,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬A∨¬B', 'Assumption')
         line2 = ProofLineObj('2', '¬(A∨B)', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'If line 1 is a disjunction, line 2 should be the negation of a conjunction (∧) when applying the second De Morgan rule.')
@@ -1029,7 +903,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬A∨¬B', 'Assumption')
         line2 = ProofLineObj('2', '¬(C∧B)', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
@@ -1038,7 +911,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬A∨¬C', 'Assumption')
         line2 = ProofLineObj('2', '¬(A∧B)', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
@@ -1049,7 +921,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬(A∨B)', 'Assumption')
         line2 = ProofLineObj('2', '¬A∧¬B', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEquals(result.err_msg, None)
@@ -1058,7 +929,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬(A∨B)', 'Assumption')
         line2 = ProofLineObj('2', '¬A∨¬B', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'If line 1 is the negation of a disjunction, line 2 should be a conjunction (∧) when applying the third De Morgan rule.')
@@ -1067,7 +937,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬(A∨B)', 'Assumption')
         line2 = ProofLineObj('2', '¬C∧¬B', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
@@ -1076,7 +945,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬(A∨B)', 'Assumption')
         line2 = ProofLineObj('2', '¬A∧¬C', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
@@ -1087,7 +955,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬A∧¬B', 'Assumption')
         line2 = ProofLineObj('2', '¬(A∨B)', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEquals(result.err_msg, None)
@@ -1096,7 +963,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬A∧¬B', 'Assumption')
         line2 = ProofLineObj('2', '¬(A∧B)', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'If line 1 is a conjunction, line 2 should be the negation of a disjunction (∨) when applying the fourth De Morgan rule.')
@@ -1105,7 +971,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬A∧¬B', 'Assumption')
         line2 = ProofLineObj('2', '¬(C∨B)', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
@@ -1114,7 +979,6 @@ class DerivedRuleTests(TestCase):
         line1 = ProofLineObj('1', '¬A∧¬C', 'Assumption')
         line2 = ProofLineObj('2', '¬(A∨B)', 'DeM 1')
         proof = ProofObj(lines=[line1, line2])
-        parser = tflparser.parser
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')

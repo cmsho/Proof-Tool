@@ -25,12 +25,14 @@ class FOLParserTests(TestCase):
         str4 = '∀x∈S H(x)'
         str5 = 'Fabc'
         str6 = 'Fabc > Gxyz'
+        str7 = 'F(x, y) ∨ G(x, y)'
         node1 = folparser.parser.parse(str1, lexer=lexer)
         node2 = folparser.parser.parse(str2, lexer=lexer)
         node3 = folparser.parser.parse(str3, lexer=lexer)
         node4 = folparser.parser.parse(str4, lexer=lexer)
         node5 = folparser.parser.parse(str5, lexer=lexer)
         node6 = folparser.parser.parse(str6, lexer=lexer)
+        node7 = folparser.parser.parse(str7, lexer=lexer)
         self.assertEqual(node1.value, 'a=b')
         self.assertEqual(node2.value, 'F(x)')
         self.assertEqual(node3.value, '∨')
@@ -42,6 +44,9 @@ class FOLParserTests(TestCase):
         self.assertEqual(node6.value, '→')
         self.assertEqual(node6.left.value, 'Fabc')
         self.assertEqual(node6.right.value, 'Gxyz')
+        self.assertEqual(node7.value, '∨')
+        self.assertEqual(node7.left.value, 'F(x,y)')
+        self.assertEqual(node7.right.value, 'G(x,y)')
 
     def test_parser_reformatting_symbols(self):
         """
