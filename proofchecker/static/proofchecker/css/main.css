@@ -13,6 +13,11 @@
     padding: 10px;
     padding-right: 10px;
   }
+
+  tt {
+    font-family: "Lucida Console", "Menlo", "Monaco", "Courier",
+                 monospace;
+  }
   
   .hidden{
     display: none;
