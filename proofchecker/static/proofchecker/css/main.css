@@ -23,11 +23,12 @@ body{
 
 .main{
   height: inherit;
-  /* width:100%-450px; */
+  width:fit-content;
   margin-left:20px;
-  width:100%;
+  /* margin-right:85px; */
+  margin-right: 50px;
   padding-left: var(--nav-border-width);
-  padding-right: var(--nav-border-width);
+  padding-right:var(--nav-border-width);
   overflow-y:auto;
 }
 
@@ -66,6 +67,7 @@ body{
 .nav-right--collapsed .nav-right__label{
   display:none;
 }
+
 
 .nav__link{
   display:flex;
@@ -160,4 +162,20 @@ body{
   display:none;
   position: absolute;
   top: 50%;
+}
+
+
+/* Premise and Conclusion Fields */
+#premise-conclusion{
+  width:10%;
+}
+
+#id_premises{
+  width:100%;
+  margin-bottom: 5px;
+}
+
+#id_conclusion{
+  width:100%;
+  margin-bottom: 5px;
 }
