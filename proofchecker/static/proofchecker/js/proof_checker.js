@@ -622,6 +622,12 @@ function updateFormsetId(old_id, new_id) {
  * hides conclude subproof button wherever applicable
  */
 function hide_conclude_button() {
+
+    let all_conclude_btn = document.getElementById(FORMSET_TBODY_ID).querySelectorAll('.conclude_subproof')
+    for (let i = 0; i < all_conclude_btn.length; i++) {
+        all_conclude_btn.item(i).hidden = false
+    }
+
     let curr_form_obj = document.getElementById(`${FORMSET_PREFIX}-0`)
     let next_form_obj = getNextValidRow(curr_form_obj)
 
