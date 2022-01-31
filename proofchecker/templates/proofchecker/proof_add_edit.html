@@ -22,12 +22,6 @@
         <button id="btn_restart_proof" class="btn btn-primary mx-2 hidden" type="button" onclick="restart_proof()">Restart Proof</button>
     </table>
 
-    <!-- <div>
-        {% csrf_token %} {{ form.as_table }}
-        <button id="btn_start_proof" class="btn btn-primary mx-2" type="button" onclick="start_proof(this)">Start Proof</button>
-        <button id="btn_restart_proof" class="btn btn-primary mx-2 hidden" type="button" onclick="restart_proof()">Restart Proof</button>
-    </div> -->
-
     <hr> {% if formset %} {{ formset.management_form }}
     <!-- Display lines -->
     <table class="table table-striped table-bordered table-hover table-sm table-responsive" id="proof-table">

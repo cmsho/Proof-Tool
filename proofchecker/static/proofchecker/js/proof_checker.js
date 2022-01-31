@@ -356,7 +356,10 @@ function replaceCharacter(ev) {
     txt = txt.replace("\\implies", "→");
     txt = txt.replace("\\not", "¬");
     txt = txt.replace("\\iff", "↔");
-    txt = txt.replace("\\contradiction", "⊥");
+    txt = txt.replace("\\falsum", "⊥");
+    txt = txt.replace("\\forall", "∀");
+    txt = txt.replace("\\exists", "∃");
+    txt = txt.replace("\\in", "∈");
     document.getElementById(ev.id).value = txt;
 }
 

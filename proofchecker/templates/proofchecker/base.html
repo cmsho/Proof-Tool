@@ -19,12 +19,9 @@
     <!-- Custom CSS-->
     <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/right_menu_navigation.css' %}">
-    <!-- <link rel="stylesheet" type="text/css" href="{% static 'css/user_input.css' %}"> -->
 
     <!-- Custom JS -->
     <script src="{% static 'js/right_menu_navigation.js' %}"></script>
-    <!-- <script src="{% static 'js/symbol_replacement.js' %}"></script> -->
-    <!-- <script src="{% static 'js/line_functionality.js' %}"></script> -->
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -139,7 +136,6 @@
 
             const navLeft = document.querySelector(".nav-left");
             const navLeftBorder = navLeft.querySelector(".nav-left__border");
-            // const navLeftArrow = document.getElementsByClassName("left-nav-arrow");
 
             if (localStorage.getItem(lsKeyLeft) === "true") {
                 navLeft.classList.add(leftCollapsedClass);
@@ -156,12 +152,7 @@
                     var navLeftCloseArrow = document.getElementById("left-nav-close-arrow");
                     navLeftCloseArrow.style.display = "none";
                     navLeftOpenArrow.style.display = "block";
-                    // navLeftCloseArrow.setAttribute("diplay", "none");
-                    // navLeftOpenArrow.setAttribute("diplay", "visible");
 
-
-                    // navLeftArrow.style.transform = 'rotate(180deg)';
-                    // navLeftArrow.setAttribute("transform", "rotate(360)");
                 } else {
                     var navLeftOpenArrow = document.getElementById("left-nav-open-arrow");
                     var navLeftCloseArrow = document.getElementById("left-nav-close-arrow");
