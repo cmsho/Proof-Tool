@@ -203,7 +203,7 @@ function delete_row(deleted_row_index) {
     document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-DELETE').setAttribute("checked", "true")
 
     //hide row
-    document.getElementById(FORMSET_PREFIX+'-' + deleted_row_index).hidden = true;
+    document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index).hidden = true;
     renumber_rows(-1, deleted_row)
     deleted_row.children[0].children[0].value = '0'
 

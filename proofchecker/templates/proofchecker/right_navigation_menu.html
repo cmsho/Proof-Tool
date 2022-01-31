@@ -1,6 +1,6 @@
 {% load static %}
 
-<nav class="right-side-navigation">
+<div class="full-menu">
     <div class="btn-group">
         <button id="info" onclick="showInformation(this.id)">Info</button>
         <button id="rules" onclick="showInformation(this.id)">Rules</button>
@@ -81,7 +81,7 @@
             <img src="{% static 'proofchecker/images/and_intro.png' %}" alt="Conjunction Introduction" class="py-3 px-1">
             <img src="{% static 'proofchecker/images/and_elim1.png' %}" alt="Conjunction Elimination" class="py-3 px-1">
             <img src="{% static 'proofchecker/images/and_elim2.png' %}" alt="Conjunction Elimination" class="py-3 px-1">
-            
+
 
             <div id="item-name">Disjunction:</div>
             <img src="{% static 'proofchecker/images/or_intro1.png' %}" alt="Disjunction Introduction" class="py-3 px-1">
@@ -115,5 +115,4 @@
 
 
     </div>
-
-</nav>
+</div>
