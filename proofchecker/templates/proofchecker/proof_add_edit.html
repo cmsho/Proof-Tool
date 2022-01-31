@@ -2,12 +2,12 @@
 {% load static %}
 {% block content %}
 
-    <h3>Proof {{ object.pk }}</h3>
+
     <hr>
     <form id="proof_form" action="" method="post">
         <div>
             {% csrf_token %}
-            {{ form.as_table }}
+            {{ form.as_table}}
             <button id="btn_start_proof" class="btn btn-primary mx-2" type="button" onclick="start_proof(this)">Start
                 Proof
             </button>

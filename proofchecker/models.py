@@ -45,13 +45,14 @@ class Instructor(models.Model):
 
 
 class Proof(models.Model):
+    name = models.CharField(max_length=255)
     premises = models.CharField(max_length=255)
     conclusion = models.CharField(max_length=255)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return ("Proof {}:\nPremises: {},\nConclusion: {}\nLine Count: {}").format(
-            self.pk,
+            self.name,
             self.premises,
             self.conclusion,
             self.proofline_set.count()

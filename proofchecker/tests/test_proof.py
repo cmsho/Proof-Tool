@@ -537,3 +537,5 @@ class ProofTests(TestCase):
         result = verify_proof(proof)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, "All lines are valid, but the proof is incomplete")
+
+
