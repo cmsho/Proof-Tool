@@ -1,5 +1,6 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import Node, clean_rule, get_expressions, get_lines, make_tree, verify_line_citation
+from proofchecker.proofs.proofutils import clean_rule, get_expressions, get_lines, make_tree, verify_line_citation
+from proofchecker.utils.binarytree import Node
 from .rule import Rule
 
 class ConjunctionIntro(Rule):

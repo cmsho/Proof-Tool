@@ -1,5 +1,6 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import Node, clean_rule, get_lines, verify_line_citation, make_tree, get_expressions
+from proofchecker.proofs.proofutils import clean_rule, get_lines, verify_line_citation, make_tree, get_expressions
+from proofchecker.utils.binarytree import Node
 from .rule import Rule
 
 class ConditionalElim(Rule):

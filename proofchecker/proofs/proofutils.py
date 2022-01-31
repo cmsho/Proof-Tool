@@ -1,11 +1,9 @@
-from email import parser
-import re
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
+from proofchecker.utils import numparser
+from proofchecker.utils.constants import Constants
+from proofchecker.utils.numlexer import lexer as numlexer
 from proofchecker.utils.tfllexer import IllegalCharacterError
-from ..utils import numparser, tflparser
-from ..utils.tfllexer import lexer as tfllexer
-from ..utils.numlexer import lexer as numlexer
-from ..utils.binarytree import Node
+
 
 # Parsing methods
 def depth(line_no):
@@ -26,6 +24,30 @@ def is_line_no(string: str):
     """
     return numparser.parser.parse(string, lexer=numlexer)
 
+def is_name(ch):
+    """
+    Function to determine if a character is an FOL name (a-r)
+    """
+    return (ch in Constants.NAMES)
+
+
+def is_var(ch):
+    """
+    Function to determine if a character is an FOL variable (s-z)
+    """
+    return (ch in Constants.VARS)
+
+def is_predicate(ch):
+    """
+    Function to determine if a character is an FOL predicate (A-R)
+    """
+    return (ch in Constants.PREDICATES)
+
+def is_domain(ch):
+    """
+    Function to determine if a character is an FOL domain (S-Z)
+    """
+    return (ch in Constants.DOMAINS)
 
 # Proof Verification
 def is_conclusion(current_line: ProofLineObj, proof: ProofObj, parser):

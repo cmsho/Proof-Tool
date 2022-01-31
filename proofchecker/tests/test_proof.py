@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
 from proofchecker.proofs.proofutils import get_line_no, get_line_nos, get_lines_in_subproof, \
-    get_premises, is_conclusion, is_valid_expression, verify_expression, verify_line_citation, \
+    get_premises, is_conclusion, is_valid_expression, is_var, verify_expression, verify_line_citation, \
     depth, verify_subproof_citation, clean_rule
 from proofchecker.proofs.proofchecker import verify_proof, verify_rule
 from proofchecker.utils import tflparser
@@ -196,6 +196,23 @@ class HelpersTests(TestCase):
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg,\
             'Invalid citation: line 3.1 occurs after line 2')
+
+    def test_is_var(self):
+        """
+        Test that the is_var method properly determines 
+        if a char is an FOL variable
+        """
+        self.assertTrue(is_var('s'))
+        self.assertTrue(is_var('t'))
+        self.assertTrue(is_var('y'))
+        self.assertTrue(is_var('z'))
+
+        self.assertFalse(is_var('a'))
+        self.assertFalse(is_var('r'))
+        self.assertFalse(is_var('1'))
+        self.assertFalse(is_var('s, z'))
+        
+
 
 class ProofCheckerTests(TestCase):
     def test_verify_rule(self):

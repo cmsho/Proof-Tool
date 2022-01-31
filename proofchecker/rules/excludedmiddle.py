@@ -1,6 +1,6 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import clean_rule, get_line_nos, verify_line_citation, \
-    make_tree, get_line_with_line_no, get_lines_in_subproof, verify_subproof_citation, get_expressions
+from proofchecker.proofs.proofutils import clean_rule, get_line_nos, make_tree,\
+    get_lines_in_subproof, verify_subproof_citation, get_expressions
 from proofchecker.utils.binarytree import Node
 from .rule import Rule
 
