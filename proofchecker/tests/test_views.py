@@ -46,7 +46,7 @@ class ProofCheckerViewTest(TestCase):
         self.client = Client(enforce_csrf_checks=False)
         login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
         response = self.client.post(reverse('proof_checker'), {
-            'premises': ['A∧B'], 'conclusion': ['A'], 'form-TOTAL_FORMS': ['1'], 'form-INITIAL_FORMS': ['0'], 
+            'name': ['Proof'], 'premises': ['A∧B'], 'conclusion': ['A'], 'form-TOTAL_FORMS': ['1'], 'form-INITIAL_FORMS': ['0'], 
             'form-MIN_NUM_FORMS': ['0'], 'form-MAX_NUM_FORMS': ['1000'], 'form-0-line_no': ['1'], 
             'form-0-formula': ['A∧B'], 'form-0-rule': ['Premise'], 'form-__prefix__-line_no': [''], 'form-__prefix__-formula': [''], 
             'form-__prefix__-rule': ['']})
@@ -83,7 +83,7 @@ class ProofCreateViewTest(TestCase):
         self.client = Client(enforce_csrf_checks=False)
         login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
         response = self.client.post(reverse('add_proof'), {
-            'premises': ['A∧B'], 'conclusion': ['A'], 'proofline_set-TOTAL_FORMS': ['1'], 
+            'name': ['Proof'], 'premises': ['A∧B'], 'conclusion': ['A'], 'proofline_set-TOTAL_FORMS': ['1'], 
             'proofline_set-INITIAL_FORMS': ['0'], 'proofline_set-MIN_NUM_FORMS': ['0'], 
             'proofline_set-MAX_NUM_FORMS': ['1000'], 'proofline_set-__prefix__-id': [''], 
             'proofline_set-__prefix__-ORDER': [''], 'proofline_set-__prefix__-line_no': [''], 
@@ -97,7 +97,7 @@ class ProofCreateViewTest(TestCase):
         self.client = Client(enforce_csrf_checks=False)
         login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
         response = self.client.post(reverse('add_proof'), {
-            'premises': ['A∧B'], 'conclusion': ['A'], 'proofline_set-TOTAL_FORMS': ['1'], 
+            'name': ['Proof'], 'premises': ['A∧B'], 'conclusion': ['A'], 'proofline_set-TOTAL_FORMS': ['1'], 
             'proofline_set-INITIAL_FORMS': ['0'], 'proofline_set-MIN_NUM_FORMS': ['0'], 
             'proofline_set-MAX_NUM_FORMS': ['1000'], 'proofline_set-__prefix__-id': [''], 
             'proofline_set-__prefix__-ORDER': [''], 'proofline_set-__prefix__-line_no': [''], 
@@ -202,7 +202,7 @@ class ProofUpdateViewTest(TestCase):
         self.client = Client(enforce_csrf_checks=False)
         login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
         response = self.client.post(reverse('update_proof', args=[1]), {
-            'premises': ['A∧B'], 'conclusion': ['A'], 'proofline_set-TOTAL_FORMS': ['2'], 'proofline_set-INITIAL_FORMS': ['2'], 
+            'name': ['Proof'], 'premises': ['A∧B'], 'conclusion': ['A'], 'proofline_set-TOTAL_FORMS': ['2'], 'proofline_set-INITIAL_FORMS': ['2'], 
             'proofline_set-MIN_NUM_FORMS': ['0'], 'proofline_set-MAX_NUM_FORMS': ['1000'], 'proofline_set-0-id': ['1'], 'proofline_set-0-ORDER': ['0'], 
             'proofline_set-0-line_no': ['1'], 'proofline_set-0-formula': ['A∧B'], 'proofline_set-0-rule': ['Premise'], 'proofline_set-1-id': ['2'], 
             'proofline_set-1-ORDER': ['1'], 'proofline_set-1-line_no': ['2'], 'proofline_set-1-formula': ['A'], 'proofline_set-1-rule': ['∧E 1'], 
@@ -215,7 +215,7 @@ class ProofUpdateViewTest(TestCase):
         self.client = Client(enforce_csrf_checks=False)
         login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
         response = self.client.post(reverse('update_proof', args=[1]), {
-            'premises': ['A∧B'], 'conclusion': ['A'], 'proofline_set-TOTAL_FORMS': ['2'], 'proofline_set-INITIAL_FORMS': ['2'], 
+            'name': ['Proof'], 'premises': ['A∧B'], 'conclusion': ['A'], 'proofline_set-TOTAL_FORMS': ['2'], 'proofline_set-INITIAL_FORMS': ['2'], 
             'proofline_set-MIN_NUM_FORMS': ['0'], 'proofline_set-MAX_NUM_FORMS': ['1000'], 'proofline_set-0-id': ['1'], 'proofline_set-0-ORDER': ['0'], 
             'proofline_set-0-line_no': ['1'], 'proofline_set-0-formula': ['A∧B'], 'proofline_set-0-rule': ['Premise'], 'proofline_set-1-id': ['2'], 
             'proofline_set-1-ORDER': ['1'], 'proofline_set-1-line_no': ['2'], 'proofline_set-1-formula': ['A'], 'proofline_set-1-rule': ['∧E 1'], 

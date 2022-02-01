@@ -217,7 +217,6 @@ function delete_row(deleted_row_index) {
 }
 
 
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Helper functions
 // ---------------------------------------------------------------------------------------------------------------------
@@ -398,10 +397,8 @@ function insert_new_form_at_index(index) {
 /**
  * this function gets line no details of row at provided index
  */
-function get_row(index) {
-    const row_object = document.getElementById(FORMSET_PREFIX + '-' + (index));
-    // Get line number of the row
-    const line_number_of_row = row_object.children[0].children[0].value;
+
+function break_line_number(line_number_of_row){
     // Get list of number of row
     const list_of_line_number = line_number_of_row.split('.');
     // Get the prefix of the row
@@ -413,7 +410,7 @@ function get_row(index) {
 
     return {
         // Get object of the row
-        "row_object": row_object,
+        // "row_object": row_object,
         // Get line number of the row
         "line_number_of_row": line_number_of_row,
         // Get list of number of row
@@ -427,10 +424,21 @@ function get_row(index) {
     }
 }
 
+function get_row(index) {
+    const row_object = document.getElementById(FORMSET_PREFIX + '-' + (index));
+    // Get line number of the row
+    const line_number_of_row = row_object.children[0].children[0].value;
+
+    return break_line_number(line_number_of_row)
+}
+
 /**
  * this function gets line no details of row at provided object's index
  */
 function getObjectsRowInfo(row_object) {
+    if (row_object === null){
+        return null
+    }
     return get_row(get_form_id(row_object))
 }
 
@@ -482,42 +490,98 @@ function getPreviousValidRow(currRow) {
 /**
  * this function reset line numbers in formset
  */
+
+function checkIfRowIsUnique(currRow, prevRow, nextRow){
+    //getting line no info of current row
+    let currRowInfo = getObjectsRowInfo(currRow);
+    //getting line no info of next row
+    let nextRowInfo = getObjectsRowInfo(nextRow);
+     //getting line no info of prev row
+    let prevRowInfo = getObjectsRowInfo(prevRow)
+
+    let lastItemCheck = false;
+
+    if (currRowInfo.list_of_line_number.length === 1){
+        return true;
+    } else {
+        /*
+        * if both prev n next rows exist
+        *   if any of them has same length as curr row and matches prefix ---- then return false
+        *
+        * */
+
+        if (nextRow !== null) {
+            if (currRowInfo.list_of_line_number.length === nextRowInfo.list_of_line_number.length && currRowInfo.string_of_prefix === nextRowInfo.string_of_prefix) {
+                return false;
+            } else if (nextRowInfo.list_of_line_number.length > currRowInfo.list_of_line_number.length && nextRowInfo.string_of_prefix.startsWith(currRowInfo.string_of_prefix)){
+                return false;
+            }
+        }
+
+        if (prevRow !== null){
+            if (currRowInfo.list_of_line_number.length === prevRowInfo.list_of_line_number.length && currRowInfo.string_of_prefix === prevRowInfo.string_of_prefix) {
+                return false;
+            }
+            if (prevRowInfo.list_of_line_number.length > currRowInfo.list_of_line_number.length && prevRowInfo.string_of_prefix.startsWith(currRowInfo.string_of_prefix)){
+                return false;
+            }
+        }
+
+        if (nextRow !== null && prevRow !== null){
+            //next row or prev row with same length doesn't have matching prefix
+            if (prevRowInfo.list_of_line_number.length < currRowInfo.list_of_line_number.length && currRowInfo.list_of_line_number.length > nextRowInfo.list_of_line_number.length){
+                return true
+            }
+        }
+        return true;
+    }
+}
+
 function renumber_rows(direction, newlyChangedRow) {
 
     //getting currentRow that just got changed
-    const currRow = newlyChangedRow;
+    let currRow = newlyChangedRow;
     //getting the following valid row (ignoring rows that are already marked for deletion)
     let nextRow = getNextValidRow(currRow);
+    //getting the previous valid row (ignoring deleted rows)
+    let prevRow = getPreviousValidRow(currRow)
+
+    //getting line no info of current row
+    let currRowInfo = getObjectsRowInfo(newlyChangedRow);
+    //getting line no info of next row
+    let nextRowInfo = getObjectsRowInfo(nextRow);
+     //getting line no info of prev row
+    let prevRowInfo = getObjectsRowInfo(prevRow)
+
+
+    //checking if current row is last remaining element
+    const lastItemCheck = checkIfRowIsUnique(currRow, prevRow, nextRow)
+    // let currRowStartsWith = currRowInfo.list_of_line_number[0];
+
+    if (direction === -1) {
+        if (currRowInfo.list_of_line_number.length > 1 && lastItemCheck) {
+            currRowInfo = break_line_number(currRowInfo.string_of_prefix);
+        }
+        if (currRowInfo.list_of_line_number.length === 1) {
+            currRowInfo.string_of_prefix = "";
+        }
+    }
+
+    let indexOfChangedElement = currRowInfo.list_of_line_number.length - 1
+    let currRowStringOfPrefix = currRowInfo.string_of_prefix;
 
     //if there's no next row then no need to renumber the rows
     if (nextRow !== null) {
-        //getting line no info of current row
-        const currRowInfo = getObjectsRowInfo(newlyChangedRow);
-        //getting line no info of next row
-        let nextRowInfo = getObjectsRowInfo(nextRow);
-
-        //finding out the index of changed element in line number list. if line number has 3 levels like 3.1 need to know which index got updated
-        //for new rows that is the last item
-        //next sets of rows that has the same prefix as inserted row... we'll update their line number element that is on the same level (index) .. i.e. 3.*
-        const index_of_changing_element = currRowInfo.list_of_line_number.length - 1;
-        const prefix_values_string = currRowInfo.prefix_of_row.join('.');  // Get the prefix value string
-
-        //will loop thru all the succeeding rows in formset
         while (nextRow !== null && nextRow.tagName === 'TR' && nextRow.classList.contains(FORMSET_TR_CLASS)) {
-
             //for insertion -- if current row is 3.1.1 and we do not have to increase line no for row that is on higher level than current row.. so 3.2 will not get updated.
             if (direction === 1 && currRowInfo.list_of_line_number.length > nextRowInfo.list_of_line_number.length) {
                 break;
             }
 
-            // get next form line no and line no list
-            const next_row_line_no = nextRowInfo.line_number_of_row;
-            const next_row_line_no_list = nextRowInfo.list_of_line_number;
-
             //if next row starts with current row's prefix then we will increase (for insert / direction 1) or decrease (for deletion / direction -1) next row's line number
-            if (next_row_line_no.startsWith(prefix_values_string)) {
-                next_row_line_no_list[index_of_changing_element] = Number(next_row_line_no_list[index_of_changing_element]) + direction
-                const new_row_number = next_row_line_no_list.join('.');
+            if (nextRowInfo.line_number_of_row.startsWith(currRowStringOfPrefix)) {
+                nextRowInfo.list_of_line_number[indexOfChangedElement] = Number(nextRowInfo.list_of_line_number[indexOfChangedElement]) + direction
+                const new_row_number = nextRowInfo.list_of_line_number.join('.');
                 nextRow.children[0].children[0].value = new_row_number
             }
 
@@ -525,7 +589,6 @@ function renumber_rows(direction, newlyChangedRow) {
             nextRow = getNextValidRow(nextRow)
             nextRowInfo = (nextRow !== null) ? getObjectsRowInfo(nextRow) : null;
         }
-
     }
 }
 
@@ -558,17 +621,22 @@ function updateFormsetId(old_id, new_id) {
 }
 
 
-
 /**
  * hides conclude subproof button wherever applicable
  */
 function hide_conclude_button() {
+
+    let all_conclude_btn = document.getElementById(FORMSET_TBODY_ID).querySelectorAll('.conclude_subproof')
+    for (let i = 0; i < all_conclude_btn.length; i++) {
+        all_conclude_btn.item(i).hidden = false
+    }
+
     let curr_form_obj = document.getElementById(`${FORMSET_PREFIX}-0`)
     let next_form_obj = getNextValidRow(curr_form_obj)
 
     while (curr_form_obj !== null || next_form_obj !== null) {
         const current_row_info = getObjectsRowInfo(curr_form_obj)
-        if (current_row_info.list_of_line_number.length === 1){
+        if (current_row_info.list_of_line_number.length === 1) {
             curr_form_obj.children[6].children[0].hidden = true
         }
 
