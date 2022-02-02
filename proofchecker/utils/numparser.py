@@ -1,5 +1,5 @@
 from .ply import yacc
-from .numlex import tokens
+from .numlexer import tokens
 
 def p_num_dot_num(p):
     '''

@@ -1,6 +1,6 @@
 {% extends 'proofchecker/base.html' %} {% block content %}
     
-<div class="py-5 my-5 text-center">
+<div class="py-5 my-5">
 
     <h1 class="display-3 fw-bold pb-3">ProofChecker</h1>
 
@@ -12,7 +12,20 @@
         <h3>Welcome, Guest!</h3>
     {% endif %}
 
-    <p class="lead pt-4"> Try out a proof with our new <a href="{% url 'proof_checker' %}"> ProofChecker! </a> </p>
+    {% if user.is_authenticated %}
+        <p class="lead pt-4"> Begin working on some <a href="{% url 'all_proofs' %}">proofs</a>!</p>
+    {% else %}
+        <p class="lead pt-4"> <strong><a href="{% url 'login' %}">Log in</a></strong> to begin working on some proofs!</p>
+        <p class="lead pt-4"> Don't have an account?  <a href="{% url 'signup' %}">Sign up</a> now!</p>
+        <br />
+        <br />
+        <br />
+        <br />
+        <p class="pt-6"> 
+            Or, try out a proof without signing in with our new <a href="{% url 'proof_checker' %}"> ProofChecker </a> tool!
+            <div class="alert alert-warning"><strong>WARNING:</strong> You cannot save proofs without signing in!</div>
+        </p>
+    {% endif %} 
 
 
 </div>

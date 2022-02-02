@@ -1,10 +1,13 @@
 from django.test import TestCase
-from ..utils import numparse
-from ..utils import tflparse as yacc
-from ..utils.binarytree import Node, inorder, postorder, preorder, tree_to_string, string_to_tree
-from ..utils.numlex import lexer as numlexer
-from ..utils.syntax import Syntax
-from ..utils.tfllex import IllegalCharacterError, lexer as tfllexer
+from proofchecker.utils import folparser
+from proofchecker.utils import numparser
+from proofchecker.utils import tflparser
+from proofchecker.utils.binarytree import Node, inorder, postorder, preorder, tree_to_string, string_to_tree
+from proofchecker.utils.numlexer import lexer as numlexer
+from proofchecker.utils.syntax import Syntax
+from proofchecker.utils.tfllexer import IllegalCharacterError, lexer as tfllexer
+from proofchecker.utils.tfllexer import IllegalCharacterError as err, lexer as follexer
+
 
 class BinaryTreeTests(TestCase):
 
@@ -36,14 +39,14 @@ class BinaryTreeTests(TestCase):
         b.left.right = Node('B')
         b.right = Node('C')
 
-        c = yacc.parser.parse('A∧B', lexer=tfllexer)
-        d = yacc.parser.parse('(A∧B)∨[(¬C→D)∧(A↔Z)]', lexer=tfllexer)
+        c = tflparser.parser.parse('A∧B', lexer=tfllexer)
+        d = tflparser.parser.parse('(A∧B)∨[(¬C→D)∧(A↔Z)]', lexer=tfllexer)
 
         self.assertEqual(a, b.left)
         self.assertEqual(c, d.left)
 
-        e = yacc.parser.parse('A∧B', lexer=tfllexer)
-        f = yacc.parser.parse('A∧B', lexer=tfllexer)
+        e = tflparser.parser.parse('A∧B', lexer=tfllexer)
+        f = tflparser.parser.parse('A∧B', lexer=tfllexer)
 
         # FIXME: Two different characters representing same symbol cause failure
         # self.assertEqual(e, f)
@@ -53,17 +56,22 @@ class BinaryTreeTests(TestCase):
         Should construct an unambiguous string representation
         of the binary tree
         """
-        a = yacc.parser.parse('(A∧B)∨C', lexer=tfllexer)
-        b = yacc.parser.parse('A∧(B∨C)', lexer=tfllexer)
+        a = tflparser.parser.parse('(A∧B)∨C', lexer=tfllexer)
+        b = tflparser.parser.parse('A∧(B∨C)', lexer=tfllexer)
 
         c = []
         d = []
 
+        e = tflparser.parser.parse('A ∧ B', lexer=tfllexer)
+        f = []
+
         tree_to_string(a, c)
         tree_to_string(b, d)
+        tree_to_string(e, f)
 
         self.assertEqual(''.join(c), '∨(∧(A)(B))(C)')
         self.assertEqual(''.join(d), '∧(A)(∨(B)(C))')
+        self.assertEqual(''.join(f), '∧(A)(B)')
     
     def test_string_to_tree(self):
         """
@@ -73,7 +81,7 @@ class BinaryTreeTests(TestCase):
         a = '∨(∧(A)(B))(C)'
 
         b = string_to_tree(a)
-        c = yacc.parser.parse('(A∧B)∨C', lexer=tfllexer)
+        c = tflparser.parser.parse('(A∧B)∨C', lexer=tfllexer)
         
         self.assertTrue(b.value == '∨')
         self.assertEqual(b, c)
@@ -83,7 +91,7 @@ class BinaryTreeTests(TestCase):
         Should return the correct preorder walk of a tree
         """
         str1 = '(A∧B)∨C'
-        str2 = preorder(yacc.parser.parse(str1, lexer=tfllexer))
+        str2 = preorder(tflparser.parser.parse(str1, lexer=tfllexer))
         self.assertEqual(str2, '∨∧ABC')
 
     def test_inorder(self):
@@ -91,7 +99,7 @@ class BinaryTreeTests(TestCase):
         Should return the correct inorder walk of a tree
         """
         str1 = '(A∧B)∨C'
-        str2 = inorder(yacc.parser.parse(str1, lexer=tfllexer))
+        str2 = inorder(tflparser.parser.parse(str1, lexer=tfllexer))
         self.assertEqual(str2, 'A∧B∨C')
 
     def test_postorder(self):
@@ -99,7 +107,7 @@ class BinaryTreeTests(TestCase):
         Should return the correct postorder walk of a tree
         """
         str1 = '(A∧B)∨C'
-        str2 = postorder(yacc.parser.parse(str1, lexer=tfllexer))
+        str2 = postorder(tflparser.parser.parse(str1, lexer=tfllexer))
         self.assertEqual(str2, 'AB∧C∨')
 
 class SyntaxTests(TestCase):
@@ -233,8 +241,8 @@ class TflParseTests(TestCase):
         """
         str1 = '(A∧B)∨C'
         str2 = '(A∨B)∧[(¬C→D)∧(A↔Z)]'
-        node1 = yacc.parser.parse(str1, lexer=tfllexer)
-        node2 = yacc.parser.parse(str2, lexer=tfllexer)
+        node1 = tflparser.parser.parse(str1, lexer=tfllexer)
+        node2 = tflparser.parser.parse(str2, lexer=tfllexer)
         self.assertEqual(node1.value, '∨')
         self.assertEqual(node2.value, '∧')
 
@@ -249,13 +257,13 @@ class TflParseTests(TestCase):
         str5 = 'H->J'
         str6 = 'L<->M'
         str7 = 'N&O'
-        node1 = yacc.parser.parse(str1, lexer=tfllexer)
-        node2 = yacc.parser.parse(str2, lexer=tfllexer)
-        node3 = yacc.parser.parse(str3, lexer=tfllexer)
-        node4 = yacc.parser.parse(str4, lexer=tfllexer)
-        node5 = yacc.parser.parse(str5, lexer=tfllexer)
-        node6 = yacc.parser.parse(str6, lexer=tfllexer)
-        node7 = yacc.parser.parse(str7, lexer=tfllexer)
+        node1 = tflparser.parser.parse(str1, lexer=tfllexer)
+        node2 = tflparser.parser.parse(str2, lexer=tfllexer)
+        node3 = tflparser.parser.parse(str3, lexer=tfllexer)
+        node4 = tflparser.parser.parse(str4, lexer=tfllexer)
+        node5 = tflparser.parser.parse(str5, lexer=tfllexer)
+        node6 = tflparser.parser.parse(str6, lexer=tfllexer)
+        node7 = tflparser.parser.parse(str7, lexer=tfllexer)
         self.assertEqual(node1.value, '∧')
         self.assertEqual(node2.value, '∨')
         self.assertEqual(node3.value, '¬')
@@ -270,7 +278,7 @@ class TflParseTests(TestCase):
         if provided invalid syntax
         """
         str1='A∧'
-        self.assertRaises(SyntaxError, yacc.parser.parse, str1, lexer=tfllexer)
+        self.assertRaises(SyntaxError, tflparser.parser.parse, str1, lexer=tfllexer)
 
 class TFLLexerTests(TestCase):
     def test_lexer_raises_IllegalCharacterError(self):
@@ -278,7 +286,7 @@ class TFLLexerTests(TestCase):
         The lexer should raise an IllegalCharacterError
         if provided an invalid character
         """
-        self.assertRaises(IllegalCharacterError, yacc.parser.parse, 'A1', lexer=tfllexer)
+        self.assertRaises(IllegalCharacterError, tflparser.parser.parse, 'A1', lexer=tfllexer)
 
 
 class NumParseTests(TestCase):
@@ -291,9 +299,9 @@ class NumParseTests(TestCase):
         str1 = '3'
         str2 = '3.12.4'
         str3 = '3.12.4.66666.7.16.5'
-        a = numparse.parser.parse(str1, lexer=numlexer)
-        b = numparse.parser.parse(str2, lexer=numlexer)
-        c = numparse.parser.parse(str3, lexer=numlexer)
+        a = numparser.parser.parse(str1, lexer=numlexer)
+        b = numparser.parser.parse(str2, lexer=numlexer)
+        c = numparser.parser.parse(str3, lexer=numlexer)
         self.assertEqual(a, 1)
         self.assertEqual(b, 3)
         self.assertEqual(c, 7)
@@ -304,7 +312,7 @@ class NumParseTests(TestCase):
         if provided invalid syntax
         """
         str1='3..12'
-        self.assertRaises(SyntaxError, numparse.parser.parse, str1, lexer=numlexer)
+        self.assertRaises(SyntaxError, numparser.parser.parse, str1, lexer=numlexer)
 
 class NumLexerTests(TestCase):
     def test_lexer_raises_IllegalCharacterError(self):
@@ -312,4 +320,4 @@ class NumLexerTests(TestCase):
         The lexer should raise an IllegalCharacterError
         if provided an invalid character
         """
-        self.assertRaises(IllegalCharacterError, yacc.parser.parse, '3.a', lexer=tfllexer)
+        self.assertRaises(IllegalCharacterError, tflparser.parser.parse, '3.a', lexer=tfllexer)
