@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 from django.contrib import messages
 
 # Create your views here.
-from accounts.forms import StudentSignUpForm, InstructorSignUpForm
+from accounts.forms import StudentSignUpForm, InstructorSignUpForm, StudentProfileForm, InstructorProfileForm
 
 User = get_user_model()
 
@@ -26,7 +26,7 @@ class StudentSignUpView(CreateView):
     def form_valid(self, form):
         user = form.save()
         username = form.cleaned_data.get('username')
-        messages.success(self.request,f'Account created for {username}')
+        messages.success(self.request, f'Account created for {username}')
         return redirect('login')
 
 
@@ -44,3 +44,29 @@ class InstructorSignUpView(CreateView):
         username = form.cleaned_data.get('username')
         messages.success(self.request, f'Account created for {username}')
         return redirect('login')
+
+
+class StudentProfileView(CreateView):
+    model = User
+    form_class = StudentProfileForm
+    template_name = "profiles/student_profile.html"
+
+    def form_valid(self, form):
+        user = form.save()
+        username = form.cleaned_data.get('username')
+        messages.success(
+            self.request, f'Profile Updated Successfully for {username}')
+        return redirect('student_profile')
+
+
+class InstructorProfileView(CreateView):
+    model = User
+    form_class = InstructorProfileForm
+    template_name = "profiles/instructor_profile.html"
+
+    def form_valid(self, form):
+        user = form.save()
+        username = form.cleaned_data.get('username')
+        messages.success(
+            self.request, f'Profile Updated Successfully for {username}')
+        return redirect('instructor_profile')

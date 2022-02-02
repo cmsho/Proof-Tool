@@ -3,8 +3,9 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from PIL import Image
+from proofchecker.proofs.proofutils import is_line_no, make_tree
 
-from proofchecker.proof import is_line_no, make_tree
 
 def validate_line_no(value):
     try:
@@ -14,6 +15,7 @@ def validate_line_no(value):
             _('%(value)s is not a valid line number'),
             params={'value': value},
         )
+
 
 def validate_formula(value):
     try:
@@ -25,23 +27,51 @@ def validate_formula(value):
         )
 
 # Create your models here.
+
+
 class User(AbstractUser):
     is_student = models.BooleanField(default=False)
     is_instructor = models.BooleanField(default=False)
 
 
 class Student(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+    mobile = models.CharField(max_length=10, null=True)
 
     def __str__(self):
         return self.user.username
+
+    def save(self):
+        super().save()
+
+        img = Image.open(self.image.path)
+
+        if img.height > 300 or img.width > 300:
+            output_size = (300, 300)
+            img.thumbnail(output_size)
+            img.save(self.image.path)
 
 
 class Instructor(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+    mobile = models.CharField(max_length=10, null=True)
 
     def __str__(self):
         return self.user.username
+
+    def save(self):
+        super().save()
+
+        img = Image.open(self.image.path)
+
+        if img.height > 300 or img.width > 300:
+            output_size = (300, 300)
+            img.thumbnail(output_size)
+            img.save(self.image.path)
 
 
 class Proof(models.Model):
@@ -98,7 +128,8 @@ class Course(models.Model):
 
 class Assignment(models.Model):
     title = models.CharField(max_length=255, null=True)
-    created_by = models.ForeignKey(Instructor, on_delete=models.CASCADE, null=True)
+    created_by = models.ForeignKey(
+        Instructor, on_delete=models.CASCADE, null=True)
     created_on = models.DateTimeField(auto_now_add=True)
     due_by = models.DateTimeField()
     problems = models.ManyToManyField(Problem)
