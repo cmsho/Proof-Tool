@@ -39,13 +39,13 @@ class User(AbstractUser):
 class Student(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
-    mobile = models.CharField(max_length=10, null=True)
+    image = models.ImageField(default='profile_pics\default.png', upload_to='profile_pics')
+    mobile = models.CharField(max_length=10, null=True, default="xxxxxxxxxx")
 
     def __str__(self):
         return self.user.username
 
-    def save(self):
+    def save(self, *args, **kwargs):
         super().save()
 
         img = Image.open(self.image.path)
@@ -59,13 +59,13 @@ class Student(models.Model):
 class Instructor(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
-    mobile = models.CharField(max_length=10, null=True)
+    image = models.ImageField(default='profile_pics\default.png', upload_to='profile_pics')
+    mobile = models.CharField(max_length=10, null=True, default="xxxxxxxxxx")
 
     def __str__(self):
         return self.user.username
 
-    def save(self):
+    def save(self, *args, **kwargs):
         super().save()
 
         img = Image.open(self.image.path)

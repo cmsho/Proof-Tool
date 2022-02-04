@@ -8,27 +8,27 @@
         <div class="media">
             <img class="rounded-circle" src="{{ user.student.image.url }}">
         </div>
-        <div class="media-body">
+        <div class="media-body text-center">
 
         <h3>- My Profile -</h3>
+        
         <br>
-        <h4>Username - {{user.username}}</h4>
+        <p><span style="font-weight: bold;">Username -</span> {{user.username}}</p>
         <br>
-        <h4>Email - {{user.email}}</h4>
+        <p><span style="font-weight: bold;">Email -</span> {{user.email}}</p>
         <br>
-        <h4>Role - Student</h4>
+        <p><span style="font-weight: bold;">Role -</span> Student</p>
         <br>
-        <h4>Mobile - {{user.student.mobile}}</h4>
+        <p><span style="font-weight: bold;">Mobile -</span> {{user.student.mobile}}</p>
         <br>
+        
         </div>
 
-        <!-- <form method="POST">
+        <!-- <form id="updateProfileForm" action="" method="POST">
             {% csrf_token %}
             <fieldset class="form-group">
-                {{ form|crispy }}
+            {{ form|crispy }}
             </fieldset>
-            
-
         </form> -->
         
 

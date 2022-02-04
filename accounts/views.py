@@ -3,10 +3,12 @@ from django.shortcuts import redirect
 from django.views.generic import CreateView
 from django.views.generic import TemplateView
 from django.contrib import messages
+from django.views.generic.edit import UpdateView
+
 
 # Create your views here.
 from accounts.forms import StudentSignUpForm, InstructorSignUpForm, StudentProfileForm, InstructorProfileForm
-
+from proofchecker.models import Student, Instructor
 User = get_user_model()
 
 
@@ -46,27 +48,27 @@ class InstructorSignUpView(CreateView):
         return redirect('login')
 
 
+
+
 class StudentProfileView(CreateView):
-    model = User
+    model = Student
     form_class = StudentProfileForm
     template_name = "profiles/student_profile.html"
 
     def form_valid(self, form):
         user = form.save()
-        username = form.cleaned_data.get('username')
         messages.success(
-            self.request, f'Profile Updated Successfully for {username}')
+            self.request, f'Profile Updated Successfully')
         return redirect('student_profile')
 
 
 class InstructorProfileView(CreateView):
-    model = User
+    model = Instructor
     form_class = InstructorProfileForm
     template_name = "profiles/instructor_profile.html"
 
     def form_valid(self, form):
         user = form.save()
-        username = form.cleaned_data.get('username')
         messages.success(
-            self.request, f'Profile Updated Successfully for {username}')
+            self.request, f'Profile Updated Successfully')
         return redirect('instructor_profile')
