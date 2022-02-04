@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.forms.models import modelformset_factory
 from django.forms import inlineformset_factory
-from .forms import ProofCheckerForm, ProofForm, ProofLineForm, AssignmentForm
+from .forms import ProofCheckerForm, ProofForm, ProofLineForm
 from .models import Proof, Problem, Assignment, Instructor, ProofLine
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import get_premises
