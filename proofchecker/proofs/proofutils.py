@@ -201,7 +201,7 @@ def get_premises(premises: str):
     and return an array of premises
     """
     premises = premises.replace(' ', '')
-    premises = premises.replace(',', ' ')
+    premises = premises.replace(';', ' ')
     return premises.split()
 
 def get_line_no(rule):

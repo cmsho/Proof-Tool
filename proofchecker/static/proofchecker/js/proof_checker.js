@@ -44,7 +44,7 @@ function setStartRestartButtonAtBeginning() {
  */
 function start_proof(element) {
     const premises = document.getElementById('id_premises').value;
-    const premiseArray = premises.split(",").map(item => item.trim());
+    const premiseArray = premises.split(";").map(item => item.trim());
     const prooflineTableBody = document.getElementById(FORMSET_TBODY_ID);
 
     // If there are zero premises:
