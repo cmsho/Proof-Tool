@@ -9,6 +9,7 @@ django-debug-toolbar = "*"
 django-crispy-forms = "*"
 coverage = "*"
 django-htmx = "*"
+pillow = "*"
 
 [dev-packages]
 
