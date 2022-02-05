@@ -8,6 +8,7 @@ django = "==3.2.7"
 django-crispy-forms = "*"
 coverage = "*"
 django-htmx = "*"
+pillow = "*"
 
 [dev-packages]
 
