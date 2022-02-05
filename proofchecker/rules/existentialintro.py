@@ -72,13 +72,13 @@ class ExistentialIntro(Rule):
                             .format(var, str(current_line.line_no), str(target_line.line_no))
                         return response                        
 
-                # Keep track of the locations (indexes) of the bound variable on line m
+                # Keep track of the locations (indexes) of the bound variable on current line
                 for ch in func_curr:
                     if ch == var:
                         var_indexes.append(index)
                     index += 1
 
-                # Get the values at these locations in the current line
+                # Get the values at these locations in line m
                 # Make sure they all represent names
                 names = []
                 for i in var_indexes:
