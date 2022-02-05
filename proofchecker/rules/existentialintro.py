@@ -41,7 +41,7 @@ class ExistentialIntro(Rule):
                         .format(str(target_line.line_no), str(current_line.line_no))
                     return response
 
-                # TODO: Verify that the predicates on both line have the same number of inputs
+                # Verify that the predicates on both line have the same number of inputs
                 count_m = 0
                 count_curr = 0
                 for ch in root_m.value:
@@ -56,7 +56,41 @@ class ExistentialIntro(Rule):
                         .format(str(target_line.line_no), str(current_line.line_no))
                     return response
 
-                # TODO: Verify that the inputs on current line are variables 
+                # Verify that each variable instances on current line represents the same name on line m
+                var = current.value[1]
+                index = 0
+                var_indexes = []
+
+                # Eliminate whitespace in the functions to avoid issues
+                func_m = root_m.value.replace(' ', '')
+                func_curr = current.right.value.replace(' ', '')
+
+                # Keep track of the locations (indexes) of the bound variable on line m
+                for ch in func_curr:
+                    if ch == var:
+                        var_indexes.append(index)
+                    index += 1
+
+                # Get the values at these locations in the current line
+                # Make sure they all represent names
+                names = []
+                for i in var_indexes:
+                    names.append(func_m[i])
+                
+                for ch in names:
+                    if not is_name(ch):
+                        response.err_msg = "Instances of variable {} on line {} should be represent a name on line {}"\
+                            .format(var, str(current_line.line_no), str(target_line.line_no))
+                        return response
+                
+                # Make sure they all use the same name
+                if len(names) > 1:
+                    for ch in names:
+                        if not ch == names[0]:
+                            response.err_msg = "All instances of variable {} on line {} should be represent the same name on line {}"\
+                                .format(var, str(current_line.line_no), str(target_line.line_no))
+                            return response
+                
 
                 response.is_valid = True
                 return response
