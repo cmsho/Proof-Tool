@@ -80,7 +80,6 @@ class FOLLexerTests(TestCase):
         self.assertTrue(result.is_valid)
         self.assertEquals(result.err_msg, None)
 
-
         # Test where root operand of line 2 is not ∃
         line1 = ProofLineObj('1', 'H(a)', 'Premise')
         line2 = ProofLineObj('2', '∀x∈S H(x)', '∃I 1')
@@ -113,10 +112,18 @@ class FOLLexerTests(TestCase):
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Instances of variable x on line 2 should be represent a name on line 1')
 
-        # Test where teh variables on line 2 replace two different names on line 1
+        # Test where the variables on line 2 replace two different names on line 1
         line1 = ProofLineObj('1', 'H(a, b)', 'Premise')
         line2 = ProofLineObj('2', '∃x∈S H(x, x)', '∃I 1')
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'All instances of variable x on line 2 should be represent the same name on line 1')
+
+        # Test where the variable on line 2 already appears on line 1
+        line1 = ProofLineObj('1', 'H(a, x)', 'Premise')
+        line2 = ProofLineObj('2', '∃x∈S H(x, x)', '∃I 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Variable x on line 2 should not appear on line 1')

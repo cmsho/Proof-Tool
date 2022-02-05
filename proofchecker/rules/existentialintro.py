@@ -65,6 +65,13 @@ class ExistentialIntro(Rule):
                 func_m = root_m.value.replace(' ', '')
                 func_curr = current.right.value.replace(' ', '')
 
+                # Make sure the bound variable does not appear in line m
+                for ch in func_m:
+                    if ch == var:
+                        response.err_msg = "Variable {} on line {} should not appear on line {}"\
+                            .format(var, str(current_line.line_no), str(target_line.line_no))
+                        return response                        
+
                 # Keep track of the locations (indexes) of the bound variable on line m
                 for ch in func_curr:
                     if ch == var:
