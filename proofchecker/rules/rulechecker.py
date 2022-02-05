@@ -11,6 +11,8 @@ from proofchecker.rules.disjunctionintro import DisjunctionIntro
 from proofchecker.rules.disjunctivesyllogism import DisjunctiveSyllogism
 from proofchecker.rules.doublenegationelim import DoubleNegationElim
 from proofchecker.rules.excludedmiddle import ExcludedMiddle
+from proofchecker.rules.existentialelim import ExistentialElim
+from proofchecker.rules.existentialintro import ExistentialIntro
 from proofchecker.rules.explosion import Explosion
 from proofchecker.rules.indirectproof import IndirectProof
 from proofchecker.rules.modustollens import ModusTollens
@@ -18,6 +20,8 @@ from proofchecker.rules.negationelim import NegationElim
 from proofchecker.rules.negationintro import NegationIntro
 from proofchecker.rules.premise import Premise
 from proofchecker.rules.reiteration import Reiteration
+from proofchecker.rules.universalelim import UniversalElim
+from proofchecker.rules.universalintro import UniversalIntro
 from .rule import Rule
 
 
@@ -26,6 +30,8 @@ TFL_BASIC_RULES = [Premise(), Assumption(), ConjunctionIntro(), ConjunctionElim(
     Explosion(), IndirectProof()]
 
 TFL_DERIVED_RULES = [DisjunctiveSyllogism(), ModusTollens(), DoubleNegationElim(), Reiteration(), ExcludedMiddle(), DeMorgan()]
+
+FOL_BASIC_RULES = [ExistentialElim(), ExistentialIntro(), UniversalElim(), UniversalIntro()]
 
 class RuleChecker:
 
@@ -41,5 +47,9 @@ class RuleChecker:
         for derived_rule in TFL_DERIVED_RULES:
             if rule.casefold() == derived_rule.symbols.casefold():
                 return derived_rule
+
+        for basic_fol_rule in FOL_BASIC_RULES:
+            if rule.casefold() == basic_fol_rule.symbols.casefold():
+                return basic_fol_rule
         
         return None
