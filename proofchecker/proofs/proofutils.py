@@ -1,10 +1,9 @@
-import re
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
+from proofchecker.utils import numparser
+from proofchecker.utils.constants import Constants
+from proofchecker.utils.numlexer import lexer as numlexer
 from proofchecker.utils.tfllexer import IllegalCharacterError
-from ..utils import numparser, tflparser
-from ..utils.tfllexer import lexer as tfllexer
-from ..utils.numlexer import lexer as numlexer
-from ..utils.binarytree import Node
+
 
 # Parsing methods
 def depth(line_no):
@@ -13,11 +12,11 @@ def depth(line_no):
     """
     return numparser.parser.parse(line_no, lexer=numlexer)
 
-def make_tree(string: str):
+def make_tree(string: str, parser):
     """
     Function to construct a binary tree
     """
-    return tflparser.parser.parse(string, lexer=tfllexer)
+    return parser.parse(string, lexer=parser.lexer)
 
 def is_line_no(string: str):
     """
@@ -25,16 +24,40 @@ def is_line_no(string: str):
     """
     return numparser.parser.parse(string, lexer=numlexer)
 
+def is_name(ch):
+    """
+    Function to determine if a character is an FOL name (a-r)
+    """
+    return (ch in Constants.NAMES)
+
+
+def is_var(ch):
+    """
+    Function to determine if a character is an FOL variable (s-z)
+    """
+    return (ch in Constants.VARS)
+
+def is_predicate(ch):
+    """
+    Function to determine if a character is an FOL predicate (A-R)
+    """
+    return (ch in Constants.PREDICATES)
+
+def is_domain(ch):
+    """
+    Function to determine if a character is an FOL domain (S-Z)
+    """
+    return (ch in Constants.DOMAINS)
 
 # Proof Verification
-def is_conclusion(current_line: ProofLineObj, proof: ProofObj):
+def is_conclusion(current_line: ProofLineObj, proof: ProofObj, parser):
     """
     Verify whether the current_line is the desired conclusion
     """
     response = ProofResponse
     try:
-        current = make_tree(current_line.expression)
-        conclusion = make_tree(proof.conclusion)
+        current = make_tree(current_line.expression, parser)
+        conclusion = make_tree(proof.conclusion, parser)
 
         if current == conclusion:
             return True
@@ -43,7 +66,7 @@ def is_conclusion(current_line: ProofLineObj, proof: ProofObj):
     except:
         return False
 
-def is_valid_expression(expression: str):
+def is_valid_expression(expression: str, parser):
     """
     Verify if a string is a valid Boolean expression
     Returns a Boolean (True/False)
@@ -53,12 +76,12 @@ def is_valid_expression(expression: str):
     if expression == "":
         return False
     try:
-        expression = make_tree(expression)
+        expression = make_tree(expression, parser)
         return True
     except:
         return False
 
-def verify_expression(expression: str):
+def verify_expression(expression: str, parser):
     """
     Verify if a string is a valid boolean expression
     Returns a ProofResponse
@@ -69,7 +92,7 @@ def verify_expression(expression: str):
         return response
     # Verify the expression is valid
     try:
-        exp = make_tree(expression)
+        exp = make_tree(expression, parser)
         response.is_valid = True
         return response
 

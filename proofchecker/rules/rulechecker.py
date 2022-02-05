@@ -1,4 +1,3 @@
-from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
 from proofchecker.rules.assumption import Assumption
 from proofchecker.rules.biconditionalelim import BiconditionalElim
 from proofchecker.rules.biconditionalintro import BiconditionalIntro

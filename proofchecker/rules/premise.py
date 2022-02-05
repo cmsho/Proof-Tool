@@ -7,18 +7,18 @@ class Premise(Rule):
     name = "Premise"
     symbols = "Premise"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify that "premise" is valid justification for a line
         """
         response = ProofResponse()
         try:
             current_exp = current_line.expression
-            current = make_tree(current_exp)
+            current = make_tree(current_exp, parser)
 
             # If there is only one premise
             if isinstance(proof.premises, str):
-                if make_tree(proof.premises) == current:
+                if make_tree(proof.premises, parser) == current:
                     response.is_valid = True
                     return response
                 else:
@@ -28,7 +28,7 @@ class Premise(Rule):
 
             # If multiple expressions, search for the premise
             for premise in proof.premises:
-                if make_tree(premise) == current:
+                if make_tree(premise, parser) == current:
                     response.is_valid = True
                     return response
         

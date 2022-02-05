@@ -7,5 +7,5 @@ class Rule(ABC):
     """
 
     @abstractmethod
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         pass
