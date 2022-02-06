@@ -103,7 +103,7 @@ class GettersTests(TestCase):
         """
         Test that the get_premises method is working properly
         """
-        str1 = 'A∧C, B∧C, D, E'
+        str1 = 'A∧C; B∧C; D; E'
         result = get_premises(str1)
         self.assertEqual(result, ['A∧C', 'B∧C', 'D', 'E'])
 
