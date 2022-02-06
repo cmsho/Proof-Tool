@@ -5,6 +5,7 @@ from proofchecker.rules.conditionalelim import ConditionalElim
 from proofchecker.rules.conditionalintro import ConditionalIntro
 from proofchecker.rules.conjunctionelim import ConjunctionElim
 from proofchecker.rules.conjunctionintro import ConjunctionIntro
+from proofchecker.rules.conversionofquantifiers import ConversionOfQuantifiers
 from proofchecker.rules.demorgan import DeMorgan
 from proofchecker.rules.disjunctionelim import DisjunctionElim
 from proofchecker.rules.disjunctionintro import DisjunctionIntro
@@ -33,6 +34,8 @@ TFL_DERIVED_RULES = [DisjunctiveSyllogism(), ModusTollens(), DoubleNegationElim(
 
 FOL_BASIC_RULES = [ExistentialElim(), ExistentialIntro(), UniversalElim(), UniversalIntro()]
 
+FOL_DERIVED_RULES = [ConversionOfQuantifiers()]
+
 class RuleChecker:
 
     def get_rule(self, rule: str):
@@ -52,4 +55,8 @@ class RuleChecker:
             if rule.casefold() == basic_fol_rule.symbols.casefold():
                 return basic_fol_rule
         
+        for derived_fol_rule in FOL_DERIVED_RULES:
+            if rule.casefold() == derived_fol_rule.symbols.casefold():
+                return derived_fol_rule
+                
         return None
