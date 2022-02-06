@@ -7,7 +7,7 @@ class BiconditionalIntro(Rule):
     name = "Biconditional Introduction"
     symbols = "↔I"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify the rule ↔I i, j
         (Biconditional Introduction)
@@ -33,11 +33,11 @@ class BiconditionalIntro(Rule):
                 expressions = get_expressions(target_lines)
 
                 # Create trees for expressions on lines i, j, k, and l
-                root_i = make_tree(expressions[0])
-                root_j = make_tree(expressions[1])
-                root_k = make_tree(expressions[2])
-                root_l = make_tree(expressions[3])
-                root_current = make_tree(current_line.expression)
+                root_i = make_tree(expressions[0], parser)
+                root_j = make_tree(expressions[1], parser)
+                root_k = make_tree(expressions[2], parser)
+                root_l = make_tree(expressions[3], parser)
+                root_current = make_tree(current_line.expression, parser)
 
                 # Verify lines i and l are equivalent
                 if root_i == root_l:

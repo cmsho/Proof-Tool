@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 django = "==3.2.7"
-django-debug-toolbar = "*"
 django-crispy-forms = "*"
 coverage = "*"
 django-htmx = "*"

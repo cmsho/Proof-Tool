@@ -7,7 +7,7 @@ class NegationElim(Rule):
     name = "Negation Elimination"
     symbols = "¬E"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper implementation of the rule ¬E m, n
         (Negation Elimination)
@@ -30,11 +30,11 @@ class NegationElim(Rule):
                 expressions = get_expressions(target_lines)
 
                 # Create trees from the expressions on lines (m, n)
-                root_m = make_tree(expressions[0])
-                root_n = make_tree(expressions[1])
+                root_m = make_tree(expressions[0], parser)
+                root_n = make_tree(expressions[1], parser)
 
                 # Create a tree from the expression on the current_line
-                root_current = make_tree(current_line.expression)
+                root_current = make_tree(current_line.expression, parser)
 
                 # Verify m is the negation of n
                 if (root_m.value == '¬') and (root_m.right == root_n):

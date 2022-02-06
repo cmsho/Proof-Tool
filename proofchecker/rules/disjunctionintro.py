@@ -7,7 +7,7 @@ class DisjunctionIntro(Rule):
     name = "Disjunction Introduction"
     symbols = "∨I"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper implementation of the rule ∨I m
         (Disjunction Introduction)
@@ -29,10 +29,10 @@ class DisjunctionIntro(Rule):
                 expression = target_line.expression
 
                 # Create a tree for the target expression
-                root_target = make_tree(expression)
+                root_target = make_tree(expression, parser)
 
                 # Create trees for left and right side of current expression
-                root_current = make_tree(current_line.expression)
+                root_current = make_tree(current_line.expression, parser)
                 root_left = root_current.left
                 root_right = root_current.right
 

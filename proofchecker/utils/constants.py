@@ -1,4 +1,7 @@
 
+from xml.dom import NAMESPACE_ERR
+
+
 class Constants:
     ATOMIC = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
         'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
@@ -9,3 +12,11 @@ class Constants:
     CLOSED_PARENS=[')', ']', '}']
     TFL_BASIC_RULES = ['∧I','∧E','∨I','∨E','¬I','¬E','→I','→E','X','IP',]
     TFL_DERIVED_RULES = ['⊥I','⊥E','TND','↔I','↔E','DS','R','MT','DNE','DeM','Pr','Hyp','LEM']
+
+    # FOL
+    NAMES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', \
+        'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r']
+    VARS = ['s', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+    PREDICATES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', \
+        'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R']
+    DOMAINS = ['S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']

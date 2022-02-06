@@ -1,4 +1,3 @@
-from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
 from proofchecker.rules.assumption import Assumption
 from proofchecker.rules.biconditionalelim import BiconditionalElim
 from proofchecker.rules.biconditionalintro import BiconditionalIntro
@@ -6,12 +5,15 @@ from proofchecker.rules.conditionalelim import ConditionalElim
 from proofchecker.rules.conditionalintro import ConditionalIntro
 from proofchecker.rules.conjunctionelim import ConjunctionElim
 from proofchecker.rules.conjunctionintro import ConjunctionIntro
+from proofchecker.rules.conversionofquantifiers import ConversionOfQuantifiers
 from proofchecker.rules.demorgan import DeMorgan
 from proofchecker.rules.disjunctionelim import DisjunctionElim
 from proofchecker.rules.disjunctionintro import DisjunctionIntro
 from proofchecker.rules.disjunctivesyllogism import DisjunctiveSyllogism
 from proofchecker.rules.doublenegationelim import DoubleNegationElim
 from proofchecker.rules.excludedmiddle import ExcludedMiddle
+from proofchecker.rules.existentialelim import ExistentialElim
+from proofchecker.rules.existentialintro import ExistentialIntro
 from proofchecker.rules.explosion import Explosion
 from proofchecker.rules.indirectproof import IndirectProof
 from proofchecker.rules.modustollens import ModusTollens
@@ -19,6 +21,8 @@ from proofchecker.rules.negationelim import NegationElim
 from proofchecker.rules.negationintro import NegationIntro
 from proofchecker.rules.premise import Premise
 from proofchecker.rules.reiteration import Reiteration
+from proofchecker.rules.universalelim import UniversalElim
+from proofchecker.rules.universalintro import UniversalIntro
 from .rule import Rule
 
 
@@ -27,6 +31,10 @@ TFL_BASIC_RULES = [Premise(), Assumption(), ConjunctionIntro(), ConjunctionElim(
     Explosion(), IndirectProof()]
 
 TFL_DERIVED_RULES = [DisjunctiveSyllogism(), ModusTollens(), DoubleNegationElim(), Reiteration(), ExcludedMiddle(), DeMorgan()]
+
+FOL_BASIC_RULES = [ExistentialElim(), ExistentialIntro(), UniversalElim(), UniversalIntro()]
+
+FOL_DERIVED_RULES = [ConversionOfQuantifiers()]
 
 class RuleChecker:
 
@@ -42,5 +50,13 @@ class RuleChecker:
         for derived_rule in TFL_DERIVED_RULES:
             if rule.casefold() == derived_rule.symbols.casefold():
                 return derived_rule
+
+        for basic_fol_rule in FOL_BASIC_RULES:
+            if rule.casefold() == basic_fol_rule.symbols.casefold():
+                return basic_fol_rule
         
+        for derived_fol_rule in FOL_DERIVED_RULES:
+            if rule.casefold() == derived_fol_rule.symbols.casefold():
+                return derived_fol_rule
+                
         return None

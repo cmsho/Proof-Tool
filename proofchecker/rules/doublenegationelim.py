@@ -7,7 +7,7 @@ class DoubleNegationElim(Rule):
     name = "Double Negation Elimination"
     symbols = "DNE"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify the proper implementation of DNE m
         (Double Not Elimination)
@@ -29,8 +29,8 @@ class DoubleNegationElim(Rule):
                 expression = target_line.expression
 
                 # Create trees
-                root_m = make_tree(expression)
-                root_current = make_tree(current_line.expression)
+                root_m = make_tree(expression, parser)
+                root_current = make_tree(current_line.expression, parser)
 
 
                 if root_m.value == '¬':

@@ -12,6 +12,7 @@
         <h3>Welcome, Guest!</h3>
     {% endif %}
 
+
     {% if user.is_authenticated %}
         <p class="lead pt-4"> Begin working on some <a href="{% url 'all_proofs' %}">proofs</a>!</p>
     {% else %}
@@ -21,10 +22,9 @@
         <br />
         <br />
         <br />
-        <p class="pt-6"> 
-            Or, try out a proof without signing in with our new <a href="{% url 'proof_checker' %}"> ProofChecker </a> tool!
-            <div class="alert alert-warning"><strong>WARNING:</strong> You cannot save proofs without signing in!</div>
-        </p>
+        <p class="pt-6"> Or, try out a proof without signing in with our new <a href="{% url 'proof_checker' %}"> TFL ProofChecker </a> tool! </p>
+        <p class="pt-6"> Or, try out a FOL proof with our new <a href="{% url 'fol_proof_checker' %}"> FOL ProofChecker! </a> </p>
+        <div class="alert alert-warning"><strong>WARNING:</strong> You cannot save proofs without signing in!</div>
     {% endif %} 
 
 
