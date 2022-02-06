@@ -1,3 +1,4 @@
+from ast import BinOp
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -37,10 +38,11 @@ class User(AbstractUser):
 
 
 class Student(models.Model):
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='profile_pics\default.png', upload_to='profile_pics')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(default='profile_pics\default.png', upload_to='profile_pics', null=True, blank=True)
     mobile = models.CharField(max_length=10, null=True, default="xxxxxxxxxx")
+    bio = models.TextField(max_length=500,blank=True)
+    dob = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -50,17 +52,18 @@ class Student(models.Model):
 
         img = Image.open(self.image.path)
 
-        if img.height > 300 or img.width > 300:
-            output_size = (300, 300)
+        if img.height > 200 or img.width > 200:
+            output_size = (200, 200)
             img.thumbnail(output_size)
             img.save(self.image.path)
 
 
 class Instructor(models.Model):
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='profile_pics\default.png', upload_to='profile_pics')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(default='profile_pics\default.png', upload_to='profile_pics', null=True, blank=True)
     mobile = models.CharField(max_length=10, null=True, default="xxxxxxxxxx")
+    bio = models.TextField(max_length=500,blank=True)
+    dob = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -70,8 +73,8 @@ class Instructor(models.Model):
 
         img = Image.open(self.image.path)
 
-        if img.height > 300 or img.width > 300:
-            output_size = (300, 300)
+        if img.height > 200 or img.width > 200:
+            output_size = (200, 200)
             img.thumbnail(output_size)
             img.save(self.image.path)
 

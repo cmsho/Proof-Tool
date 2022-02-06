@@ -21,8 +21,14 @@
         <br>
         <p><span style="font-weight: bold;">Mobile -</span> {{user.student.mobile}}</p>
         <br>
-        
+        <p><span style="font-weight: bold;">DOB -</span> {{user.student.dob}}</p>
+        <br>
+        <p><span style="font-weight: bold;">Bio -</span> {{user.student.bio}}</p>
+        <br>
+        <a href="{% url 'student_profile_update' %}" class="btn btn-primary btn-lg" role="button">Update Profile</a>
+
         </div>
+
 
         <!-- <form id="updateProfileForm" action="" method="POST">
             {% csrf_token %}

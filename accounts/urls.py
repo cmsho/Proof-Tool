@@ -2,7 +2,7 @@ from django.urls import path
 
 from django.conf import settings
 from django.conf.urls.static import static
-from accounts.views import SignUpView, InstructorSignUpView, StudentSignUpView, StudentProfileView, InstructorProfileView
+from accounts.views import SignUpView, InstructorSignUpView, StudentSignUpView, StudentProfileView, InstructorProfileView, StudentProfileUpdateView, InstructorProfileUpdateView
 from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('accounts/signup/', SignUpView.as_view(), name="signup"),
@@ -25,6 +25,8 @@ urlpatterns = [
     path('accounts/student', StudentProfileView.as_view(), name="student_profile"),
     path('accounts/instructor', InstructorProfileView.as_view(),
          name="instructor_profile"),
+     path('accounts/student/profile-update/', StudentProfileUpdateView.as_view(), name='student_profile_update'),
+     path('accounts/instructor/profile-update/', InstructorProfileUpdateView.as_view(), name='instructor_profile_update'),
 
 
 ]
