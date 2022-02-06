@@ -1,7 +1,6 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import clean_rule, get_lines, verify_line_citation, \
     make_tree, get_expressions
-from proofchecker.utils.binarytree import Node
 from .rule import Rule
 
 class DisjunctiveSyllogism(Rule):
@@ -9,7 +8,7 @@ class DisjunctiveSyllogism(Rule):
     name = "Disjunctive Syllogism"
     symbols = "DS"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper implementation of the rule DS m, n
         (Disjunctive Syllogism)
@@ -32,11 +31,11 @@ class DisjunctiveSyllogism(Rule):
                 expressions = get_expressions(target_lines)
                 
                 # Create trees for lines m and n
-                root_m = make_tree(expressions[0])
-                root_n = make_tree(expressions[1])
+                root_m = make_tree(expressions[0], parser)
+                root_n = make_tree(expressions[1], parser)
 
                 # Create a tree for current line
-                root_current = make_tree(current_line.expression)
+                root_current = make_tree(current_line.expression, parser)
 
                 # Line m should be a disjunction
                 if root_m.value != '∨':

@@ -7,7 +7,7 @@ class IndirectProof(Rule):
     name = "Indirect Proof"
     symbols = "IP"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper implementation of the rule IP m
         (Indirect Proof)
@@ -31,11 +31,11 @@ class IndirectProof(Rule):
                 expressions = get_expressions(target_lines)
 
                 # Create trees from the expressions on lines i-j
-                root_i = make_tree(expressions[0])
-                root_j = make_tree(expressions[1])
+                root_i = make_tree(expressions[0], parser)
+                root_j = make_tree(expressions[1], parser)
 
                 # Create a tree from the expression on the current_line
-                root_current = make_tree(current_line.expression)
+                root_current = make_tree(current_line.expression, parser)
 
                 # Verify line i is the negation of current line
                 if (root_i.value == '¬') and (root_i.right == root_current):

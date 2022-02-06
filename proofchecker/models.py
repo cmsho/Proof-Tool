@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from proofchecker.proofs.proofutils import is_line_no, make_tree
+from proofchecker.utils import tflparser
 
 def validate_line_no(value):
     try:
@@ -15,9 +16,10 @@ def validate_line_no(value):
             params={'value': value},
         )
 
+# TODO: This has to adjust based on parser... need to fix
 def validate_formula(value):
     try:
-        make_tree(value)
+        make_tree(value, tflparser.parser)
     except:
         raise ValidationError(
             _('%(value)s is not a valid expression'),
@@ -45,8 +47,8 @@ class Instructor(models.Model):
 
 
 class Proof(models.Model):
-    name = models.CharField(max_length=255)
-    premises = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, null=True, default="New Proof")
+    premises = models.CharField(max_length=255, null=True)
     conclusion = models.CharField(max_length=255)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -65,7 +67,8 @@ class Proof(models.Model):
 class ProofLine(models.Model):
     proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
     line_no = models.CharField(max_length=100, validators=[validate_line_no])
-    formula = models.CharField(max_length=255, validators=[validate_formula])
+    # TODO: Add a validator for the formula field.
+    formula = models.CharField(max_length=255)
     rule = models.CharField(max_length=255)
     ORDER = models.IntegerField(null=True)
 

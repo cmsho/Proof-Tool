@@ -3,9 +3,10 @@ from django.urls import reverse
 
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
 from proofchecker.proofs.proofutils import get_line_no, get_line_nos, get_lines_in_subproof, \
-    get_premises, is_conclusion, is_valid_expression, verify_expression, verify_line_citation, \
+    get_premises, is_conclusion, is_valid_expression, is_var, verify_expression, verify_line_citation, \
     depth, verify_subproof_citation, clean_rule
 from proofchecker.proofs.proofchecker import verify_proof, verify_rule
+from proofchecker.utils import tflparser
 
 
 class ProofLineObjTests(TestCase):
@@ -38,8 +39,7 @@ class ProofObjTests(TestCase):
         line3_1 = ProofLineObj('3.1', '(B∧C)', 'Assumption')
         line3_2 = ProofLineObj('3.2', 'C', '∧E 2.1')
         line4 = ProofLineObj('4', 'C', '∨E, 1, 2, 3')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2_1, line2_2, line3_1, line3_2, line4])
+        proof = ProofObj(lines=[line1, line2_1, line2_2, line3_1, line3_2, line4])
         self.assertEqual(len(proof.lines), 6)
 
     def test_proof_obj_to_string(self):
@@ -85,8 +85,7 @@ class GettersTests(TestCase):
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2_1 = ProofLineObj('2.1', '(A∧C)', 'Assumption')
         line2_2 = ProofLineObj('2.2', 'C', '∧E 2.1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2_1, line2_2])
+        proof = ProofObj(lines=[line1, line2_1, line2_2])
         result = get_lines_in_subproof('2', proof)
         self.assertEqual(result, [line2_1, line2_2])
 
@@ -96,8 +95,7 @@ class GettersTests(TestCase):
         """
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2_1 = ProofLineObj('2.1', '(A∧C)', 'Assumption')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2_1])
+        proof = ProofObj(lines=[line1, line2_1])
         result = get_lines_in_subproof('2', proof)
         self.assertEqual(result, None)
     
@@ -146,25 +144,27 @@ class HelpersTests(TestCase):
         """
         Test that the is_valid_expression method works properly
         """
+        parser=tflparser.parser
         str1 = "(A∧C)∨(B∧C)"
         str2 = "(A∧C)∨"
         str3 = ""
-        self.assertTrue(is_valid_expression(str1))
-        self.assertFalse(is_valid_expression(str2))
-        self.assertFalse(is_valid_expression(str3))
+        self.assertTrue(is_valid_expression(str1, parser))
+        self.assertFalse(is_valid_expression(str2, parser))
+        self.assertFalse(is_valid_expression(str3, parser))
 
     def test_verify_expression(self):
         """
         Test that the verify_expression method works properly
         """
+        parser = tflparser.parser
         str1 = "(A∧C)∨(B∧C)"
         str2 = "(A∧C)∨"
         str3 = ""
         str4 = "A!"
-        res1 = verify_expression(str1)
-        res2 = verify_expression(str2)
-        res3 = verify_expression(str3)
-        res4 = verify_expression(str4)
+        res1 = verify_expression(str1, parser)
+        res2 = verify_expression(str2, parser)
+        res3 = verify_expression(str3, parser)
+        res4 = verify_expression(str4, parser)
         self.assertTrue(res1.is_valid)
         self.assertFalse(res2.is_valid)
         self.assertEqual(res2.err_msg, "Syntax error in expression (A∧C)∨")
@@ -197,6 +197,23 @@ class HelpersTests(TestCase):
         self.assertEqual(result.err_msg,\
             'Invalid citation: line 3.1 occurs after line 2')
 
+    def test_is_var(self):
+        """
+        Test that the is_var method properly determines 
+        if a char is an FOL variable
+        """
+        self.assertTrue(is_var('s'))
+        self.assertTrue(is_var('t'))
+        self.assertTrue(is_var('y'))
+        self.assertTrue(is_var('z'))
+
+        self.assertFalse(is_var('a'))
+        self.assertFalse(is_var('r'))
+        self.assertFalse(is_var('1'))
+        self.assertFalse(is_var('s, z'))
+        
+
+
 class ProofCheckerTests(TestCase):
     def test_verify_rule(self):
         """
@@ -207,21 +224,24 @@ class ProofCheckerTests(TestCase):
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
         proof = ProofObj(lines=[line1, line2, line3])
-        result = verify_rule(line3, proof)
+        parser = tflparser.parser
+        result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test and_elim
         line1 = ProofLineObj('1', 'A∧B', 'Premise')
         line2 = ProofLineObj('2', 'A', '∧E 1')
         proof = ProofObj(lines=[line1, line2])
-        result = verify_rule(line2, proof)
+        parser = tflparser.parser
+        result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test or_intro
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'A∨B', '∨I 1')
         proof = ProofObj(lines=[line1, line2])
-        result = verify_rule(line2, proof)
+        parser = tflparser.parser
+        result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test or_elim
@@ -232,7 +252,8 @@ class ProofCheckerTests(TestCase):
         line5 = ProofLineObj('3.2', 'C', 'Assumption')
         line6 = ProofLineObj('4', 'C', '∨E 1, 2, 3')
         proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
-        result = verify_rule(line6, proof)
+        parser = tflparser.parser
+        result = verify_rule(line6, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test not_intro
@@ -240,7 +261,8 @@ class ProofCheckerTests(TestCase):
         line2 = ProofLineObj('1.2', '⊥', 'Premise')
         line3 = ProofLineObj('2', '¬A', '¬I 1')
         proof = ProofObj(lines=[line1, line2, line3])
-        result = verify_rule(line3, proof)
+        parser = tflparser.parser
+        result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test not_elim
@@ -248,7 +270,8 @@ class ProofCheckerTests(TestCase):
         line2 = ProofLineObj('2', 'A', 'Premise')
         line3 = ProofLineObj('3', '⊥', '¬E 1, 2')
         proof = ProofObj(lines=[line1, line2, line3])
-        result = verify_rule(line3, proof)
+        parser = tflparser.parser
+        result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test implies_intro
@@ -256,7 +279,8 @@ class ProofCheckerTests(TestCase):
         line2 = ProofLineObj('1.2', 'B', 'Assumption')
         line3 = ProofLineObj('2', 'A→B', '→I 1')
         proof = ProofObj(lines=[line1, line2, line3])
-        result = verify_rule(line3, proof)
+        parser = tflparser.parser
+        result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test implies_elim
@@ -264,7 +288,8 @@ class ProofCheckerTests(TestCase):
         line2 = ProofLineObj('2', 'A', 'Premise')
         line3 = ProofLineObj('3', 'B', '→E 1, 2')
         proof = ProofObj(lines=[line1, line2, line3])
-        result = verify_rule(line3, proof)
+        parser = tflparser.parser
+        result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test indirect_proof
@@ -272,14 +297,16 @@ class ProofCheckerTests(TestCase):
         line2 = ProofLineObj('1.2', '⊥', 'Premise')
         line3 = ProofLineObj('2', 'A', 'IP 1')
         proof = ProofObj(lines=[line1, line2, line3])
-        result = verify_rule(line3, proof)
+        parser = tflparser.parser
+        result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test explosion
         line1 = ProofLineObj('1', '⊥', 'Premise')
         line2 = ProofLineObj('2', 'B', 'X 1')
         proof = ProofObj(lines=[line1, line2])
-        result = verify_rule(line2, proof)
+        parser = tflparser.parser
+        result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test iff intro
@@ -289,7 +316,8 @@ class ProofCheckerTests(TestCase):
         line4 = ProofLineObj('2.2', 'A', 'Assumption')
         line5 = ProofLineObj('3', 'A↔B', '↔I 1, 2')
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
-        result = verify_rule(line5, proof)
+        parser = tflparser.parser
+        result = verify_rule(line5, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
@@ -298,24 +326,25 @@ class ProofCheckerTests(TestCase):
         line2 = ProofLineObj('2', 'A', 'Assumption')
         line3 = ProofLineObj('3', 'B', '↔E 1, 2')
         proof = ProofObj(lines=[line1, line2, line3])
-        result = verify_rule(line3, proof)
+        parser = tflparser.parser
+        result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
         # Test reiteration
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'A', 'R 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        result = verify_rule(line2, proof)
+        proof = ProofObj(lines=[line1, line2])
+        parser = tflparser.parser
+        result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
 
         # Test double not elim
         line1 = ProofLineObj('1', '¬¬A', 'Assumption')
         line2 = ProofLineObj('2', 'A', 'DNE 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
-        result = verify_rule(line2, proof)
+        proof = ProofObj(lines=[line1, line2])
+        parser = tflparser.parser
+        result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
@@ -366,29 +395,27 @@ class ProofTests(TestCase):
         Test that the function is_conclusion works properly
         """
         # Test with proper input
+        parser = tflparser.parser
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(premises=['A', 'B'], conclusion='A∧B', lines=[])
-        proof.lines.extend([line1, line2, line3])
-        result = is_conclusion(line3, proof)
+        proof = ProofObj(premises=['A', 'B'], conclusion='A∧B', lines=[line1, line2, line3])
+        result = is_conclusion(line3, proof, parser)
         self.assertTrue(result)
 
         # Test with incomplete proof
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2 = ProofLineObj('2', '(A∧C)', '∨E 1')
-        proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[])
-        proof.lines.extend([line1, line2])
-        result = is_conclusion(line2, proof)
+        proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[line1, line2])
+        result = is_conclusion(line2, proof, parser)
         self.assertFalse(result)
 
         # Test with invalid expression
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(premises=['A', 'B'], conclusion='A∧', lines=[])
-        proof.lines.extend([line1, line2, line3])
-        result = is_conclusion(line3, proof)
+        proof = ProofObj(premises=['A', 'B'], conclusion='A∧', lines=[line1, line2, line3])
+        result = is_conclusion(line3, proof, parser)
         self.assertFalse(result)
 
     def test_verify_rule_with_invalid_rule(self):
@@ -399,7 +426,8 @@ class ProofTests(TestCase):
         line1 = ProofLineObj('1', 'A∧B', 'Premise')
         line2 = ProofLineObj('2', 'A', 'E 1')
         proof = ProofObj(premises='A∧B', conclusion='A', lines=[line1, line2])
-        result = verify_rule(line2, proof)
+        parser = tflparser.parser
+        result = verify_rule(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Rule on line 2 cannot be determined")
 
@@ -408,7 +436,8 @@ class ProofTests(TestCase):
         Test that a proof with no lines returns correct error message
         """
         proof = ProofObj(lines=[])
-        result = verify_proof(proof)
+        parser = tflparser.parser
+        result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Cannot validate a proof with no lines")
 
@@ -418,7 +447,8 @@ class ProofTests(TestCase):
         """
         line1 = ProofLineObj('', 'A', 'Premise')
         proof = ProofObj(lines=[line1])
-        result = verify_proof(proof)
+        parser = tflparser.parser
+        result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "One or more lines is missing a line number")
 
@@ -428,7 +458,8 @@ class ProofTests(TestCase):
         """
         line1 = ProofLineObj('1', '', 'Premise')
         proof = ProofObj(lines=[line1])
-        result = verify_proof(proof)
+        parser = tflparser.parser
+        result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "No expression on line 1")
 
@@ -439,7 +470,8 @@ class ProofTests(TestCase):
         line1 = ProofLineObj('1', 'A∧B', 'Premise')
         line2 = ProofLineObj('2', 'C', '∧E 1')
         proof = ProofObj(premises = 'A∧B', lines=[line1, line2])
-        result = verify_proof(proof)
+        parser = tflparser.parser
+        result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
 
@@ -451,7 +483,8 @@ class ProofTests(TestCase):
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2 = ProofLineObj('2.1', 'C', 'Assumption')
         proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[line1, line2])
-        result = verify_proof(proof)
+        parser = tflparser.parser
+        result = verify_proof(proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, "Proof cannot be concluded with an assumption")
 
@@ -464,7 +497,8 @@ class ProofTests(TestCase):
         line2 = ProofLineObj('2.1', 'A∧C', 'Assumption')
         line3 = ProofLineObj('2.2', 'C', '∧E 2.1')
         proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[line1, line2, line3])
-        result = verify_proof(proof)
+        parser = tflparser.parser
+        result = verify_proof(proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, "Proof cannot be concluded within a subproof")            
 
@@ -477,18 +511,18 @@ class ProofTests(TestCase):
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'B', 'Premise')
         line3 = ProofLineObj('3', 'A∧B', '∧I 1, 2')
-        proof = ProofObj(premises=['A', 'B'], conclusion='A∧B', lines=[])
-        proof.lines.extend([line1, line2, line3])
-        result = verify_proof(proof)
+        proof = ProofObj(premises=['A', 'B'], conclusion='A∧B', lines=[line1, line2, line3])
+        parser = tflparser.parser
+        result = verify_proof(proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
         # And Elim
         line1 = ProofLineObj('1', 'A∧B', 'Premise')
         line2 = ProofLineObj('2', 'A', '∧E 1')
-        proof = ProofObj(premises='A∧B', conclusion='A', lines=[])
-        proof.lines.extend([line1, line2])
-        result = verify_proof(proof)
+        proof = ProofObj(premises='A∧B', conclusion='A', lines=[line1, line2])
+        parser = tflparser.parser
+        result = verify_proof(proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
@@ -499,9 +533,9 @@ class ProofTests(TestCase):
         line4 = ProofLineObj('3.1', 'B', 'Assumption')
         line5 = ProofLineObj('3.2', 'AvB', 'vI 3.1')
         line6 = ProofLineObj('4', 'AvB', 'vE 1, 2, 3')
-        proof = ProofObj(premises='AvB', conclusion='AvB', lines=[])
-        proof.lines.extend([line1, line2, line3, line4, line5, line6])
-        result = verify_proof(proof)
+        proof = ProofObj(premises='AvB', conclusion='AvB', lines=[line1, line2, line3, line4, line5, line6])
+        parser = tflparser.parser
+        result = verify_proof(proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
 
@@ -514,17 +548,17 @@ class ProofTests(TestCase):
         """
         # Test a proof with an invalid character
         line1 = ProofLineObj('1', 'Hello', 'Premise')
-        proof = ProofObj(premises='Hello', lines=[])
-        proof.lines.extend([line1])
-        result = verify_proof(proof)
+        proof = ProofObj(premises='Hello', lines=[line1])
+        parser = tflparser.parser
+        result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Illegal character 'e' on line 1")
 
         # Test a proof with an valid characters but invalid syntax
         line1 = ProofLineObj('1', 'A∧', 'Premise')
-        proof = ProofObj(premises='A∧', lines=[])
-        proof.lines.extend([line1])
-        result = verify_proof(proof)
+        proof = ProofObj(premises='A∧', lines=[line1])
+        parser = tflparser.parser
+        result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, "Syntax error on line 1")
     
@@ -532,9 +566,9 @@ class ProofTests(TestCase):
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2 = ProofLineObj('2.1', '(A∧C)', 'Assumption')
         line3 = ProofLineObj('2.2', 'C', '∧E 2.1')
-        proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[])
-        proof.lines.extend([line1, line2])
-        result = verify_proof(proof)
+        proof = ProofObj(premises='(A∧C)∨(B∧C)', conclusion='C', lines=[line1, line2])
+        parser = tflparser.parser
+        result = verify_proof(proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, "All lines are valid, but the proof is incomplete")
 

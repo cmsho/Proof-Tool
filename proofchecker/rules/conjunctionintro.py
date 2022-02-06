@@ -1,5 +1,6 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import Node, clean_rule, get_expressions, get_lines, make_tree, verify_line_citation
+from proofchecker.proofs.proofutils import clean_rule, get_expressions, get_lines, make_tree, verify_line_citation
+from proofchecker.utils.binarytree import Node
 from .rule import Rule
 
 class ConjunctionIntro(Rule):
@@ -7,7 +8,7 @@ class ConjunctionIntro(Rule):
     name = 'Conjunction Introduction'
     symbols = '∧I'
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper implementation of the rule ∧I m, n
         (Conjunction Introduction)
@@ -30,15 +31,15 @@ class ConjunctionIntro(Rule):
                 
                 # Join the two expressions in a tree
                 root_m_and_n = Node('∧')
-                root_m_and_n.left = make_tree(expressions[0])
-                root_m_and_n.right = make_tree(expressions[1])
+                root_m_and_n.left = make_tree(expressions[0], parser)
+                root_m_and_n.right = make_tree(expressions[1], parser)
 
                 root_n_and_m = Node('∧')
-                root_n_and_m.left = make_tree(expressions[1])
-                root_n_and_m.right = make_tree(expressions[0])
+                root_n_and_m.left = make_tree(expressions[1], parser)
+                root_n_and_m.right = make_tree(expressions[0], parser)
 
                 # Create a tree from the current expression
-                root_current = make_tree(current_line.expression)
+                root_current = make_tree(current_line.expression, parser)
 
                 # Compare the trees
                 if (root_current == root_m_and_n) or (root_current == root_n_and_m):

@@ -7,7 +7,7 @@ class Reiteration(Rule):
     name = "Reiteration"
     symbols = "R"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper impelmentation of the rule R m
         (Reiteration)
@@ -26,8 +26,8 @@ class Reiteration(Rule):
 
             try: 
                 expression = target_line.expression
-                root_m = make_tree(expression)
-                current = make_tree(current_line.expression)
+                root_m = make_tree(expression, parser)
+                current = make_tree(current_line.expression, parser)
 
                 # Verify line m and current line are equivalent
                 if (root_m == current):

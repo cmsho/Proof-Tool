@@ -6,7 +6,7 @@ class Assumption(Rule):
     name = "Assumption"
     symbols = "Assumption"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify that an assumption is valid
         """

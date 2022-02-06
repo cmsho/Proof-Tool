@@ -16,6 +16,11 @@ body{
   font-family:sans-serif;
 }
 
+tt {
+  font-family: "Lucida Console", "Menlo", "Monaco", "Courier",
+               monospace;
+}
+
 .page-container{
   height:inherit;
   display:flex;

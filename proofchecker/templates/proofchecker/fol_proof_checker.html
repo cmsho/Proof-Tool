@@ -141,7 +141,23 @@
 
 </form>
 
-<script src="{% static 'js/syntax.js' %}"></script>
+<br />
+<div id="fol-help">
+    <p>
+        <b><u>Syntax Rules</u></b>
+        <br />
+        The following rules explain how to represent an FOL expression:
+        <ul>
+            <li><b>Names (Objects):</b> a-r (lowercase)</li>
+            <li><b>Variables:</b> s-z (lowercase)</li>
+            <li><b>Predicates:</b> A-R (uppercase)</li>
+            <li><b>Domains (Sets):</b> S-Z (uppercase)</li>
+            <li><b>Universal Quantifier:</b> <tt>\forall</tt> (∀)</li>
+            <li><b>Existential Quantifier:</b> <tt>\exists</tt> (∃)</li>
+            <li><b>Domain (Set) Membership:</b> <tt>\in</tt> (∈)</li>
+        </ul>
+    </p>
+</div>
+
 <script src="{% static 'js/proof_checker.js' %}"></script>
-<script src="{% static 'js/valid_input.js' %}"></script> 
 {% endblock %}

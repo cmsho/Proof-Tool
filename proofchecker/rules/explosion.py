@@ -7,7 +7,7 @@ class Explosion(Rule):
     name = "Explosion"
     symbols = "X"
 
-    def verify(self, current_line: ProofLineObj, proof: ProofObj):
+    def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
         Verify proper implementation of the rule X m
         (Explosion)
@@ -26,7 +26,7 @@ class Explosion(Rule):
 
             try: 
                 expression = target_line.expression
-                root = make_tree(expression)
+                root = make_tree(expression, parser)
 
                 # Verify line j is a contradiction
                 if (root.value == '⊥') or (root.value.casefold() == 'false'):

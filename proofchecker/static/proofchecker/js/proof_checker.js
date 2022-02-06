@@ -47,39 +47,39 @@ function start_proof(element) {
     const premiseArray = premises.split(",").map(item => item.trim());
     const prooflineTableBody = document.getElementById(FORMSET_TBODY_ID);
 
-    for (let i = 0; i < premiseArray.length; i++) {
+    // If there are zero premises:
+    if ((premiseArray.length === 1) && (premiseArray[0]=="")) {
         let newRow = insert_form_helper(getTotalFormsCount())
-        let tds = newRow.children
-
-        for (let x = 0; x < tds.length; x++) {
-            let input = tds[x].children[0]
-            // line_no
-            if (x === 0) {
-                input.setAttribute("readonly", true)
-                input.setAttribute("value", i + 1)
-            }
-            // formula
-            if (x === 1) {
-                input.setAttribute("value", `${premiseArray[i]}`)
-            }
-            // rule
-            if (x === 2) {
-                input.setAttribute("value", 'Premise')
-            }
-            // if (i === 0) {
-            //     if (x === 4) {
-            //         input.style.visibility = 'hidden'
-            //     }
-            //     if (x === 5) {
-            //         input.style.visibility = 'hidden'
-            //     }
-            //     if (x === 6) {
-            //         input.style.visibility = 'hidden'
-            //     }
-            // }
-        }
+        newRow.children[0].children[0].setAttribute("readonly", true)
+        newRow.children[0].children[0].setAttribute("value", 1)
         prooflineTableBody.appendChild(newRow)
+        
+    } else {
+
+        for (let i = 0; i < premiseArray.length; i++) {
+            let newRow = insert_form_helper(getTotalFormsCount())
+            let tds = newRow.children
+    
+            for (let x = 0; x < tds.length; x++) {
+                let input = tds[x].children[0]
+                // line_no
+                if (x === 0) {
+                    input.setAttribute("readonly", true)
+                    input.setAttribute("value", i + 1)
+                }
+                // formula
+                if (x === 1) {
+                    input.setAttribute("value", `${premiseArray[i]}`)
+                }
+                // rule
+                if (x === 2) {
+                    input.setAttribute("value", 'Premise')
+                }
+            }
+            prooflineTableBody.appendChild(newRow)
+        }
     }
+
     update_form_count()
     hide_conclude_button()
     element.hidden = true
