@@ -27,9 +27,19 @@
       <br>
       <br>
       <div id="qdiv">
-        <div id = "qunit"></div> 
-        <div id = "qunit-fixture"></div>  
-        <script src="{% static 'js/qunit-2.17.2.js'%}"> 
+        <link rel = "stylesheet" href = "https://code.jquery.com/qunit/qunit-2.17.2.css">
+		    <h1 id="qunit-header">Dummy Test</h1>
+        <h2 id="qunit-banner"></h2>
+        <div id="qunit-testrunner-toolbar">
+        </div>
+        <h2 id="qunit-userAgent"></h2>
+        <ol id="qunit-tests">
+        </ol>
+        <div id="qunit-fixture">
+            <div id="container"></div>
+        </div>
+		
+		    <script src ="{% static 'js/qunit-2.17.2.js' %}"> 
           QUnit.test( "My First Test", function( assert ) { 
               var value = "1"; 
               assert.equal( value, "1", "Value should be 1" ); 
