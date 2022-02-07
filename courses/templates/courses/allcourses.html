@@ -1,0 +1,11 @@
+{% extends 'proofchecker/base.html' %}
+
+{% block content %}
+    <a href="{% url 'add_course' %}" class="btn btn-primary"> Create a new course  </a>
+    <hr>
+    <ul>
+        {% for course in course_list %}
+            <li>{{ course.title }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

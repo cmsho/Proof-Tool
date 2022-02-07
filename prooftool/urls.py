@@ -24,5 +24,6 @@ urlpatterns = [
     path("", include("proofchecker.urls")),
     path("", include("accounts.urls")),
     path("", include("assignments.urls")),
+    path("", include("courses.urls")),
 
 ]

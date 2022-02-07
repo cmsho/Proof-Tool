@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django_htmx",
     'proofchecker',
     'assignments',
+    'courses',
 
 ]
 
