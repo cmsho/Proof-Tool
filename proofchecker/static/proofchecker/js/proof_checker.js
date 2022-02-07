@@ -111,8 +111,8 @@ function insert_form(obj) {
  * Inserts form below current line
  */
 function create_subproof(obj) {
-    const newlyInsertedRow = insert_new_form_at_index(get_form_id(obj) + 1);
-    generate_new_subproof_row_number(newlyInsertedRow)
+    const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
+    generate_new_subproof_row_number(currentRow)
     hide_conclude_button()
     reset_order_fields()
     add_row_indentations()
@@ -149,16 +149,12 @@ function delete_form(obj) {
 function generate_new_subproof_row_number(newlyInsertedRow) {
 
     // Get the row that the button was clicked
-    const previousValidRow = getPreviousValidRow(newlyInsertedRow);
-    const original_row_number_of_clicked_button = previousValidRow.children[0].children[0].value
+    const original_row_number_of_clicked_button = newlyInsertedRow.children[0].children[0].value
+    console.log(original_row_number_of_clicked_button)
 
     // Update row number of clicked button
-    previousValidRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
-    previousValidRow.children[2].children[0].value = 'Assumption'
-
-    // Update the row number of the new row
-    newlyInsertedRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.2`
-    newlyInsertedRow.children[0].children[0].setAttribute("readonly", true)
+    newlyInsertedRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
+    newlyInsertedRow.children[2].children[0].value = 'Assumption'
 }
 
 
