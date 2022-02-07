@@ -610,8 +610,6 @@ function add_row_indentations() {
             if (sub_proof_depth > 0) {
                 let margin = 40 * sub_proof_depth
                 row.children[0].children[0].style.marginLeft = `${margin}px`
-                row.children[1].children[0].style.marginLeft = `${margin}px`
-                row.children[2].children[0].style.marginLeft = `${margin}px`
             }
             row = row.nextElementSibling;
         }
