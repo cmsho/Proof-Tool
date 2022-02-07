@@ -58,6 +58,23 @@
                 </div>
                 <span class="nav-left__label">Home</span>
             </a>
+            {% if user.is_student %}
+            <a href="{% url 'student_profile' %}" class="nav__link">
+                <div class="nav__icon-container">
+                    <i class="material-icons"> person</i>
+                </div>
+                <span class="nav-left__label">Profile</span>
+            </a>
+              
+            {% elif user.is_instructor %}
+            <a href="{% url 'instructor_profile' %}" class="nav__link">
+                <div class="nav__icon-container">
+                    <i class="material-icons"> person</i>
+                </div>
+                <span class="nav-left__label">Profile</span>
+            </a>
+            {% endif %}
+            
             <a href="{% url 'all_proofs' %}" class="nav__link">
                 <div class="nav__icon-container">
                     <i class="material-icons"> assignment</i>

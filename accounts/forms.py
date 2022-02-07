@@ -1,9 +1,12 @@
+from urllib import request
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 from django.db import transaction
 
 from proofchecker.models import Student, Instructor, User
 
+class DateInput(forms.DateInput):
+    input_type = 'date'
 
 class StudentSignUpForm(UserCreationForm):
     email = forms.EmailField()
@@ -38,3 +41,29 @@ class InstructorSignUpForm(UserCreationForm):
         instructor = Instructor.objects.create(user=user)
         instructor.save()
         return user
+
+
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+
+class StudentProfileForm(forms.ModelForm):
+
+    class Meta:
+        model = Student
+        fields = ['image', 'bio', 'dob', 'mobile']
+        widgets = {
+            'dob': DateInput(),
+        }
+
+
+class InstructorProfileForm(forms.ModelForm):
+
+    class Meta:
+        model = Instructor
+        fields = ['image', 'bio', 'dob', 'mobile']
+        widgets = {
+            'dob': DateInput(),
+        }

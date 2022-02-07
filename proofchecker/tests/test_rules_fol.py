@@ -1,5 +1,6 @@
 from django.test import TestCase
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
+from proofchecker.rules.conversionofquantifiers import ConversionOfQuantifiers
 from proofchecker.rules.existentialelim import ExistentialElim
 from proofchecker.rules.existentialintro import ExistentialIntro
 from proofchecker.rules.universalelim import UniversalElim
@@ -264,3 +265,186 @@ class FOLRulesTests(TestCase):
         result = rule.verify(line2, proof, parser)
         # self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'All instances of name a on line 1 should be replaced with the bound variable x on line 2')
+
+
+    def test_conversion_of_quantifiers(self):
+        """
+        Verify that Conversion of Quantifiers (CQ) is working properly
+        """
+        rule = ConversionOfQuantifiers()
+        parser = folparser.parser
+
+        ### Case 1
+
+        # Test with valid input
+        line1 = ProofLineObj('1', '∀x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∃x∈S F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # Test where line 1 is not a negation
+        line1 = ProofLineObj('1', '∀x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∃x∈S F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 begins with a universal quantifier (∀), '\
+            'it should be followed by a negation (¬) when applying Conversion of Quantifiers (CQ)')
+
+        # Test where line 2 is not the negation of an existential quantifier
+        line1 = ProofLineObj('1', '∀x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∃x∈S F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 begins with a universal quantifier (∀), '\
+            'then line 2 should be the negation (¬) of an existential quantifier (∃) '\
+            'when applying Conversion of Quantifiers (CQ)')
+
+        line1 = ProofLineObj('1', '∀x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 begins with a universal quantifier (∀), '\
+            'then line 2 should be the negation (¬) of an existential quantifier (∃) '\
+            'when applying Conversion of Quantifiers (CQ)')
+
+        # Test where line 1 and line 2 refer to different predicates
+        line1 = ProofLineObj('1', '∀x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∃x∈S G(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Lines 1 and 2 should refer to the same predicate')
+
+        # Test where line 1 and line 2 have different number of inputs
+        line1 = ProofLineObj('1', '∀x∈S ¬F(x, a)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∃x∈S F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The predicates on lines 1 and 2 do not have the same number of inputs')
+
+
+        ### Case 3
+
+        # Test with valid input
+        line1 = ProofLineObj('1', '∃x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∀x∈S F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # Test where line 1 does not include a negation
+        line1 = ProofLineObj('1', '∃x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∀x∈S F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 begins with an existential quantifier (∃), '\
+            'it should be followed by a negation (¬) when applying Conversion of Quantifiers (CQ)')
+
+        # Test where line 2 is not the negation of a universal quantifier
+        line1 = ProofLineObj('1', '∃x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∀x∈S F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 begins with an existential quantifier (∃), '\
+            'then line 2 should be the negation (¬) of a universal quantifier (∀) '\
+            'when applying Conversion of Quantifiers (CQ)')
+
+        # Test where line 2 is not the negation of a universal quantifier
+        line1 = ProofLineObj('1', '∃x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 begins with an existential quantifier (∃), '\
+            'then line 2 should be the negation (¬) of a universal quantifier (∀) '\
+            'when applying Conversion of Quantifiers (CQ)')
+
+        # Test where line 1 and line 2 refer to different predicates
+        line1 = ProofLineObj('1', '∃x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∀x∈S G(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Lines 1 and 2 should refer to the same predicate')
+
+        # Test where line 1 and line 2 have different number of inputs
+        line1 = ProofLineObj('1', '∃x∈S ¬F(x, a)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∀x∈S F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The predicates on lines 1 and 2 do not have the same number of inputs')
+
+
+        ### Case 2
+
+        # Test with valid input
+        line1 = ProofLineObj('1', '¬ ∃x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∀x∈S ¬F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # Test where line 2 does not begin with a universal quantifier
+        line1 = ProofLineObj('1', '¬ ∃x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∃x∈S ¬F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 is the negation of an existential quantifier, '\
+            'then line 2 should begin with a universal quantifier when applying Conversion of Quantifiers (CQ)')
+
+        # Test where the quantifier on line 2 is not followed with a negation
+        line1 = ProofLineObj('1', '¬ ∃x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∀x∈S F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The quantifier on line 2 should be followed by a negation (¬)')
+
+
+        ### Case 4
+
+        # Test with valid input
+        line1 = ProofLineObj('1', '¬ ∀x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∃x∈S ¬F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # Test where line 2 does not begin with an existential quantifier
+        line1 = ProofLineObj('1', '¬ ∀x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∀x∈S ¬F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'If line 1 is the negation of a universal quantifier, '\
+            'then line 2 should begin with an existential quantifier when applying Conversion of Quantifiers (CQ)')
+
+        # Test where the quantifier on line 2 is not followed by a negation
+        line1 = ProofLineObj('1', '¬ ∀x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∃x∈S F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'The quantifier on line 2 should be followed by a negation (¬)')
+
+
+        # Test where line 1 does not begin with a quantifier or a negation
+        line1 = ProofLineObj('1', 'F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∃x∈S ¬F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Line 1 must begin with either a quantifier or a negation when applying Conversion of Quantifiers (CQ)')
