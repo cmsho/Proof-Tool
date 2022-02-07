@@ -81,8 +81,8 @@ class Instructor(models.Model):
 
 
 class Proof(models.Model):
-    name = models.CharField(max_length=255, null=True, default="New Proof")
-    premises = models.CharField(max_length=255, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True, default="New Proof")
+    premises = models.CharField(max_length=255, blank=True, null=True)
     conclusion = models.CharField(max_length=255)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
