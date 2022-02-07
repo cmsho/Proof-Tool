@@ -158,6 +158,7 @@ function generate_new_subproof_row_number(newlyInsertedRow) {
 
     // Update the row number of the new row
     newlyInsertedRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.2`
+    newlyInsertedRow.children[0].children[0].setAttribute("readonly", true)
 }
 
 
@@ -174,6 +175,7 @@ function insert_row_current_level(index) {
     //generating new row line numbers
     prevRowLineNumberSegments[prevRowLineNumberSegments.length - 1] = Number(prevRowLastNumberSegment) + 1
     newRow.children[0].children[0].value = prevRowLineNumberSegments.join('.')
+    newRow.children[0].children[0].setAttribute("readonly", true)
 
     renumber_rows(1, newRow)
     reset_order_fields()
@@ -192,6 +194,7 @@ function insert_row_parent_level(index) {
     //generating new row line numbers
     prevRowLineNumberSegments[prevRowLineNumberSegments.length - 1] = Number(prevRowLastNumberSegment) + 1
     newRow.children[0].children[0].value = prevRowLineNumberSegments.join('.')
+    newRow.children[0].children[0].setAttribute("readonly", true)
 
     renumber_rows(1, newRow)
     reset_order_fields()
