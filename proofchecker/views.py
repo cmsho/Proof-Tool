@@ -93,69 +93,6 @@ def proof_checker(request):
     }
     return render(request, 'proofchecker/proof_checker.html', context)
 
-
-def fol_proof_checker(request):
-    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
-    query_set = ProofLine.objects.none()
-    form = ProofForm(request.POST or None)
-    formset = ProofLineFormset(request.POST or None, instance=form.instance, queryset=query_set)
-    response = None
-
-    if request.POST:
-        if all([form.is_valid(), formset.is_valid()]):
-
-            parent = form.save(commit=False)
-
-            if 'check_proof' in request.POST:
-                # Create a new proof object
-                proof = ProofObj(lines=[])
-
-                # Grab premise and conclusion from the form
-                # Assign them to the proof object
-                # parent = form.save(commit=False)
-                proof.premises = get_premises(parent.premises)
-                proof.conclusion = str(parent.conclusion)
-
-                for line in formset.ordered_forms:
-                    if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
-                        # Create a proofline object
-                        proofline = ProofLineObj()
-
-                        # Grab the line_no, formula, and expression from the form
-                        # Assign them to the proofline object
-                        child = line.save(commit=False)
-                        child.proof = parent
-
-                        proofline.line_no = str(child.line_no)
-                        proofline.expression = str(child.formula)
-                        proofline.rule = str(child.rule)
-
-                        # Append the proofline to the proof object's lines
-                        proof.lines.append(proofline)
-
-                # TODO: If user selects TFL, use TFL parser
-                #       If user selects FOL, use FOL parser
-                parser = folparser.parser
-
-                # Verify the proof!
-                response = verify_proof(proof, parser)
-
-                # Send the response back
-                context = {
-                    "form": form,
-                    "formset": formset,
-                    "response": response
-                }
-
-                return render(request, 'proofchecker/fol_proof_checker.html', context)
-
-    context = {
-        "form": form,
-        "formset": formset
-    }
-    return render(request, 'proofchecker/fol_proof_checker.html', context)
-
-
 @login_required
 def proof_create_view(request):
     ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
@@ -221,7 +158,8 @@ def proof_update_view(request, pk=None):
         if all([form.is_valid(), formset.is_valid()]):
             parent = form.save(commit=False)
             if 'check_proof' in request.POST:
-                proof = ProofObj(lines=[])  #
+                proof = ProofObj(lines=[])
+                proof.rules = str(parent.rules)
                 proof.premises = get_premises(parent.premises)
                 proof.conclusion = str(parent.conclusion)
 
@@ -235,9 +173,11 @@ def proof_update_view(request, pk=None):
                         proofline.rule = str(child.rule)
                         proof.lines.append(proofline)
 
-                # TODO: If user selects TFL, use TFL parser
-                #       If user selects FOL, use FOL parser
-                parser = tflparser.parser
+                # Determine which parser to user based on selected rules
+                if ((proof.rules == 'fol_basic') or (proof.rules == 'fol_derived')):
+                    parser = folparser.parser
+                else:
+                    parser = tflparser.parser
 
                 response = verify_proof(proof, parser)
 
