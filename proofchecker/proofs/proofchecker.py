@@ -1,8 +1,7 @@
-
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import make_tree, is_conclusion, depth, clean_rule
 from proofchecker.rules.rulechecker import RuleChecker
-from proofchecker.utils import tflparser
+from proofchecker.utils.constants import Constants
 from proofchecker.utils.tfllexer import IllegalCharacterError
 
 def verify_proof(proof: ProofObj, parser):
@@ -37,8 +36,8 @@ def verify_proof(proof: ProofObj, parser):
                 .format(char_err.message, str(line.line_no))
             return response 
         except:
-            response.err_msg = "Syntax error on line {}"\
-                .format(str(line.line_no))
+            response.err_msg = 'Syntax error on line {}.  Expression "{}" does not conform to ruleset "{}"'\
+                .format(str(line.line_no), line.expression, Constants.RULES_CHOICES.get(proof.rules))
             return response
         
         # Verify the rule is valid
@@ -69,14 +68,6 @@ def verify_proof(proof: ProofObj, parser):
         return response
 
 
-
-RULES_CHOICES= {
-    'tfl_basic': 'TFL - Basic Rules Only',
-    'tfl_derived': 'TFL - Basic & Derived Rules',
-    'fol_basic': 'FOL - Basic Rules Only',
-    'fol_derived': 'FOL - Basic & Derived Rules',
-}
-
 def verify_rule(current_line: ProofLineObj, proof: ProofObj, parser):
     """
     Determines what rule is being applied, then calls the appropriate
@@ -90,7 +81,7 @@ def verify_rule(current_line: ProofLineObj, proof: ProofObj, parser):
     if rule == None:
         response = ProofResponse()
         response.err_msg = 'Rule "{}" on line {} not found in ruleset "{}"'\
-            .format(rule_str, str(current_line.line_no), RULES_CHOICES.get(proof.rules))
+            .format(rule_str, str(current_line.line_no), Constants.RULES_CHOICES.get(proof.rules))
         return response     
     else:
         return rule.verify(current_line, proof, parser)

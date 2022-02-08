@@ -560,7 +560,7 @@ class ProofTests(TestCase):
         parser = tflparser.parser
         result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Syntax error on line 1")
+        self.assertEqual(result.err_msg, 'Syntax error on line 1.  Expression "A∧" does not conform to ruleset "TFL - Basic Rules Only"')
     
         # Test with a valid but incomplete proof
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
