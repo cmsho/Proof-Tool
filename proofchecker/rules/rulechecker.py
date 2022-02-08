@@ -1,3 +1,4 @@
+from proofchecker.proofs.proofobjects import ProofObj
 from proofchecker.rules.assumption import Assumption
 from proofchecker.rules.biconditionalelim import BiconditionalElim
 from proofchecker.rules.biconditionalintro import BiconditionalIntro
@@ -38,25 +39,29 @@ FOL_DERIVED_RULES = [ConversionOfQuantifiers()]
 
 class RuleChecker:
 
-    def get_rule(self, rule: str):
+    def get_rule(self, rule: str, proof: ProofObj):
         """
         Determine which rule is being applied
         """
+
+        if proof.rules == 'fol_derived':
+            for derived_fol_rule in FOL_DERIVED_RULES:
+                if rule.casefold() == derived_fol_rule.symbols.casefold():
+                    return derived_fol_rule
+
+        if ((proof.rules == 'fol_derived') or (proof.rules == 'fol_basic')):
+            for basic_fol_rule in FOL_BASIC_RULES:
+                if rule.casefold() == basic_fol_rule.symbols.casefold():
+                    return basic_fol_rule
+
+        if ((proof.rules == 'fol_derived') or (proof.rules == 'tfl_derived')):
+            for derived_rule in TFL_DERIVED_RULES:
+                if rule.casefold() == derived_rule.symbols.casefold():
+                    return derived_rule
 
         for basic_rule in TFL_BASIC_RULES:
             if rule.casefold() == basic_rule.symbols.casefold():
                 return basic_rule
 
-        for derived_rule in TFL_DERIVED_RULES:
-            if rule.casefold() == derived_rule.symbols.casefold():
-                return derived_rule
-
-        for basic_fol_rule in FOL_BASIC_RULES:
-            if rule.casefold() == basic_fol_rule.symbols.casefold():
-                return basic_fol_rule
-        
-        for derived_fol_rule in FOL_DERIVED_RULES:
-            if rule.casefold() == derived_fol_rule.symbols.casefold():
-                return derived_fol_rule
                 
         return None

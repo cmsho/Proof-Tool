@@ -29,17 +29,18 @@ from proofchecker.utils import tflparser
 class RuleCheckerTests(TestCase):
 
     def test_get_rule(self):
+        proof = ProofObj()
         checker = RuleChecker()
         str1 = '∧E'
         str2 = '∨I'
         str3 = '¬E'
         str4 = '↔I'
         str5 = '↔E'
-        self.assertTrue(isinstance(checker.get_rule(str1), ConjunctionElim))
-        self.assertTrue(isinstance(checker.get_rule(str2), DisjunctionIntro))
-        self.assertTrue(isinstance(checker.get_rule(str3), NegationElim))
-        self.assertTrue(isinstance(checker.get_rule(str4), BiconditionalIntro))
-        self.assertTrue(isinstance(checker.get_rule(str5), BiconditionalElim))
+        self.assertTrue(isinstance(checker.get_rule(str1, proof), ConjunctionElim))
+        self.assertTrue(isinstance(checker.get_rule(str2, proof), DisjunctionIntro))
+        self.assertTrue(isinstance(checker.get_rule(str3, proof), NegationElim))
+        self.assertTrue(isinstance(checker.get_rule(str4, proof), BiconditionalIntro))
+        self.assertTrue(isinstance(checker.get_rule(str5, proof), BiconditionalElim))
 
 
 class BasicRuleTests(TestCase):

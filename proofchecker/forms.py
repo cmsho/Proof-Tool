@@ -1,17 +1,18 @@
 from django import forms
 
-from .models import Proof, ProofLine, Assignment
+from .models import Proof, ProofLine
 
 
 class ProofForm(forms.ModelForm):
     class Meta:
         model = Proof
-        fields = ['name', 'premises', 'conclusion']
+        fields = ['name', 'rules', 'premises', 'conclusion']
 
     def __init__(self, *args, **kwargs):
         super(ProofForm, self).__init__(*args, **kwargs)
         for visible in self.visible_fields():
             visible.field.widget.attrs['onkeydown'] = 'replaceCharacter(this)'
+
 
 class ProofCheckerForm(forms.ModelForm):
     class Meta:
@@ -33,9 +34,3 @@ class ProofLineForm(forms.ModelForm):
         super(ProofLineForm, self).__init__(*args, **kwargs)
         for visible in self.visible_fields():
             visible.field.widget.attrs['onkeydown'] = 'replaceCharacter(this)'
-
-
-class AssignmentForm(forms.ModelForm):
-    class Meta:
-        model = Assignment
-        fields = ['title', 'due_by', 'problems', 'course']

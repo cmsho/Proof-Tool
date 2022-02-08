@@ -334,7 +334,7 @@ class ProofCheckerTests(TestCase):
         # Test reiteration
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'A', 'R 1')
-        proof = ProofObj(lines=[line1, line2])
+        proof = ProofObj(rules='tfl_derived', lines=[line1, line2])
         parser = tflparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
@@ -342,7 +342,7 @@ class ProofCheckerTests(TestCase):
         # Test double not elim
         line1 = ProofLineObj('1', '¬¬A', 'Assumption')
         line2 = ProofLineObj('2', 'A', 'DNE 1')
-        proof = ProofObj(lines=[line1, line2])
+        proof = ProofObj(rules='tfl_derived', lines=[line1, line2])
         parser = tflparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
@@ -429,7 +429,7 @@ class ProofTests(TestCase):
         parser = tflparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Rule on line 2 cannot be determined")
+        self.assertEqual(result.err_msg, 'Rule "E" on line 2 not found in ruleset "TFL - Basic Rules Only"')
 
     def test_verify_proof_with_no_lines(self):
         """
@@ -560,7 +560,7 @@ class ProofTests(TestCase):
         parser = tflparser.parser
         result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Syntax error on line 1")
+        self.assertEqual(result.err_msg, 'Syntax error on line 1.  Expression "A∧" does not conform to ruleset "TFL - Basic Rules Only"')
     
         # Test with a valid but incomplete proof
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
