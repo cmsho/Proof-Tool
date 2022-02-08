@@ -9,7 +9,7 @@ from django.forms import inlineformset_factory
 
 from proofchecker.utils import tflparser
 from proofchecker.utils import folparser
-from .forms import ProofCheckerForm, ProofForm, ProofLineForm, AssignmentForm
+from .forms import ProofCheckerForm, ProofForm, ProofLineForm
 from .models import Proof, Problem, Assignment, Instructor, ProofLine
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import get_premises
@@ -90,6 +90,7 @@ def proof_checker(request):
         "formset": formset
     }
     return render(request, 'proofchecker/proof_checker.html', context)
+
 
 def fol_proof_checker(request):
     ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
@@ -252,14 +253,12 @@ def proof_update_view(request, pk=None):
     return render(request, 'proofchecker/proof_add_edit.html', context)
 
 
-class ProofView(LoginRequiredMixin,ListView):
+class ProofView(LoginRequiredMixin, ListView):
     model = Proof
     template_name = "proofchecker/allproofs.html"
 
     def get_queryset(self):
         return Proof.objects.filter(created_by=self.request.user)
-
-
 
 
 class ProofDetailView(DetailView):
