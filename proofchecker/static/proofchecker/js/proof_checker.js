@@ -24,9 +24,10 @@ function reload_page() {
     sort_table()
     //will decide which button to display between start and restart
     setStartRestartButtonAtBeginning()
+
     hide_make_parent_button()
     hide_conclude_button()
-
+    update_row_indentations()
 }
 
 
