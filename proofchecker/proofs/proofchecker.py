@@ -68,20 +68,29 @@ def verify_proof(proof: ProofObj, parser):
         response.err_msg = "All lines are valid, but the proof is incomplete"
         return response
 
+
+
+RULES_CHOICES= {
+    'tfl_basic': 'TFL - Basic Rules Only',
+    'tfl_derived': 'TFL - Basic & Derived Rules',
+    'fol_basic': 'FOL - Basic Rules Only',
+    'fol_derived': 'FOL - Basic & Derived Rules',
+}
+
 def verify_rule(current_line: ProofLineObj, proof: ProofObj, parser):
     """
     Determines what rule is being applied, then calls the appropriate
     function to verify the rule is applied correctly
     """
-    rule = clean_rule(current_line.rule)
-    rule = rule.split()[0]
+    rule_str = clean_rule(current_line.rule)
+    rule_str = rule_str.split()[0]
     rule_checker = RuleChecker()
-    rule = rule_checker.get_rule(rule, proof)
+    rule = rule_checker.get_rule(rule_str, proof)
 
     if rule == None:
         response = ProofResponse()
-        response.err_msg = "Rule on line {} cannot be determined"\
-            .format(str(current_line.line_no))
+        response.err_msg = 'Rule "{}" on line {} not found in ruleset "{}"'\
+            .format(rule_str, str(current_line.line_no), RULES_CHOICES.get(proof.rules))
         return response     
     else:
         return rule.verify(current_line, proof, parser)

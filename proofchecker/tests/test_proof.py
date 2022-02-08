@@ -429,7 +429,7 @@ class ProofTests(TestCase):
         parser = tflparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Rule on line 2 cannot be determined")
+        self.assertEqual(result.err_msg, 'Rule "E" on line 2 not found in ruleset "TFL - Basic Rules Only"')
 
     def test_verify_proof_with_no_lines(self):
         """
