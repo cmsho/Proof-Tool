@@ -21,6 +21,8 @@ def validate_line_no(value):
         )
 
 # TODO: This has to adjust based on parser... need to fix
+
+
 def validate_formula(value):
     try:
         make_tree(value, tflparser.parser)
@@ -39,10 +41,12 @@ class User(AbstractUser):
 
 
 class Student(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='profile_pics\default.png', upload_to='profile_pics', null=True, blank=True)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(default='profile_pics/default.png',
+                              upload_to='profile_pics', null=True, blank=True)
     mobile = models.CharField(max_length=10, null=True, default="xxxxxxxxxx")
-    bio = models.TextField(max_length=500,blank=True)
+    bio = models.TextField(max_length=500, blank=True)
     dob = models.DateField(null=True, blank=True)
 
     def __str__(self):
@@ -60,10 +64,12 @@ class Student(models.Model):
 
 
 class Instructor(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='profile_pics\default.png', upload_to='profile_pics', null=True, blank=True)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(default='profile_pics/default.png',
+                              upload_to='profile_pics', null=True, blank=True)
     mobile = models.CharField(max_length=10, null=True, default="xxxxxxxxxx")
-    bio = models.TextField(max_length=500,blank=True)
+    bio = models.TextField(max_length=500, blank=True)
     dob = models.DateField(null=True, blank=True)
 
     def __str__(self):
