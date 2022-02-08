@@ -30,9 +30,6 @@ def validate_formula(value):
             params={'value': value},
         )
 
-# Create your models here.
-
-
 class User(AbstractUser):
     is_student = models.BooleanField(default=False)
     is_instructor = models.BooleanField(default=False)
@@ -42,7 +39,7 @@ class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     image = models.ImageField(default='profile_pics/default.png', upload_to='profile_pics', null=True, blank=True)
     mobile = models.CharField(max_length=10, null=True, default="xxxxxxxxxx")
-    bio = models.TextField(max_length=500,blank=True)
+    bio = models.TextField(max_length=500, blank=True)
     dob = models.DateField(null=True, blank=True)
 
     def __str__(self):
@@ -63,7 +60,7 @@ class Instructor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     image = models.ImageField(default='profile_pics/default.png', upload_to='profile_pics', null=True, blank=True)
     mobile = models.CharField(max_length=10, null=True, default="xxxxxxxxxx")
-    bio = models.TextField(max_length=500,blank=True)
+    bio = models.TextField(max_length=500, blank=True)
     dob = models.DateField(null=True, blank=True)
 
     def __str__(self):
