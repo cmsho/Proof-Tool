@@ -48,7 +48,7 @@ def proof_checker(request):
 
                 # Grab premise and conclusion from the form
                 # Assign them to the proof object
-                # parent = form.save(commit=False)
+                proof.rules = str(parent.rules)
                 proof.premises = get_premises(parent.premises)
                 proof.conclusion = str(parent.conclusion)
 
@@ -69,9 +69,11 @@ def proof_checker(request):
                         # Append the proofline to the proof object's lines
                         proof.lines.append(proofline)
 
-                # TODO: If user selects TFL, use TFL parser
-                #       If user selects FOL, use FOL parser
-                parser = tflparser.parser
+                # Determine which parser to user based on selected rules
+                if ((proof.rules == 'fol_basic') or (proof.rules == 'fol_derived')):
+                    parser = folparser.parser
+                else:
+                    parser = tflparser.parser
 
                 # Verify the proof!
                 response = verify_proof(proof, parser)
@@ -168,6 +170,7 @@ def proof_create_view(request):
 
             if 'check_proof' in request.POST:
                 proof = ProofObj(lines=[])  #
+                proof.rules = str(parent.rules)
                 proof.premises = get_premises(parent.premises)
                 proof.conclusion = str(parent.conclusion)
 
@@ -181,9 +184,11 @@ def proof_create_view(request):
                         proofline.rule = str(child.rule)
                         proof.lines.append(proofline)
 
-                # TODO: If user selects TFL, use TFL parser
-                #       If user selects FOL, use FOL parser
-                parser = tflparser.parser
+                # Determine which parser to user based on selected rules
+                if ((proof.rules == 'fol_basic') or (proof.rules == 'fol_derived')):
+                    parser = folparser.parser
+                else:
+                    parser = tflparser.parser
 
                 response = verify_proof(proof, parser)
 

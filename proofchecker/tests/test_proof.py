@@ -334,7 +334,7 @@ class ProofCheckerTests(TestCase):
         # Test reiteration
         line1 = ProofLineObj('1', 'A', 'Premise')
         line2 = ProofLineObj('2', 'A', 'R 1')
-        proof = ProofObj(lines=[line1, line2])
+        proof = ProofObj(rules='tfl_derived', lines=[line1, line2])
         parser = tflparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
@@ -342,7 +342,7 @@ class ProofCheckerTests(TestCase):
         # Test double not elim
         line1 = ProofLineObj('1', '¬¬A', 'Assumption')
         line2 = ProofLineObj('2', 'A', 'DNE 1')
-        proof = ProofObj(lines=[line1, line2])
+        proof = ProofObj(rules='tfl_derived', lines=[line1, line2])
         parser = tflparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)

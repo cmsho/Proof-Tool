@@ -79,9 +79,16 @@ class Instructor(models.Model):
             img.thumbnail(output_size)
             img.save(self.image.path)
 
+RULES_CHOICES= (
+    ('tfl_basic', 'TFL - Basic Rules Only'),
+    ('tfl_derived', 'TFL - Basic & Derived Rules'),
+    ('fol_basic', 'FOL - Basic Rules Only'),
+    ('fol_derived', 'FOL - Basic & Derived Rules'),
+)
 
 class Proof(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True, default="New Proof")
+    rules = models.CharField(max_length=255, choices=RULES_CHOICES, default='tfl_basic')
     premises = models.CharField(max_length=255, blank=True, null=True)
     conclusion = models.CharField(max_length=255)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
