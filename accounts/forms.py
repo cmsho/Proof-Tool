@@ -16,7 +16,7 @@ class StudentSignUpForm(UserCreationForm):
     def clean_email(self):
         if User.objects.filter(email=self.cleaned_data['email']).exists():
             raise forms.ValidationError(
-                "the given email is already registered")
+                "The given e-mail address is already registered")
         return self.cleaned_data['email']
 
     class Meta:
@@ -40,7 +40,7 @@ class InstructorSignUpForm(UserCreationForm):
     def clean_email(self):
         if User.objects.filter(email=self.cleaned_data['email']).exists():
             raise forms.ValidationError(
-                "the given email is already registered")
+                "The given e-mail address is already registered")
         return self.cleaned_data['email']
 
     class Meta:
