@@ -24,7 +24,9 @@ function reload_page() {
     sort_table()
     //will decide which button to display between start and restart
     setStartRestartButtonAtBeginning()
+    hide_make_parent_button()
     hide_conclude_button()
+
 }
 
 
@@ -82,6 +84,7 @@ function start_proof(element) {
 
     update_form_count()
     hide_conclude_button()
+    hide_make_parent_button()
     element.hidden = true
     document.getElementById("btn_restart_proof").classList.remove("hidden")
     reset_order_fields()
@@ -102,10 +105,24 @@ function restart_proof() {
 function insert_form(obj) {
     //inserts new row with latest index at current object's next position
     insert_row_current_level(get_form_id(obj))
+    hide_make_parent_button()
     hide_conclude_button()
     reset_order_fields()
-    add_row_indentations()
+    update_row_indentations()
 }
+
+/**
+ * Concludes subproof by decreasing the depth of the current row
+ */
+function make_parent(obj) {
+    const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
+    generate_parent_row(currentRow)
+    hide_make_parent_button()
+    hide_conclude_button()
+    reset_order_fields()
+    update_row_indentations()
+}
+
 
 /**
  * Inserts form below current line
@@ -113,9 +130,10 @@ function insert_form(obj) {
 function create_subproof(obj) {
     const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
     generate_new_subproof_row_number(currentRow)
+    hide_make_parent_button()
     hide_conclude_button()
     reset_order_fields()
-    add_row_indentations()
+    update_row_indentations()
 }
 
 /**
@@ -123,10 +141,11 @@ function create_subproof(obj) {
  */
 function conclude_subproof(obj) {
     insert_row_parent_level(get_form_id(obj))
+    hide_make_parent_button()
     hide_conclude_button()
     reset_order_fields()
     obj.disabled = true
-    add_row_indentations()
+    update_row_indentations()
 }
 
 /**
@@ -134,8 +153,9 @@ function conclude_subproof(obj) {
  */
 function delete_form(obj) {
     delete_row(get_form_id(obj))
+    hide_make_parent_button()
     hide_conclude_button()
-    add_row_indentations()
+    update_row_indentations()
 }
 
 
@@ -146,16 +166,46 @@ function delete_form(obj) {
 /**
  * generates new subproof row number
  */
-function generate_new_subproof_row_number(newlyInsertedRow) {
+function generate_new_subproof_row_number(currentRow) {
 
     // Get the row that the button was clicked
-    const original_row_number_of_clicked_button = newlyInsertedRow.children[0].children[0].value
+    const original_row_number_of_clicked_button = currentRow.children[0].children[0].value
     console.log(original_row_number_of_clicked_button)
 
     // Update row number of clicked button
-    newlyInsertedRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
-    newlyInsertedRow.children[2].children[0].value = 'Assumption'
+    currentRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
+    currentRow.children[2].children[0].value = 'Assumption'
 }
+
+
+/**
+ * generates new subproof row number
+ */
+function generate_parent_row(currentRow) {
+
+    // Get the row that the button was clicked
+    const original_row_number_of_clicked_button = currentRow.children[0].children[0].value
+
+    const originalCurrentRowInfo = getObjectsRowInfo(currentRow);
+    //get final value of prev row lineno and add 1 to it
+    const originalCurrentRowLineNumberSegments = originalCurrentRowInfo.prefix_of_row;
+    const originalCurrentRowLastNumberSegment = originalCurrentRowLineNumberSegments[originalCurrentRowLineNumberSegments.length - 1];
+
+    originalCurrentRowLineNumberSegments[originalCurrentRowLineNumberSegments.length - 1] = originalCurrentRowInfo.final_value == 1 ? Number(originalCurrentRowLastNumberSegment) : Number(originalCurrentRowLastNumberSegment) + 1
+
+    // originalCurrentRowLineNumberSegments[originalCurrentRowLineNumberSegments.length - 1] = Number(originalCurrentRowLastNumberSegment) + 1
+    currentRow.children[0].children[0].value = originalCurrentRowLineNumberSegments.join('.')
+    currentRow.children[0].children[0].setAttribute("readonly", true)
+
+
+    if (originalCurrentRowInfo.final_value != 1) {
+        renumber_rows(1, currentRow)
+
+    }
+
+    reset_order_fields()
+}
+
 
 
 /**
@@ -181,6 +231,7 @@ function insert_row_current_level(index) {
  * inserts a row at parent level when CONCLUDE SUBPROOF button is clicked
  */
 function insert_row_parent_level(index) {
+
     const newRow = insert_new_form_at_index(index + 1);
     const prevRowInfo = getObjectsRowInfo(getPreviousValidRow(newRow));
 
@@ -598,7 +649,7 @@ function renumber_rows(direction, newlyChangedRow) {
 
 
 /** This function adds indentation to all of the sub proofs */
-function add_row_indentations() {
+function update_row_indentations() {
 
     if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
         let row = document.getElementById(`${FORMSET_PREFIX}-0`)
@@ -607,9 +658,14 @@ function add_row_indentations() {
             let row_number = row.children[0].children[0].value;
             let sub_proof_depth = row_number.match(/\./g) ? row_number.match(/\./g).length : 0;
 
+            // Add a margin if it's a sub proof
             if (sub_proof_depth > 0) {
                 let margin = 40 * sub_proof_depth
                 row.children[0].children[0].style.marginLeft = `${margin}px`
+            }
+            // Remove any margin if it's a parent row
+            else {
+                row.children[0].children[0].style.marginLeft = `${0}px`
             }
             row = row.nextElementSibling;
         }
@@ -636,13 +692,46 @@ function updateFormsetId(old_id, new_id) {
     const targeted_element = document.getElementById(FORMSET_PREFIX + '-' + old_id)
     if (targeted_element !== null) {
         document.getElementById(FORMSET_PREFIX + '-' + old_id).setAttribute('id', `${FORMSET_PREFIX}-${new_id}`)
-        const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'create_subproof-btn', 'conclude_subproof-btn', 'delete-btn', 'id', 'DELETE', 'ORDER']
+        const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'make_parent-btn', 'create_subproof-btn', 'conclude_subproof-btn', 'delete-btn', 'id', 'DELETE', 'ORDER']
         fields.forEach(function (field) {
             document.getElementById('id_' + FORMSET_PREFIX + '-' + old_id + '-' + field).setAttribute('name', `${FORMSET_PREFIX}-${new_id}-${field}`)
             document.getElementById('id_' + FORMSET_PREFIX + '-' + old_id + '-' + field).setAttribute('id', `id_${FORMSET_PREFIX}-${new_id}-${field}`)
         })
     }
 }
+
+
+
+function hide_make_parent_button() {
+    let all_conclude_btn = document.getElementById(FORMSET_TBODY_ID).querySelectorAll('.make_parent')
+    for (let i = 0; i < all_conclude_btn.length; i++) {
+        all_conclude_btn.item(i).hidden = false
+    }
+
+    let curr_form_obj = document.getElementById(`${FORMSET_PREFIX}-0`)
+    let next_form_obj = getNextValidRow(curr_form_obj)
+
+    while (curr_form_obj !== null || next_form_obj !== null) {
+        const current_row_info = getObjectsRowInfo(curr_form_obj)
+        if (current_row_info.list_of_line_number.length === 1) {
+            curr_form_obj.children[4].children[0].hidden = true
+        }
+
+        if (next_form_obj !== null) {
+            const next_row_info = getObjectsRowInfo(next_form_obj)
+            if (current_row_info.list_of_line_number.length > 1) {
+                if (current_row_info.string_of_prefix === next_row_info.string_of_prefix) {
+                    curr_form_obj.children[4].children[0].hidden = true
+                }
+            }
+            curr_form_obj = next_form_obj
+            next_form_obj = getNextValidRow(curr_form_obj)
+        } else {
+            break;
+        }
+    }
+}
+
 
 
 /**
@@ -661,14 +750,14 @@ function hide_conclude_button() {
     while (curr_form_obj !== null || next_form_obj !== null) {
         const current_row_info = getObjectsRowInfo(curr_form_obj)
         if (current_row_info.list_of_line_number.length === 1) {
-            curr_form_obj.children[6].children[0].hidden = true
+            curr_form_obj.children[7].children[0].hidden = true
         }
 
         if (next_form_obj !== null) {
             const next_row_info = getObjectsRowInfo(next_form_obj)
             if (current_row_info.list_of_line_number.length > 1) {
                 if (current_row_info.string_of_prefix === next_row_info.string_of_prefix) {
-                    curr_form_obj.children[6].children[0].hidden = true
+                    curr_form_obj.children[7].children[0].hidden = true
                 }
             }
             curr_form_obj = next_form_obj
