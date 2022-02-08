@@ -21,8 +21,6 @@ def validate_line_no(value):
         )
 
 # TODO: This has to adjust based on parser... need to fix
-
-
 def validate_formula(value):
     try:
         make_tree(value, tflparser.parser)
@@ -32,19 +30,14 @@ def validate_formula(value):
             params={'value': value},
         )
 
-# Create your models here.
-
-
 class User(AbstractUser):
     is_student = models.BooleanField(default=False)
     is_instructor = models.BooleanField(default=False)
 
 
 class Student(models.Model):
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='profile_pics/default.png',
-                              upload_to='profile_pics', null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(default='profile_pics/default.png', upload_to='profile_pics', null=True, blank=True)
     mobile = models.CharField(max_length=10, null=True, default="xxxxxxxxxx")
     bio = models.TextField(max_length=500, blank=True)
     dob = models.DateField(null=True, blank=True)
@@ -64,10 +57,8 @@ class Student(models.Model):
 
 
 class Instructor(models.Model):
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='profile_pics/default.png',
-                              upload_to='profile_pics', null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(default='profile_pics/default.png', upload_to='profile_pics', null=True, blank=True)
     mobile = models.CharField(max_length=10, null=True, default="xxxxxxxxxx")
     bio = models.TextField(max_length=500, blank=True)
     dob = models.DateField(null=True, blank=True)
@@ -85,10 +76,17 @@ class Instructor(models.Model):
             img.thumbnail(output_size)
             img.save(self.image.path)
 
+RULES_CHOICES= (
+    ('tfl_basic', 'TFL - Basic Rules Only'),
+    ('tfl_derived', 'TFL - Basic & Derived Rules'),
+    ('fol_basic', 'FOL - Basic Rules Only'),
+    ('fol_derived', 'FOL - Basic & Derived Rules'),
+)
 
 class Proof(models.Model):
-    name = models.CharField(max_length=255, null=True, default="New Proof")
-    premises = models.CharField(max_length=255, null=True)
+    name = models.CharField(max_length=255, blank=True, null=True, default="New Proof")
+    rules = models.CharField(max_length=255, choices=RULES_CHOICES, default='tfl_basic')
+    premises = models.CharField(max_length=255, blank=True, null=True)
     conclusion = models.CharField(max_length=255)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -139,6 +137,8 @@ class Course(models.Model):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return "/courses"
 
 class Assignment(models.Model):
     title = models.CharField(max_length=255, null=True)

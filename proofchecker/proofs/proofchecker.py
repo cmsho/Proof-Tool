@@ -76,7 +76,7 @@ def verify_rule(current_line: ProofLineObj, proof: ProofObj, parser):
     rule = clean_rule(current_line.rule)
     rule = rule.split()[0]
     rule_checker = RuleChecker()
-    rule = rule_checker.get_rule(rule)
+    rule = rule_checker.get_rule(rule, proof)
 
     if rule == None:
         response = ProofResponse()

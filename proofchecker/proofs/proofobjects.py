@@ -1,7 +1,8 @@
 # Objects
 class ProofObj:
     
-    def __init__(self, premises=[], conclusion='', lines=[], created_by=''):
+    def __init__(self, rules='tfl_basic', premises=[], conclusion='', lines=[], created_by=''):
+        self.rules = rules
         self.premises = premises
         self.conclusion = conclusion
         self.lines = lines

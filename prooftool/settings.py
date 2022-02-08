@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "django_htmx",
     'proofchecker',
+    'assignments',
+    'courses',
 
 ]
 

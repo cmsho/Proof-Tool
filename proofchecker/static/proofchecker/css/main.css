@@ -175,6 +175,16 @@ tt {
   width:10%;
 }
 
+#id_rules{
+  width:100%;
+  margin-bottom: 5px;
+}
+
+#id_name{
+  width:100%;
+  margin-bottom: 5px;
+}
+
 #id_premises{
   width:100%;
   margin-bottom: 5px;

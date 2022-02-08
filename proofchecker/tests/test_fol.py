@@ -93,7 +93,7 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1', 'A(x)', 'Premise')
         line2 = ProofLineObj('2', 'B(x)', 'Premise')
         line3 = ProofLineObj('3', 'A(x)∧B(x)', '∧I 1, 2')
-        proof = ProofObj(lines=[line1, line2, line3])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2, line3])
         parser = folparser.parser
         result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
@@ -102,7 +102,7 @@ class ProofCheckerTests(TestCase):
         # Test and_elim
         line1 = ProofLineObj('1', 'A(x)∧B(x)', 'Premise')
         line2 = ProofLineObj('2', 'A(x)', '∧E 1')
-        proof = ProofObj(lines=[line1, line2])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2])
         parser = folparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
@@ -110,7 +110,7 @@ class ProofCheckerTests(TestCase):
         # Test or_intro
         line1 = ProofLineObj('1', 'A(x)', 'Premise')
         line2 = ProofLineObj('2', 'A(x)∨B(x)', '∨I 1')
-        proof = ProofObj(lines=[line1, line2])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2])
         parser = folparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
@@ -122,7 +122,7 @@ class ProofCheckerTests(TestCase):
         line4 = ProofLineObj('3.1', 'B(x)', 'Assumption')
         line5 = ProofLineObj('3.2', 'C(x)', 'Assumption')
         line6 = ProofLineObj('4', 'C(x)', '∨E 1, 2, 3')
-        proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2, line3, line4, line5, line6])
         parser = folparser.parser
         result = verify_rule(line6, proof, parser)
         self.assertTrue(result.is_valid)
@@ -131,7 +131,7 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1.1', 'A(x)', 'Premise')
         line2 = ProofLineObj('1.2', '⊥', 'Premise')
         line3 = ProofLineObj('2', '¬A(x)', '¬I 1')
-        proof = ProofObj(lines=[line1, line2, line3])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2, line3])
         parser = folparser.parser
         result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
@@ -140,7 +140,7 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1', '¬A(x)', 'Premise')
         line2 = ProofLineObj('2', 'A(x)', 'Premise')
         line3 = ProofLineObj('3', '⊥', '¬E 1, 2')
-        proof = ProofObj(lines=[line1, line2, line3])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2, line3])
         parser = folparser.parser
         result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
@@ -149,7 +149,7 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1.1', 'A(x)', 'Assumption')
         line2 = ProofLineObj('1.2', 'B(x)', 'Assumption')
         line3 = ProofLineObj('2', 'A(x)→B(x)', '→I 1')
-        proof = ProofObj(lines=[line1, line2, line3])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2, line3])
         parser = folparser.parser
         result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
@@ -158,7 +158,7 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1', 'A(x)→B(x)', 'Premise')
         line2 = ProofLineObj('2', 'A(x)', 'Premise')
         line3 = ProofLineObj('3', 'B(x)', '→E 1, 2')
-        proof = ProofObj(lines=[line1, line2, line3])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2, line3])
         parser = folparser.parser
         result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
@@ -167,7 +167,7 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1.1', '¬A(x)', 'Premise')
         line2 = ProofLineObj('1.2', '⊥', 'Premise')
         line3 = ProofLineObj('2', 'A(x)', 'IP 1')
-        proof = ProofObj(lines=[line1, line2, line3])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2, line3])
         parser = folparser.parser
         result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
@@ -175,7 +175,7 @@ class ProofCheckerTests(TestCase):
         # Test explosion
         line1 = ProofLineObj('1', '⊥', 'Premise')
         line2 = ProofLineObj('2', 'B(x)', 'X 1')
-        proof = ProofObj(lines=[line1, line2])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2])
         parser = folparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
@@ -186,7 +186,7 @@ class ProofCheckerTests(TestCase):
         line3 = ProofLineObj('2.1', 'B(x)', 'Assumption')
         line4 = ProofLineObj('2.2', 'A(x)', 'Assumption')
         line5 = ProofLineObj('3', 'A(x)↔B(x)', '↔I 1, 2')
-        proof = ProofObj(lines=[line1, line2, line3, line4, line5])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2, line3, line4, line5])
         parser = folparser.parser
         result = verify_rule(line5, proof, parser)
         self.assertTrue(result.is_valid)
@@ -196,7 +196,7 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1', 'A(x)↔B(x)', 'Assumption')
         line2 = ProofLineObj('2', 'A(x)', 'Assumption')
         line3 = ProofLineObj('3', 'B(x)', '↔E 1, 2')
-        proof = ProofObj(lines=[line1, line2, line3])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2, line3])
         parser = folparser.parser
         result = verify_rule(line3, proof, parser)
         self.assertTrue(result.is_valid)
@@ -205,8 +205,7 @@ class ProofCheckerTests(TestCase):
         # Test reiteration
         line1 = ProofLineObj('1', 'A(x)', 'Premise')
         line2 = ProofLineObj('2', 'A(x)', 'R 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2])
         parser = folparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
@@ -214,8 +213,7 @@ class ProofCheckerTests(TestCase):
         # Test double not elim
         line1 = ProofLineObj('1', '¬¬A(x)', 'Assumption')
         line2 = ProofLineObj('2', 'A(x)', 'DNE 1')
-        proof = ProofObj(lines=[])
-        proof.lines.extend([line1, line2])
+        proof = ProofObj(rules='fol_derived', lines=[line1, line2])
         parser = folparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertTrue(result.is_valid)
@@ -230,7 +228,7 @@ class ProofCheckerTests(TestCase):
         line1 = ProofLineObj('1', 'A(x)', 'Premise')
         line2 = ProofLineObj('2', 'B(x)', 'Premise')
         line3 = ProofLineObj('3', 'A(x)∧B(x)', '∧I 1, 2')
-        proof = ProofObj(premises=['A(x)', 'B(x)'], conclusion='A(x)∧B(x)', lines=[line1, line2, line3])
+        proof = ProofObj(rules='fol_derived', premises=['A(x)', 'B(x)'], conclusion='A(x)∧B(x)', lines=[line1, line2, line3])
         parser = folparser.parser
         result = verify_proof(proof, parser)
         self.assertTrue(result.is_valid)

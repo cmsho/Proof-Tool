@@ -1,0 +1,11 @@
+{% extends 'proofchecker/base.html' %}
+
+{% block content %}
+    <a href="{% url 'add_assignment' %}" class="btn btn-primary"> Create new Assignment </a>
+    <hr>
+    <ul>
+        {% for assignment in object_list %}
+            <li>{{ assignment.title }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
