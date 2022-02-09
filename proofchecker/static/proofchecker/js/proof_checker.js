@@ -33,7 +33,6 @@ function reload_page() {
     setStartRestartButtonAtBeginning()
 
     hide_make_parent_button()
-    hide_conclude_button()
     update_row_indentations()
 }
 
@@ -91,7 +90,6 @@ function start_proof(element) {
     }
 
     update_form_count()
-    hide_conclude_button()
     hide_make_parent_button()
     element.hidden = true
     document.getElementById("btn_restart_proof").classList.remove("hidden")
@@ -114,7 +112,6 @@ function insert_form(obj) {
     //inserts new row with latest index at current object's next position
     insert_row_current_level(get_form_id(obj))
     hide_make_parent_button()
-    hide_conclude_button()
     reset_order_fields()
     update_row_indentations()
 }
@@ -126,7 +123,6 @@ function make_parent(obj) {
     const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
     generate_parent_row(currentRow)
     hide_make_parent_button()
-    hide_conclude_button()
     reset_order_fields()
     update_row_indentations()
 }
@@ -139,7 +135,6 @@ function create_subproof(obj) {
     const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
     generate_new_subproof_row_number(currentRow)
     hide_make_parent_button()
-    hide_conclude_button()
     reset_order_fields()
     update_row_indentations()
 }
@@ -150,7 +145,6 @@ function create_subproof(obj) {
 function conclude_subproof(obj) {
     insert_row_parent_level(get_form_id(obj))
     hide_make_parent_button()
-    hide_conclude_button()
     reset_order_fields()
     obj.disabled = true
     update_row_indentations()
@@ -162,7 +156,6 @@ function conclude_subproof(obj) {
 function delete_form(obj) {
     delete_row(get_form_id(obj))
     hide_make_parent_button()
-    hide_conclude_button()
     update_row_indentations()
 }
 
@@ -740,40 +733,5 @@ function hide_make_parent_button() {
     }
 }
 
-
-
-/**
- * hides conclude subproof button wherever applicable
- */
-function hide_conclude_button() {
-
-    let all_conclude_btn = document.getElementById(FORMSET_TBODY_ID).querySelectorAll('.conclude_subproof')
-    for (let i = 0; i < all_conclude_btn.length; i++) {
-        all_conclude_btn.item(i).hidden = false
-    }
-
-    let curr_form_obj = document.getElementById(`${FORMSET_PREFIX}-0`)
-    let next_form_obj = getNextValidRow(curr_form_obj)
-
-    while (curr_form_obj !== null || next_form_obj !== null) {
-        const current_row_info = getObjectsRowInfo(curr_form_obj)
-        if (current_row_info.list_of_line_number.length === 1) {
-            curr_form_obj.children[7].children[0].hidden = true
-        }
-
-        if (next_form_obj !== null) {
-            const next_row_info = getObjectsRowInfo(next_form_obj)
-            if (current_row_info.list_of_line_number.length > 1) {
-                if (current_row_info.string_of_prefix === next_row_info.string_of_prefix) {
-                    curr_form_obj.children[7].children[0].hidden = true
-                }
-            }
-            curr_form_obj = next_form_obj
-            next_form_obj = getNextValidRow(curr_form_obj)
-        } else {
-            break;
-        }
-    }
-}
 
 // ---------------------------------------------------------------------------------------------------------------------
