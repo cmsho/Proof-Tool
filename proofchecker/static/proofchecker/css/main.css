@@ -197,11 +197,6 @@ tt {
 
 
 
-/* Line number widths */
-/* #line-number-column{
-  width:;
-} */
-
 [id$=line_no]{
   width:75px;
 }
