@@ -16,6 +16,5 @@ urlpatterns = [
     path("proofs/<pk>/delete/", views.ProofDeleteView.as_view(), name="delete_proof"),
     path("proofs/assignmentpage/", views.AssignmentPage, name='assignment_page'),
     path("proofs/checker/", views.proof_checker, name='proof_checker'),
-    path("proofs/folchecker/", views.fol_proof_checker, name='fol_proof_checker'),
     path("proofs/syntaxtest", views.SyntaxTestPage, name='syntax_test'),
 ]
