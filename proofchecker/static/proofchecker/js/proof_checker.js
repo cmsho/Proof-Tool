@@ -632,7 +632,7 @@ function update_row_indentations() {
 
             // Add a margin if it's a sub proof
             if (sub_proof_depth > 0) {
-                let margin = 40 * sub_proof_depth
+                let margin = 25 * sub_proof_depth
                 row.children[0].children[0].style.marginLeft = `${margin}px`
             }
             // Remove any margin if it's a parent row
@@ -677,7 +677,8 @@ function updateFormsetId(old_id, new_id) {
 function hide_make_parent_button() {
     let all_conclude_btn = document.getElementById(FORMSET_TBODY_ID).querySelectorAll('.make_parent')
     for (let i = 0; i < all_conclude_btn.length; i++) {
-        all_conclude_btn.item(i).hidden = false
+        // all_conclude_btn.item(i).hidden = false
+        all_conclude_btn.item(i).disabled = false
     }
 
     let curr_form_obj = document.getElementById(`${FORMSET_PREFIX}-0`)
@@ -686,14 +687,17 @@ function hide_make_parent_button() {
     while (curr_form_obj !== null || next_form_obj !== null) {
         const current_row_info = getObjectsRowInfo(curr_form_obj)
         if (current_row_info.list_of_line_number.length === 1) {
-            curr_form_obj.children[4].children[0].hidden = true
+            // curr_form_obj.children[4].children[0].hidden = true
+            curr_form_obj.children[4].children[0].disabled = true
         }
 
         if (next_form_obj !== null) {
             const next_row_info = getObjectsRowInfo(next_form_obj)
             if (current_row_info.list_of_line_number.length > 1) {
                 if (current_row_info.string_of_prefix === next_row_info.string_of_prefix) {
-                    curr_form_obj.children[4].children[0].hidden = true
+                    // curr_form_obj.children[4].children[0].hidden = true
+                    curr_form_obj.children[4].children[0].disabled = true
+
                 }
             }
             curr_form_obj = next_form_obj

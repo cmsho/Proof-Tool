@@ -194,3 +194,14 @@ tt {
   width:100%;
   margin-bottom: 5px;
 }
+
+
+
+/* Line number widths */
+/* #line-number-column{
+  width:;
+} */
+
+[id$=line_no]{
+  width:75px;
+}
