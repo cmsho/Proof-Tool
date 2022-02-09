@@ -1,7 +1,7 @@
 
 .full-menu{
   height:100%;
-  margin-left: 15px;
+  margin-left: 25px;
   overflow: hidden;
   overflow-y : scroll;
 }
@@ -14,6 +14,7 @@
   cursor: pointer;
   float: left;  
   font-weight: bold;
+  width:95px;
 }
 
 .btn-group button:not(:last-child) {
