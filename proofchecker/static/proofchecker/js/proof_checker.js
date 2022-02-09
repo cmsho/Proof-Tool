@@ -139,16 +139,6 @@ function create_subproof(obj) {
     update_row_indentations()
 }
 
-/**
- * concludes subproof
- */
-function conclude_subproof(obj) {
-    insert_row_parent_level(get_form_id(obj))
-    hide_make_parent_button()
-    reset_order_fields()
-    obj.disabled = true
-    update_row_indentations()
-}
 
 /**
  * delete current row
@@ -228,25 +218,6 @@ function insert_row_current_level(index) {
     reset_order_fields()
 }
 
-/**
- * inserts a row at parent level when CONCLUDE SUBPROOF button is clicked
- */
-function insert_row_parent_level(index) {
-
-    const newRow = insert_new_form_at_index(index + 1);
-    const prevRowInfo = getObjectsRowInfo(getPreviousValidRow(newRow));
-
-    //get final value of prev row lineno and add 1 to it
-    const prevRowLineNumberSegments = prevRowInfo.prefix_of_row;
-    const prevRowLastNumberSegment = prevRowLineNumberSegments[prevRowLineNumberSegments.length - 1];
-    //generating new row line numbers
-    prevRowLineNumberSegments[prevRowLineNumberSegments.length - 1] = Number(prevRowLastNumberSegment) + 1
-    newRow.children[0].children[0].value = prevRowLineNumberSegments.join('.')
-    newRow.children[0].children[0].setAttribute("readonly", true)
-
-    renumber_rows(1, newRow)
-    reset_order_fields()
-}
 
 /**
  * deletes the row where obj is located
@@ -381,8 +352,8 @@ function sort_table() {
             switch_flag = false;
 
             // Fetch 2 elements that need to be compared
-            x = rows[i].getElementsByTagName("input")[6].value
-            y = rows[i + 1].getElementsByTagName("input")[6].value
+            x = rows[i].getElementsByTagName("input")[5].value
+            y = rows[i + 1].getElementsByTagName("input")[5].value
 
             // Check if 2 rows need to be switched
             if (parseInt(x) > parseInt(y)) {
@@ -693,7 +664,7 @@ function updateFormsetId(old_id, new_id) {
     const targeted_element = document.getElementById(FORMSET_PREFIX + '-' + old_id)
     if (targeted_element !== null) {
         document.getElementById(FORMSET_PREFIX + '-' + old_id).setAttribute('id', `${FORMSET_PREFIX}-${new_id}`)
-        const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'make_parent-btn', 'create_subproof-btn', 'conclude_subproof-btn', 'delete-btn', 'id', 'DELETE', 'ORDER']
+        const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'make_parent-btn', 'create_subproof-btn', 'delete-btn', 'id', 'DELETE', 'ORDER']
         fields.forEach(function (field) {
             document.getElementById('id_' + FORMSET_PREFIX + '-' + old_id + '-' + field).setAttribute('name', `${FORMSET_PREFIX}-${new_id}-${field}`)
             document.getElementById('id_' + FORMSET_PREFIX + '-' + old_id + '-' + field).setAttribute('id', `id_${FORMSET_PREFIX}-${new_id}-${field}`)

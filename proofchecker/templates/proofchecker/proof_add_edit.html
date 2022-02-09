@@ -93,10 +93,6 @@
                         </button>
 
                     </td>
-                    <td>
-                        <input class="conclude_subproof btn btn-light" type="button" name="proofline_set-{{ forloop.counter0 }}-conclude_subproof-btn"
-                            id="id_proofline_set-{{ forloop.counter0 }}-conclude_subproof-btn" value="Conclude Subproof" onclick="conclude_subproof(this)">
-                    </td>
 
                     <td hidden>{{ line.id }}{{ line.DELETE }}{{ line.ORDER }}</td>
                 </tr>
@@ -146,10 +142,7 @@
                     </svg>
                 </button>
             </td>
-            <td>
-                <input class="conclude_subproof btn btn-light" type="button" name="proofline_set-__prefix__-conclude_subproof-btn" id="id_proofline_set-__prefix__-conclude_subproof-btn"
-                    value="Conclude Subproof" onclick="conclude_subproof(this)">
-            </td>
+
             <td hidden>{{ formset.empty_form.id }}{{ formset.empty_form.DELETE }}{{ formset.empty_form.ORDER }}</td>
         </tr>
     </table>
