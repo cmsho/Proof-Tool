@@ -11,6 +11,13 @@ const FORMSET_TR_CLASS = "proofline_set";                       // for modelform
 document.addEventListener('DOMContentLoaded', reload_page, false);
 
 
+// Functionality for hovering on the buttons
+$(document).ready(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+});
+
+
+
 // ---------------------------------------------------------------------------------------------------------------------
 // functions
 // ---------------------------------------------------------------------------------------------------------------------
@@ -365,7 +372,7 @@ function reset_order_fields() {
 
 
 /**
- * this function sorts formset table based on ORDER (input no 9) field.
+ * this function sorts formset table based on ORDER (input no 12) field.
  */
 function sort_table() {
     let switch_flag;
@@ -381,8 +388,8 @@ function sort_table() {
             switch_flag = false;
 
             // Fetch 2 elements that need to be compared
-            x = rows[i].getElementsByTagName("input")[9].value
-            y = rows[i + 1].getElementsByTagName("input")[9].value
+            x = rows[i].getElementsByTagName("input")[6].value
+            y = rows[i + 1].getElementsByTagName("input")[6].value
 
             // Check if 2 rows need to be switched
             if (parseInt(x) > parseInt(y)) {
