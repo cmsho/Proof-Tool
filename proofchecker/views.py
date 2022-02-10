@@ -93,6 +93,8 @@ def proof_checker(request):
     }
     return render(request, 'proofchecker/proof_checker.html', context)
 
+
+
 @login_required
 def proof_create_view(request):
     ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
