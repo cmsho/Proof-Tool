@@ -69,7 +69,7 @@ def create_problem(request):
                     parent.save()
                     formset.save()
                     Problem.objects.create(proof=parent, grade=form.cleaned_data.get("grade"))
-                    return HttpResponseRedirect(reverse('all_proofs'))
+                    return HttpResponseRedirect(reverse('all_problems'))
 
     context = {
         "object": form,
@@ -78,3 +78,12 @@ def create_problem(request):
         "response": response
     }
     return render(request, 'assignments/problem_add_edit.html', context)
+
+
+class ProblemView(ListView):
+    model = Problem
+    template_name = "assignments/problems.html"
+
+
+    # def get_queryset(self):
+    #     return Problem.objects.filter(instructor__user=self.request.user)

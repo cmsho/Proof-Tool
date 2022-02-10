@@ -7,8 +7,6 @@ admin.site.site_header = "ProofChecker Admin"
 
 urlpatterns = [
     path('', views.home, name='home'),
-
-    path("problems/", views.ProblemView.as_view(), name="all_problems"),
     path("proofs/", views.ProofView.as_view(), name="all_proofs"),
     path("proofs/new/", views.proof_create_view, name="add_proof"),
     path('proofs/<int:pk>/', views.ProofDetailView.as_view(), name='proof_detail'),
