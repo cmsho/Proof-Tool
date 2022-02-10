@@ -14,7 +14,7 @@
   cursor: pointer;
   float: left;  
   font-weight: bold;
-  width:95px;
+  width:145px;
 }
 
 .btn-group button:not(:last-child) {
@@ -75,9 +75,15 @@ table{
   margin-right: auto;
 }
 
-#info-information {
+
+#rules-information {
+  text-align:left;
+  display:visible;
+}
+
+#help-information {
   text-align: left;
-  display: visible;
+  display: none;
 }
 
 #left{
@@ -104,16 +110,10 @@ table{
 }
 
 
-#info-table{
+#help-table{
   width:90%;
 }
 
 
-#rules-information {
-  text-align:left;
-  display:none;
-}
 
-#other-information {
-  display:none;
-}
+

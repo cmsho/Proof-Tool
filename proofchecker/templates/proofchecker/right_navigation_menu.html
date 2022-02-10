@@ -2,15 +2,99 @@
 
 <div class="full-menu">
     <div class="btn-group">
-        <button id="info" onclick="showInformation(this.id)">Info</button>
         <button id="rules" onclick="showInformation(this.id)">Rules</button>
-        <button id="other" onclick="showInformation(this.id)">Other</button>
+        <button id="help" onclick="showInformation(this.id)">Help</button>
     </div>
 
     <div id="menu">
-        <div id="info-information">
+
+        <div id="rules-information">
+            <div id="main-header">Basic TFL Rules:</div>
+
+            <div id="item-name">Conjunction:</div>
+            <img src="{% static 'proofchecker/images/and_intro.png' %}" alt="Conjunction Introduction" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/and_elim1.png' %}" alt="Conjunction Elimination 1" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/and_elim2.png' %}" alt="Conjunction Elimination 2" class="py-3 px-1">
+
+
+            <div id="item-name">Disjunction:</div>
+            <img src="{% static 'proofchecker/images/or_intro1.png' %}" alt="Disjunction Introduction 1" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/or_intro2.png' %}" alt="Disjunction Introduction 2" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/or_elim.png' %}" alt="Disjunction Elimination" class="py-3 px-1">
+
+            <div id="item-name">Negation:</div>
+            <img src="{% static 'proofchecker/images/not_intro.png' %}" alt="Negation Introduction" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/not_elim.png' %}" alt="Negation Elimination" class="py-3 px-1">
+
+            <div id="item-name">Implication:</div>
+            <img src="{% static 'proofchecker/images/implies_intro.png' %}" alt="Implication Introduction" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/implies_elim.png' %}" alt="Implication Elimination" class="py-3 px-1">
+
+            <div id="item-name">Biconditional:</div>
+            <img src="{% static 'proofchecker/images/iff_intro.png' %}" alt="Biconditional Introduction" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/iff_elim1.png' %}" alt="Biconditional Elimination 1" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/iff_elim2.png' %}" alt="Biconditional Elimination 2" class="py-3 px-1">
+
+            <div id="item-name">Indirect Proof:</div>
+            <img src="{% static 'proofchecker/images/indirect_proof.png' %}" alt="Indirect Proof" class="py-3 px-1">
+
+            <div id="item-name">Explosion:</div>
+            <img src="{% static 'proofchecker/images/explosion.png' %}" alt="Explosion" class="py-3 px-1">
+
+
+            <div id="main-header">Derived TFL Rules:</div>
+
+            <div id="item-name">Reiteration:</div>
+            <img src="{% static 'proofchecker/images/reiteration.png' %}" alt="Reiteration" class="py-3 px-1">
+
+            <div id="item-name">Double Negation Elimination:</div>
+            <img src="{% static 'proofchecker/images/dne.png' %}" alt="Double Negation Elimination" class="py-3 px-1">
+
+            <div id="item-name">Reiteration:</div>
+            <img src="{% static 'proofchecker/images/reiteration.png' %}" alt="Reiteration" class="py-3 px-1">
+
+            <div id="item-name">Disjunctive Syllogism:</div>
+            <img src="{% static 'proofchecker/images/ds1.png' %}" alt="Disjunctive Syllogism 1" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/ds2.png' %}" alt="Disjunctive Syllogism 2" class="py-3 px-1">
+
+            <div id="item-name">Modus Tollens:</div>
+            <img src="{% static 'proofchecker/images/mt.png' %}" alt="Modus Tollens" class="py-3 px-1">
+
+            <div id="item-name">Law of Excluded Middle:</div>
+            <img src="{% static 'proofchecker/images/lem.png' %}" alt="Law of Excluded Middle" class="py-3 px-1">
+
+            <div id="item-name">De Morgan Rules:</div>
+            <img src="{% static 'proofchecker/images/dem1.png' %}" alt="De Morgan Rule 1" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/dem2.png' %}" alt="De Morgan Rule 2" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/dem3.png' %}" alt="De Morgan Rule 3" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/dem4.png' %}" alt="De Morgan Rule 4" class="py-3 px-1">
+
+
+            <div id="main-header">Basic FOL Rules:</div>
+
+            <div id="item-name">Existential:</div>
+            <img src="{% static 'proofchecker/images/existential_intro.png' %}" alt="Existential Introduction" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/existential_elim.png' %}" alt="Existential Elimination" class="py-3 px-1">
+
+            <div id="item-name">Universal:</div>
+            <img src="{% static 'proofchecker/images/universal_intro.png' %}" alt="Universal Introduction" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/universal_elim.png' %}" alt="Universal Elimination" class="py-3 px-1">
+
+
+            <div id="main-header">Derived FOL Rules:</div>
+
+            <div id="item-name">Conversion of Quantifiers:</div>
+            <img src="{% static 'proofchecker/images/cq1.png' %}" alt="Conversion of Quantifiers 1" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/cq2.png' %}" alt="Conversion of Quantifiers 2" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/cq3.png' %}" alt="Conversion of Quantifiers 3" class="py-3 px-1">
+            <img src="{% static 'proofchecker/images/cq4.png' %}" alt="Conversion of Quantifiers 4" class="py-3 px-1">
+
+        </div>
+
+
+        <div id="help-information">
             <div id="main-header">How to use:</div>
-            
+
             <div id="sub-header">Atomic sentences:</div>
             <div id="instruction"> Atomic sentences can be represented with uppercase letters A-Z</div>
 
@@ -21,7 +105,7 @@
             <div id="sub-header">Entering symbols:</div>
 
             <div id="instruction"> To enter math symbols, use the bold escape commands below while typing.</div>
-            <table id="info-table">
+            <table id="help-table">
                 <tbody>
                     <tr>
                         <td id="left">Conjunction</td>
@@ -74,7 +158,7 @@
             <div id="sub-header">Row numbering:</div>
 
             <div id="instruction"> Row numbers are represented as a combination of numbers and decimal points.</div>
-            <table id="info-table">
+            <table id="help-table">
                 <tbody>
                     <tr>
                         <td id="left-proof">1</td>
@@ -97,92 +181,6 @@
 
         </div>
 
-        <div id="rules-information">
-            <div id="main-header">Basic TFL Rules:</div>
-
-            <div id="item-name">Conjunction:</div>
-            <img src="{% static 'proofchecker/images/and_intro.png' %}" alt="Conjunction Introduction" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/and_elim1.png' %}" alt="Conjunction Elimination 1" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/and_elim2.png' %}" alt="Conjunction Elimination 2" class="py-3 px-1">
-
-
-            <div id="item-name">Disjunction:</div>
-            <img src="{% static 'proofchecker/images/or_intro1.png' %}" alt="Disjunction Introduction 1" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/or_intro2.png' %}" alt="Disjunction Introduction 2" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/or_elim.png' %}" alt="Disjunction Elimination" class="py-3 px-1">
-
-            <div id="item-name">Negation:</div>
-            <img src="{% static 'proofchecker/images/not_intro.png' %}" alt="Negation Introduction" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/not_elim.png' %}" alt="Negation Elimination" class="py-3 px-1">
-
-            <div id="item-name">Implication:</div>
-            <img src="{% static 'proofchecker/images/implies_intro.png' %}" alt="Implication Introduction" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/implies_elim.png' %}" alt="Implication Elimination" class="py-3 px-1">
-
-            <div id="item-name">Biconditional:</div>
-            <img src="{% static 'proofchecker/images/iff_intro.png' %}" alt="Biconditional Introduction" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/iff_elim1.png' %}" alt="Biconditional Elimination 1" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/iff_elim2.png' %}" alt="Biconditional Elimination 2" class="py-3 px-1">
-
-            <div id="item-name">Indirect Proof:</div>
-            <img src="{% static 'proofchecker/images/indirect_proof.png' %}" alt="Indirect Proof" class="py-3 px-1">
-
-            <div id="item-name">Explosion:</div>
-            <img src="{% static 'proofchecker/images/explosion.png' %}" alt="Explosion" class="py-3 px-1">
-
-            
-            <div id="main-header">Derived TFL Rules:</div>
-            
-            <div id="item-name">Reiteration:</div>
-            <img src="{% static 'proofchecker/images/reiteration.png' %}" alt="Reiteration" class="py-3 px-1">
-
-            <div id="item-name">Double Negation Elimination:</div>
-            <img src="{% static 'proofchecker/images/dne.png' %}" alt="Double Negation Elimination" class="py-3 px-1">
-
-            <div id="item-name">Reiteration:</div>
-            <img src="{% static 'proofchecker/images/reiteration.png' %}" alt="Reiteration" class="py-3 px-1">
-
-            <div id="item-name">Disjunctive Syllogism:</div>
-            <img src="{% static 'proofchecker/images/ds1.png' %}" alt="Disjunctive Syllogism 1" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/ds2.png' %}" alt="Disjunctive Syllogism 2" class="py-3 px-1">
-
-            <div id="item-name">Modus Tollens:</div>
-            <img src="{% static 'proofchecker/images/mt.png' %}" alt="Modus Tollens" class="py-3 px-1">
-
-            <div id="item-name">Law of Excluded Middle:</div>
-            <img src="{% static 'proofchecker/images/lem.png' %}" alt="Law of Excluded Middle" class="py-3 px-1">
-
-            <div id="item-name">De Morgan Rules:</div>
-            <img src="{% static 'proofchecker/images/dem1.png' %}" alt="De Morgan Rule 1" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/dem2.png' %}" alt="De Morgan Rule 2" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/dem3.png' %}" alt="De Morgan Rule 3" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/dem4.png' %}" alt="De Morgan Rule 4" class="py-3 px-1">
-
-
-            <div id="main-header">Basic FOL Rules:</div>
-
-            <div id="item-name">Existential:</div>
-            <img src="{% static 'proofchecker/images/existential_intro.png' %}" alt="Existential Introduction" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/existential_elim.png' %}" alt="Existential Elimination" class="py-3 px-1">
-
-            <div id="item-name">Universal:</div>
-            <img src="{% static 'proofchecker/images/universal_intro.png' %}" alt="Universal Introduction" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/universal_elim.png' %}" alt="Universal Elimination" class="py-3 px-1">
-
-            
-            <div id="main-header">Derived FOL Rules:</div>
-
-            <div id="item-name">Conversion of Quantifiers:</div>
-            <img src="{% static 'proofchecker/images/cq1.png' %}" alt="Conversion of Quantifiers 1" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/cq2.png' %}" alt="Conversion of Quantifiers 2" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/cq3.png' %}" alt="Conversion of Quantifiers 3" class="py-3 px-1">
-            <img src="{% static 'proofchecker/images/cq4.png' %}" alt="Conversion of Quantifiers 4" class="py-3 px-1">
-
-        </div>
-
-        <div id="other-information">
-            This is where other info goes.
-        </div>
 
 
     </div>
