@@ -21,9 +21,11 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/right_menu_navigation.css' %}">
 
     <!-- Custom JS -->
+    <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/right_menu_navigation.js' %}"></script>
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <title> {% block title %}Proof Checker{% endblock %} </title>
     {% block head %}{% endblock %}
@@ -65,7 +67,7 @@
                 </div>
                 <span class="nav-left__label">Profile</span>
             </a>
-              
+
             {% elif user.is_instructor %}
             <a href="{% url 'instructor_profile' %}" class="nav__link">
                 <div class="nav__icon-container">
