@@ -388,7 +388,7 @@ class ProofTests(TestCase):
         result = verify_line_citation(line1, line2)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg,\
-            "Line citations are not formatted properly")
+            "Invalid line citations are provided on line 1.  Perhaps you're referencing the wrong rule?")
 
     def test_is_conclusion(self):
         """
