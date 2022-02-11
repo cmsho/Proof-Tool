@@ -281,6 +281,8 @@ def get_lines_in_subproof(line_no: str, proof: ProofObj):
             subproof.append(line)
     if len(subproof) > 1:
         return[subproof[0], subproof[len(subproof)-1]]
+    elif len(subproof) == 1:
+        return [subproof[0], subproof[0]]
     else:
         return None
 
