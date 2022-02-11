@@ -106,8 +106,8 @@ class ProofLine(models.Model):
     proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
     line_no = models.CharField(max_length=100, validators=[validate_line_no])
     # TODO: Add a validator for the formula field.
-    formula = models.CharField(max_length=255)
-    rule = models.CharField(max_length=255)
+    formula = models.CharField(max_length=255, null=True, blank=True)
+    rule = models.CharField(max_length=255, null=True, blank=True)
     ORDER = models.IntegerField(null=True)
 
     def __str__(self):
@@ -119,8 +119,9 @@ class ProofLine(models.Model):
 
 
 class Problem(models.Model):
+    question = models.CharField(max_length=255, default='Solve the following problem')
     grade = models.DecimalField(max_digits=5, decimal_places=2)
-    proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
+    proof = models.OneToOneField(Proof, on_delete=models.CASCADE)
     # If the proof is deleted, the problem is deleted
 
 

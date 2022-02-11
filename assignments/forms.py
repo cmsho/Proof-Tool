@@ -11,13 +11,12 @@ class AssignmentForm(forms.ModelForm):
 
 
 class ProblemForm(forms.ModelForm):
-    grade = forms.DecimalField()
-
     class Meta:
-        model = Proof
-        fields = ['name', 'rules', 'premises', 'conclusion', 'grade']
+        model = Problem
+        fields = ['question', 'grade']
 
     def __init__(self, *args, **kwargs):
         super(ProblemForm, self).__init__(*args, **kwargs)
         for visible in self.visible_fields():
             visible.field.widget.attrs['onkeydown'] = 'replaceCharacter(this)'
+

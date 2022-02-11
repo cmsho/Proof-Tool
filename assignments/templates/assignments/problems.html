@@ -13,7 +13,7 @@
         <div class="col">
             <div class="card bg-light mb-3" style="width: 20rem;">
                 <div class="card-header">
-                    <h5 style="text-align: center"><b> {{ object.proof.name }}</b></h5>
+                    <h5 style="text-align: center"><b> {{ object.question }}</b></h5>
                 </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item"><b>Premise(s):</b> {{ object.proof.premises }}</li>
@@ -21,8 +21,8 @@
                     <li class="list-group-item"><b>Grade</b> {{ object.grade }}</li>
                 </ul>
                 <div class="card-body">
-                <a href="" class="card-link btn btn-primary">Edit</a>
-                <a href="" class="card-link btn btn-secondary">Delete</a>
+                <a href="{% url 'edit_problem' object.id %}" class="card-link btn btn-primary">Edit</a>
+                <a href="{% url 'delete_problem' object.id %}" class="card-link btn btn-secondary">Delete</a>
                 </div>
             </div>
         </div>
