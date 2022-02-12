@@ -515,3 +515,8 @@ function test_valid_symbols_with_comma_expression(sting)
     }
 
 }
+
+function printTest()
+{
+    alert("Test print");
+}

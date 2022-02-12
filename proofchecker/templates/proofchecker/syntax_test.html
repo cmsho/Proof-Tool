@@ -6,6 +6,9 @@
   <hr>
 
       <!-- your content here... -->
+      <script data-cover src ="{% static 'js/syntax.js' %}"></script>
+      <script src= "{% static 'js/syntax_tests.js' %}"></script>
+
       <div id="buttonDiv">
         <p>Each button is linked to a major syntax test case. If the methods are working, all should alert success upon success. </p>
               <button type="button" onclick="test_remove_justification_with_just()">TEST 1</button>
@@ -22,13 +25,14 @@
               <button type="button" onclick="test_is_valid_TFL_with_multiple_operators()">TEST 12</button>
               <button type="button" onclick="test_is_valid_TFL_with_invalid_input()">TEST 13</button>
               <button type="button" onclick="test_valid_symbols_with_comma_expression()">TEST 14</button>
+              <button type="button" onclick="printTest()">TEST 15</button>
       </div>
       <br>
       <br>
       <br>
       <div id="qdiv">
         <link rel = "stylesheet" href = "https://code.jquery.com/qunit/qunit-2.17.2.css">
-		    <h1 id="qunit-header">Dummy Test</h1>
+		    <h1 id="qunit-header">TFL Syntax QUnit Test Results</h1>
         <h2 id="qunit-banner"></h2>
         <div id="qunit-testrunner-toolbar">
         </div>
@@ -37,19 +41,15 @@
         </ol>
         <div id="qunit-fixture">
             <div id="container"></div>
-        </div>
-		
-		    <script> 
-          QUnit.test( "My First Test", function( assert ) { 
-              var value = "1"; 
-              assert.equal( value, "1", "Value should be 1" ); 
-          }); 
+        </div>		
+		    <script type="text/javascript">
+          function blanket_toggleSource(e) {
+           var t = document.getElementById(e);
+           t.style.display === "block" ? t.style.display = "none" : t.style.display = "block";  
+          }      
         </script>
       </div>
+
       
-
-<script src="{% static 'js/syntax.js' %}"></script>
-
-
 
 {% endblock %}
