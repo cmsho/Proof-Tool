@@ -49,7 +49,7 @@ tt {
 .nav-right{
   position:absolute;
   right:0px;
-  width:250px;
+  width:325px;
   height:inherit;
   background-color: white;
   transition: width 0.2s;
@@ -125,45 +125,35 @@ tt {
 
 #left-nav-close-arrow {
   transform: rotate(180deg);
-  /* margin-left:-8px; */
   width:15px;
   height:70px;
   fill: #585858;
-  /* background:grey; */
   position: absolute;
   top: 50%;
 }
 
 #left-nav-open-arrow {
-  /* transform: rotate(180deg); */
-  /* margin-left:-8px; */
   width:15px;
   height:70px;
   fill: #585858;
-  /* background:grey; */
   display:none;
   position: absolute;
   top: 50%;
 }
 
 #right-nav-close-arrow {
-  /* transform: rotate(180deg); */
-  /* margin-left:-8px; */
   width:15px;
   height:70px;
   fill: #585858;
-  /* background:grey; */
   position: absolute;
   top: 50%;
 }
 
 #right-nav-open-arrow {
   transform: rotate(180deg);
-  /* margin-left:-8px; */
   width:15px;
   height:70px;
   fill: #585858;
-  /* background:grey; */
   display:none;
   position: absolute;
   top: 50%;
@@ -175,6 +165,16 @@ tt {
   width:10%;
 }
 
+#id_rules{
+  width:100%;
+  margin-bottom: 5px;
+}
+
+#id_name{
+  width:100%;
+  margin-bottom: 5px;
+}
+
 #id_premises{
   width:100%;
   margin-bottom: 5px;
@@ -183,4 +183,10 @@ tt {
 #id_conclusion{
   width:100%;
   margin-bottom: 5px;
+}
+
+
+
+[id$=line_no]{
+  width:75px;
 }

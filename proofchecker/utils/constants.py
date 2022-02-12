@@ -20,3 +20,11 @@ class Constants:
     PREDICATES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', \
         'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R']
     DOMAINS = ['S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+
+    # Rules
+    RULES_CHOICES= {
+    'tfl_basic': 'TFL - Basic Rules Only',
+    'tfl_derived': 'TFL - Basic & Derived Rules',
+    'fol_basic': 'FOL - Basic Rules Only',
+    'fol_derived': 'FOL - Basic & Derived Rules',
+    }

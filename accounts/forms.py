@@ -5,11 +5,19 @@ from django.db import transaction
 
 from proofchecker.models import Student, Instructor, User
 
+
 class DateInput(forms.DateInput):
     input_type = 'date'
 
+
 class StudentSignUpForm(UserCreationForm):
     email = forms.EmailField()
+
+    def clean_email(self):
+        if User.objects.filter(email=self.cleaned_data['email']).exists():
+            raise forms.ValidationError(
+                "The given e-mail address is already registered")
+        return self.cleaned_data['email']
 
     class Meta:
         model = User
@@ -29,6 +37,12 @@ class StudentSignUpForm(UserCreationForm):
 class InstructorSignUpForm(UserCreationForm):
     email = forms.EmailField()
 
+    def clean_email(self):
+        if User.objects.filter(email=self.cleaned_data['email']).exists():
+            raise forms.ValidationError(
+                "The given e-mail address is already registered")
+        return self.cleaned_data['email']
+
     class Meta:
         model = User
         fields = ['username', 'email', 'password1', 'password2']
@@ -43,11 +57,11 @@ class InstructorSignUpForm(UserCreationForm):
         return user
 
 
-
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
+
 
 class StudentProfileForm(forms.ModelForm):
 

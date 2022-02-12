@@ -1,8 +1,7 @@
-
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import make_tree, is_conclusion, depth, clean_rule
 from proofchecker.rules.rulechecker import RuleChecker
-from proofchecker.utils import tflparser
+from proofchecker.utils.constants import Constants
 from proofchecker.utils.tfllexer import IllegalCharacterError
 
 def verify_proof(proof: ProofObj, parser):
@@ -37,8 +36,8 @@ def verify_proof(proof: ProofObj, parser):
                 .format(char_err.message, str(line.line_no))
             return response 
         except:
-            response.err_msg = "Syntax error on line {}"\
-                .format(str(line.line_no))
+            response.err_msg = 'Syntax error on line {}.  Expression "{}" does not conform to ruleset "{}"'\
+                .format(str(line.line_no), line.expression, Constants.RULES_CHOICES.get(proof.rules))
             return response
         
         # Verify the rule is valid
@@ -68,20 +67,21 @@ def verify_proof(proof: ProofObj, parser):
         response.err_msg = "All lines are valid, but the proof is incomplete"
         return response
 
+
 def verify_rule(current_line: ProofLineObj, proof: ProofObj, parser):
     """
     Determines what rule is being applied, then calls the appropriate
     function to verify the rule is applied correctly
     """
-    rule = clean_rule(current_line.rule)
-    rule = rule.split()[0]
+    rule_str = clean_rule(current_line.rule)
+    rule_str = rule_str.split()[0]
     rule_checker = RuleChecker()
-    rule = rule_checker.get_rule(rule)
+    rule = rule_checker.get_rule(rule_str, proof)
 
     if rule == None:
         response = ProofResponse()
-        response.err_msg = "Rule on line {} cannot be determined"\
-            .format(str(current_line.line_no))
+        response.err_msg = 'Rule "{}" on line {} not found in ruleset "{}"'\
+            .format(rule_str, str(current_line.line_no), Constants.RULES_CHOICES.get(proof.rules))
         return response     
     else:
         return rule.verify(current_line, proof, parser)

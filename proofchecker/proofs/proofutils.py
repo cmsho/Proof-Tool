@@ -147,7 +147,8 @@ def verify_line_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
         return response
 
     except:
-        response.err_msg = "Line citations are not formatted properly"
+        response.err_msg = "Invalid line citations are provided on line {}.  Perhaps you're referencing the wrong rule?"\
+            .format(str(current_line.line_no))
         return response
 
 def verify_subproof_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
@@ -200,6 +201,8 @@ def get_premises(premises: str):
     Take a string of comma separated-premises
     and return an array of premises
     """
+    if premises == None:
+        return ''
     premises = premises.replace(' ', '')
     premises = premises.replace(';', ' ')
     return premises.split()
@@ -278,6 +281,8 @@ def get_lines_in_subproof(line_no: str, proof: ProofObj):
             subproof.append(line)
     if len(subproof) > 1:
         return[subproof[0], subproof[len(subproof)-1]]
+    elif len(subproof) == 1:
+        return [subproof[0], subproof[0]]
     else:
         return None
 

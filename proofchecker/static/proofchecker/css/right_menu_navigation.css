@@ -1,7 +1,7 @@
 
 .full-menu{
   height:100%;
-  margin-left: 15px;
+  margin-left: 25px;
   overflow: hidden;
   overflow-y : scroll;
 }
@@ -14,6 +14,7 @@
   cursor: pointer;
   float: left;  
   font-weight: bold;
+  width:145px;
 }
 
 .btn-group button:not(:last-child) {
@@ -74,9 +75,15 @@ table{
   margin-right: auto;
 }
 
-#info-information {
+
+#rules-information {
+  text-align:left;
+  display:visible;
+}
+
+#help-information {
   text-align: left;
-  display: visible;
+  display: none;
 }
 
 #left{
@@ -103,16 +110,10 @@ table{
 }
 
 
-#info-table{
+#help-table{
   width:90%;
 }
 
 
-#rules-information {
-  text-align:left;
-  display:none;
-}
 
-#other-information {
-  display:none;
-}
+
