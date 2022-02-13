@@ -82,12 +82,23 @@ class GettersTests(TestCase):
         """
         Test that the get_lines_in_subproof method is working properly
         """
+        # Test with multi-line subproof
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2_1 = ProofLineObj('2.1', '(A∧C)', 'Assumption')
         line2_2 = ProofLineObj('2.2', 'C', '∧E 2.1')
         proof = ProofObj(lines=[line1, line2_1, line2_2])
         result = get_lines_in_subproof('2', proof)
         self.assertEqual(result, [line2_1, line2_2])
+
+        # Test with single-line subproof
+        line1 = ProofLineObj('1', 'A∨(A∧B)', 'Premise')
+        line2_1 = ProofLineObj('2.1', 'A', 'Assumption')
+        line3_1 = ProofLineObj('3.1', 'A∧B', 'Assumption')
+        line3_2 = ProofLineObj('3.2', 'A', '∧E 3.1')
+        line4 = ProofLineObj('4', 'A', '∨E 1, 2, 3')
+        proof = ProofObj(lines=[line1, line2_1, line3_1, line3_2, line4])
+        result = get_lines_in_subproof('2', proof)
+        self.assertEqual(result, [line2_1, line2_1])
 
     def test_get_lines_in_subproof_with_invalid_subproof(self):
         """
@@ -96,7 +107,7 @@ class GettersTests(TestCase):
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
         line2_1 = ProofLineObj('2.1', '(A∧C)', 'Assumption')
         proof = ProofObj(lines=[line1, line2_1])
-        result = get_lines_in_subproof('2', proof)
+        result = get_lines_in_subproof('3', proof)
         self.assertEqual(result, None)
     
     def test_get_premises(self):
@@ -388,7 +399,7 @@ class ProofTests(TestCase):
         result = verify_line_citation(line1, line2)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg,\
-            "Line citations are not formatted properly")
+            "Invalid line citations are provided on line 1.  Perhaps you're referencing the wrong rule?")
 
     def test_is_conclusion(self):
         """
@@ -429,7 +440,7 @@ class ProofTests(TestCase):
         parser = tflparser.parser
         result = verify_rule(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Rule on line 2 cannot be determined")
+        self.assertEqual(result.err_msg, 'Rule "E" on line 2 not found in ruleset "TFL - Basic Rules Only"')
 
     def test_verify_proof_with_no_lines(self):
         """
@@ -560,7 +571,7 @@ class ProofTests(TestCase):
         parser = tflparser.parser
         result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Syntax error on line 1")
+        self.assertEqual(result.err_msg, 'Syntax error on line 1.  Expression "A∧" does not conform to ruleset "TFL - Basic Rules Only"')
     
         # Test with a valid but incomplete proof
         line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
