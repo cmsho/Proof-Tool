@@ -208,7 +208,7 @@ def get_premises(premises: str):
     return premises.split()
 
 
-rule_errors = ['∧ ', '∨ ', '¬ ', '→ ', '↔ ' ]
+rule_errors = ['∧ ', '∨ ', '¬ ', '→ ', '↔ ', '∀ ', '∃ ']
 
 def fix_rule_whitespace_issues(rule):
     """
