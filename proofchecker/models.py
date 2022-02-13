@@ -33,6 +33,7 @@ def validate_formula(value):
 class User(AbstractUser):
     is_student = models.BooleanField(default=False)
     is_instructor = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
 
 
 class Student(models.Model):
