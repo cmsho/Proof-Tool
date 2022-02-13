@@ -2,13 +2,13 @@
 {% load static %}
 {% block content %}
 
-<a href="{% url 'all_proofs' %}" class="btn btn-primary"> Back to all proofs </a>
+<a href="{% url 'all_proofs' %}" class="btn btn-primary mt-3"> Back to all proofs </a>
 
 <hr>
 
 
 
-<h2 class="display-4"><b>Proof {{ object.id }}</b></h5>
+<h2 class="display-4"><b>{{ object.name }}</b></h5>
 
 <ul class="list-group list-group-flush">
     <li class="list-group-item"><b>Premise(s):</b> {{ object.premises }}</li>
