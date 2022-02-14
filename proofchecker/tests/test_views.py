@@ -23,8 +23,8 @@ class ProofCheckerViewTest(TestCase):
 
     def setUp(self):
         # Create two users
-        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
-        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD', is_active='True')
 
         test_user1.save()
         test_user2.save()
@@ -44,7 +44,7 @@ class ProofCheckerViewTest(TestCase):
 
     def test_check_proof_submission(self):
         self.client = Client(enforce_csrf_checks=False)
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.post(reverse('proof_checker'), {
             'name': ['Proof'], 'rules': ['tfl_basic'], 'premises': ['A∧B'], 'conclusion': ['A'], 'form-TOTAL_FORMS': ['1'], 'form-INITIAL_FORMS': ['0'], 
             'form-MIN_NUM_FORMS': ['0'], 'form-MAX_NUM_FORMS': ['1000'], 'form-0-line_no': ['1'], 
@@ -57,31 +57,31 @@ class ProofCreateViewTest(TestCase):
 
     def setUp(self):
         # Create two users
-        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
-        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD', is_active='True')
 
         test_user1.save()
         test_user2.save()
 
     def test_view_url_exists_at_desired_location(self):
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.get('/proofs/new/')
         self.assertEqual(response.status_code, 200)
     
     def test_view_url_accessible_by_name(self):
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.get(reverse('add_proof'))
         self.assertEqual(response.status_code, 200)
 
     def test_view_uses_correct_template(self):
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.get(reverse('add_proof'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'proofchecker/proof_add_edit.html')
 
     def test_check_proof_submission(self):
         self.client = Client(enforce_csrf_checks=False)
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.post(reverse('add_proof'), {
             'name': ['Proof'], 'rules': ['tfl_basic'], 'premises': ['A∧B'], 'conclusion': ['A'], 'proofline_set-TOTAL_FORMS': ['1'], 
             'proofline_set-INITIAL_FORMS': ['0'], 'proofline_set-MIN_NUM_FORMS': ['0'], 
@@ -95,7 +95,7 @@ class ProofCreateViewTest(TestCase):
 
     def test_submit_proof_redirect(self):
         self.client = Client(enforce_csrf_checks=False)
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.post(reverse('add_proof'), {
             'name': ['Proof'], 'rules': ['tfl_basic'],  'premises': ['A∧B'], 'conclusion': ['A'], 'proofline_set-TOTAL_FORMS': ['1'], 
             'proofline_set-INITIAL_FORMS': ['0'], 'proofline_set-MIN_NUM_FORMS': ['0'], 
@@ -116,8 +116,8 @@ class ProofViewTest(TestCase):
 
         # Create test user
         # Create two users
-        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
-        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD', is_active='True')
 
         test_user1.save()
         test_user2.save()
@@ -130,23 +130,23 @@ class ProofViewTest(TestCase):
             )
 
     def test_view_url_exists_at_desired_location(self):
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.get('/proofs/')
         self.assertEqual(response.status_code, 200)
     
     def test_view_url_accessible_by_name(self):
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.get(reverse('all_proofs'))
         self.assertEqual(response.status_code, 200)
 
     def test_view_uses_correct_template(self):
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.get(reverse('all_proofs'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'proofchecker/allproofs.html')
 
     def test_lists_all_proofs(self):
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.get(reverse('all_proofs'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['proof_list']), 13)
@@ -156,8 +156,8 @@ class ProofUpdateViewTest(TestCase):
 
     def setUp(self):
         # Create two users
-        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK')
-        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD')
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD', is_active='True')
 
         test_user1.save()
         test_user2.save()
@@ -187,20 +187,20 @@ class ProofUpdateViewTest(TestCase):
         test_line_2.save()
 
     def test_logged_in_uses_correct_template(self):
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.get(reverse('update_proof', args=[1]))
         self.assertTemplateUsed(response, 'proofchecker/proof_add_edit.html')
         self.assertEqual(response.status_code, 200)
     
     def test_post_uses_correct_template(self):
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.post(reverse('update_proof', args=[1]))
         self.assertTemplateUsed(response, 'proofchecker/proof_add_edit.html')
         self.assertEqual(response.status_code, 200)
 
     def test_check_proof_submission(self):
         self.client = Client(enforce_csrf_checks=False)
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.post(reverse('update_proof', args=[1]), {
             'name': ['Proof'], 'rules': ['tfl_basic'], 'premises': ['A∧B'], 'conclusion': ['A'], 'proofline_set-TOTAL_FORMS': ['2'], 'proofline_set-INITIAL_FORMS': ['2'], 
             'proofline_set-MIN_NUM_FORMS': ['0'], 'proofline_set-MAX_NUM_FORMS': ['1000'], 'proofline_set-0-id': ['1'], 'proofline_set-0-ORDER': ['0'], 
@@ -213,7 +213,7 @@ class ProofUpdateViewTest(TestCase):
 
     def test_submit_proof_redirect(self):
         self.client = Client(enforce_csrf_checks=False)
-        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK')
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.post(reverse('update_proof', args=[1]), {
             'name': ['Proof'], 'rules': ['tfl_basic'], 'premises': ['A∧B'], 'conclusion': ['A'], 'proofline_set-TOTAL_FORMS': ['2'], 'proofline_set-INITIAL_FORMS': ['2'], 
             'proofline_set-MIN_NUM_FORMS': ['0'], 'proofline_set-MAX_NUM_FORMS': ['1000'], 'proofline_set-0-id': ['1'], 'proofline_set-0-ORDER': ['0'], 
