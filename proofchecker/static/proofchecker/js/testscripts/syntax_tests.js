@@ -22,7 +22,7 @@ QUnit.test("Has Valid Symbols with Valid Symbols Test", function( assert ) {
       assert.true(result, "The expression is valid!");
 });
 
-QUnit.test("Has Valid Symbols with Valid Symbols Test", function( assert ) { 
+QUnit.test("Has Valid Symbols without Valid Symbols Test", function( assert ) { 
 
       //hasValidSymbols() should return False if one or more characters in the string are not valid TFL symbols
       var value = "A>B=C"; 
