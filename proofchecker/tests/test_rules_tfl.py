@@ -66,7 +66,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(premises='A', lines=[line1, line2, line3])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Expression on line 2 is not a premise")
+        self.assertEqual(result.err_msg, "Error on line 2: Expression on line 2 is not a premise")
 
         # Test with a line not found in multiple premises input
         line1 = ProofLineObj('1', 'A', 'Premise')
@@ -75,7 +75,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(premises=['A', 'B'], lines=[line1, line2, line3])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Expression on line 2 not found in premises")
+        self.assertEqual(result.err_msg, "Error on line 2: Expression on line 2 not found in premises")
 
         # Test with an invalid premise    
         line1 = ProofLineObj('1', 'A', 'Premise')
@@ -84,7 +84,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(premises='A', lines=[line1, line2, line3])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "One or more premises is invalid")
+        self.assertEqual(result.err_msg, "Error on line 2: One or more premises is invalid")
 
     def test_assumption(self):
         """
@@ -108,7 +108,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(premises='A', lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'Assumptions can only exist at the start of a subproof')     
+        self.assertEqual(result.err_msg, 'Error on line 2.2: Assumptions can only exist at the start of a subproof')     
 
     def test_conjunction_intro(self):
         rule = ConjunctionIntro()
@@ -129,7 +129,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "The conjunction of lines 1 and 2 does not equal line 3")
+        self.assertEqual(result.err_msg, "Error on line 3: The conjunction of lines 1 and 2 does not equal line 3")
 
         # Test with invalid line specification
         line1 = ProofLineObj('1', 'A', 'Premise')
@@ -138,7 +138,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Conjunction Introduction: ∧I m, n")    
+        self.assertEqual(result.err_msg, "Error on line 3: Line numbers are not specified correctly.  Conjunction Introduction: ∧I m, n")    
     
     def test_conjunction_elim(self):
         rule = ConjunctionElim()
@@ -164,7 +164,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
+        self.assertEqual(result.err_msg, "Error on line 2: Line 2 does not follow from line 1")
 
     def test_disjunction_intro(self):
         rule = DisjunctionIntro()
@@ -183,7 +183,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
+        self.assertEqual(result.err_msg, "Error on line 2: Line 2 does not follow from line 1")
 
         # Test with invalid line citation
         line1 = ProofLineObj('1', 'A', 'Premise')
@@ -218,7 +218,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
         result = rule.verify(line6, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "The expressions on lines 2.2, 3.2 and 4 are not equivalent")
+        self.assertEqual(result.err_msg, "Error on line 4: The expressions on lines 2.2, 3.2 and 4 are not equivalent")
 
         # Test with improper disjunction
         line1 = ProofLineObj('1', 'A∨B', 'Premise')
@@ -230,7 +230,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
         result = rule.verify(line6, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "The expression on line 3.1 is not part of the disjunction on line 1")
+        self.assertEqual(result.err_msg, "Error on line 4: The expression on line 3.1 is not part of the disjunction on line 1")
 
         # Test with improper disjunction
         line1 = ProofLineObj('1', 'A∨B', 'Premise')
@@ -242,7 +242,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
         result = rule.verify(line6, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "The expression on line 2.1 is not part of the disjunction on line 1")
+        self.assertEqual(result.err_msg, "Error on line 4: The expression on line 2.1 is not part of the disjunction on line 1")
 
         # Test with only one half of disjunction
         line1 = ProofLineObj('1', 'A∨B', 'Premise')
@@ -254,7 +254,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
         result = rule.verify(line6, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "The expressions on lines 2.1 and 3.1 should be different")
+        self.assertEqual(result.err_msg, "Error on line 4: The expressions on lines 2.1 and 3.1 should be different")
 
 
     def test_negation_intro(self):
@@ -276,7 +276,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)   
-        self.assertEqual(result.err_msg, "Line 1.2 should be '⊥' (Contradiction)")
+        self.assertEqual(result.err_msg, "Error on line 2: Line 1.2 should be '⊥' (Contradiction)")
 
         # Test without proper negation
         line1 = ProofLineObj('1.1', 'A', 'Premise')
@@ -285,7 +285,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)   
-        self.assertEqual(result.err_msg, "Line 2 is not the negation of line 1.1")
+        self.assertEqual(result.err_msg, "Error on line 2: Line 2 is not the negation of line 1.1")
 
 
     def test_negation_elim(self):
@@ -307,7 +307,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Line 3 should be '⊥' (Contradiction)")
+        self.assertEqual(result.err_msg, "Error on line 3: Line 3 should be '⊥' (Contradiction)")
 
         # Test without proper contradiction
         line1 = ProofLineObj('1', '¬A', 'Premise')
@@ -316,7 +316,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Line 1 is not the negation of line 2")
+        self.assertEqual(result.err_msg, "Error on line 3: Line 1 is not the negation of line 2")
 
         # Test with improper line specification
         line1 = ProofLineObj('1', '¬A', 'Premise')
@@ -325,7 +325,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Line numbers are not specified correctly.  Negation Elimination: ¬E m, n")
+        self.assertEqual(result.err_msg, "Error on line 3: Line numbers are not specified correctly.  Negation Elimination: ¬E m, n")
 
 
     def test_conditional_intro(self):
@@ -347,7 +347,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'The expressions on lines 1.1 and 1.2 do not match the implication on line 2')
+        self.assertEqual(result.err_msg, 'Error on line 2: The expressions on lines 1.1 and 1.2 do not match the implication on line 2')
 
         # Test with invalid citation
         line1 = ProofLineObj('1.1', 'A∧B', 'Premise')
@@ -377,7 +377,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'The expressions on lines 2 and 3 do not match the implication on line 1')
+        self.assertEqual(result.err_msg, 'Error on line 3: The expressions on lines 2 and 3 do not match the implication on line 1')
 
         # Test with improper line specification
         line1 = ProofLineObj('1', 'A→B', 'Premise')
@@ -386,7 +386,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'Line numbers are not specified correctly.  Conditional Elimination (Modus Ponens): →E m, n')
+        self.assertEqual(result.err_msg, 'Error on line 3: Line numbers are not specified correctly.  Conditional Elimination (Modus Ponens): →E m, n')
 
 
     def test_biconditional_intro(self):
@@ -424,7 +424,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'The expressions on lines 1.2 and 2.1 are not equivalent')
+        self.assertEqual(result.err_msg, 'Error on line 3: The expressions on lines 1.2 and 2.1 are not equivalent')
 
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
         line2 = ProofLineObj('1.2', 'B', 'Assumption')
@@ -434,7 +434,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'The expressions on lines 1.1 and 2.2 are not equivalent')
+        self.assertEqual(result.err_msg, 'Error on line 3: The expressions on lines 1.1 and 2.2 are not equivalent')
 
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
         line2 = ProofLineObj('1.2', 'B', 'Assumption')
@@ -444,7 +444,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'Left side of line 3 does not equal either of the expressions on lines 1.2 and 2.2')
+        self.assertEqual(result.err_msg, 'Error on line 3: Left side of line 3 does not equal either of the expressions on lines 1.2 and 2.2')
 
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
         line2 = ProofLineObj('1.2', 'B', 'Assumption')
@@ -454,7 +454,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'Right side of line 3 does not equal either of the expressions on lines 1.2 and 2.2')
+        self.assertEqual(result.err_msg, 'Error on line 3: Right side of line 3 does not equal either of the expressions on lines 1.2 and 2.2')
 
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
         line2 = ProofLineObj('1.2', 'A', 'Assumption')
@@ -464,7 +464,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'Invalid introduction on line 3')
+        self.assertEqual(result.err_msg, 'Error on line 3: Invalid introduction on line 3')
 
         # Test with invalid conclusion
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
@@ -476,7 +476,7 @@ class BasicRuleTests(TestCase):
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, \
-            'Left side and right side of line 3 are equiavlent, but lines 1.1 and 1.2 are not equivalent')
+            'Error on line 3: Left side and right side of line 3 are equiavlent, but lines 1.1 and 1.2 are not equivalent')
 
 
     def test_biconditional_elim(self):
@@ -507,7 +507,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "The expressions on lines 2 and 3 do not represent both the left and right side of the expression on line 1")
+        self.assertEqual(result.err_msg, "Error on line 3: The expressions on lines 2 and 3 do not represent both the left and right side of the expression on line 1")
 
         # Test with invalid input
         line1 = ProofLineObj('1', 'A↔B', 'Assumption')
@@ -516,7 +516,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "The expression on line 2 does not represent the left or right side of the expression on line 1")
+        self.assertEqual(result.err_msg, "Error on line 3: The expression on line 2 does not represent the left or right side of the expression on line 1")
 
         # Test with invalid input
         line1 = ProofLineObj('1', 'A↔B', 'Assumption')
@@ -525,7 +525,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "The expression on line 3 does not represent the left or right side of the expression on line 1")
+        self.assertEqual(result.err_msg, "Error on line 3: The expression on line 3 does not represent the left or right side of the expression on line 1")
 
 
     def test_indirect_proof(self):
@@ -547,7 +547,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Line 1.2 should be '⊥' (Contradiction)")
+        self.assertEqual(result.err_msg, "Error on line 2: Line 1.2 should be '⊥' (Contradiction)")
 
         # Test with improper negation
         line1 = ProofLineObj('1.1', '¬A', 'Premise')
@@ -556,7 +556,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Line 1.1 is not the negation of line 2")
+        self.assertEqual(result.err_msg, "Error on line 2: Line 1.1 is not the negation of line 2")
 
 
     def test_explosion(self):
@@ -576,7 +576,7 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Line 1 should be '⊥' (Contradiction)")
+        self.assertEqual(result.err_msg, "Error on line 2: Line 1 should be '⊥' (Contradiction)")
 
         # Test with invalid line citation
         line1 = ProofLineObj('1', '⊥', 'Premise')
@@ -605,7 +605,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'Lines 1 and 2 are not equivalent')
+        self.assertEqual(result.err_msg, 'Error on line 2: Lines 1 and 2 are not equivalent')
 
         # Test with invalid line citation
         line1 = ProofLineObj('1', 'A', 'Premise')
@@ -633,7 +633,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'Lines 1 and 2 are not equivalent')
+        self.assertEqual(result.err_msg, 'Error on line 2: Lines 1 and 2 are not equivalent')
 
         # Test with invalid input
         line1 = ProofLineObj('1', '¬A', 'Assumption')
@@ -641,7 +641,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'Line 1 is not an instance of double-not operators')
+        self.assertEqual(result.err_msg, 'Error on line 2: Line 1 is not an instance of double-not operators')
 
         # Test with invalid input
         line1 = ProofLineObj('1', 'A^B', 'Assumption')
@@ -649,7 +649,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "The main logical operator on line 1 is not '¬'")
+        self.assertEqual(result.err_msg, "Error on line 2: The main logical operator on line 1 is not '¬'")
 
 
     def test_disjunctive_syllogism(self):
@@ -680,7 +680,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The root of line 1 should be a disjunction (∨) when applying disjunctive syllogism')
+        self.assertEquals(result.err_msg, 'Error on line 3: The root of line 1 should be a disjunction (∨) when applying disjunctive syllogism')
 
         # Test with line 2 not representing a negation
         line1 = ProofLineObj('1', 'AvB', 'Premise')
@@ -689,7 +689,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The root of line 2 should be a negation (¬) when applying disjunctive syllogism')
+        self.assertEquals(result.err_msg, 'Error on line 3: The root of line 2 should be a negation (¬) when applying disjunctive syllogism')
 
         # Test with line 2 representing a negation, but not of the left or right of line 1
         line1 = ProofLineObj('1', 'AvB', 'Premise')
@@ -698,7 +698,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Line 2 should be the negation of either the left or right half of line 1')
+        self.assertEquals(result.err_msg, 'Error on line 3: Line 2 should be the negation of either the left or right half of line 1')
 
         # Test with line 3 not representing the left or right of line 1
         line1 = ProofLineObj('1', 'AvB', 'Premise')
@@ -707,7 +707,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Line 3 should be equivalent to either the left or right half of line 1')
+        self.assertEquals(result.err_msg, 'Error on line 3: Line 3 should be equivalent to either the left or right half of line 1')
 
         # Test with lines 2 and 3 representing same atomic sentence
         line1 = ProofLineObj('1', 'AvB', 'Premise')
@@ -716,7 +716,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Line 2 and line 3 should not represent the same half of the disjunction on line 1')
+        self.assertEquals(result.err_msg, 'Error on line 3: Line 2 and line 3 should not represent the same half of the disjunction on line 1')
 
 
     def test_modus_tollens(self):
@@ -739,7 +739,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The root of line 1 should be an implication (→) when applying modus tollens')
+        self.assertEquals(result.err_msg, 'Error on line 3: The root of line 1 should be an implication (→) when applying modus tollens')
 
         # Test with line 2 not representing a negation
         line1 = ProofLineObj('1', 'A→B', 'Premise')
@@ -748,7 +748,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The root of line 2 should be a negation (¬) when applying modus tollens')
+        self.assertEquals(result.err_msg, 'Error on line 3: The root of line 2 should be a negation (¬) when applying modus tollens')
 
         # Test with line 3 not representing a negation
         line1 = ProofLineObj('1', 'A→B', 'Premise')
@@ -757,7 +757,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The root of line 3 should be a negation (¬) when applying modus tollens')
+        self.assertEquals(result.err_msg, 'Error on line 3: The root of line 3 should be a negation (¬) when applying modus tollens')
 
         # Test with line 2 representing negation of wrong half (left) of line 1
         line1 = ProofLineObj('1', 'A→B', 'Premise')
@@ -766,7 +766,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Line 2 should be the negation of the right half of line 1')
+        self.assertEquals(result.err_msg, 'Error on line 3: Line 2 should be the negation of the right half of line 1')
 
         # Test with line 3 representing negation of wrong half (right) of line 1
         line1 = ProofLineObj('1', 'A→B', 'Premise')
@@ -775,7 +775,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Line 3 should be the negation of the left half of line 1')
+        self.assertEquals(result.err_msg, 'Error on line 3: Line 3 should be the negation of the left half of line 1')
 
 
     def test_excluded_middle(self):
@@ -803,7 +803,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The expression on line 2.1 should be the negation of line 1.1')
+        self.assertEquals(result.err_msg, 'Error on line 3: The expression on line 2.1 should be the negation of line 1.1')
 
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
         line2 = ProofLineObj('1.2', 'B', 'Assumption')
@@ -813,7 +813,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The expression on line 2.1 should be the negation of line 1.1')
+        self.assertEquals(result.err_msg, 'Error on line 3: The expression on line 2.1 should be the negation of line 1.1')
 
         # Test where lines i.x and j.x are not equivalent
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
@@ -824,7 +824,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The expressions on lines 1.2 and 2.2 should be equivalent')
+        self.assertEquals(result.err_msg, 'Error on line 3: The expressions on lines 1.2 and 2.2 should be equivalent')
 
         # Test where lines i.x and j.x are not equivalent to current line
         line1 = ProofLineObj('1.1', 'A', 'Assumption')
@@ -835,7 +835,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5])
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The expressions on lines 1.2 and 2.2 should be equivalent to the expression on line 3')
+        self.assertEquals(result.err_msg, 'Error on line 3: The expressions on lines 1.2 and 2.2 should be equivalent to the expression on line 3')
 
     def test_de_morgan(self):
         rule = DeMorgan()
@@ -856,7 +856,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'If line 1 is the negation of a conjuction, line 2 should be a disjunction (∨) when applying the first De Morgan rule.')
+        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 is the negation of a conjuction, line 2 should be a disjunction (∨) when applying the first De Morgan rule.')
 
         # Test where the sentences on line 2 are not negations of the sentences on line 1
         line1 = ProofLineObj('1', '¬(A∧B)', 'Assumption')
@@ -864,7 +864,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
+        self.assertEquals(result.err_msg, 'Error on line 2: The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
 
         # Test where the sentences on line 2 are not negations of the sentences on line 1
         line1 = ProofLineObj('1', '¬(A∧B)', 'Assumption')
@@ -872,7 +872,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
+        self.assertEquals(result.err_msg, 'Error on line 2: The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
 
 
         ### Case 2
@@ -890,7 +890,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'If line 1 is a disjunction, line 2 should be the negation of a conjunction (∧) when applying the second De Morgan rule.')
+        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 is a disjunction, line 2 should be the negation of a conjunction (∧) when applying the second De Morgan rule.')
 
         # Test where line 2 is not the negation of a conjunction
         line1 = ProofLineObj('1', '¬A∨¬B', 'Assumption')
@@ -898,7 +898,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'If line 1 is a disjunction, line 2 should be the negation of a conjunction (∧) when applying the second De Morgan rule.')
+        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 is a disjunction, line 2 should be the negation of a conjunction (∧) when applying the second De Morgan rule.')
 
         # Test where the sentences on line 1 are not negations of the sentences on line 2 
         line1 = ProofLineObj('1', '¬A∨¬B', 'Assumption')
@@ -906,7 +906,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
+        self.assertEquals(result.err_msg, 'Error on line 2: The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
 
         # Test where the sentences on line 1 are not negations of the sentences on line 2 
         line1 = ProofLineObj('1', '¬A∨¬C', 'Assumption')
@@ -914,7 +914,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
+        self.assertEquals(result.err_msg, 'Error on line 2: The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
 
 
         ### Case 3
@@ -932,7 +932,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'If line 1 is the negation of a disjunction, line 2 should be a conjunction (∧) when applying the third De Morgan rule.')
+        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 is the negation of a disjunction, line 2 should be a conjunction (∧) when applying the third De Morgan rule.')
 
         # Test where the sentences on line 2 are not negations of the sentences on line 1
         line1 = ProofLineObj('1', '¬(A∨B)', 'Assumption')
@@ -940,7 +940,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
+        self.assertEquals(result.err_msg, 'Error on line 2: The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
 
         # Test where the sentences on line 2 are not negations of the sentences on line 1
         line1 = ProofLineObj('1', '¬(A∨B)', 'Assumption')
@@ -948,7 +948,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
+        self.assertEquals(result.err_msg, 'Error on line 2: The atomic sentences on line 2 should be negations of the atomic sentences on line 1.')
 
 
         ### Case 4
@@ -966,7 +966,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'If line 1 is a conjunction, line 2 should be the negation of a disjunction (∨) when applying the fourth De Morgan rule.')
+        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 is a conjunction, line 2 should be the negation of a disjunction (∨) when applying the fourth De Morgan rule.')
 
         # Test where the sentences on line 2 are not negations of the sentences on line 1
         line1 = ProofLineObj('1', '¬A∧¬B', 'Assumption')
@@ -974,7 +974,7 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
+        self.assertEquals(result.err_msg, 'Error on line 2: The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
 
         # Test where the sentences on line 2 are not negations of the sentences on line 1
         line1 = ProofLineObj('1', '¬A∧¬C', 'Assumption')
@@ -982,4 +982,4 @@ class DerivedRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')
+        self.assertEquals(result.err_msg, 'Error on line 2: The atomic sentences on line 1 should be negations of the atomic sentences on line 2.')

@@ -484,7 +484,7 @@ class ProofTests(TestCase):
         parser = tflparser.parser
         result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
+        self.assertEqual(result.err_msg, "Error on line 2: Line 2 does not follow from line 1")
 
     def test_verify_proof_with_assumption_as_conclusion(self):
         """

@@ -28,63 +28,66 @@ class BiconditionalIntro(Rule):
                 if result.is_valid == False:
                     return result
 
-            # Search for lines i-j, k-l in the proof
+            # Search for lines i.1, i.x, j.1, and j.x in the proof
             try:
                 expressions = get_expressions(target_lines)
 
-                # Create trees for expressions on lines i, j, k, and l
-                root_i = make_tree(expressions[0], parser)
-                root_j = make_tree(expressions[1], parser)
-                root_k = make_tree(expressions[2], parser)
-                root_l = make_tree(expressions[3], parser)
+                # Create trees for expressions on lines i.1, i.x, j.1, and j.x
+                root_i_1 = make_tree(expressions[0], parser)
+                root_i_x = make_tree(expressions[1], parser)
+                root_j_1 = make_tree(expressions[2], parser)
+                root_j_x = make_tree(expressions[3], parser)
                 root_current = make_tree(current_line.expression, parser)
 
-                # Verify lines i and l are equivalent
-                if root_i == root_l:
-                    # Verify that lines j and k are equivalent
-                    if root_j == root_k:
-                        # If i and j are equivalent, left and right of current should also be equivalent
-                        if root_i==root_j:
-                            if (root_current.left == root_i) and (root_current.left == root_current.right):
+                # Verify lines i.1 and j.x are equivalent
+                if root_i_1 == root_j_x:
+                    # Verify that lines i.x and j.1 are equivalent
+                    if root_i_x == root_j_1:
+                        # If i.1 and i.x are equivalent, the left and right hand sides
+                        # of the biconditional on the current line should also be equivalent
+                        if root_i_1==root_i_x:
+                            if (root_current.left == root_i_1) and (root_current.left == root_current.right):
                                 response.is_valid = True
                                 return response
                             else:
-                                response.err_msg = "Invalid introduction on line {}"\
-                                    .format(str(current_line.line_no))
+                                response.err_msg = "Error on line {}: Invalid introduction on line {}"\
+                                    .format(str(current_line.line_no), str(current_line.line_no))
                                 return response
 
                         else:
-                            # If i and j are not equivalent, left side of current line should equal i or j,
-                            # and right side of current line should equal i or j,
-                            # and left side should not equal right side
-                            if (root_current.left == root_i) or (root_current.left == root_j):
-                                if (root_current.right == root_i) or (root_current.right == root_j):
+                            # If i.1 and i.x are not equivalent, the left side of the current line should equal i.1 or i.x,
+                            # and the right side of the current line should equal i.1 or i.x,
+                            # and the left side should not be the same as the right side
+                            if (root_current.left == root_i_1) or (root_current.left == root_i_x):
+                                if (root_current.right == root_i_1) or (root_current.right == root_i_x):
                                     if root_current.left != root_current.right:
                                         response.is_valid = True
                                         return response
                                     else:
-                                        response.err_msg = "Left side and right side of line {} are equiavlent, but lines {} and {} are not equivalent"\
-                                            .format(str(current_line.line_no), str(target_lines[0].line_no), str(target_lines[1].line_no))
+                                        response.err_msg = "Error on line {}: Left side and right side of line {} are equiavlent, but lines {} and {} are not equivalent"\
+                                            .format(str(current_line.line_no), str(current_line.line_no), str(target_lines[0].line_no), str(target_lines[1].line_no))
                                         return response
                                 else:
-                                        response.err_msg = "Right side of line {} does not equal either of the expressions on lines {} and {}"\
-                                            .format(str(current_line.line_no), str(target_lines[1].line_no), str(target_lines[3].line_no))
+                                        response.err_msg = "Error on line {}: Right side of line {} does not equal either of the expressions on lines {} and {}"\
+                                            .format(str(current_line.line_no), str(current_line.line_no), str(target_lines[1].line_no), str(target_lines[3].line_no))
                                         return response
                             else:
-                                    response.err_msg = "Left side of line {} does not equal either of the expressions on lines {} and {}"\
-                                        .format(str(current_line.line_no), str(target_lines[1].line_no), str(target_lines[3].line_no))
+                                    response.err_msg = "Error on line {}: Left side of line {} does not equal either of the expressions on lines {} and {}"\
+                                        .format(str(current_line.line_no), str(current_line.line_no), str(target_lines[1].line_no), str(target_lines[3].line_no))
                                     return response
                     else:
-                        response.err_msg = "The expressions on lines {} and {} are not equivalent"\
-                            .format(str(target_lines[1].line_no),str(target_lines[2].line_no))
+                        response.err_msg = "Error on line {}: The expressions on lines {} and {} are not equivalent"\
+                            .format(str(current_line.line_no), str(target_lines[1].line_no),str(target_lines[2].line_no))
                         return response
                 else:
-                    response.err_msg = "The expressions on lines {} and {} are not equivalent"\
-                        .format(str(target_lines[0].line_no),str(target_lines[3].line_no))
+                    response.err_msg = "Error on line {}: The expressions on lines {} and {} are not equivalent"\
+                        .format(str(current_line.line_no), str(target_lines[0].line_no),str(target_lines[3].line_no))
                     return response
             except:
-                response.err_msg = "Line numbers are not specified correctly.  ↔I i, j"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  ↔I i, j"\
+                    .format(str(current_line.line_no))
                 return response        
         except:
-            response.err_msg = "Rule not formatted properly.  ↔I i, j"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  ↔I i, j"\
+                .format(str(current_line.line_no))
             return response

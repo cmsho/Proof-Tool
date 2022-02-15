@@ -44,19 +44,21 @@ class NegationElim(Rule):
                         response.is_valid = True
                         return response
                     else:
-                        response.err_msg = "Line {} should be '⊥' (Contradiction)"\
-                            .format(str(current_line.line_no))
+                        response.err_msg = "Error on line {}: Line {} should be '⊥' (Contradiction)"\
+                            .format(str(current_line.line_no), str(current_line.line_no))
                         return response
 
                 else:
-                    response.err_msg = "Line {} is not the negation of line {}"\
-                        .format(str(target_lines[0].line_no),str(target_lines[1].line_no))
+                    response.err_msg = "Error on line {}: Line {} is not the negation of line {}"\
+                        .format(str(current_line.line_no), str(target_lines[0].line_no),str(target_lines[1].line_no))
                     return response
 
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Negation Elimination: ¬E m, n"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Negation Elimination: ¬E m, n"\
+                    .format(str(current_line.line_no))
                 return response        
 
         except:
-            response.err_msg = "Rule not formatted properly.  Negation Elimination: ¬E m, n"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Negation Elimination: ¬E m, n"\
+                .format(str(current_line.line_no))
             return response

@@ -23,9 +23,11 @@ class Assumption(Rule):
                 response.is_valid = True
                 return response
         
-            response.err_msg = 'Assumptions can only exist at the start of a subproof'
+            response.err_msg = 'Error on line {}: Assumptions can only exist at the start of a subproof'\
+                .format(str(current_line.line_no))
             return response
 
         except:
-            response.err_msg = 'One or more invalid line numbers.'
+            response.err_msg = 'Error on line {}: One or more invalid line numbers are provided in your citation.'\
+                .format(str(current_line.line_no))
             return response

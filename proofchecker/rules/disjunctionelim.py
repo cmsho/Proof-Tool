@@ -56,24 +56,26 @@ class DisjunctionElim(Rule):
                                 response.is_valid = True
                                 return response
                             else:
-                                response.err_msg = "The expressions on lines {}, {} and {} are not equivalent"\
-                                    .format(str(target_lines[2].line_no),str(target_lines[4].line_no),str(current_line.line_no))
+                                response.err_msg = "Error on line {}: The expressions on lines {}, {} and {} are not equivalent"\
+                                    .format(str(current_line.line_no), str(target_lines[2].line_no), str(target_lines[4].line_no), str(current_line.line_no))
                                 return response
                         else:
-                            response.err_msg = "The expression on line {} is not part of the disjunction on line {}"\
-                                .format(str(target_lines[3].line_no),str(target_lines[0].line_no))
+                            response.err_msg = "Error on line {}: The expression on line {} is not part of the disjunction on line {}"\
+                                .format(str(current_line.line_no), str(target_lines[3].line_no), str(target_lines[0].line_no))
                             return response
                     else:
-                        response.err_msg = "The expression on line {} is not part of the disjunction on line {}"\
-                            .format(str(target_lines[1].line_no),str(target_lines[0].line_no))
+                        response.err_msg = "Error on line {}: The expression on line {} is not part of the disjunction on line {}"\
+                            .format(str(current_line.line_no), str(target_lines[1].line_no), str(target_lines[0].line_no))
                         return response          
                 else:
-                    response.err_msg = "The expressions on lines {} and {} should be different"\
-                        .format(str(target_lines[1].line_no),str(target_lines[3].line_no))
+                    response.err_msg = "Error on line {}: The expressions on lines {} and {} should be different"\
+                        .format(str(current_line.line_no), str(target_lines[1].line_no), str(target_lines[3].line_no))
                     return response    
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Disjunction Elimination: ∨E m, i, j"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Disjunction Elimination: ∨E m, i, j"\
+                    .format(str(current_line.line_no))
                 return response        
         except:
-            response.err_msg = "Rule not formatted properly.  Disjunction Elimination: ∨E m, i, j"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Disjunction Elimination: ∨E m, i, j"\
+                .format(str(current_line.line_no))
             return response

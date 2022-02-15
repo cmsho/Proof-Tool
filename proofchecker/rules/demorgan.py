@@ -36,8 +36,8 @@ class DeMorgan(Rule):
                     if root_m.right.value == '∧':
 
                         if current.value != '∨':
-                            response.err_msg = "If line {} is the negation of a conjuction, line {} should be a disjunction (∨) when applying the first De Morgan rule."\
-                                .format(str(target_line.line_no), str(current_line.line_no))
+                            response.err_msg = "Error on line {}: If line {} is the negation of a conjuction, line {} should be a disjunction (∨) when applying the first De Morgan rule."\
+                                .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                             return response
 
                         try:
@@ -47,24 +47,24 @@ class DeMorgan(Rule):
                             neg_right.right = root_m.right.right
                             
                             if (neg_left != current.left) or (neg_right != current.right):
-                                response.err_msg = "The atomic sentences on line {} should be negations of the atomic sentences on line {}."\
-                                    .format(str(current_line.line_no), str(target_line.line_no))
+                                response.err_msg = "Error on line {}: The atomic sentences on line {} should be negations of the atomic sentences on line {}."\
+                                    .format(str(current_line.line_no), str(current_line.line_no), str(target_line.line_no))
                                 return response
                             else:
                                 response.is_valid = True
                                 return response
 
                         except:
-                            response.err_msg = "Line {} does not conform to any of De Morgans rules."\
-                                .format(str(target_line.line_no))
+                            response.err_msg = "Error on line {}: Line {} does not conform to any of De Morgan's rules."\
+                                .format(str(current_line.line_no), str(target_line.line_no))
                             return response
 
                     ### Case 3:
                     if root_m.right.value == '∨':
 
                         if current.value != '∧':
-                            response.err_msg = "If line {} is the negation of a disjunction, line {} should be a conjunction (∧) when applying the third De Morgan rule."\
-                                .format(str(target_line.line_no), str(current_line.line_no))
+                            response.err_msg = "Error on line {}: If line {} is the negation of a disjunction, line {} should be a conjunction (∧) when applying the third De Morgan rule."\
+                                .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                             return response
 
                         try:
@@ -74,16 +74,16 @@ class DeMorgan(Rule):
                             neg_right.right = root_m.right.right
                             
                             if (neg_left != current.left) or (neg_right != current.right):
-                                response.err_msg = "The atomic sentences on line {} should be negations of the atomic sentences on line {}."\
-                                    .format(str(current_line.line_no), str(target_line.line_no))
+                                response.err_msg = "Error on line {}: The atomic sentences on line {} should be negations of the atomic sentences on line {}."\
+                                    .format(str(current_line.line_no), str(current_line.line_no), str(target_line.line_no))
                                 return response
                             else:
                                 response.is_valid = True
                                 return response
 
                         except:
-                            response.err_msg = "Line {} does not conform to any of De Morgans rules."\
-                                .format(str(target_line.line_no))
+                            response.err_msg = "Error on line {}: Line {} does not conform to any of De Morgan's rules."\
+                                .format(str(current_line.line_no), str(target_line.line_no))
                             return response
 
 
@@ -91,8 +91,8 @@ class DeMorgan(Rule):
                 if root_m.value == '∨':
 
                     if (current.value != '¬') or (current.right.value != '∧'):
-                        response.err_msg = "If line {} is a disjunction, line {} should be the negation of a conjunction (∧) when applying the second De Morgan rule."\
-                            .format(str(target_line.line_no), str(current_line.line_no))
+                        response.err_msg = "Error on line {}: If line {} is a disjunction, line {} should be the negation of a conjunction (∧) when applying the second De Morgan rule."\
+                            .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                         return response
 
                     try:
@@ -102,16 +102,16 @@ class DeMorgan(Rule):
                         neg_right.right = current.right.right
                         
                         if (neg_left != root_m.left) or (neg_right != root_m.right):
-                            response.err_msg = "The atomic sentences on line {} should be negations of the atomic sentences on line {}."\
-                                .format(str(target_line.line_no), str(current_line.line_no))
+                            response.err_msg = "Error on line {}: The atomic sentences on line {} should be negations of the atomic sentences on line {}."\
+                                .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                             return response
                         else:
                             response.is_valid = True
                             return response
 
                     except:
-                        response.err_msg = "Line {} does not conform to any of De Morgans rules."\
-                            .format(str(target_line.line_no))
+                        response.err_msg = "Error on line {}: Line {} does not conform to any of De Morgans rules."\
+                            .format(str(current_line.line_no), str(target_line.line_no))
                         return response
 
 
@@ -119,8 +119,8 @@ class DeMorgan(Rule):
                 if root_m.value == '∧':
 
                     if (current.value != '¬') or (current.right.value != '∨'):
-                        response.err_msg = "If line {} is a conjunction, line {} should be the negation of a disjunction (∨) when applying the fourth De Morgan rule."\
-                            .format(str(target_line.line_no), str(current_line.line_no))
+                        response.err_msg = "Error on line {}: If line {} is a conjunction, line {} should be the negation of a disjunction (∨) when applying the fourth De Morgan rule."\
+                            .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                         return response
 
                     try:
@@ -130,23 +130,24 @@ class DeMorgan(Rule):
                         neg_right.right = current.right.right
                         
                         if (neg_left != root_m.left) or (neg_right != root_m.right):
-                            response.err_msg = "The atomic sentences on line {} should be negations of the atomic sentences on line {}."\
-                                .format(str(target_line.line_no), str(current_line.line_no))
+                            response.err_msg = "Error on line {}: The atomic sentences on line {} should be negations of the atomic sentences on line {}."\
+                                .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                             return response
                         else:
                             response.is_valid = True
                             return response
 
                     except:
-                        response.err_msg = "Line {} does not conform to any of De Morgans rules."\
-                            .format(str(target_line.line_no))
+                        response.err_msg = "Error on line {}: Line {} does not conform to any of De Morgans rules."\
+                            .format(str(current_line.line_no), str(target_line.line_no))
                         return response
 
-
             except:
-                response.err_msg = "Line numbers are not specified correctly.  De Morgan: DeM m"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  De Morgan: DeM m"\
+                    .format(str(current_line.line_no))
                 return response      
 
         except:
-            response.err_msg = "Rule not formatted properly.  De Morgan: DeM m"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  De Morgan: DeM m"\
+                .format(str(current_line.line_no))
             return response 

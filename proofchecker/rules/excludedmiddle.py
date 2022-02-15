@@ -45,28 +45,30 @@ class ExcludedMiddle(Rule):
                 neg_i_1 = Node('¬')
                 neg_i_1.right = root_i_1
                 if (neg_i_1 != root_j_1):
-                    response.err_msg = "The expression on line {} should be the negation of line {}"\
-                        .format(str(target_lines[2].line_no), str(target_lines[0].line_no))
+                    response.err_msg = "Error on line {}: The expression on line {} should be the negation of line {}"\
+                        .format(str(current_line.line_no), str(target_lines[2].line_no), str(target_lines[0].line_no))
                     return response
 
                 # Verify the expressions on lines i.x and k.x are equivalent
                 if root_i_x != root_j_x:
-                    response.err_msg = "The expressions on lines {} and {} should be equivalent"\
-                        .format(str(target_lines[1].line_no), str(target_lines[3].line_no))
+                    response.err_msg = "Error on line {}: The expressions on lines {} and {} should be equivalent"\
+                        .format(str(current_line.line_no), str(target_lines[1].line_no), str(target_lines[3].line_no))
                     return response
 
                 # Verify the expressions on lines i.x and k.x are equivalent to current line
                 if (root_i_x != root_current) or (root_j_x != root_current):
-                    response.err_msg = "The expressions on lines {} and {} should be equivalent to the expression on line {}"\
-                        .format(str(target_lines[1].line_no), str(target_lines[3].line_no), str(current_line.line_no))
+                    response.err_msg = "Error on line {}: The expressions on lines {} and {} should be equivalent to the expression on line {}"\
+                        .format(str(current_line.line_no), str(target_lines[1].line_no), str(target_lines[3].line_no), str(current_line.line_no))
                     return response
 
                 response.is_valid = True
                 return response
     
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Law of Excluded Middle: LEM i, j"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Law of Excluded Middle: LEM i, j"\
+                    .format(str(current_line.line_no))
                 return response        
         except:
-            response.err_msg = "Rule not formatted properly.  Law of Excluded Middle: LEM i, j"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Law of Excluded Middle: LEM i, j"\
+                .format(str(current_line.line_no))
             return response

@@ -39,14 +39,16 @@ class ConditionalIntro(Rule):
                     response.is_valid = True
                     return response
                 else:
-                    response.err_msg = "The expressions on lines {} and {} do not match the implication on line {}"\
-                        .format(str(target_lines[0].line_no),str(target_lines[1].line_no),str(current_line.line_no))
+                    response.err_msg = "Error on line {}: The expressions on lines {} and {} do not match the implication on line {}"\
+                        .format(str(current_line.line_no), str(target_lines[0].line_no),str(target_lines[1].line_no),str(current_line.line_no))
                     return response
 
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Conditional Introduction: →I m"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Conditional Introduction: →I m"\
+                    .format(str(current_line.line_no))
                 return response
 
         except:
-            response.err_msg = "Rule not formatted properly.  Conditional Introduction: →I m"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Conditional Introduction: →I m"\
+                .format(str(current_line.line_no))
             return response
