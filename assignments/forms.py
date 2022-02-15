@@ -1,6 +1,5 @@
 from django import forms
 
-from proofchecker.forms import ProofForm
 from proofchecker.models import Assignment, Problem, Proof
 
 
@@ -20,3 +19,13 @@ class ProblemForm(forms.ModelForm):
         for visible in self.visible_fields():
             visible.field.widget.attrs['onkeydown'] = 'replaceCharacter(this)'
 
+
+class ProblemProofForm(forms.ModelForm):
+    class Meta:
+        model = Proof
+        fields = ['rules', 'premises', 'conclusion']
+
+    def __init__(self, *args, **kwargs):
+        super(ProblemProofForm, self).__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['onkeydown'] = 'replaceCharacter(this)'

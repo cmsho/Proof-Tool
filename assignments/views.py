@@ -1,18 +1,13 @@
+from django.contrib.auth.decorators import login_required
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.views.generic import ListView, CreateView, DeleteView
 
-from proofchecker.forms import ProofLineForm, ProofForm
-from proofchecker.models import Proof, ProofLine, Problem, Assignment, StudentAssignment
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-
-from proofchecker.proofs.proofchecker import verify_proof
-from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
-from proofchecker.proofs.proofutils import get_premises
-from proofchecker.utils import folparser, tflparser
-from .forms import AssignmentForm, ProblemForm
+from proofchecker.forms import ProofLineForm
+from proofchecker.models import Proof, ProofLine, Problem, Assignment
+from .forms import AssignmentForm, ProblemForm, ProblemProofForm
 
 
 class AssignmentListView(ListView):
@@ -30,7 +25,7 @@ class AssignmentCreateView(CreateView):
 @login_required
 def create_problem(request):
     problem_form = ProblemForm(request.POST or None)
-    proof_form = ProofForm(request.POST or None)
+    proof_form = ProblemProofForm(request.POST or None)
 
     query_set = ProofLine.objects.none()
     ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
@@ -38,7 +33,6 @@ def create_problem(request):
 
     if request.POST:
         if all([problem_form.is_valid(), proof_form.is_valid(), formset.is_valid()]):
-
             problem = problem_form.save(commit=False)
             proof = proof_form.save(commit=False)
 
@@ -58,15 +52,12 @@ def create_problem(request):
     return render(request, 'assignments/problem_add_edit.html', context)
 
 
-
-
 def problem_update_view(request, pk=None):
-
     problem = get_object_or_404(Problem, pk=pk)
     problem_form = ProblemForm(request.POST or None, instance=problem)
 
     proof = Proof.objects.get(problem=problem)
-    proof_form = ProofForm(request.POST or None, instance=proof)
+    proof_form = ProblemProofForm(request.POST or None, instance=proof)
 
     ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     formset = ProofLineFormset(request.POST or None, instance=proof, queryset=proof.proofline_set.order_by("ORDER"))
@@ -91,7 +82,6 @@ def problem_update_view(request, pk=None):
         "formset": formset
     }
     return render(request, 'assignments/problem_add_edit.html', context)
-
 
 
 class ProblemView(ListView):
