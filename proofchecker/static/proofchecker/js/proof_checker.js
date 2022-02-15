@@ -10,14 +10,6 @@ const FORMSET_TR_CLASS = "proofline_set";                       // for modelform
 
 document.addEventListener('DOMContentLoaded', reload_page, false);
 
-
-// Functionality for hovering on the buttons
-$(document).ready(function () {
-    $('[data-toggle="tooltip"]').tooltip();
-});
-
-
-
 // ---------------------------------------------------------------------------------------------------------------------
 // functions
 // ---------------------------------------------------------------------------------------------------------------------
