@@ -5,8 +5,12 @@ from django.views.generic import CreateView
 from django.views.generic import TemplateView
 from django.contrib import messages
 from django.views.generic.edit import UpdateView
-
-
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from .tokens import account_activation_token
+from django.core.mail import EmailMessage
+from django.urls import reverse
 # Create your views here.
 from accounts.forms import StudentSignUpForm, InstructorSignUpForm, StudentProfileForm, InstructorProfileForm, UserForm
 from proofchecker.models import Student, Instructor
@@ -28,10 +32,39 @@ class StudentSignUpView(CreateView):
 
     def form_valid(self, form):
         user = form.save()
+        # Email Activation Setup
+        domain = get_current_site(self.request).domain
+        mail_subject = 'Activate Your Account'
+        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+        link = reverse('activate', kwargs={
+            'uidb64':uidb64, 'token': account_activation_token.make_token(user)
+        })
+        activate_url = "http://"+domain+link
+        email_body = "Hi "+ user.username +", Please click on the link to confirm your registration.\n"+activate_url
+        to_email = form.cleaned_data.get('email')
+        email = EmailMessage(
+                        mail_subject, email_body, to=[to_email])
+        email.send()
+       
         username = form.cleaned_data.get('username')
-        messages.success(self.request, f'Account created for {username}')
+        messages.success(self.request, f'Account created for {user.username}. Check Mail to activate the account.')
         return redirect('login')
 
+def activate(request, uidb64, token):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except Exception as e:
+        pass
+
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, f'Account activated for {user.username}')
+        return redirect('login')
+    else:
+        messages.error(request, f'Error occured while activating accont.')
+        return redirect('login')
 
 class InstructorSignUpView(CreateView):
     model = User
@@ -44,8 +77,21 @@ class InstructorSignUpView(CreateView):
 
     def form_valid(self, form):
         user = form.save()
+        domain = get_current_site(self.request).domain
+        mail_subject = 'Activate Your Account'
+        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+        link = reverse('activate', kwargs={
+            'uidb64':uidb64, 'token': account_activation_token.make_token(user)
+        })
+        activate_url = "http://"+domain+link
+        email_body = "Hi "+ user.username +", Please click on the link to confirm your registration.\n"+activate_url
+        to_email = form.cleaned_data.get('email')
+        email = EmailMessage(
+                        mail_subject, email_body, to=[to_email])
+        email.send()
+       
         username = form.cleaned_data.get('username')
-        messages.success(self.request, f'Account created for {username}')
+        messages.success(self.request, f'Account created for {user.username}. Check Mail to activate the account.')
         return redirect('login')
 
 

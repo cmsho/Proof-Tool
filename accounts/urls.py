@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from accounts.views import SignUpView, InstructorSignUpView, StudentSignUpView, StudentProfileView, InstructorProfileView, StudentProfileUpdateView, InstructorProfileUpdateView
 from django.contrib.auth import views as auth_views
+from .views import activate
 urlpatterns = [
     path('accounts/signup/', SignUpView.as_view(), name="signup"),
     path('accounts/signup/student',
@@ -27,7 +28,7 @@ urlpatterns = [
          name="instructor_profile"),
      path('accounts/student/profile-update/', StudentProfileUpdateView.as_view(), name='student_profile_update'),
      path('accounts/instructor/profile-update/', InstructorProfileUpdateView.as_view(), name='instructor_profile_update'),
-
+     path('activate/<uidb64>/<token>',activate, name='activate'),
 
 ]
 

@@ -147,7 +147,8 @@ def verify_line_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
         return response
 
     except:
-        response.err_msg = "Line citations are not formatted properly"
+        response.err_msg = "Invalid line citations are provided on line {}.  Perhaps you're referencing the wrong rule?"\
+            .format(str(current_line.line_no))
         return response
 
 def verify_subproof_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
@@ -206,18 +207,33 @@ def get_premises(premises: str):
     premises = premises.replace(';', ' ')
     return premises.split()
 
+
+rule_errors = ['∧ ', '∨ ', '¬ ', '→ ', '↔ ', '∀ ', '∃ ']
+
+def fix_rule_whitespace_issues(rule):
+    """
+    If the user put a space between the rule symbol and I/E, fix it
+    (e.g. If user entered '∧ E 1' instead of '∧E 1')
+    """
+    new_rule = rule
+    if rule[0:2] in rule_errors:
+        new_rule = rule[0] + rule[2:len(rule)]
+    return new_rule
+
 def get_line_no(rule):
     """
     Get a single line number in a TFL citation
     """
-    target_line_no = rule[2:len(rule)]
+    fixed_rule = fix_rule_whitespace_issues(rule)
+    target_line_no = fixed_rule[2:len(fixed_rule)]
     return target_line_no.strip()
 
 def get_line_nos(rule):
     """
     Get multiple line numbers in a TFL citation
     """
-    target_line_nos = rule[3:len(rule)]
+    fixed_rule = fix_rule_whitespace_issues(rule)
+    target_line_nos = fixed_rule[3:len(fixed_rule)]
     target_line_nos = target_line_nos.replace('-', ' ')
     target_line_nos = target_line_nos.replace(',', ' ')
     return target_line_nos.split()
@@ -280,6 +296,8 @@ def get_lines_in_subproof(line_no: str, proof: ProofObj):
             subproof.append(line)
     if len(subproof) > 1:
         return[subproof[0], subproof[len(subproof)-1]]
+    elif len(subproof) == 1:
+        return [subproof[0], subproof[0]]
     else:
         return None
 

@@ -75,6 +75,9 @@
             <div id="item-name">Existential:</div>
             <img src="{% static 'proofchecker/images/existential_intro.png' %}" alt="Existential Introduction" class="py-3 px-1">
             <img src="{% static 'proofchecker/images/existential_elim.png' %}" alt="Existential Elimination" class="py-3 px-1">
+            <div><small><b>Note:</b> <i>c</i> must not have appeared earlier in the proof</small></div>
+            <div><small><b>Note:</b> B must not contain <i>c</i></small></div>
+            <br />
 
             <div id="item-name">Universal:</div>
             <img src="{% static 'proofchecker/images/universal_intro.png' %}" alt="Universal Introduction" class="py-3 px-1">
@@ -94,9 +97,18 @@
 
         <div id="help-information">
             <div id="main-header">How to use:</div>
-
-            <div id="sub-header">Atomic sentences:</div>
+            
+            <div id="sub-header">TFL Syntax Rules:</div>
             <div id="instruction"> Atomic sentences can be represented with uppercase letters A-Z</div>
+            
+            <div id="sub-header">FOL Syntax Rules:</div>
+            <div id="instruction">
+                <p>The following rules explain how to represent an FOL expression:</p>
+                <p><b>Names (Objects):</b> a-r (lowercase)
+                <p><b>Variables:</b> s-z (lowercase)</p>
+                <p><b>Predicates:</b> A-R (uppercase)</p>
+                <p><b>Domains (Sets):</b> S-Z (uppercase)</p>
+            </div>
 
             <div id="sub-header">Premises:</div>
 
@@ -178,10 +190,6 @@
                     </tr>
                 </tbody>
             </table>
-
-        </div>
-
-
 
     </div>
 </div>
