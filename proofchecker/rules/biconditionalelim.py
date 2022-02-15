@@ -43,22 +43,24 @@ class BiconditionalElim(Rule):
                             response.is_valid = True
                             return response
                         else:
-                            response.err_msg = "The expressions on lines {} and {} do not represent both the left and right side of the expression on line {}"\
-                                .format(str(target_lines[1].line_no), str(current_line.line_no), str(target_lines[0].line_no))
+                            response.err_msg = "Error on line {}: The expressions on lines {} and {} do not represent both the left and right side of the expression on line {}"\
+                                .format(str(current_line.line_no), str(target_lines[1].line_no), str(current_line.line_no), str(target_lines[0].line_no))
                             return response
                     else:
-                        response.err_msg = "The expression on line {} does not represent the left or right side of the expression on line {}"\
-                            .format(str(current_line.line_no), str(target_lines[0].line_no))
+                        response.err_msg = "Error on line {}: The expression on line {} does not represent the left or right side of the expression on line {}"\
+                            .format(str(current_line.line_no), str(current_line.line_no), str(target_lines[0].line_no))
                         return response
                 else:
-                    response.err_msg = "The expression on line {} does not represent the left or right side of the expression on line {}"\
-                        .format(str(target_lines[1].line_no), str(target_lines[0].line_no))
+                    response.err_msg = "Error on line {}: The expression on line {} does not represent the left or right side of the expression on line {}"\
+                        .format(str(current_line.line_no), str(target_lines[1].line_no), str(target_lines[0].line_no))
                     return response
             
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Biconditional Elimination: ↔E m, n"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Biconditional Elimination: ↔E m, n"\
+                    .format(str(current_line.line_no))
                 return response
 
         except:
-            response.err_msg = "Rule is not formatted properly.  Biconditional Elimination: ↔E m, n"
+            response.err_msg = "Error on line {}: Rule is not formatted properly.  Biconditional Elimination: ↔E m, n"\
+                .format(str(current_line.line_no))
             return response

@@ -33,14 +33,16 @@ class Explosion(Rule):
                     response.is_valid = True
                     return response
                 else:
-                    response.err_msg = "Line {} should be '⊥' (Contradiction)"\
-                        .format(str(target_line.line_no))
+                    response.err_msg = "Error on line {}: Line {} should be '⊥' (Contradiction)"\
+                        .format(str(current_line.line_no), str(target_line.line_no))
                     return response
 
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Explosion: X m"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Explosion: X m"\
+                    .format(str(current_line.line_no))
                 return response      
 
         except:
-            response.err_msg = "Rule not formatted properly.  Explosion: X m"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Explosion: X m"\
+                .format(str(current_line.line_no))
             return response 

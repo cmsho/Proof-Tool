@@ -41,14 +41,16 @@ class DisjunctionIntro(Rule):
                     response.is_valid = True
                     return response
                 else:
-                    response.err_msg = "Line {} does not follow from line {}"\
-                        .format(str(current_line.line_no), str(target_line.line_no))
+                    response.err_msg = "Error on line {}: Line {} does not follow from line {}"\
+                        .format(str(current_line.line_no), str(current_line.line_no), str(target_line.line_no))
                     return response
 
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Disjunction Introduction: ∨I m"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Disjunction Introduction: ∨I m"\
+                    .format(str(current_line.line_no))
                 return response
 
         except:
-            response.err_msg = "Rule not formatted properly.  Disjunction Introduction: ∨I m"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Disjunction Introduction: ∨I m"\
+                .format(str(current_line.line_no))
             return response

@@ -1,5 +1,5 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import make_tree, is_conclusion, depth, clean_rule
+from proofchecker.proofs.proofutils import fix_rule_whitespace_issues, make_tree, is_conclusion, depth, clean_rule
 from proofchecker.rules.rulechecker import RuleChecker
 from proofchecker.utils.constants import Constants
 from proofchecker.utils.tfllexer import IllegalCharacterError
@@ -74,14 +74,15 @@ def verify_rule(current_line: ProofLineObj, proof: ProofObj, parser):
     function to verify the rule is applied correctly
     """
     rule_str = clean_rule(current_line.rule)
-    rule_str = rule_str.split()[0]
+    fixed_rule = fix_rule_whitespace_issues(rule_str)
+    rule_symbols = fixed_rule.split()[0]
     rule_checker = RuleChecker()
-    rule = rule_checker.get_rule(rule_str, proof)
+    rule = rule_checker.get_rule(rule_symbols, proof)
 
     if rule == None:
         response = ProofResponse()
         response.err_msg = 'Rule "{}" on line {} not found in ruleset "{}"'\
-            .format(rule_str, str(current_line.line_no), Constants.RULES_CHOICES.get(proof.rules))
+            .format(rule_symbols, str(current_line.line_no), Constants.RULES_CHOICES.get(proof.rules))
         return response     
     else:
         return rule.verify(current_line, proof, parser)

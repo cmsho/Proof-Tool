@@ -30,14 +30,14 @@ class UniversalIntro(Rule):
 
                 # Verify root operand of current line is ∀
                 if (current.value[0] != '∀'):
-                    response.err_msg = "The root operand of line {} should be the universal quantifier (∀)"\
-                        .format(str(target_line.line_no))
+                    response.err_msg = "Error on line {}: The root operand of line {} should be the universal quantifier (∀)"\
+                        .format(str(current_line.line_no), str(target_line.line_no))
                     return response
                 
                 # Verify line m and current line use the same predicate
                 if (current.right.value[0] != root_m.value[0]):
-                    response.err_msg = "Lines {} and {} should refer to the same predicate"\
-                        .format(str(target_line.line_no), str(current_line.line_no))
+                    response.err_msg = "Error on line {}: Lines {} and {} should refer to the same predicate"\
+                        .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                     return response
 
                 # Verify that the predicates on both line have the same number of inputs
@@ -51,8 +51,8 @@ class UniversalIntro(Rule):
                         count_curr += 1
 
                 if count_m != count_curr:
-                    response.err_msg = "The predicates on lines {} and {} do not have the same number of inputs"\
-                        .format(str(target_line.line_no), str(current_line.line_no))
+                    response.err_msg = "Error on line {}: The predicates on lines {} and {} do not have the same number of inputs"\
+                        .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                     return response
 
                 # Verify that each variable instance on current line represents the same name on line m
@@ -67,8 +67,8 @@ class UniversalIntro(Rule):
                 # Make sure the bound variable does not appear in line m
                 for ch in func_m:
                     if ch == var:
-                        response.err_msg = "Variable {} on line {} should not appear on line {}"\
-                            .format(var, str(current_line.line_no), str(target_line.line_no))
+                        response.err_msg = "Error on line {}: Variable {} on line {} should not appear on line {}"\
+                            .format(str(current_line.line_no), var, str(current_line.line_no), str(target_line.line_no))
                         return response                        
 
                 # Keep track of the locations (indexes) of the bound variable on current line
@@ -85,16 +85,16 @@ class UniversalIntro(Rule):
                 
                 for ch in names:
                     if not is_name(ch):
-                        response.err_msg = "Instances of variable {} on line {} should be represent a name on line {}"\
-                            .format(var, str(current_line.line_no), str(target_line.line_no))
+                        response.err_msg = "Error on line {}: Instances of variable {} on line {} should be represent a name on line {}"\
+                            .format(str(current_line.line_no), var, str(current_line.line_no), str(target_line.line_no))
                         return response
                 
                 # Make sure they all use the same name
                 if len(names) > 1:
                     for ch in names:
                         if not ch == names[0]:
-                            response.err_msg = "All instances of variable {} on line {} should be represent the same name on line {}"\
-                                .format(var, str(current_line.line_no), str(target_line.line_no))
+                            response.err_msg = "Error on line {}: All instances of variable {} on line {} should be represent the same name on line {}"\
+                                .format(str(current_line.line_no), var, str(current_line.line_no), str(target_line.line_no))
                             return response
 
 
@@ -117,17 +117,19 @@ class UniversalIntro(Rule):
 
                 for ch in vars:
                     if not (ch == var):
-                        response.err_msg = "All instances of name {} on line {} should be replaced with the bound variable {} on line {}"\
-                            .format(name, str(target_line.line_no), var, str(current_line.line_no))
+                        response.err_msg = "Error on line {}: All instances of name {} on line {} should be replaced with the bound variable {} on line {}"\
+                            .format(str(current_line.line_no), name, str(target_line.line_no), var, str(current_line.line_no))
                         return response
 
                 response.is_valid = True
                 return response
 
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Universal Introduction: ∀I m"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Universal Introduction: ∀I m"\
+                    .format(str(current_line.line_no))
                 return response
 
         except:
-            response.err_msg = "Rule not formatted properly.  Universal Introduction: ∀I m"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Universal Introduction: ∀I m"\
+                .format(str(current_line.line_no))
             return response

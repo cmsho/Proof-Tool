@@ -27,8 +27,7 @@ def AssignmentPage(request):
 
 
 def SyntaxTestPage(request):
-    return render(request, "proofchecker/syntax_test.html")
-
+    return render(request, "proofchecker/testpages/syntax_test.html")
 
 def proof_checker(request):
     ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)

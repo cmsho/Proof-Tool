@@ -1,3 +1,4 @@
+from calendar import c
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import clean_rule, get_line, make_tree, verify_line_citation
 from proofchecker.utils.binarytree import Node
@@ -42,14 +43,16 @@ class ConjunctionElim(Rule):
                     response.is_valid = True
                     return response
                 else:
-                    response.err_msg = "Line {} does not follow from line {}"\
-                        .format(str(current_line.line_no), str(target_line.line_no))
+                    response.err_msg = "Error on line {}: Line {} does not follow from line {}"\
+                        .format(str(current_line.line_no), str(current_line.line_no), str(target_line.line_no))
                     return response
             
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Conjunction Elimination: ∧E m"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Conjunction Elimination: ∧E m"\
+                    .format(str(current_line.line_no))
                 return response      
 
         except:
-            response.err_msg = "Rule not formatted properly.  Conjunction Elimination: ∧E m"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Conjunction Elimination: ∧E m"\
+                .format(str(current_line.line_no))
             return response

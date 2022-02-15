@@ -46,14 +46,16 @@ class ConjunctionIntro(Rule):
                     response.is_valid = True
                     return response
                 else:
-                    response.err_msg = "The conjunction of lines {} and {} does not equal line {}"\
-                        .format(str(target_lines[0].line_no), str(target_lines[1].line_no), str(current_line.line_no))
+                    response.err_msg = "Error on line {}: The conjunction of lines {} and {} does not equal line {}"\
+                        .format(str(current_line.line_no), str(target_lines[0].line_no), str(target_lines[1].line_no), str(current_line.line_no))
                     return response
             
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Conjunction Introduction: ∧I m, n"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Conjunction Introduction: ∧I m, n"\
+                    .format(str(current_line.line_no))
                 return response
 
         except:
-            response.err_msg = "Rule is not formatted properly.  Conjunction Introduction: ∧I m, n"
+            response.err_msg = "Error on line {}: Rule is not formatted properly.  Conjunction Introduction: ∧I m, n"\
+                .format(str(current_line.line_no))
             return response

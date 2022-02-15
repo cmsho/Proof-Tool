@@ -34,14 +34,16 @@ class Reiteration(Rule):
                     response.is_valid = True
                     return response
                 else:
-                    response.err_msg = "Lines {} and {} are not equivalent"\
-                        .format(str(target_line.line_no), str(current_line.line_no))
+                    response.err_msg = "Error on line {}: Lines {} and {} are not equivalent"\
+                        .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                     return response
 
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Reiteration: R m"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Reiteration: R m"\
+                    .format(str(current_line.line_no))
                 return response      
 
         except:
-            response.err_msg = "Rule not formatted properly.  Reiteration: R m"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Reiteration: R m"\
+                .format(str(current_line.line_no))
             return response 
