@@ -1,6 +1,6 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import clean_rule, get_line_nos, get_line_with_line_no, get_lines_in_subproof, \
-    get_expressions, verify_subproof_citation, verify_line_citation, make_tree, is_name, is_var
+    get_expressions, verify_line_citation, verify_line_citation, make_tree, is_name, is_var
 from .rule import Rule
 
 class ExistentialElim(Rule):
@@ -24,14 +24,9 @@ class ExistentialElim(Rule):
             lines_i = get_lines_in_subproof(target_line_nos[1], proof)
             target_lines = [line_m, lines_i[0], lines_i[1]]
 
-            # Verify that line m citation is valid
-            line_m_citation = verify_line_citation(current_line, target_lines[0])
-            if line_m_citation.is_valid == False:
-                return line_m_citation
-
-            # Verify that subproof citations are valid
-            for line in target_lines[1:len(target_lines)]:
-                result = verify_subproof_citation(current_line, line)
+            # Verify that line citations are valid
+            for line_no in target_line_nos:
+                result = verify_line_citation(current_line.line_no, line_no)
                 if result.is_valid == False:
                     return result
 

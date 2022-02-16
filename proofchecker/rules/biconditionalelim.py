@@ -23,7 +23,7 @@ class BiconditionalElim(Rule):
 
             # Verify that the line citations are valid
             for line in target_lines:
-                result = verify_line_citation(current_line, line)
+                result = verify_line_citation(current_line.line_no, line.line_no)
                 if result.is_valid == False:
                     return result
 

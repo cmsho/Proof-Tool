@@ -106,7 +106,7 @@ def verify_expression(expression: str, parser):
         return response
     
 
-def verify_line_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
+def verify_line_citation(current_line_no: str, cited_line_no: str):
     """
     Verify whether an individual line citation is valid
     Returns a ProofResponse with an error message if invalid
@@ -115,31 +115,32 @@ def verify_line_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
     
     try:
         # Calculate the depth of each line number
-        current_depth = depth(str(current_line.line_no))
-        cited_depth = depth(str(cited_line.line_no))
+        current_depth = depth(current_line_no)
+        cited_depth = depth(cited_line_no)
 
         # Check if the cited line occurs within a subproof that has not been closed
         # before the line where the rule is applied (this is a violation)
         if cited_depth > current_depth:
-            response.err_msg = "Line {} occurs within a subproof that has not been closed prior to line {}"\
-                .format(str(cited_line.line_no), str(current_line.line_no))
+            response.err_msg = "Error on line {}: Invalid citation: Line {} exists within in a subproof at a lower depth than line {}"\
+                .format(current_line_no, current_line_no, cited_line_no)
             return response
 
         # Create an array of nested line numbers
-        current_nums = str(current_line.line_no).replace('.', ' ')
-        current_nums = current_nums.split()
-        cited_nums = str(cited_line.line_no).replace('.', ' ')
-        cited_nums = cited_nums.split()
+        current_nums = current_line_no.replace('.', ' ').split()
+        cited_nums = cited_line_no.replace('.', ' ').split()
         x = 0
         
         # Check that the current line occurs after the cited line in the proof
         while x < cited_depth:
             if current_nums[x] < cited_nums[x]:
-                response.err_msg = "Invalid citation: line {} occurs after line {}"\
-                    .format(str(cited_line.line_no), str(current_line.line_no))
+                response.err_msg = "Error on line {}: Invalid citation: Line {} occurs after line {}"\
+                    .format(current_line_no, cited_line_no, current_line_no)
                 return response
             elif cited_nums[x] < current_nums[x]:
-                break
+                if x != (cited_depth-1):
+                    response.err_msg = "Error on line {}: Invalid citation: Line {} occurs in a previous subproof"\
+                        .format(current_line_no, cited_line_no)
+                    return response
             x += 1
         
         # If all the other checks pass, line citation is valid
@@ -147,54 +148,10 @@ def verify_line_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
         return response
 
     except:
-        response.err_msg = "Invalid line citations are provided on line {}.  Perhaps you're referencing the wrong rule?"\
-            .format(str(current_line.line_no))
+        response.err_msg = "Error on line {}: Invalid line citations are provided on line {}.  Perhaps you're referencing the wrong rule?"\
+            .format(current_line_no, current_line_no)
         return response
 
-def verify_subproof_citation(current_line: ProofLineObj, cited_line: ProofLineObj):
-    """
-    Verify whether an subproof citation is valid
-    Returns a ProofResponse with an error message if invalid
-    """
-
-    response = ProofResponse()
-    
-    try:
-        # Calculate the depth of each line number
-        current_depth = depth(str(current_line.line_no))
-        cited_depth = depth(str(cited_line.line_no))-1
-
-        # Check if the cited line occurs within a subproof that has not been closed
-        # before the line where the rule is applied (this is a violation)
-        if cited_depth > current_depth:
-            response.err_msg = "Line {} occurs within a subproof that has not been closed prior to line {}"\
-                .format(str(cited_line.line_no), str(current_line.line_no))
-            return response
-
-        # Create an array of nested line numbers
-        current_nums = str(current_line.line_no).replace('.', ' ')
-        current_nums = current_nums.split()
-        cited_nums = str(cited_line.line_no).replace('.', ' ')
-        cited_nums = cited_nums.split()
-        x = 0
-        
-        # Check that the current line occurs after the cited line in the proof
-        while x < cited_depth:
-            if current_nums[x] < cited_nums[x]:
-                response.err_msg = "Invalid citation: line {} occurs after line {}"\
-                    .format(str(cited_line.line_no), str(current_line.line_no))
-                return response
-            elif cited_nums[x] < current_nums[x]:
-                break
-            x += 1
-        
-        # If all the other checks pass, line citation is valid
-        response.is_valid = True
-        return response
-
-    except:
-        response.err_msg = "Line numbers are not formatted properly"
-        return response
 
 def get_premises(premises: str):
     """
