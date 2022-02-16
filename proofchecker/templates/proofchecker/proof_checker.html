@@ -191,7 +191,15 @@
     {% endif %}
 
     <hr>
-    <button name="check_proof" type="submit" class="btn btn-primary mb-3">Check Proof</button>
+
+
+    <div class="row">
+        <div class="col-4 col-sm-4">
+            <button name="check_proof" type="submit" class="btn btn-primary mb-3">Check Proof</button>
+        </div>
+        Number of Lines:
+        <div id="line_counter">0</div>
+    </div>
 
     <hr>
     <!-- Display validation errors from form fields-->

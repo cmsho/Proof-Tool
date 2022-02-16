@@ -26,6 +26,7 @@ function reload_page() {
 
     hide_make_parent_button()
     update_row_indentations()
+    updateLineCount()
 }
 
 
@@ -46,6 +47,26 @@ window.onload = function () {
         })
 }
 
+
+// Displayed line count
+function updateLineCount() {
+    let currentLineCount = document.getElementById("line_counter")
+    // console.log(currentLineCount.innerText)
+
+    let counter = 0;
+
+    if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
+        let row = document.getElementById(`${FORMSET_PREFIX}-0`)
+
+        while (row !== null) {
+            counter++
+            row = row.nextElementSibling;
+        }
+    }
+    // console.log(counter)
+    currentLineCount.innerText = counter;
+
+}
 
 
 
@@ -107,6 +128,7 @@ function start_proof(element) {
     element.hidden = true
     document.getElementById("btn_restart_proof").classList.remove("hidden")
     reset_order_fields()
+    updateLineCount()
 }
 
 /**
@@ -115,6 +137,7 @@ function start_proof(element) {
 function restart_proof() {
     delete_all_prooflines()
     start_proof(document.getElementById("btn_start_proof"))
+    updateLineCount()
 }
 
 
@@ -127,6 +150,7 @@ function insert_form(obj) {
     hide_make_parent_button()
     reset_order_fields()
     update_row_indentations()
+    updateLineCount()
 }
 
 /**
@@ -138,6 +162,7 @@ function make_parent(obj) {
     hide_make_parent_button()
     reset_order_fields()
     update_row_indentations()
+    updateLineCount()
 }
 
 
@@ -150,6 +175,7 @@ function create_subproof(obj) {
     hide_make_parent_button()
     reset_order_fields()
     update_row_indentations()
+    updateLineCount()
 }
 
 
@@ -160,6 +186,7 @@ function delete_form(obj) {
     delete_row(get_form_id(obj))
     hide_make_parent_button()
     update_row_indentations()
+    updateLineCount()
 }
 
 
