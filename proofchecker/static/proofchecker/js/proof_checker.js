@@ -157,7 +157,11 @@ function generate_new_subproof_row_number(currentRow) {
 
     // Update row number of clicked button
     currentRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
-    currentRow.children[2].children[0].value = 'Assumption'
+
+    // If Rule is currently blank then add "Assumption" to the new subproof
+    if (currentRow.children[2].children[0].value.length == 0) {
+        currentRow.children[2].children[0].value = 'Assumption'
+    }
 }
 
 
