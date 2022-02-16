@@ -64,7 +64,7 @@ class BiconditionalIntro(Rule):
                                         response.is_valid = True
                                         return response
                                     else:
-                                        response.err_msg = "Error on line {}: Left side and right side of line {} are equiavlent, but lines {} and {} are not equivalent"\
+                                        response.err_msg = "Error on line {}: Left side and right side of line {} are equivalent, but lines {} and {} are not equivalent"\
                                             .format(str(current_line.line_no), str(current_line.line_no), str(target_lines[0].line_no), str(target_lines[1].line_no))
                                         return response
                                 else:
