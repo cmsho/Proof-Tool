@@ -153,7 +153,6 @@ function generate_new_subproof_row_number(currentRow) {
 
     // Get the row that the button was clicked
     const original_row_number_of_clicked_button = currentRow.children[0].children[0].value
-    console.log(original_row_number_of_clicked_button)
 
     // Update row number of clicked button
     currentRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
