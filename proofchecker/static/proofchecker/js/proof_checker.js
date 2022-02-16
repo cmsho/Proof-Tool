@@ -29,6 +29,27 @@ function reload_page() {
 }
 
 
+
+// Downlaod button
+window.onload = function () {
+    document.getElementById("download")
+        .addEventListener("click", () => {
+            const form = this.document.getElementById("proof_form");
+            var opt = {
+                margin: .25,
+                filename: `${this.document.getElementById("id_name").value.replace(" ", "_")}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 1 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().from(form).set(opt).save();
+        })
+}
+
+
+
+
+
 /**
  * this function decides whether to show START_PROOF button or RESTART_PROOF button
  */
@@ -705,3 +726,5 @@ function hide_make_parent_button() {
 
 
 // ---------------------------------------------------------------------------------------------------------------------
+
+
