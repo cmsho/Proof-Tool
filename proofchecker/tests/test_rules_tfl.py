@@ -476,7 +476,7 @@ class BasicRuleTests(TestCase):
         result = rule.verify(line5, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, \
-            'Error on line 3: Left side and right side of line 3 are equiavlent, but lines 1.1 and 1.2 are not equivalent')
+            'Error on line 3: Left side and right side of line 3 are equivalent, but lines 1.1 and 1.2 are not equivalent')
 
 
     def test_biconditional_elim(self):

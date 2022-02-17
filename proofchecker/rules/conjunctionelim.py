@@ -22,7 +22,7 @@ class ConjunctionElim(Rule):
             target_line = get_line(rule, proof)
 
             # Verify if line citation is valid
-            result = verify_line_citation(current_line, target_line)
+            result = verify_line_citation(current_line.line_no, target_line.line_no)
             if result.is_valid == False:
                 return result
 

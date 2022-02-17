@@ -4,9 +4,12 @@ from django.urls import reverse
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
 from proofchecker.proofs.proofutils import get_line_no, get_line_nos, get_lines_in_subproof, \
     get_premises, is_conclusion, is_valid_expression, is_var, verify_expression, verify_line_citation, \
-    depth, verify_subproof_citation, clean_rule
+    depth, verify_line_citation, clean_rule
 from proofchecker.proofs.proofchecker import verify_proof, verify_rule
 from proofchecker.utils import tflparser
+
+from proofchecker.rules.conditionalelim import ConditionalElim
+from proofchecker.utils import folparser
 
 
 class ProofLineObjTests(TestCase):
@@ -184,30 +187,6 @@ class HelpersTests(TestCase):
         self.assertFalse(res4.is_valid)
         self.assertEqual(res4.err_msg, "Illegal character '!' in expression A!")
 
-    def test_verify_subproof_citation(self):
-        """
-        Test that the verify_subproof_citation method works properly
-        """
-        # Test with cited line within an unclosed subproof.
-        line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
-        line2 = ProofLineObj('2.1.1', 'A∧C', 'Assumption')
-        line3 = ProofLineObj('2.1.2', 'C', '∧E 2.1')
-        line4 = ProofLineObj('3', 'C', '∧E 2.1')
-        result = verify_subproof_citation(line4, line2)
-        self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg,\
-            'Line 2.1.1 occurs within a subproof that has not been closed prior to line 3')
-        
-        # Test with cited line after current line
-        line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
-        line2 = ProofLineObj('2', 'C', '∧E 3.1')
-        line3 = ProofLineObj('3.1', 'A∧C', 'Assumption')
-        line4 = ProofLineObj('3.2', 'C', '∧E 3.1')
-        result = verify_subproof_citation(line2, line3)
-        self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg,\
-            'Invalid citation: line 3.1 occurs after line 2')
-
     def test_is_var(self):
         """
         Test that the is_var method properly determines 
@@ -369,8 +348,8 @@ class ProofTests(TestCase):
         line1 = ProofLineObj('2.1', 'A', 'Premise')
         line2 = ProofLineObj('2.2', 'B', 'Premise')
         line3 = ProofLineObj('2.3', 'A∧B', '∧I 1, 2')
-        result1 = verify_line_citation(line3, line1)
-        result2 = verify_line_citation(line3, line2)
+        result1 = verify_line_citation(line3.line_no, line1.line_no)
+        result2 = verify_line_citation(line3.line_no, line2.line_no)
         self.assertTrue(result1.is_valid)
         self.assertTrue(result2.is_valid)
 
@@ -380,26 +359,49 @@ class ProofTests(TestCase):
         line3 = ProofLineObj('2.2', 'B', 'R')
         line4 = ProofLineObj('3', 'B→B', '→I 2-3')
         line5 = ProofLineObj('4', 'B', '→E 4, 3')
-        result = verify_line_citation(line5, line3)
+        result = verify_line_citation(line5.line_no, line3.line_no)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg,\
-            'Line 2.2 occurs within a subproof that has not been closed prior to line 4')
+            'Error on line 4: Invalid citation: Line 4 exists within in a subproof at a lower depth than line 2.2')
 
         # Test with the cited line occurring after the current line
-        line1 = ProofLineObj('2.1', 'A∧B', '∧I 1, 2')
-        line2 = ProofLineObj('2.2', 'B', 'Premise')
-        result = verify_line_citation(line1, line2)
-        self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg,\
-            "Invalid citation: line 2.2 occurs after line 2.1")
-
-        # Test with line numbers not formatted properly
         line1 = ProofLineObj('1', 'A∧B', '∧I 1, 2')
-        line2 = ProofLineObj('2.a', 'B', 'Premise')
-        result = verify_line_citation(line1, line2)
+        line2 = ProofLineObj('2', 'B', 'Premise')
+        result = verify_line_citation(line1.line_no, line2.line_no)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg,\
-            "Invalid line citations are provided on line 1.  Perhaps you're referencing the wrong rule?")
+            "Error on line 1: Invalid citation: Line 2 occurs after line 1")
+
+        # Test where a line cites a line in a different subproof at same depth
+        line1 = ProofLineObj('1.1', 'R', 'Assumption')
+        line2 = ProofLineObj('2.1', 'Q', 'Assumption')
+        line3 = ProofLineObj('2.2', 'Q∧R', '∧I 1.1, 2.1')
+        result = verify_line_citation(line3.line_no, line1.line_no)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 2.2: Invalid citation: Line 1.1 occurs in a previous subproof')
+
+        # Test casting of strings to int
+        rule = ConditionalElim()
+        parser = folparser.parser
+
+        # This test works
+        line1 = ProofLineObj('1', 'B(c) → L(a, c)', '∀E 2')
+        line2 = ProofLineObj('2.1', 'B(c)', 'Assumption')
+        line3 = ProofLineObj('2.2', 'L(a, c)', '→E 1, 2.1')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # This test doesn't work
+        line1 = ProofLineObj('6', 'B(c) → L(a, c)', '∀E 2')
+        line2 = ProofLineObj('10.1', 'B(c)', 'Assumption')
+        line3 = ProofLineObj('10.2', 'L(a, c)', '→E 6, 10.1')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
 
     def test_is_conclusion(self):
         """

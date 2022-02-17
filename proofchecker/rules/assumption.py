@@ -13,8 +13,7 @@ class Assumption(Rule):
         response = ProofResponse()
 
         try:
-            nums = str(current_line.line_no).replace('.', ' ')
-            nums = nums.split()
+            nums = str(current_line.line_no).replace('.', ' ').split()
             last_num = nums[len(nums)-1]
 
             # Assumptions should start a new subproof

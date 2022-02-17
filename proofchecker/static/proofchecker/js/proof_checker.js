@@ -10,14 +10,6 @@ const FORMSET_TR_CLASS = "proofline_set";                       // for modelform
 
 document.addEventListener('DOMContentLoaded', reload_page, false);
 
-
-// Functionality for hovering on the buttons
-$(document).ready(function () {
-    $('[data-toggle="tooltip"]').tooltip();
-});
-
-
-
 // ---------------------------------------------------------------------------------------------------------------------
 // functions
 // ---------------------------------------------------------------------------------------------------------------------
@@ -34,7 +26,49 @@ function reload_page() {
 
     hide_make_parent_button()
     update_row_indentations()
+    updateLineCount()
 }
+
+
+
+// Downlaod button
+window.onload = function () {
+    document.getElementById("download")
+        .addEventListener("click", () => {
+            const form = this.document.getElementById("proof_form");
+            var opt = {
+                margin: .25,
+                filename: `${this.document.getElementById("id_name").value.replace(" ", "_")}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 1 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().from(form).set(opt).save();
+        })
+}
+
+
+// Displayed line count
+function updateLineCount() {
+    let currentLineCount = document.getElementById("line_counter")
+    // console.log(currentLineCount.innerText)
+
+    let counter = 0;
+
+    if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
+        let row = document.getElementById(`${FORMSET_PREFIX}-0`)
+
+        while (row !== null) {
+            counter++
+            row = row.nextElementSibling;
+        }
+    }
+    // console.log(counter)
+    currentLineCount.innerText = counter;
+
+}
+
+
 
 
 /**
@@ -94,6 +128,7 @@ function start_proof(element) {
     element.hidden = true
     document.getElementById("btn_restart_proof").classList.remove("hidden")
     reset_order_fields()
+    updateLineCount()
 }
 
 /**
@@ -102,6 +137,7 @@ function start_proof(element) {
 function restart_proof() {
     delete_all_prooflines()
     start_proof(document.getElementById("btn_start_proof"))
+    updateLineCount()
 }
 
 
@@ -114,6 +150,7 @@ function insert_form(obj) {
     hide_make_parent_button()
     reset_order_fields()
     update_row_indentations()
+    updateLineCount()
 }
 
 /**
@@ -125,6 +162,7 @@ function make_parent(obj) {
     hide_make_parent_button()
     reset_order_fields()
     update_row_indentations()
+    updateLineCount()
 }
 
 
@@ -137,6 +175,7 @@ function create_subproof(obj) {
     hide_make_parent_button()
     reset_order_fields()
     update_row_indentations()
+    updateLineCount()
 }
 
 
@@ -147,6 +186,7 @@ function delete_form(obj) {
     delete_row(get_form_id(obj))
     hide_make_parent_button()
     update_row_indentations()
+    updateLineCount()
 }
 
 
@@ -161,11 +201,14 @@ function generate_new_subproof_row_number(currentRow) {
 
     // Get the row that the button was clicked
     const original_row_number_of_clicked_button = currentRow.children[0].children[0].value
-    console.log(original_row_number_of_clicked_button)
 
     // Update row number of clicked button
     currentRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
-    currentRow.children[2].children[0].value = 'Assumption'
+
+    // If Rule is currently blank then add "Assumption" to the new subproof
+    if (currentRow.children[2].children[0].value.length == 0) {
+        currentRow.children[2].children[0].value = 'Assumption'
+    }
 }
 
 
@@ -714,3 +757,5 @@ function hide_make_parent_button() {
 
 
 // ---------------------------------------------------------------------------------------------------------------------
+
+

@@ -1,5 +1,5 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import clean_rule, get_line_nos, get_lines_in_subproof, verify_subproof_citation, make_tree, get_expressions
+from proofchecker.proofs.proofutils import clean_rule, get_line_nos, get_lines_in_subproof, verify_line_citation, make_tree, get_expressions
 from .rule import Rule
 
 class BiconditionalIntro(Rule):
@@ -23,8 +23,8 @@ class BiconditionalIntro(Rule):
             target_lines = [lines_i[0], lines_i[1], lines_j[0], lines_j[1]]
 
             # Verify that subproof citations are valid
-            for line in target_lines:
-                result = verify_subproof_citation(current_line, line)
+            for line_no in target_line_nos:
+                result = verify_line_citation(current_line.line_no, line_no)
                 if result.is_valid == False:
                     return result
 
@@ -64,7 +64,7 @@ class BiconditionalIntro(Rule):
                                         response.is_valid = True
                                         return response
                                     else:
-                                        response.err_msg = "Error on line {}: Left side and right side of line {} are equiavlent, but lines {} and {} are not equivalent"\
+                                        response.err_msg = "Error on line {}: Left side and right side of line {} are equivalent, but lines {} and {} are not equivalent"\
                                             .format(str(current_line.line_no), str(current_line.line_no), str(target_lines[0].line_no), str(target_lines[1].line_no))
                                         return response
                                 else:

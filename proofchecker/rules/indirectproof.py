@@ -1,5 +1,5 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import clean_rule, get_line_no, verify_subproof_citation, make_tree, get_expressions, get_lines_in_subproof
+from proofchecker.proofs.proofutils import clean_rule, get_line_no, verify_line_citation, make_tree, get_expressions, get_lines_in_subproof
 from .rule import Rule
 
 class IndirectProof(Rule):
@@ -20,11 +20,10 @@ class IndirectProof(Rule):
             target_line_no = get_line_no(rule)
             target_lines = get_lines_in_subproof(target_line_no, proof)
 
-            # Verify that subproof citation are valid
-            for line in target_lines:
-                result = verify_subproof_citation(current_line, line)
-                if result.is_valid == False:
-                    return result
+            # Verify the line citation is valid
+            result = verify_line_citation(current_line.line_no, target_line_no)
+            if result.is_valid == False:
+                return result
 
             # Search for lines i-j in the proof
             try:

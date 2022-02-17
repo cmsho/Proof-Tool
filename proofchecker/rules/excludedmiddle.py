@@ -1,6 +1,6 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import clean_rule, get_line_nos, make_tree,\
-    get_lines_in_subproof, verify_subproof_citation, get_expressions
+    get_lines_in_subproof, verify_line_citation, get_expressions
 from proofchecker.utils.binarytree import Node
 from .rule import Rule
 
@@ -25,8 +25,8 @@ class ExcludedMiddle(Rule):
             target_lines = [lines_i[0], lines_i[1], lines_j[0], lines_j[1]]
 
             # Verify that subproof citations are valid
-            for line in target_lines:
-                result = verify_subproof_citation(current_line, line)
+            for line_no in target_line_nos:
+                result = verify_line_citation(current_line.line_no, line_no)
                 if result.is_valid == False:
                     return result
 
