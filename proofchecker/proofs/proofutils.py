@@ -132,7 +132,7 @@ def verify_line_citation(current_line_no: str, cited_line_no: str):
         
         # Check that the current line occurs after the cited line in the proof
         while x < cited_depth:
-            if current_nums[x] < cited_nums[x]:
+            if int(current_nums[x]) < int(cited_nums[x]):
                 response.err_msg = "Error on line {}: Invalid citation: Line {} occurs after line {}"\
                     .format(current_line_no, cited_line_no, current_line_no)
                 return response

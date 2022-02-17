@@ -8,6 +8,9 @@ from proofchecker.proofs.proofutils import get_line_no, get_line_nos, get_lines_
 from proofchecker.proofs.proofchecker import verify_proof, verify_rule
 from proofchecker.utils import tflparser
 
+from proofchecker.rules.conditionalelim import ConditionalElim
+from proofchecker.utils import folparser
+
 
 class ProofLineObjTests(TestCase):
 
@@ -376,6 +379,28 @@ class ProofTests(TestCase):
         result = verify_line_citation(line3.line_no, line1.line_no)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Error on line 2.2: Invalid citation: Line 1.1 occurs in a previous subproof')
+
+        # Test casting of strings to int
+        rule = ConditionalElim()
+        parser = folparser.parser
+
+        # This test works
+        line1 = ProofLineObj('1', 'B(c) → L(a, c)', '∀E 2')
+        line2 = ProofLineObj('2.1', 'B(c)', 'Assumption')
+        line3 = ProofLineObj('2.2', 'L(a, c)', '→E 1, 2.1')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # This test doesn't work
+        line1 = ProofLineObj('6', 'B(c) → L(a, c)', '∀E 2')
+        line2 = ProofLineObj('10.1', 'B(c)', 'Assumption')
+        line3 = ProofLineObj('10.2', 'L(a, c)', '→E 6, 10.1')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
 
 
     def test_is_conclusion(self):
