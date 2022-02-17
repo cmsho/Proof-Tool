@@ -148,7 +148,7 @@ class Assignment(models.Model):
         Instructor, on_delete=models.CASCADE, null=True)
     created_on = models.DateTimeField(auto_now_add=True)
     due_by = models.DateTimeField()
-    problems = models.ManyToManyField(Problem)
+    problems = models.ManyToManyField(Problem, null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
     def __str__(self):

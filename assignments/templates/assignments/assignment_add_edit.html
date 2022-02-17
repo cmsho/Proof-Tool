@@ -1,0 +1,76 @@
+{% extends 'proofchecker/base.html' %}{% load static %}
+{% load crispy_forms_filters %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 col-sm-10 col-12">
+            <h2> Create An Assignment</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group row">
+                    <label for="id_title" class="col-md-4">{{ form.title.label }}</label>
+                    <div class="col-12 col-md-8">
+                        {{ form.title }}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="id_course" class="col-md-4">{{ form.course.label }}</label>
+                    <div class="col-12 col-md-8">
+                        {{ form.course }}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="id_due_by" class="col-md-4">{{ form.due_by.label }}</label>
+                    <div class="col-12 col-md-8">
+                        {{ form.due_by }}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="id_due_by" class="col-md-4">Problems</label>
+                    <div class="col-12 col-md-8">
+                        <button type="button" value="Add Problem" onclick="add_problem(this)" title="Add Problem">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="green"
+                                 class="bi bi-plus-square-fill" viewBox="0 0 16 16">
+                                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <ul>
+{#                    {% if problems %}#}
+                        {% for problem in problems %}
+{#                            form.instance.problems.all %}#}
+                            <li>{{ problem.question }}</li>
+                        {% endfor %}
+{#                    {% endif %}#}
+                    </ul>
+                </div>
+                <button type="submit" class="btn btn-success">Save</button>
+
+
+                <div id="htmx">
+                    <div id="returnValue"></div>
+                    {% if form.instance.id %}
+                        <button id="hx-btn" hx-post="/assignments/{{ form.instance.id }}/update"
+                           hx-trigger="click"
+                           hx-target="#returnValue"
+                           hx-swap="innerText">
+                            HX BTN EDIT
+                        </button>
+                    {% else %}
+                        <button id="hx-btn" hx-post="/assignments/add"
+                           hx-trigger="click"
+                           hx-target="#returnValue"
+                           hx-swap="innerText">
+                            HX BTN ADD
+                        </button>
+                    {% endif %}
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script src="{% static 'js/assignments.js' %}"></script>
+{% endblock %}
