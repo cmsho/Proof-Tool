@@ -32,23 +32,27 @@ class StudentSignUpView(CreateView):
 
     def form_valid(self, form):
         user = form.save()
+
         # Email Activation Setup
         domain = get_current_site(self.request).domain
         mail_subject = 'Activate Your Account'
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
         link = reverse('activate', kwargs={
-            'uidb64':uidb64, 'token': account_activation_token.make_token(user)
+            'uidb64': uidb64, 'token': account_activation_token.make_token(user)
         })
         activate_url = "http://"+domain+link
-        email_body = "Hi "+ user.username +", Please click on the link to confirm your registration.\n"+activate_url
+        email_body = "Hi " + user.username + \
+            ", Please click on the link to confirm your registration.\n"+activate_url
         to_email = form.cleaned_data.get('email')
         email = EmailMessage(
-                        mail_subject, email_body, to=[to_email])
+            mail_subject, email_body, to=[to_email])
         email.send()
-       
+
         username = form.cleaned_data.get('username')
-        messages.success(self.request, f'Account created for {user.username}. Check Mail to activate the account.')
+        messages.success(
+            self.request, f'Account created for {user.username}. Check Mail to activate the account.')
         return redirect('login')
+
 
 def activate(request, uidb64, token):
     try:
@@ -66,6 +70,7 @@ def activate(request, uidb64, token):
         messages.error(request, f'Error occured while activating accont.')
         return redirect('login')
 
+
 class InstructorSignUpView(CreateView):
     model = User
     form_class = InstructorSignUpForm
@@ -77,24 +82,25 @@ class InstructorSignUpView(CreateView):
 
     def form_valid(self, form):
         user = form.save()
+
         domain = get_current_site(self.request).domain
         mail_subject = 'Activate Your Account'
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
         link = reverse('activate', kwargs={
-            'uidb64':uidb64, 'token': account_activation_token.make_token(user)
+            'uidb64': uidb64, 'token': account_activation_token.make_token(user)
         })
         activate_url = "http://"+domain+link
-        email_body = "Hi "+ user.username +", Please click on the link to confirm your registration.\n"+activate_url
+        email_body = "Hi " + user.username + \
+            ", Please click on the link to confirm your registration.\n"+activate_url
         to_email = form.cleaned_data.get('email')
         email = EmailMessage(
-                        mail_subject, email_body, to=[to_email])
+            mail_subject, email_body, to=[to_email])
         email.send()
-       
+
         username = form.cleaned_data.get('username')
-        messages.success(self.request, f'Account created for {user.username}. Check Mail to activate the account.')
+        messages.success(
+            self.request, f'Account created for {user.username}. Check Mail to activate the account.')
         return redirect('login')
-
-
 
 
 class StudentProfileView(CreateView):
@@ -122,7 +128,7 @@ class InstructorProfileView(CreateView):
 
 
 class StudentProfileUpdateView(TemplateView):
-    user_form =  UserForm
+    user_form = UserForm
     form_class = StudentProfileForm
     template_name = "profiles/student_profile_update.html"
 
@@ -131,21 +137,24 @@ class StudentProfileUpdateView(TemplateView):
         file_data = request.FILES or None
 
         user_form = UserForm(post_data, instance=request.user)
-        profile_form = StudentProfileForm(post_data, file_data, instance=request.user.student)
+        profile_form = StudentProfileForm(
+            post_data, file_data, instance=request.user.student)
 
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
             messages.success(request, f'Profile Updated Successfully')
             return redirect('student_profile')
-        context = self.get_context_data(user_form=user_form, profile_form=profile_form)
+        context = self.get_context_data(
+            user_form=user_form, profile_form=profile_form)
         return self.render_to_response(context)
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
 
+
 class InstructorProfileUpdateView(TemplateView):
-    user_form =  UserForm
+    user_form = UserForm
     form_class = InstructorProfileForm
     template_name = "profiles/instructor_profile_update.html"
 
@@ -154,14 +163,16 @@ class InstructorProfileUpdateView(TemplateView):
         file_data = request.FILES or None
 
         user_form = UserForm(post_data, instance=request.user)
-        profile_form = InstructorProfileForm(post_data, file_data, instance=request.user.instructor)
+        profile_form = InstructorProfileForm(
+            post_data, file_data, instance=request.user.instructor)
 
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
             messages.success(request, f'Profile Updated Successfully')
             return redirect('instructor_profile')
-        context = self.get_context_data(user_form=user_form, profile_form=profile_form)
+        context = self.get_context_data(
+            user_form=user_form, profile_form=profile_form)
         return self.render_to_response(context)
 
     def get(self, request, *args, **kwargs):
