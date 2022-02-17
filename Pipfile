@@ -9,6 +9,7 @@ django-crispy-forms = "*"
 coverage = "*"
 django-htmx = "*"
 pillow = "*"
+six = "*"
 
 [dev-packages]
 
