@@ -1,6 +1,9 @@
 from django.test import TestCase
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
+from proofchecker.proofs.proofutils import make_tree
 from proofchecker.rules.conversionofquantifiers import ConversionOfQuantifiers
+from proofchecker.rules.equalityelim import EqualityElim, check_subs
+from proofchecker.rules.equalityintro import EqualityIntro
 from proofchecker.rules.existentialelim import ExistentialElim
 from proofchecker.rules.existentialintro import ExistentialIntro
 from proofchecker.rules.universalelim import UniversalElim
@@ -9,6 +12,130 @@ from proofchecker.utils import folparser
 
 
 class FOLRulesTests(TestCase):
+
+    def test_equality_intro(self):
+        rule = EqualityIntro()
+        parser = folparser.parser
+
+        # Test with valid input
+        line1 = ProofLineObj('1', 'a=a', 'Premise')
+        proof = ProofObj(lines=[line1])
+        result = rule.verify(line1, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        line1 = ProofLineObj('1', 'F(x, a)=F(x, a)', 'Premise')
+        proof = ProofObj(lines=[line1])
+        result = rule.verify(line1, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        line1 = ProofLineObj('1', 'Fxa=Fxa', 'Premise')
+        proof = ProofObj(lines=[line1])
+        result = rule.verify(line1, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        # Test where the root operand is not =
+        line1 = ProofLineObj('1', 'F(x)', 'Premise')
+        proof = ProofObj(lines=[line1])
+        result = rule.verify(line1, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 1: The root operand of the expression should be identity (=)')
+
+        # Test where the left and right hand are not equivalent
+        line1 = ProofLineObj('1', 'a=b', 'Premise')
+        proof = ProofObj(lines=[line1])
+        result = rule.verify(line1, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 1: The left and right hand sides of the equation should be equivalent')
+
+        # Test with invalid expression
+        line1 = ProofLineObj('1', 'F(x, a)=a', 'Premise')
+        proof = ProofObj(lines=[line1])
+        result = rule.verify(line1, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 1: Error in the expression F(x, a)=a')
+
+
+    def test_check_subs(self):
+        """
+        Test that the function check_subs (used for =E) is working correctly
+        check_subs(current_tree, line_n_tree, left, right, current_line, line_n_expression)
+        """
+        # Test with valid input
+        parser = folparser.parser
+        current_tree = make_tree('F(a, b, a, b)', parser)
+        line_n_tree = make_tree('F(a, a, a, a)', parser)
+        left = 'a'
+        right = 'b'
+        current_line = ProofLineObj('3', 'F(a, b, a, b)', 'Premise')
+        line_n = ProofLineObj('2', 'F(a, a, a, a)', 'Premise')
+        result = check_subs(current_tree, line_n_tree, left, right, current_line, line_n)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        current_tree = make_tree('F(a) = G(a)', parser)
+        line_n_tree = make_tree('F(a) = H(a)', parser)
+        left = 'G(a)'
+        right = 'H(a)'
+        current_line = ProofLineObj('3', 'F(a)=G(a)', 'Premise')
+        line_n = ProofLineObj('2', 'F(a) = H(a)', 'Premise')
+        result = check_subs(current_tree, line_n_tree, left, right, current_line, line_n)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        # Test with invalid input
+        parser = folparser.parser
+        current_tree = make_tree('F(a, b, a, c)', parser)
+        line_n_tree = make_tree('F(a, a, a, a)', parser)
+        left = 'a'
+        right = 'b'
+        current_line = ProofLineObj('3', 'F(a, b, a, c)', 'Premise')
+        line_n = ProofLineObj('2', 'F(a, a, a, a)', 'Premise')
+        result = check_subs(current_tree, line_n_tree, left, right, current_line, line_n)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 3: Expression "F(a, b, a, c)" cannot be achieved by replacing "a" with "b" (or vice versa) in the expression "F(a, a, a, a)"')
+
+
+    def test_equality_elim(self):
+        rule = EqualityElim()
+        parser = folparser.parser
+
+        # Test with valid input
+        line1 = ProofLineObj('1', 'a=b', 'Premise')
+        line2 = ProofLineObj('2', 'F(a)', 'Premise')
+        line3 = ProofLineObj('3', 'F(b)', '=E 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        line1 = ProofLineObj('1', 'a=b', 'Premise')
+        line2 = ProofLineObj('2', 'F(a, a, a, a)', 'Premise')
+        line3 = ProofLineObj('3', 'F(a, b, a, b)', '=E 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # Test with invalid input
+        line1 = ProofLineObj('1', 'a=b', 'Premise')
+        line2 = ProofLineObj('2', 'F(a, a, a, a)', 'Premise')
+        line3 = ProofLineObj('3', 'F(a, b, a, c)', '=E 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Error on line 3: Expression "F(a, b, a, c)" cannot be achieved by replacing "a" with "b" (or vice versa) in the expression "F(a, a, a, a)"')
+
+        line1 = ProofLineObj('1', 'a=b', 'Premise')
+        line2 = ProofLineObj('2', 'F(a, a, a, a)', 'Premise')
+        line3 = ProofLineObj('3', 'F(a, b, a)', '=E 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Error on line 3: Expressions on lines 2 and 3 should have similar structure')
+        
 
     def test_existential_intro(self):
         rule = ExistentialIntro()

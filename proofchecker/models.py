@@ -116,8 +116,8 @@ class ProofLine(models.Model):
     proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
     line_no = models.CharField(max_length=100, validators=[validate_line_no])
     # TODO: Add a validator for the formula field.
-    formula = models.CharField(max_length=255)
-    rule = models.CharField(max_length=255)
+    formula = models.CharField(max_length=255, blank=True, null=True)
+    rule = models.CharField(max_length=255, blank=True, null=True)
     ORDER = models.IntegerField(null=True)
 
     def __str__(self):
