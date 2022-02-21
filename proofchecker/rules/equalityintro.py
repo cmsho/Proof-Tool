@@ -26,7 +26,7 @@ class EqualityIntro(Rule):
             
             # Verify the left and right hand sides of the operand are equivalent
             if not root_current.left == root_current.right:
-                response.err_msg = "Error on line {}: The left and right hand sides of the equation should be equivalent"\
+                response.err_msg = "Error on line {}: The left and right hand sides of the equation should be identical"\
                     .format(str(current_line.line_no))
                 return response
             
