@@ -357,6 +357,14 @@ class BasicRuleTests(TestCase):
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
 
+        # Test with subproof ending with another subproof
+        line1 = ProofLineObj('1.1', 'A', 'Assumption')
+        line2 = ProofLineObj('1.2.1', 'B', 'Assumption')
+        line3 = ProofLineObj('2', 'A→B', '→I 1')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertEqual(result.err_msg, 'Error on line 2: The expressions on lines 1.1 and 1.1 do not match the implication on line 2')
+
 
     def test_conditional_elim(self):
         rule = ConditionalElim()

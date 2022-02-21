@@ -48,7 +48,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1])
         result = rule.verify(line1, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'Error on line 1: The left and right hand sides of the equation should be equivalent')
+        self.assertEqual(result.err_msg, 'Error on line 1: The left and right hand sides of the equation should be identical')
 
         # Test with invalid expression
         line1 = ProofLineObj('1', 'F(x, a)=a', 'Premise')
