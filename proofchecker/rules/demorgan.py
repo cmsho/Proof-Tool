@@ -142,6 +142,11 @@ class DeMorgan(Rule):
                             .format(str(current_line.line_no), str(target_line.line_no))
                         return response
 
+                # If we reached this point, we did not encounter a valid application of DeM
+                response.err_msg = "Error on line {}: Line {} does not conform to any of De Morgans rules."\
+                    .format(str(current_line.line_no), str(target_line.line_no))
+                return response
+
             except:
                 response.err_msg = "Error on line {}: Line numbers are not specified correctly.  De Morgan: DeM m"\
                     .format(str(current_line.line_no))

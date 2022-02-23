@@ -247,9 +247,10 @@ def get_lines_in_subproof(line_no: str, proof: ProofObj):
     """
     Returns the first and last line of a subproof
     """
+    current_depth = depth(line_no)+1
     subproof = []
     for line in proof:
-        if line.line_no.startswith(line_no):
+        if (line.line_no.startswith(line_no) and (depth(line.line_no) == current_depth)):
             subproof.append(line)
     if len(subproof) > 1:
         return[subproof[0], subproof[len(subproof)-1]]

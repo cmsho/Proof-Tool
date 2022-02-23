@@ -112,6 +112,14 @@ class GettersTests(TestCase):
         proof = ProofObj(lines=[line1, line2_1])
         result = get_lines_in_subproof('3', proof)
         self.assertEqual(result, None)
+
+        # Test with hack
+        line1 = ProofLineObj('1.1', 'A', 'Assumption')
+        line2 = ProofLineObj('1.2.1', 'B', 'Assumption')
+        line3 = ProofLineObj('2', 'A→B', '→I 1')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = get_lines_in_subproof('1', proof)
+        self.assertEqual(result, [line1, line1])
     
     def test_get_premises(self):
         """
