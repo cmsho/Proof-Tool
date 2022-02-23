@@ -15,6 +15,22 @@ class FOLLexerTests(TestCase):
 
 
 class FOLParserTests(TestCase):
+
+    def test_parser_tree_structure(self):
+        """
+        The parser should create an accurate binary tree representation
+        """
+        str1 = '¬((∀x∈U F(x)) ∨ (∃y∈U ¬F(y)))'
+        node1 = folparser.parser.parse(str1, lexer=lexer)
+        self.assertEqual(node1.value, '¬')
+        self.assertEqual(node1.left, None)
+        self.assertEqual(node1.right.value, '∨')
+        self.assertEqual(node1.right.left.value, '∀x∈U')
+        self.assertEqual(node1.right.left.right.value, 'F(x)')
+        self.assertEqual(node1.right.right.value, '∃y∈U')
+        self.assertEqual(node1.right.right.right.value, '¬')
+        self.assertEqual(node1.right.right.right.right.value, 'F(y)')
+
     def test_parser(self):
         """
         The parser should create a binary tree representing the FOL expression
