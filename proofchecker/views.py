@@ -29,6 +29,7 @@ def AssignmentPage(request):
 def SyntaxTestPage(request):
     return render(request, "proofchecker/testpages/syntax_test.html")
 
+
 def proof_checker(request):
     ProofLineFormset = inlineformset_factory(
         Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
@@ -93,7 +94,6 @@ def proof_checker(request):
         "formset": formset
     }
     return render(request, 'proofchecker/proof_checker.html', context)
-
 
 
 @login_required
@@ -208,6 +208,7 @@ def proof_update_view(request, pk=None):
 class ProofView(LoginRequiredMixin, ListView):
     model = Proof
     template_name = "proofchecker/allproofs.html"
+    paginate_by = 8
 
     def get_queryset(self):
         return Proof.objects.filter(created_by=self.request.user)

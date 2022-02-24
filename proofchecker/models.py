@@ -20,6 +20,7 @@ def validate_line_no(value):
             params={'value': value},
         )
 
+
 # TODO: This has to adjust based on parser... need to fix
 
 
@@ -130,7 +131,8 @@ class ProofLine(models.Model):
 
 class Problem(models.Model):
     question = models.CharField(max_length=255, default='Solve the following problem')
-    grade = models.DecimalField(max_digits=5, decimal_places=2)
+    point = models.DecimalField(max_digits=5, decimal_places=2)
+    target_steps = models.PositiveIntegerField()
     proof = models.OneToOneField(Proof, on_delete=models.CASCADE)
     # If the proof is deleted, the problem is deleted
 
@@ -173,3 +175,8 @@ class StudentAssignment(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     submitted_on = models.DateTimeField(auto_now_add=True)
     grade = models.DecimalField(max_digits=5, decimal_places=2)
+
+
+class UserProofs(User):
+    class Meta:
+        proxy = True
