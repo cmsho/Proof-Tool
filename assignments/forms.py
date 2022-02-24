@@ -12,7 +12,7 @@ class AssignmentForm(forms.ModelForm):
 class ProblemForm(forms.ModelForm):
     class Meta:
         model = Problem
-        fields = ['question', 'grade']
+        fields = ['question', 'point', 'target_steps']
 
     def __init__(self, *args, **kwargs):
         super(ProblemForm, self).__init__(*args, **kwargs)
