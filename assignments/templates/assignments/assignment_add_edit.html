@@ -46,6 +46,7 @@
                         {% for problem in problems %}
                             <li>
                                 <a href="{% url 'edit_problem' problem.id %}?assignment={{ assignment.id }}">{{ problem.question }}</a>
+                                <a class='btn-danger' href="{% url 'delete_problem' problem.id %}">Delete</a>
                             </li>
                         {% endfor %}
                     </ol>

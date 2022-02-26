@@ -7,10 +7,11 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.forms.models import modelformset_factory
 from django.forms import inlineformset_factory
 
+from accounts.decorators import instructor_required
 from proofchecker.utils import tflparser
 from proofchecker.utils import folparser
 from .forms import ProofCheckerForm, ProofForm, ProofLineForm
-from .models import Proof, Problem, Assignment, Instructor, ProofLine
+from .models import Proof, Problem, Assignment, Instructor, ProofLine, Student
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import get_premises
 from proofchecker.proofs.proofchecker import verify_proof
@@ -227,3 +228,21 @@ class ProofDeleteView(DeleteView):
 class ProblemView(ListView):
     model = Problem
     template_name = "proofchecker/problems.html"
+
+
+@instructor_required
+def student_proofs_view(request, pk=None):
+    students = Student.objects.all()
+    student = None
+    proofs = None
+
+    if pk is not None:
+        student = Student.objects.get(user__pk=pk)
+        proofs = Proof.objects.filter(created_by=pk)
+
+    context = {
+        "students": students,
+        "student": student,
+        "proofs": proofs
+    }
+    return render(request, 'proofchecker/student_proofs.html', context)

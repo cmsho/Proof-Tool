@@ -34,6 +34,7 @@ def create_assignment_view(request):
             assignment.save()
 
             if request.htmx.current_url is not None:
+                #call came in from htmx button
                 return HttpResponse(assignment.id)
             else:
                 return HttpResponseRedirect(reverse('all_assignments'))

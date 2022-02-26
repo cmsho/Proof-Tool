@@ -177,6 +177,6 @@ class StudentAssignment(models.Model):
     grade = models.DecimalField(max_digits=5, decimal_places=2)
 
 
-class UserProofs(User):
-    class Meta:
-        proxy = True
+
+
+
