@@ -9,7 +9,7 @@ class Reiteration(Rule):
 
     def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
-        Verify proper impelmentation of the rule R m
+        Verify proper implementation of the rule R m
         (Reiteration)
         """
         rule = clean_rule(current_line.rule)
