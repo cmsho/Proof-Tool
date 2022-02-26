@@ -209,7 +209,7 @@ def proof_update_view(request, pk=None):
 class ProofView(LoginRequiredMixin, ListView):
     model = Proof
     template_name = "proofchecker/allproofs.html"
-    paginate_by = 8
+    paginate_by = 6
 
     def get_queryset(self):
         return Proof.objects.filter(created_by=self.request.user)
