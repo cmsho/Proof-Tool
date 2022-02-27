@@ -1,8 +1,8 @@
-from django.shortcuts import render
-from proofchecker.models import Course, Instructor, Student
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from proofchecker.models import Course, Instructor
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+
+from proofchecker.models import Course, Instructor
 from .forms import CourseCreateForm
-from django.urls import reverse_lazy, reverse
 
 
 # Create your views here.
@@ -10,7 +10,6 @@ from django.urls import reverse_lazy, reverse
 class CourseView(ListView):
     model = Course
     template_name = "courses/allcourses.html"
-
 
     def get_queryset(self):
         return Course.objects.filter(instructor__user=self.request.user)
@@ -34,9 +33,7 @@ class CourseUpdateView(UpdateView):
     success_url = "/courses/"
 
 
-
 class CourseDeleteView(DeleteView):
     model = Course
     template_name = "courses/delete_course.html"
     success_url = "/courses/"
-

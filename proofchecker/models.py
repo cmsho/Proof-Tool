@@ -20,6 +20,7 @@ def validate_line_no(value):
             params={'value': value},
         )
 
+
 # TODO: This has to adjust based on parser... need to fix
 
 
@@ -116,8 +117,8 @@ class ProofLine(models.Model):
     proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
     line_no = models.CharField(max_length=100, validators=[validate_line_no])
     # TODO: Add a validator for the formula field.
-    formula = models.CharField(max_length=255, blank=True, null=True)
-    rule = models.CharField(max_length=255, blank=True, null=True)
+    formula = models.CharField(max_length=255, null=True, blank=True)
+    rule = models.CharField(max_length=255, null=True, blank=True)
     ORDER = models.IntegerField(null=True)
 
     def __str__(self):
@@ -129,8 +130,10 @@ class ProofLine(models.Model):
 
 
 class Problem(models.Model):
-    grade = models.DecimalField(max_digits=5, decimal_places=2)
-    proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
+    question = models.CharField(max_length=255, default='Solve the following problem')
+    point = models.DecimalField(max_digits=5, decimal_places=2)
+    target_steps = models.PositiveIntegerField()
+    proof = models.OneToOneField(Proof, on_delete=models.CASCADE)
     # If the proof is deleted, the problem is deleted
 
 
@@ -157,7 +160,7 @@ class Assignment(models.Model):
         Instructor, on_delete=models.CASCADE, null=True)
     created_on = models.DateTimeField(auto_now_add=True)
     due_by = models.DateTimeField()
-    problems = models.ManyToManyField(Problem)
+    problems = models.ManyToManyField(Problem, null=True, blank=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -172,3 +175,8 @@ class StudentAssignment(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     submitted_on = models.DateTimeField(auto_now_add=True)
     grade = models.DecimalField(max_digits=5, decimal_places=2)
+
+
+
+
+

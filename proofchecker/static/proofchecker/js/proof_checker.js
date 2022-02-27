@@ -266,7 +266,20 @@ function insert_row_current_level(index) {
  * deletes the row where obj is located
  */
 function delete_row(deleted_row_index) {
-    const deleted_row = document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index);
+    let deleted_row = document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index);
+
+    while (true) {
+        if (checkIfRowIsUnique(deleted_row) === true) {
+            let deleted_row_info = getObjectsRowInfo(deleted_row)
+            if (deleted_row_info.list_of_line_number.length > 1) {
+                document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-line_no').value = deleted_row_info.string_of_prefix;
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
 
     //mark checkbox true
     document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-DELETE').setAttribute("checked", "true")
@@ -560,7 +573,12 @@ function getPreviousValidRow(currRow) {
  * this function reset line numbers in formset
  */
 
-function checkIfRowIsUnique(currRow, prevRow, nextRow) {
+function checkIfRowIsUnique(currRow) {
+    //getting the following valid row (ignoring rows that are already marked for deletion)
+    let nextRow = getNextValidRow(currRow);
+    //getting the previous valid row (ignoring deleted rows)
+    let prevRow = getPreviousValidRow(currRow)
+
     //getting line no info of current row
     let currRowInfo = getObjectsRowInfo(currRow);
     //getting line no info of next row
@@ -621,20 +639,6 @@ function renumber_rows(direction, newlyChangedRow) {
     let nextRowInfo = getObjectsRowInfo(nextRow);
     //getting line no info of prev row
     let prevRowInfo = getObjectsRowInfo(prevRow)
-
-
-    //checking if current row is last remaining element
-    const lastItemCheck = checkIfRowIsUnique(currRow, prevRow, nextRow)
-    // let currRowStartsWith = currRowInfo.list_of_line_number[0];
-
-    if (direction === -1) {
-        if (currRowInfo.list_of_line_number.length > 1 && lastItemCheck) {
-            currRowInfo = break_line_number(currRowInfo.string_of_prefix);
-        }
-        if (currRowInfo.list_of_line_number.length === 1) {
-            currRowInfo.string_of_prefix = "";
-        }
-    }
 
     let indexOfChangedElement = currRowInfo.list_of_line_number.length - 1
     let currRowStringOfPrefix = currRowInfo.string_of_prefix;
