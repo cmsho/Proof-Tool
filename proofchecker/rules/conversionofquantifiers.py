@@ -1,6 +1,5 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import clean_rule, get_line, is_var, is_name, make_tree, verify_line_citation
-from proofchecker.utils.binarytree import Node
+from proofchecker.proofs.proofutils import clean_rule, get_line, is_var, is_name, make_tree, verify_line_citation, verify_same_var_and_domain
 from .rule import Rule
 
 class ConversionOfQuantifiers(Rule):
@@ -47,6 +46,12 @@ class ConversionOfQuantifiers(Rule):
                             .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                         return response
 
+                    # Verify the two lines refer ot the same variable and domain
+                    result = verify_same_var_and_domain(root_m, current.right, target_line.line_no, current_line.line_no)
+                    if result.is_valid == False:
+                        result.err_msg = "Error on line {}: ".format(current_line.line_no) + result.err_msg
+                        return result
+
                 ### Case 3
                 if root_m.value[0] == '∃':
 
@@ -63,6 +68,12 @@ class ConversionOfQuantifiers(Rule):
                             'of a universal quantifier (∀) when applying Conversion of Quantifiers (CQ)'\
                             .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                         return response
+
+                    # Verify the two lines refer ot the same variable and domain
+                    result = verify_same_var_and_domain(root_m, current.right, target_line.line_no, current_line.line_no)
+                    if result.is_valid == False:
+                        result.err_msg = "Error on line {}: ".format(current_line.line_no) + result.err_msg
+                        return result
 
                 ### Cases 2 and 4
                 if root_m.value == '¬':
@@ -86,6 +97,12 @@ class ConversionOfQuantifiers(Rule):
                             response.err_msg = 'Error on line {}: The quantifier on line {} should be followed by a negation (¬)'\
                                 .format(str(current_line.line_no), str(current_line.line_no))
                             return response
+
+                        # Verify the two lines refer ot the same variable and domain
+                        result = verify_same_var_and_domain(root_m.right, current, target_line.line_no, current_line.line_no)
+                        if result.is_valid == False:
+                            result.err_msg = "Error on line {}: ".format(current_line.line_no) + result.err_msg
+                            return result
                     
                     ### Case 4
                     if (root_m.right.value[0] == '∀'):
@@ -102,6 +119,12 @@ class ConversionOfQuantifiers(Rule):
                             response.err_msg = 'Error on line {}: The quantifier on line {} should be followed by a negation (¬)'\
                                 .format(str(current_line.line_no), str(current_line.line_no))
                             return response
+
+                        # Verify the two lines refer ot the same variable and domain
+                        result = verify_same_var_and_domain(root_m.right, current, target_line.line_no, current_line.line_no)
+                        if result.is_valid == False:
+                            result.err_msg = "Error on line {}: ".format(current_line.line_no) + result.err_msg
+                            return result
 
                 # Verify that line m did in fact begin with either a quantifier or a negation
                 if ((root_m.value[0] != '∀') and (root_m.value[0] != '∃') and (root_m.value != '¬')):                 

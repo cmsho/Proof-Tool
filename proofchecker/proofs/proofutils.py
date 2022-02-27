@@ -6,7 +6,33 @@ from proofchecker.utils.numlexer import lexer as numlexer
 from proofchecker.utils.tfllexer import IllegalCharacterError
 
 
-def verify_same_structure_FOL(tree_1: Node, tree_2: Node, line_no_1: ProofLineObj, line_no_2: ProofLineObj):
+def verify_same_var_and_domain(tree_1: Node, tree_2: Node, line_no_1: str, line_no_2: str):
+    """
+    Check that two quantifiers refer to the same variable and domain
+    """
+    # If the expressions refer to quantifiers but reference different variables, return error message:
+    if is_quantifier(tree_1.value[0]):
+
+        # Check they refer to same variable
+        if tree_1.value[1] != tree_2.value[1]:
+            response = ProofResponse()
+            response.err_msg = "The quantifiers on lines {} and {} do not refer to the same variable"\
+                .format(line_no_1, line_no_2)
+            return response
+
+        # Check they refer to the same domain
+        if tree_1.value[3] != tree_2.value[3]:
+            response = ProofResponse()
+            response.err_msg = "The quantifiers on lines {} and {} do not refer to the same domain"\
+                .format(line_no_1, line_no_2)
+            return response
+
+    response = ProofResponse()
+    response.is_valid = True
+    return response
+
+
+def verify_same_structure_FOL(tree_1: Node, tree_2: Node, line_no_1: str, line_no_2: str):
     """
     Test to determine that two trees have the same structure
     """
@@ -82,7 +108,7 @@ def verify_same_structure_FOL(tree_1: Node, tree_2: Node, line_no_1: ProofLineOb
             
         # If the expressions refer to quantifiers but reference different variables, return error message:
         if is_quantifier(tree_1.value[0]):
-            
+
             # Check they refer to same quantifier
             if tree_1.value[0] != tree_2.value[0]:
                 response = ProofResponse()
@@ -90,24 +116,10 @@ def verify_same_structure_FOL(tree_1: Node, tree_2: Node, line_no_1: ProofLineOb
                     .format(line_no_1, line_no_2)
                 return response
 
-            # Check they refer to same variable
-            if tree_1.value[1] != tree_2.value[1]:
-                response = ProofResponse()
-                response.err_msg = "The quantifiers on lines {} and {} do not refer to the same variable"\
-                    .format(line_no_1, line_no_2)
-                return response
-
-            # Check they refer to the same domain
-            if tree_1.value[3] != tree_2.value[3]:
-                response = ProofResponse()
-                response.err_msg = "The quantifiers on lines {} and {} do not refer to the same domain"\
-                    .format(line_no_1, line_no_2)
-                return response
-
-            # If they refer to same quantifier and same variable, return valid 
-            response = ProofResponse()
-            response.is_valid = True
-            return response
+            # Check they refer to the same variable and domain
+            result = verify_same_var_and_domain(tree_1, tree_2, line_no_1, line_no_2)
+            if result.is_valid == False:
+                return result
         
     # If we reached this point without returning a response, return valid
     response = ProofResponse()

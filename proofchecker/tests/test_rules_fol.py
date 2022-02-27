@@ -463,6 +463,21 @@ class FOLRulesTests(TestCase):
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Error on line 2: The predicates on lines 1 and 2 do not have the same number of inputs')
 
+        # Test where line 1 and line 2 refer to different variables
+        line1 = ProofLineObj('1', '∀x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∃y∈S F(y)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same variable')
+
+        # Test where line 1 and line 2 refer to different domains
+        line1 = ProofLineObj('1', '∀x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∃x∈U F(y)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same domain')
 
         ### Case 3
 
@@ -519,6 +534,21 @@ class FOLRulesTests(TestCase):
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Error on line 2: The predicates on lines 1 and 2 do not have the same number of inputs')
 
+        # Test where line 1 and 2 refer to different variables
+        line1 = ProofLineObj('1', '∃x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∀y∈S F(y)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same variable')
+
+        # Test where line 1 and 2 refer to different domains
+        line1 = ProofLineObj('1', '∃x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∀x∈U F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same domain')
 
         ### Case 2
 
@@ -547,6 +577,21 @@ class FOLRulesTests(TestCase):
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Error on line 2: The quantifier on line 2 should be followed by a negation (¬)')
 
+        # Test with different variables
+        line1 = ProofLineObj('1', '¬ ∃x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∀y∈S ¬F(y)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same variable')
+
+        # Test with different domains
+        line1 = ProofLineObj('1', '¬ ∃x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∀x∈U ¬F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same domain')
 
         ### Case 4
 
@@ -575,7 +620,6 @@ class FOLRulesTests(TestCase):
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Error on line 2: The quantifier on line 2 should be followed by a negation (¬)')
 
-
         # Test where line 1 does not begin with a quantifier or a negation
         line1 = ProofLineObj('1', 'F(x)', 'Premise')
         line2 = ProofLineObj('2', '∃x∈S ¬F(x)', 'CQ 1')
@@ -583,3 +627,19 @@ class FOLRulesTests(TestCase):
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEquals(result.err_msg, 'Error on line 2: Line 1 must begin with either a quantifier or a negation when applying Conversion of Quantifiers (CQ)')
+
+        # Test with different variables
+        line1 = ProofLineObj('1', '¬ ∀x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∃y∈S ¬F(y)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same variable')
+
+        # Test with different domains
+        line1 = ProofLineObj('1', '¬ ∀x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∃x∈U ¬F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEquals(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same domain')
