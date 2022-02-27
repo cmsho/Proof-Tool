@@ -1,11 +1,8 @@
-from ast import BinOp
+from PIL import Image
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from PIL import Image
-from proofchecker.proofs.proofutils import is_line_no, make_tree
 
 from proofchecker.proofs.proofutils import is_line_no, make_tree
 from proofchecker.utils import tflparser
@@ -101,6 +98,9 @@ class Proof(models.Model):
     conclusion = models.CharField(max_length=255)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['-id']
+
     def __str__(self):
         return ("Proof {}:\nPremises: {},\nConclusion: {}\nLine Count: {}").format(
             self.name,
@@ -175,8 +175,3 @@ class StudentAssignment(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     submitted_on = models.DateTimeField(auto_now_add=True)
     grade = models.DecimalField(max_digits=5, decimal_places=2)
-
-
-
-
-
