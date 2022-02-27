@@ -51,25 +51,20 @@ window.onload = function () {
 // Displayed line count
 function updateLineCount() {
     let currentLineCount = document.getElementById("line_counter")
-    // console.log(currentLineCount.innerText)
-
     let counter = 0;
 
     if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
         let row = document.getElementById(`${FORMSET_PREFIX}-0`)
 
         while (row !== null) {
-            counter++
+            if (!row.hidden) {
+                counter++
+            }
             row = row.nextElementSibling;
         }
     }
-    // console.log(counter)
     currentLineCount.innerText = counter;
-
 }
-
-
-
 
 /**
  * this function decides whether to show START_PROOF button or RESTART_PROOF button
@@ -320,6 +315,7 @@ function update_form_count() {
     const fomrsetManagerTotalFormCounter = document.getElementById(FORMSET_TOTALFORMS_ID)
     let currentFormCount = document.getElementsByClassName(FORMSET_TR_CLASS).length
     fomrsetManagerTotalFormCounter.setAttribute('value', currentFormCount)
+    console.log(fomrsetManagerTotalFormCounter);
 }
 
 
