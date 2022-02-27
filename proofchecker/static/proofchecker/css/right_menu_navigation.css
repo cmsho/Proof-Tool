@@ -31,7 +31,7 @@
   width:135px;
 }
 
-hr {
+.right-nav-divider {
   border: none;
   height: 1px;
   background-color: grey; 
