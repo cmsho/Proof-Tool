@@ -1,6 +1,6 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import clean_rule, get_line, verify_line_citation, make_tree, is_name, verify_same_structure_FOL, verify_var_replaces_every_name
-from proofchecker.utils.binarytree import Node
+from proofchecker.proofs.proofutils import clean_rule, find_c, get_citable_lines, get_line, verify_line_citation, \
+    make_tree, verify_same_structure_FOL, verify_var_replaces_every_name
 from .rule import Rule
 
 class UniversalIntro(Rule):
@@ -50,6 +50,20 @@ class UniversalIntro(Rule):
                     return result
 
                 # TODO: Verify that the name represents a "generic free variable"
+                c = find_c(current.right, root_m, var)
+                citable_lines = get_citable_lines(current_line, proof)
+                if len(citable_lines) > 0:
+                    citable_lines_with_c = []
+                    for line in citable_lines:
+                        if c in line.expression:
+                            citable_lines_with_c.append(line)
+                    if len(citable_lines_with_c) > 0:
+                        if (citable_lines_with_c[0].rule.casefold() == 'Premise'.casefold()) or \
+                            (citable_lines_with_c[0].rule.casefold() == 'Assumption'.casefold()) or \
+                            (citable_lines_with_c[0].rule.casefold() == 'Assumpt'.casefold()):
+                            response.err_msg = 'Error on line {}: The name "{}" on line {} must be a generic free variable'\
+                                .format(current_line.line_no, c, target_line.line_no)
+                            return response
 
                 response.is_valid = True
                 return response

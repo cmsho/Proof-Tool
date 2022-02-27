@@ -1,5 +1,5 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import clean_rule, get_line_nos, get_line_with_line_no, get_lines_in_subproof, \
+from proofchecker.proofs.proofutils import clean_rule, find_c, get_citable_lines, get_line_nos, get_line_with_line_no, get_lines_in_subproof, \
     get_expressions, verify_line_citation, verify_line_citation, make_tree, is_name, is_var, verify_same_structure_FOL, \
     verify_var_replaces_some_name
 from .rule import Rule
@@ -62,6 +62,21 @@ class ExistentialElim(Rule):
                 if not root_i_x == root_current:
                     response.err_msg = "Error on line {}: The expressions on line {} and line {} should be equivalent"\
                         .format(str(current_line.line_no), str(target_lines[2].line_no), str(current_line.line_no))
+                    return response
+
+                # Verify that 'c' (on line i_1) does not appear earlier in the proof
+                c = find_c(root_m.right, root_i_1, var)
+                citable_lines = get_citable_lines(lines_i[0], proof)
+                for line in citable_lines:
+                    if c in line.expression:
+                        response.err_msg = 'Error on line {}: The name "{}" on line {} should not appear earlier in the proof (it appears on line {})'\
+                            .format(current_line.line_no, c, lines_i[0].line_no, line.line_no)
+                        return response
+
+                # Verify that 'B' does not contain 'c'
+                if c in current_line.expression:
+                    response.err_msg = 'Error on line {}: The name "{}" on line {} should not appear on line {}'\
+                        .format(current_line.line_no, c, lines_i[0].line_no, current_line.line_no)
                     return response
 
                 response.is_valid = True
