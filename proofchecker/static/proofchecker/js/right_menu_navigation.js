@@ -1,83 +1,73 @@
 
+function setPrimaryButton(menuName) {
+    document.getElementById(menuName).classList.remove('btn-secondary');
+    document.getElementById(menuName).classList.add('btn-primary');
+    document.getElementById(`${menuName}-information`).style.display = "block";
+}
+
+function setSecondaryButton(menuName) {
+    document.getElementById(menuName).classList.remove('btn-primary');
+    document.getElementById(menuName).classList.add('btn-secondary');
+    document.getElementById(`${menuName}-information`).style.display = "none";
+}
+
+function setPrimaryOutlineButton(menuName) {
+    document.getElementById(menuName).classList.remove('btn-outline-secondary');
+    document.getElementById(menuName).classList.add('btn-outline-primary');
+    document.getElementById(`${menuName}-rules`).style.display = "block";
+}
+
+function setSecondaryOutlineButton(menuName) {
+    document.getElementById(menuName).classList.remove('btn-outline-primary');
+    document.getElementById(menuName).classList.add('btn-outline-secondary');
+    document.getElementById(`${menuName}-rules`).style.display = "none";
+}
+
 window.onload = function () {
-
     const rightMenuSelection = localStorage.getItem("right-menu-selection");
-
+    const ruleSelection = localStorage.getItem("rule-selection");
     if (rightMenuSelection == "rules") {
-
-        document.getElementById("rules").classList.remove('btn-secondary');
-        document.getElementById("rules").classList.add('btn-primary');
-        document.getElementById("help").classList.remove('btn-primary');
-        document.getElementById("help").classList.add('btn-secondary');
-
-        document.getElementById("rules-information").style.display = "block";
-        document.getElementById("help-information").style.display = "none";
+        setPrimaryButton("rules")
+        setSecondaryButton("help")
+    }
+    else if (rightMenuSelection == "help") {
+        setPrimaryButton("help")
+        setSecondaryButton("rules")
     }
 
-    else if (rightMenuSelection == "help") {
-
-        document.getElementById("rules").classList.remove('btn-primary');
-        document.getElementById("rules").classList.add('btn-secondary');
-        document.getElementById("help").classList.remove('btn-secondary');
-        document.getElementById("help").classList.add('btn-primary');
-
-        document.getElementById("rules-information").style.display = "none";
-        document.getElementById("help-information").style.display = "block";
-
+    if (ruleSelection == "TFL") {
+        setPrimaryOutlineButton("TFL");
+        setSecondaryOutlineButton("FOL");
+    }
+    else if (ruleSelection == "FOL") {
+        setPrimaryOutlineButton("FOL");
+        setSecondaryOutlineButton("TFL");
     }
 };
 
-
-
 function showInformation(e) {
     var button = document.getElementById(e);
-
     if (e == "rules") {
-        document.getElementById("rules-information").style.display = "block";
-        document.getElementById("help-information").style.display = "none";
-
-        document.getElementById("rules").classList.remove('btn-secondary');
-        document.getElementById("rules").classList.add('btn-primary');
-        document.getElementById("help").classList.remove('btn-primary');
-        document.getElementById("help").classList.add('btn-secondary');
-
+        setPrimaryButton("rules")
+        setSecondaryButton("help")
         localStorage.setItem("right-menu-selection", "rules");
     }
     else if (e == 'help') {
-        document.getElementById("rules-information").style.display = "none";
-        document.getElementById("help-information").style.display = "block";
-
-        document.getElementById("rules").classList.remove('btn-primary');
-        document.getElementById("rules").classList.add('btn-secondary');
-        document.getElementById("help").classList.remove('btn-secondary');
-        document.getElementById("help").classList.add('btn-primary');
-
+        setPrimaryButton("help")
+        setSecondaryButton("rules")
         localStorage.setItem("right-menu-selection", "help");
     }
 }
 
 function showRules(e) {
-
-    if (e === "TFL-Button") {
-        document.getElementById("TFL-Rules").style.display = "block";
-        document.getElementById("FOL-Rules").style.display = "none";
-
-        document.getElementById("TFL-Button").classList.remove('btn-outline-secondary');
-        document.getElementById("TFL-Button").classList.add('btn-outline-primary');
-        document.getElementById("FOL-Button").classList.remove('btn-outline-primary');
-        document.getElementById("FOL-Button").classList.add('btn-outline-secondary');
-
-        localStorage.setItem("right-menu-selection", "TFL-Rules");
+    if (e === "TFL") {
+        setPrimaryOutlineButton("TFL");
+        setSecondaryOutlineButton("FOL");
+        localStorage.setItem("rule-selection", "TFL");
     }
-    else if (e === "FOL-Button") {
-        document.getElementById("TFL-Rules").style.display = "none";
-        document.getElementById("FOL-Rules").style.display = "block";
-
-        document.getElementById("TFL-Button").classList.remove('btn-outline-primary');
-        document.getElementById("TFL-Button").classList.add('btn-outline-secondary');
-        document.getElementById("FOL-Button").classList.remove('btn-outline-secondary');
-        document.getElementById("FOL-Button").classList.add('btn-outline-primary');
-
-        localStorage.setItem("right-menu-selection", "FOL-Rules");
+    else if (e === "FOL") {
+        setPrimaryOutlineButton("FOL");
+        setSecondaryOutlineButton("TFL");
+        localStorage.setItem("rule-selection", "FOL");
     }
 }
