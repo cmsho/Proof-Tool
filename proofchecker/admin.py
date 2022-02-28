@@ -29,7 +29,7 @@ class ProofAdmin(admin.ModelAdmin):
 
     def created_by_user(self, obj):
         return format_html('<a href="{}" target="_blank">{}</a>',
-                           "/admin/proofchecker/user/" + str(obj.created_by.pk) + "/change/", obj.created_by.email)
+                           "/admin/proofchecker/user/" + str(obj.created_by.pk) + "/change/", obj.created_by.username)
 
     created_by_user.short_description = "Created By"
 
