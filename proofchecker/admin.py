@@ -36,8 +36,8 @@ class ProofAdmin(admin.ModelAdmin):
     def proof_title(self, obj):
         return format_html('<a href="{}" target="_blank">{}</a>',
                            "/admin/proofchecker/proof/" + str(obj.id) + "/change/",
-                           obj.name + ": " + obj.premises + " ∴ " + obj.conclusion)
+                           obj.name)
 
     def view_proof_in_application(self, obj):
         return format_html('<a href="{}" target="_blank">{}</a>', "/proofs/" + str(obj.id),
-                           obj.name + ": " + obj.premises + " ∴ " + obj.conclusion)
+                           obj.name)
