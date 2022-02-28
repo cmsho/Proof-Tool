@@ -54,8 +54,11 @@ class EqualityElim(Rule):
                 .format(str(current_line.line_no), str(current_line.expression))
             return response
 
-# Test to determine that current_tree follow sfrom line n by replacing a certian subset of a's by b's
+
 def check_subs(current_tree: Node, line_n_tree: Node, left: str, right: str, current_line: ProofLineObj, line_n: ProofLineObj):
+    """
+    Test to determine that current_tree follows from line n by replacing a certian subset of a's with b's
+    """
     
     # Check if the current_tree node is equivalent to the line_n tree node
     if not ((current_tree.value == line_n_tree.value) or (current_tree.value == left) or (current_tree.value == line_n_tree.right)):

@@ -3,8 +3,8 @@ from django.urls import reverse
 
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
 from proofchecker.proofs.proofutils import get_line_no, get_line_nos, get_lines_in_subproof, \
-    get_premises, is_conclusion, is_valid_expression, is_var, verify_expression, verify_line_citation, \
-    depth, verify_line_citation, clean_rule
+    get_premises, is_conclusion, is_valid_expression, is_var, make_tree, verify_expression, verify_line_citation, \
+    depth, verify_line_citation, clean_rule, verify_same_structure_FOL, count_inputs, verify_var_replaces_every_name
 from proofchecker.proofs.proofchecker import verify_proof, verify_rule
 from proofchecker.utils import tflparser
 
@@ -130,6 +130,136 @@ class GettersTests(TestCase):
         self.assertEqual(result, ['A∧C', 'B∧C', 'D', 'E'])
 
 class HelpersTests(TestCase):
+
+    def test_count_inputs(self):
+        """
+        Verify that the count_inputs() function is working properly
+        """
+        x = count_inputs('P(x)')
+        y = count_inputs('F(x, a, b, c)')
+        z = count_inputs('B(x, y, z, a, b, c, d, e)')
+        self.assertEqual(x, 1)
+        self.assertEqual(y, 4)
+        self.assertEqual(z, 8)
+
+
+    def test_verify_var_replaces_every_name(self):
+        """
+        Verify that the verify_var_replaces_every_name() function is working properly
+        """
+        parser = folparser.parser
+        name_line_no = '1'
+        var_line_no = '2'
+        var = 'x'
+
+        # Test with valid input
+        name_tree = make_tree('P(a, c, a)', parser)
+        var_tree = make_tree('P(x, c, x)', parser)
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        name_tree = make_tree('P(a)→P(a)', parser)
+        var_tree = make_tree('∀x∈U (P(x)→P(x))', parser).right
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        # Test with invalid input
+        name_tree = make_tree('P(a, a, x)', parser)
+        var_tree = make_tree('P(x, x, x)', parser)
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Variable "x" on line 2 should not appear on line 1')
+
+        name_tree = make_tree('P(a, a, y)', parser)
+        var_tree = make_tree('P(x, x, x)', parser)
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Instances of variable "x" on line 2 should replace a name on line 1')
+
+        name_tree = make_tree('P(a, b, c)', parser)
+        var_tree = make_tree('P(x, x, x)', parser)
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'All instances of variable "x" on line 2 should replace the same name on line 1')
+
+        name_tree = make_tree('P(a, a, a)', parser)
+        var_tree = make_tree('P(x, x, y)', parser)
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'All instances of name "a" on line 1 should be replaced with the bound variable "x" on line 2')
+
+        name_tree = make_tree('P(a, a, a)', parser)
+        var_tree = make_tree('P(x, a, x)', parser)
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'All instances of name "a" on line 1 should be replaced with the bound variable "x" on line 2')          
+
+
+    def test_verify_similar_structure_fol(self):
+        """
+        Verify that the verify_same_structure_FOL() function is working properly 
+        """
+        parser = folparser.parser
+        line_no_1 = '1'
+        line_no_2 = '2'
+
+        # Test with valid input
+        tree_1 = make_tree('P(a)→P(a)', parser)
+        tree_2 = make_tree('(P(x)→P(x))', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        tree_1 = make_tree('P(a, a, a)', parser)
+        tree_2 = make_tree('P(a, x, a)', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        # Test with different structures
+        tree_1 = make_tree('P(a)', parser)
+        tree_2 = make_tree('P(a)∧F(x)', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, "Lines 1 and 2 do not have similar structure")
+
+        # Test with references to different predicates
+        tree_1 = make_tree('P(a)→P(a)', parser)
+        tree_2 = make_tree('(P(x)→Q(x))', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'The expressions on lines 1 and 2 do not refer to the same predicate')
+
+        # Test with predicates containing different number of inputs
+        tree_1 = make_tree('P(a)→P(a)', parser)
+        tree_2 = make_tree('(P(x, a)→P(x))', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'The predicates on lines 1 and 2 do not have the same number of inputs')
+
+        # Test with different quantifiers referencing different variables
+        tree_1 = make_tree('∃x∈U P(x)', parser)
+        tree_2 = make_tree('∀x∈U P(x)', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'The expressions on lines 1 and 2 do not refer to the same quantifier')
+
+        # Test with quantifiers referencing different variables
+        tree_1 = make_tree('∃x∈U P(x)', parser)
+        tree_2 = make_tree('∃y∈U P(y)', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'The quantifiers on lines 1 and 2 do not refer to the same variable')
+
+        # Test with quantifiers referencing different domains
+        tree_1 = make_tree('∃x∈U P(x)', parser)
+        tree_2 = make_tree('∃x∈V P(x)', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'The quantifiers on lines 1 and 2 do not refer to the same domain')
+
 
     def test_clean_rule(self):
         """

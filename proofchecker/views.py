@@ -1,30 +1,23 @@
+from accounts.decorators import instructor_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.forms.models import modelformset_factory
+from django.views.generic import ListView, DetailView,  DeleteView
 from django.forms import inlineformset_factory
-
-from accounts.decorators import instructor_required
+from proofchecker.forms import ProofForm, ProofLineForm
+from proofchecker.models import Proof, Problem, ProofLine, Student
+from proofchecker.proofs.proofchecker import verify_proof
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
+from proofchecker.proofs.proofutils import get_premises
 from proofchecker.utils import tflparser
 from proofchecker.utils import folparser
-from .forms import ProofCheckerForm, ProofForm, ProofLineForm
-from .models import Proof, Problem, Assignment, Instructor, ProofLine, Student
-from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import get_premises
-from proofchecker.proofs.proofchecker import verify_proof
-
 
 def home(request):
     proofs = Proof.objects.all()
     context = {"proofs": proofs}
     return render(request, "proofchecker/home.html", context)
-
-
-def AssignmentPage(request):
-    return render(request, "proofchecker/assignment_page.html")
 
 
 def SyntaxTestPage(request):
