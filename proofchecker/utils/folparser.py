@@ -69,6 +69,14 @@ def p_formula_parens(p):
     '''
     p[0] = p[2]
 
+def p_equals_formula(p):
+    '''
+    formula : term EQUALS term
+            | atomic_formula EQUALS atomic_formula
+    '''
+    p[0] = Node(p[2])
+    p[0].left = Node(p[1])
+    p[0].right = Node(p[3])
 
 def p_formula(p):
     '''
@@ -89,13 +97,6 @@ def p_atomic_formula_parens(p):
     atomic_formula : PREDICATE LPAREN term_c RPAREN
     '''
     p[0] = (p[1] + p[2] + p[3] + p[4])
-
-
-def p_atomic_formula_equals(p):
-    '''
-    atomic_formula : term EQUALS term
-    '''
-    p[0] = (p[1] + p[2] + p[3])
 
 
 def p_atomic_formula_bool(p):

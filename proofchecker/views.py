@@ -1,20 +1,18 @@
+from accounts.decorators import instructor_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.forms.models import modelformset_factory
+from django.views.generic import ListView, DetailView,  DeleteView
 from django.forms import inlineformset_factory
-
+from proofchecker.forms import ProofForm, ProofLineForm
+from proofchecker.models import Proof, Problem, ProofLine, Student
+from proofchecker.proofs.proofchecker import verify_proof
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
+from proofchecker.proofs.proofutils import get_premises
 from proofchecker.utils import tflparser
 from proofchecker.utils import folparser
-from .forms import ProofCheckerForm, ProofForm, ProofLineForm
-from .models import Proof, Problem, Assignment, Instructor, ProofLine
-from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import get_premises
-from proofchecker.proofs.proofchecker import verify_proof
-
 
 def home(request):
     proofs = Proof.objects.all()
@@ -22,18 +20,17 @@ def home(request):
     return render(request, "proofchecker/home.html", context)
 
 
-def AssignmentPage(request):
-    return render(request, "proofchecker/assignment_page.html")
-
-
 def SyntaxTestPage(request):
     return render(request, "proofchecker/testpages/syntax_test.html")
 
+
 def proof_checker(request):
-    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
+    ProofLineFormset = inlineformset_factory(
+        Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     query_set = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
-    formset = ProofLineFormset(request.POST or None, instance=form.instance, queryset=query_set)
+    formset = ProofLineFormset(
+        request.POST or None, instance=form.instance, queryset=query_set)
     response = None
 
     if request.POST:
@@ -92,12 +89,15 @@ def proof_checker(request):
     }
     return render(request, 'proofchecker/proof_checker.html', context)
 
+
 @login_required
 def proof_create_view(request):
-    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
+    ProofLineFormset = inlineformset_factory(
+        Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     query_set = ProofLine.objects.none()
     form = ProofForm(request.POST or None)
-    formset = ProofLineFormset(request.POST or None, instance=form.instance, queryset=query_set)
+    formset = ProofLineFormset(
+        request.POST or None, instance=form.instance, queryset=query_set)
     response = None
 
     if request.POST:
@@ -147,9 +147,11 @@ def proof_create_view(request):
 @login_required
 def proof_update_view(request, pk=None):
     obj = get_object_or_404(Proof, pk=pk)
-    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
+    ProofLineFormset = inlineformset_factory(
+        Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     form = ProofForm(request.POST or None, instance=obj)
-    formset = ProofLineFormset(request.POST or None, instance=obj, queryset=obj.proofline_set.order_by("ORDER"))
+    formset = ProofLineFormset(
+        request.POST or None, instance=obj, queryset=obj.proofline_set.order_by("ORDER"))
     response = None
     validation_failure = False
 
@@ -200,6 +202,7 @@ def proof_update_view(request, pk=None):
 class ProofView(LoginRequiredMixin, ListView):
     model = Proof
     template_name = "proofchecker/allproofs.html"
+    paginate_by = 6
 
     def get_queryset(self):
         return Proof.objects.filter(created_by=self.request.user)
@@ -218,3 +221,21 @@ class ProofDeleteView(DeleteView):
 class ProblemView(ListView):
     model = Problem
     template_name = "proofchecker/problems.html"
+
+
+@instructor_required
+def student_proofs_view(request, pk=None):
+    students = Student.objects.all()
+    student = None
+    proofs = None
+
+    if pk is not None:
+        student = Student.objects.get(user__pk=pk)
+        proofs = Proof.objects.filter(created_by=pk)
+
+    context = {
+        "students": students,
+        "student": student,
+        "proofs": proofs
+    }
+    return render(request, 'proofchecker/student_proofs.html', context)

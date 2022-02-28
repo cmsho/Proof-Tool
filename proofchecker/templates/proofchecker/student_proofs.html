@@ -1,0 +1,39 @@
+{% extends 'proofchecker/base.html' %}
+{% load static %}
+{% block content %}
+
+    <hr>
+    <h4>View Proofs by Students</h4>
+    <hr>
+    <form class="form-inline" action="">
+        {% csrf_token %}
+        <div class="form-group mb-2">
+            <p>Please select a student to view all proofs </p>
+        </div>
+        <div class="form-group mx-sm-3 mb-2">
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Select A Student
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {% for student in students %}
+                        <a class="dropdown-item" href="{{ student.user.pk }}">{{ student.user.username }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+    {% if proofs %}
+        <hr>
+        <ol class="list-group">
+            <li class="list-group-item list-group-item-primary"> Student : {{ student.user.username }}</li>
+            {% for proof in proofs %}
+                <li class="list-group-item"><a href="{% url 'update_proof' proof.id %}" target="_blank">{{ proof.name }} : {{ proof.premises }} ∴ {{ proof.conclusion }}</a></li>
+            {% endfor %}
+        </ol>
+
+    {% endif %}
+{% endblock %}

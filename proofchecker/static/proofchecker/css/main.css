@@ -185,6 +185,15 @@ tt {
   margin-bottom: 5px;
 }
 
+#id_question{
+  width:100%;
+  margin-bottom: 5px;
+}
+
+#id_grade{
+  width:100%;
+  margin-bottom: 5px;
+}
 
 
 [id$=line_no]{

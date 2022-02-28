@@ -1,6 +1,7 @@
-from django.urls import path, include
+from django.urls import path
+
 from . import views
-from .views import CourseView, CourseCreateView, CourseUpdateView, CourseDeleteView
+from .views import CourseCreateView
 
 urlpatterns = [
 

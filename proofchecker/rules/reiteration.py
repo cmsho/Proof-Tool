@@ -9,7 +9,7 @@ class Reiteration(Rule):
 
     def verify(self, current_line: ProofLineObj, proof: ProofObj, parser):
         """
-        Verify proper impelmentation of the rule R m
+        Verify proper implementation of the rule R m
         (Reiteration)
         """
         rule = clean_rule(current_line.rule)
@@ -20,7 +20,7 @@ class Reiteration(Rule):
             target_line = get_line(rule, proof)
 
             # Verify if line citation is valid
-            result = verify_line_citation(current_line, target_line)
+            result = verify_line_citation(current_line.line_no, target_line.line_no)
             if result.is_valid == False:
                 return result
 
@@ -34,14 +34,16 @@ class Reiteration(Rule):
                     response.is_valid = True
                     return response
                 else:
-                    response.err_msg = "Lines {} and {} are not equivalent"\
-                        .format(str(target_line.line_no), str(current_line.line_no))
+                    response.err_msg = "Error on line {}: Lines {} and {} are not equivalent"\
+                        .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                     return response
 
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Reiteration: R m"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Reiteration: R m"\
+                    .format(str(current_line.line_no))
                 return response      
 
         except:
-            response.err_msg = "Rule not formatted properly.  Reiteration: R m"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Reiteration: R m"\
+                .format(str(current_line.line_no))
             return response 

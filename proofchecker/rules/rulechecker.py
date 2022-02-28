@@ -12,6 +12,8 @@ from proofchecker.rules.disjunctionelim import DisjunctionElim
 from proofchecker.rules.disjunctionintro import DisjunctionIntro
 from proofchecker.rules.disjunctivesyllogism import DisjunctiveSyllogism
 from proofchecker.rules.doublenegationelim import DoubleNegationElim
+from proofchecker.rules.equalityelim import EqualityElim
+from proofchecker.rules.equalityintro import EqualityIntro
 from proofchecker.rules.excludedmiddle import ExcludedMiddle
 from proofchecker.rules.existentialelim import ExistentialElim
 from proofchecker.rules.existentialintro import ExistentialIntro
@@ -33,7 +35,7 @@ TFL_BASIC_RULES = [Premise(), Assumption(), ConjunctionIntro(), ConjunctionElim(
 
 TFL_DERIVED_RULES = [DisjunctiveSyllogism(), ModusTollens(), DoubleNegationElim(), Reiteration(), ExcludedMiddle(), DeMorgan()]
 
-FOL_BASIC_RULES = [ExistentialElim(), ExistentialIntro(), UniversalElim(), UniversalIntro()]
+FOL_BASIC_RULES = [ExistentialElim(), ExistentialIntro(), UniversalElim(), UniversalIntro(), EqualityIntro(), EqualityElim()]
 
 FOL_DERIVED_RULES = [ConversionOfQuantifiers()]
 

@@ -1,12 +1,14 @@
 from django.test import TestCase
-from django.urls import reverse
 
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
-from proofchecker.proofs.proofutils import get_line_no, get_line_nos, get_lines_in_subproof, \
-    get_premises, is_conclusion, is_valid_expression, is_var, verify_expression, verify_line_citation, \
-    depth, verify_subproof_citation, clean_rule
+from proofchecker.proofs.proofutils import find_c, get_citable_lines, get_line_no, get_line_nos, get_lines_in_subproof, \
+    get_premises, is_conclusion, is_valid_expression, is_var, make_tree, verify_expression, verify_line_citation, \
+    depth, verify_line_citation, clean_rule, verify_same_structure_FOL, count_inputs, verify_var_replaces_every_name
 from proofchecker.proofs.proofchecker import verify_proof, verify_rule
 from proofchecker.utils import tflparser
+
+from proofchecker.rules.conditionalelim import ConditionalElim
+from proofchecker.utils import folparser
 
 
 class ProofLineObjTests(TestCase):
@@ -109,6 +111,14 @@ class GettersTests(TestCase):
         proof = ProofObj(lines=[line1, line2_1])
         result = get_lines_in_subproof('3', proof)
         self.assertEqual(result, None)
+
+        # Test with hack
+        line1 = ProofLineObj('1.1', 'A', 'Assumption')
+        line2 = ProofLineObj('1.2.1', 'B', 'Assumption')
+        line3 = ProofLineObj('2', 'A→B', '→I 1')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = get_lines_in_subproof('1', proof)
+        self.assertEqual(result, [line1, line1])
     
     def test_get_premises(self):
         """
@@ -119,6 +129,175 @@ class GettersTests(TestCase):
         self.assertEqual(result, ['A∧C', 'B∧C', 'D', 'E'])
 
 class HelpersTests(TestCase):
+
+    def test_get_citable_lines(self):
+        """
+        Verify that the get_citable_lines() function returns the correct lines
+        """
+        line1 = ProofLineObj('1', 'C', 'Premise')
+        line2_1 = ProofLineObj('2.1', 'A', 'Assumption')
+        line2_2 = ProofLineObj('2.2', 'A', 'R 2.1')
+        line3_1 = ProofLineObj('3.1', 'B', 'Assumption')
+        line3_2 = ProofLineObj('3.2', 'B', 'R 3.1')
+        line4 = ProofLineObj('4', 'C', 'R 1')
+        proof = ProofObj(lines=[line1, line2_1, line2_2, line3_1, line3_2, line4])
+        result = get_citable_lines(line3_2, proof)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result, [line1, line3_1])
+
+
+    def test_find_c(self):
+        """
+        Verify that the find_c() function returns the correct name
+        """
+        parser = folparser.parser
+
+        # Should return 'a'
+        line_1 = '∃x∈S F(b, x, x)'
+        line_2 = 'F(b, a, a)'
+        tree_1 = make_tree(line_1, parser)
+        tree_2 = make_tree(line_2, parser)
+        result = find_c(tree_1.right, tree_2, 'x')
+        self.assertEqual(result, 'a')
+
+        # Should return 'g'
+        line_1 = '∃y∈S F(x, x, y)'
+        line_2 = 'F(x, x, g)'
+        tree_1 = make_tree(line_1, parser)
+        tree_2 = make_tree(line_2, parser)
+        result = find_c(tree_1.right, tree_2, 'y')
+        self.assertEqual(result, 'g')
+
+
+    def test_count_inputs(self):
+        """
+        Verify that the count_inputs() function is working properly
+        """
+        x = count_inputs('P(x)')
+        y = count_inputs('F(x, a, b, c)')
+        z = count_inputs('B(x, y, z, a, b, c, d, e)')
+        self.assertEqual(x, 1)
+        self.assertEqual(y, 4)
+        self.assertEqual(z, 8)
+
+
+    def test_verify_var_replaces_every_name(self):
+        """
+        Verify that the verify_var_replaces_every_name() function is working properly
+        """
+        parser = folparser.parser
+        name_line_no = '1'
+        var_line_no = '2'
+        var = 'x'
+
+        # Test with valid input
+        name_tree = make_tree('P(a, c, a)', parser)
+        var_tree = make_tree('P(x, c, x)', parser)
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        name_tree = make_tree('P(a)→P(a)', parser)
+        var_tree = make_tree('∀x∈U (P(x)→P(x))', parser).right
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        # Test with invalid input
+        name_tree = make_tree('P(a, a, x)', parser)
+        var_tree = make_tree('P(x, x, x)', parser)
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Variable "x" on line 2 should not appear on line 1')
+
+        name_tree = make_tree('P(a, a, y)', parser)
+        var_tree = make_tree('P(x, x, x)', parser)
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Instances of variable "x" on line 2 should replace a name on line 1')
+
+        name_tree = make_tree('P(a, b, c)', parser)
+        var_tree = make_tree('P(x, x, x)', parser)
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'All instances of variable "x" on line 2 should replace the same name on line 1')
+
+        name_tree = make_tree('P(a, a, a)', parser)
+        var_tree = make_tree('P(x, x, y)', parser)
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'All instances of name "a" on line 1 should be replaced with the bound variable "x" on line 2')
+
+        name_tree = make_tree('P(a, a, a)', parser)
+        var_tree = make_tree('P(x, a, x)', parser)
+        result = verify_var_replaces_every_name(var_tree, name_tree, var, var_line_no, name_line_no)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'All instances of name "a" on line 1 should be replaced with the bound variable "x" on line 2')          
+
+
+    def test_verify_similar_structure_fol(self):
+        """
+        Verify that the verify_same_structure_FOL() function is working properly 
+        """
+        parser = folparser.parser
+        line_no_1 = '1'
+        line_no_2 = '2'
+
+        # Test with valid input
+        tree_1 = make_tree('P(a)→P(a)', parser)
+        tree_2 = make_tree('(P(x)→P(x))', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        tree_1 = make_tree('P(a, a, a)', parser)
+        tree_2 = make_tree('P(a, x, a)', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        # Test with different structures
+        tree_1 = make_tree('P(a)', parser)
+        tree_2 = make_tree('P(a)∧F(x)', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, "Lines 1 and 2 do not have similar structure")
+
+        # Test with references to different predicates
+        tree_1 = make_tree('P(a)→P(a)', parser)
+        tree_2 = make_tree('(P(x)→Q(x))', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'The expressions on lines 1 and 2 do not refer to the same predicate')
+
+        # Test with predicates containing different number of inputs
+        tree_1 = make_tree('P(a)→P(a)', parser)
+        tree_2 = make_tree('(P(x, a)→P(x))', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'The predicates on lines 1 and 2 do not have the same number of inputs')
+
+        # Test with different quantifiers referencing different variables
+        tree_1 = make_tree('∃x∈U P(x)', parser)
+        tree_2 = make_tree('∀x∈U P(x)', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'The expressions on lines 1 and 2 do not refer to the same quantifier')
+
+        # Test with quantifiers referencing different variables
+        tree_1 = make_tree('∃x∈U P(x)', parser)
+        tree_2 = make_tree('∃y∈U P(y)', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'The quantifiers on lines 1 and 2 do not refer to the same variable')
+
+        # Test with quantifiers referencing different domains
+        tree_1 = make_tree('∃x∈U P(x)', parser)
+        tree_2 = make_tree('∃x∈V P(x)', parser)
+        result = verify_same_structure_FOL(tree_1, tree_2, line_no_1, line_no_2)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'The quantifiers on lines 1 and 2 do not refer to the same domain')
+
 
     def test_clean_rule(self):
         """
@@ -183,30 +362,6 @@ class HelpersTests(TestCase):
         self.assertEqual(res3.err_msg, "Expression cannot be an empty string")
         self.assertFalse(res4.is_valid)
         self.assertEqual(res4.err_msg, "Illegal character '!' in expression A!")
-
-    def test_verify_subproof_citation(self):
-        """
-        Test that the verify_subproof_citation method works properly
-        """
-        # Test with cited line within an unclosed subproof.
-        line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
-        line2 = ProofLineObj('2.1.1', 'A∧C', 'Assumption')
-        line3 = ProofLineObj('2.1.2', 'C', '∧E 2.1')
-        line4 = ProofLineObj('3', 'C', '∧E 2.1')
-        result = verify_subproof_citation(line4, line2)
-        self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg,\
-            'Line 2.1.1 occurs within a subproof that has not been closed prior to line 3')
-        
-        # Test with cited line after current line
-        line1 = ProofLineObj('1', '(A∧C)∨(B∧C)', 'Premise')
-        line2 = ProofLineObj('2', 'C', '∧E 3.1')
-        line3 = ProofLineObj('3.1', 'A∧C', 'Assumption')
-        line4 = ProofLineObj('3.2', 'C', '∧E 3.1')
-        result = verify_subproof_citation(line2, line3)
-        self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg,\
-            'Invalid citation: line 3.1 occurs after line 2')
 
     def test_is_var(self):
         """
@@ -369,8 +524,8 @@ class ProofTests(TestCase):
         line1 = ProofLineObj('2.1', 'A', 'Premise')
         line2 = ProofLineObj('2.2', 'B', 'Premise')
         line3 = ProofLineObj('2.3', 'A∧B', '∧I 1, 2')
-        result1 = verify_line_citation(line3, line1)
-        result2 = verify_line_citation(line3, line2)
+        result1 = verify_line_citation(line3.line_no, line1.line_no)
+        result2 = verify_line_citation(line3.line_no, line2.line_no)
         self.assertTrue(result1.is_valid)
         self.assertTrue(result2.is_valid)
 
@@ -380,26 +535,49 @@ class ProofTests(TestCase):
         line3 = ProofLineObj('2.2', 'B', 'R')
         line4 = ProofLineObj('3', 'B→B', '→I 2-3')
         line5 = ProofLineObj('4', 'B', '→E 4, 3')
-        result = verify_line_citation(line5, line3)
+        result = verify_line_citation(line5.line_no, line3.line_no)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg,\
-            'Line 2.2 occurs within a subproof that has not been closed prior to line 4')
+            'Error on line 4: Invalid citation: Line 4 exists within in a subproof at a lower depth than line 2.2')
 
         # Test with the cited line occurring after the current line
-        line1 = ProofLineObj('2.1', 'A∧B', '∧I 1, 2')
-        line2 = ProofLineObj('2.2', 'B', 'Premise')
-        result = verify_line_citation(line1, line2)
-        self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg,\
-            "Invalid citation: line 2.2 occurs after line 2.1")
-
-        # Test with line numbers not formatted properly
         line1 = ProofLineObj('1', 'A∧B', '∧I 1, 2')
-        line2 = ProofLineObj('2.a', 'B', 'Premise')
-        result = verify_line_citation(line1, line2)
+        line2 = ProofLineObj('2', 'B', 'Premise')
+        result = verify_line_citation(line1.line_no, line2.line_no)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg,\
-            "Invalid line citations are provided on line 1.  Perhaps you're referencing the wrong rule?")
+            "Error on line 1: Invalid citation: Line 2 occurs after line 1")
+
+        # Test where a line cites a line in a different subproof at same depth
+        line1 = ProofLineObj('1.1', 'R', 'Assumption')
+        line2 = ProofLineObj('2.1', 'Q', 'Assumption')
+        line3 = ProofLineObj('2.2', 'Q∧R', '∧I 1.1, 2.1')
+        result = verify_line_citation(line3.line_no, line1.line_no)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 2.2: Invalid citation: Line 1.1 occurs in a previous subproof')
+
+        # Test casting of strings to int
+        rule = ConditionalElim()
+        parser = folparser.parser
+
+        # This test works
+        line1 = ProofLineObj('1', 'B(c) → L(a, c)', '∀E 2')
+        line2 = ProofLineObj('2.1', 'B(c)', 'Assumption')
+        line3 = ProofLineObj('2.2', 'L(a, c)', '→E 1, 2.1')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
+        # This test doesn't work
+        line1 = ProofLineObj('6', 'B(c) → L(a, c)', '∀E 2')
+        line2 = ProofLineObj('10.1', 'B(c)', 'Assumption')
+        line3 = ProofLineObj('10.2', 'L(a, c)', '→E 6, 10.1')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEquals(result.err_msg, None)
+
 
     def test_is_conclusion(self):
         """
@@ -484,7 +662,7 @@ class ProofTests(TestCase):
         parser = tflparser.parser
         result = verify_proof(proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, "Line 2 does not follow from line 1")
+        self.assertEqual(result.err_msg, "Error on line 2: Line 2 does not follow from line 1")
 
     def test_verify_proof_with_assumption_as_conclusion(self):
         """
