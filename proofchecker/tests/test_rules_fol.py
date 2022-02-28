@@ -109,7 +109,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
-        self.assertEquals(result.err_msg, None)
+        self.assertEqual(result.err_msg, None)
 
         line1 = ProofLineObj('1', 'a=b', 'Premise')
         line2 = ProofLineObj('2', 'F(a, a, a, a)', 'Premise')
@@ -117,7 +117,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
-        self.assertEquals(result.err_msg, None)
+        self.assertEqual(result.err_msg, None)
 
         # Test with invalid input
         line1 = ProofLineObj('1', 'a=b', 'Premise')
@@ -126,7 +126,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 3: Expression "F(a, b, a, c)" cannot be achieved by replacing "a" with "b" (or vice versa) in the expression "F(a, a, a, a)"')
+        self.assertEqual(result.err_msg, 'Error on line 3: Expression "F(a, b, a, c)" cannot be achieved by replacing "a" with "b" (or vice versa) in the expression "F(a, a, a, a)"')
 
         line1 = ProofLineObj('1', 'a=b', 'Premise')
         line2 = ProofLineObj('2', 'F(a, a, a, a)', 'Premise')
@@ -134,7 +134,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 3: Expressions on lines 2 and 3 should have similar structure')
+        self.assertEqual(result.err_msg, 'Error on line 3: Expressions on lines 2 and 3 should have similar structure')
         
 
     def test_existential_intro(self):
@@ -147,7 +147,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         # self.assertTrue(result.is_valid)
-        self.assertEquals(result.err_msg, None)
+        self.assertEqual(result.err_msg, None)
 
         # Test where root operand of line 2 is not ∃
         line1 = ProofLineObj('1', 'H(a)', 'Premise')
@@ -155,7 +155,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The root operand of line 1 should be the existential quantifier (∃)')
+        self.assertEqual(result.err_msg, 'Error on line 2: The root operand of line 1 should be the existential quantifier (∃)')
 
         # Test where line 1 and line 2 refer to different predicates
         line1 = ProofLineObj('1', 'G(a)', 'Premise')
@@ -163,7 +163,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The expressions on lines 1 and 2 do not refer to the same predicate')
+        self.assertEqual(result.err_msg, 'Error on line 2: The expressions on lines 1 and 2 do not refer to the same predicate')
 
         # Test where line 1 and 2 have different number of inputs
         line1 = ProofLineObj('1', 'H(a, b)', 'Premise')
@@ -171,7 +171,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The predicates on lines 1 and 2 do not have the same number of inputs')
+        self.assertEqual(result.err_msg, 'Error on line 2: The predicates on lines 1 and 2 do not have the same number of inputs')
 
         # Test where the variable on line 2 does not replace a name on line 1
         line1 = ProofLineObj('1', 'H(y)', 'Premise')
@@ -179,7 +179,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: Instances of variable "x" on line 2 should replace a name on line 1')
+        self.assertEqual(result.err_msg, 'Error on line 2: Instances of variable "x" on line 2 should replace a name on line 1')
 
         # Test where the variables on line 2 replace two different names on line 1
         line1 = ProofLineObj('1', 'H(a, b)', 'Premise')
@@ -187,7 +187,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: All instances of variable "x" on line 2 should replace the same name on line 1')
+        self.assertEqual(result.err_msg, 'Error on line 2: All instances of variable "x" on line 2 should replace the same name on line 1')
 
         # Test where the variable on line 2 already appears on line 1
         line1 = ProofLineObj('1', 'H(a, x)', 'Premise')
@@ -195,7 +195,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: Variable "x" on line 2 should not appear on line 1')
+        self.assertEqual(result.err_msg, 'Error on line 2: Variable "x" on line 2 should not appear on line 1')
 
     def test_existential_elim(self):
         rule = ExistentialElim()
@@ -203,73 +203,93 @@ class FOLRulesTests(TestCase):
 
         # Test with valid input
         line1 = ProofLineObj('1', '∃x∈S F(x, x)', 'Premise')
-        line2 = ProofLineObj('2.1', 'F(a, a)', 'Assumption')
+        line2 = ProofLineObj('2.1', 'F(c, c)', 'Assumption')
         line3 = ProofLineObj('2.2', 'F(a, a)', 'R 2.1')
         line4 = ProofLineObj('3', 'F(a, a)', '∃E 1, 2')
         proof = ProofObj(lines=[line1, line2, line3, line4])
         result = rule.verify(line4, proof, parser)
-        self.assertTrue(result.is_valid)
-        self.assertEquals(result.err_msg, None)
+        # self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
 
         # Test where the root operand of line 1 is not ∃ 
         line1 = ProofLineObj('1', '∀x∈S F(x, x)', 'Premise')
-        line2 = ProofLineObj('2.1', 'F(a, a)', 'Assumption')
+        line2 = ProofLineObj('2.1', 'F(c, c)', 'Assumption')
         line3 = ProofLineObj('2.2', 'F(a, a)', 'R 2.1')
         line4 = ProofLineObj('3', 'F(a, a)', '∃E 1, 2')
         proof = ProofObj(lines=[line1, line2, line3, line4])
         result = rule.verify(line4, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 3: The root operand of line 1 should be the existential quantifier (∃)')
+        self.assertEqual(result.err_msg, 'Error on line 3: The root operand of line 1 should be the existential quantifier (∃)')
 
         # Test where lines 1 and 2.1 refer to different predicates
         line1 = ProofLineObj('1', '∃x∈S G(x, x)', 'Premise')
-        line2 = ProofLineObj('2.1', 'F(a, a)', 'Assumption')
+        line2 = ProofLineObj('2.1', 'F(c, c)', 'Assumption')
         line3 = ProofLineObj('2.2', 'F(a, a)', 'R 2.1')
         line4 = ProofLineObj('3', 'F(a, a)', '∃E 1, 2')
         proof = ProofObj(lines=[line1, line2, line3, line4])
         result = rule.verify(line4, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 3: The expressions on lines 1 and 2.1 do not refer to the same predicate')
+        self.assertEqual(result.err_msg, 'Error on line 3: The expressions on lines 1 and 2.1 do not refer to the same predicate')
 
         # Test where lines 1 and 2.1 have different numbers of inputs
         line1 = ProofLineObj('1', '∃x∈S F(x, x)', 'Premise')
-        line2 = ProofLineObj('2.1', 'F(a)', 'Assumption')
+        line2 = ProofLineObj('2.1', 'F(c)', 'Assumption')
         line3 = ProofLineObj('2.2', 'F(a)', 'R 2.1')
         line4 = ProofLineObj('3', 'F(a)', '∃E 1, 2')
         proof = ProofObj(lines=[line1, line2, line3, line4])
         result = rule.verify(line4, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 3: The predicates on lines 1 and 2.1 do not have the same number of inputs')
+        self.assertEqual(result.err_msg, 'Error on line 3: The predicates on lines 1 and 2.1 do not have the same number of inputs')
 
         # Test where instances of bound var on line 1 are replaced by another var
         line1 = ProofLineObj('1', '∃x∈S F(x, x)', 'Premise')
-        line2 = ProofLineObj('2.1', 'F(y, y)', 'Assumption')
+        line2 = ProofLineObj('2.1', 'F(z, z)', 'Assumption')
         line3 = ProofLineObj('2.2', 'F(y, y)', 'R 2.1')
         line4 = ProofLineObj('3', 'F(y, y)', '∃E 1, 2')
         proof = ProofObj(lines=[line1, line2, line3, line4])
         result = rule.verify(line4, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 3: Instances of variable "x" on line 1 should replace a name on line 2.1')
+        self.assertEqual(result.err_msg, 'Error on line 3: Instances of variable "x" on line 1 should replace a name on line 2.1')
 
         # Test where bound var on line 1 is replaced by different names on line 2.1
         line1 = ProofLineObj('1', '∃x∈S F(x, x)', 'Premise')
-        line2 = ProofLineObj('2.1', 'F(a, b)', 'Assumption')
+        line2 = ProofLineObj('2.1', 'F(c, b)', 'Assumption')
         line3 = ProofLineObj('2.2', 'F(a, b)', 'R 2.1')
         line4 = ProofLineObj('3', 'F(a, b)', '∃E 1, 2')
         proof = ProofObj(lines=[line1, line2, line3, line4])
         result = rule.verify(line4, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 3: All instances of variable "x" on line 1 should replace the same name on line 2.1')
+        self.assertEqual(result.err_msg, 'Error on line 3: All instances of variable "x" on line 1 should replace the same name on line 2.1')
 
         # Test where line i_x and current line have different expressions
         line1 = ProofLineObj('1', '∃x∈S F(x, x)', 'Premise')
-        line2 = ProofLineObj('2.1', 'F(a, a)', 'Assumption')
+        line2 = ProofLineObj('2.1', 'F(c, c)', 'Assumption')
         line3 = ProofLineObj('2.2', 'F(a, a)', 'R 2.1')
         line4 = ProofLineObj('3', 'F(b, b)', '∃E 1, 2')
         proof = ProofObj(lines=[line1, line2, line3, line4])
         result = rule.verify(line4, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 3: The expressions on line 2.2 and line 3 should be equivalent')
+        self.assertEqual(result.err_msg, 'Error on line 3: The expressions on line 2.2 and line 3 should be equivalent')
+
+        # Test where 'c' is referenced earlier in the proof
+        line1 = ProofLineObj('1', '∃x∈S F(c, x)', 'Premise')
+        line2 = ProofLineObj('2.1', 'F(c, c)', 'Assumption')
+        line3 = ProofLineObj('2.2', 'F(a, a)', 'R 2.1')
+        line4 = ProofLineObj('3', 'F(a, a)', '∃E 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3, line4])
+        result = rule.verify(line4, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 3: The name "c" on line 2.1 should not appear earlier in the proof (it appears on line 1)')
+
+        # Test where 'c' is referenced in 'B'
+        line1 = ProofLineObj('1', '∃x∈S F(x, x)', 'Premise')
+        line2 = ProofLineObj('2.1', 'F(c, c)', 'Assumption')
+        line3 = ProofLineObj('2.2', 'B(c, c)', 'R 2.1')
+        line4 = ProofLineObj('3', 'B(c, c)', '∃E 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3, line4])
+        result = rule.verify(line4, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 3: The name "c" on line 2.1 should not appear on line 3')
 
 
     def test_universal_elim(self):
@@ -282,7 +302,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
-        self.assertEquals(result.err_msg, None)
+        self.assertEqual(result.err_msg, None)
 
         # Test where root operand of line 1 is not ∀
         line1 = ProofLineObj('1', '∃x∈S H(x)', 'Premise')
@@ -290,7 +310,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The root operand of line 1 should be the universal quantifier (∀)')
+        self.assertEqual(result.err_msg, 'Error on line 2: The root operand of line 1 should be the universal quantifier (∀)')
 
         # Test where line 1 and line 2 refer to different predicates
         line1 = ProofLineObj('1', '∀x∈S H(x)', 'Premise')
@@ -298,7 +318,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The expressions on lines 1 and 2 do not refer to the same predicate')
+        self.assertEqual(result.err_msg, 'Error on line 2: The expressions on lines 1 and 2 do not refer to the same predicate')
 
         # Test where line 1 and 2 have different number of inputs
         line1 = ProofLineObj('1', '∀x∈S H(x, y)', 'Premise')
@@ -306,7 +326,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The predicates on lines 1 and 2 do not have the same number of inputs')
+        self.assertEqual(result.err_msg, 'Error on line 2: The predicates on lines 1 and 2 do not have the same number of inputs')
 
         # Test with valid input
         line1 = ProofLineObj('1', '∀x∈S H(x)', 'Premise')
@@ -314,7 +334,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: Instances of variable "x" on line 1 should replace a name on line 2')
+        self.assertEqual(result.err_msg, 'Error on line 2: Instances of variable "x" on line 1 should replace a name on line 2')
 
         # Test with valid input
         line1 = ProofLineObj('1', '∀x∈S H(x, x)', 'Premise')
@@ -322,7 +342,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: All instances of variable "x" on line 1 should replace the same name on line 2')
+        self.assertEqual(result.err_msg, 'Error on line 2: All instances of variable "x" on line 1 should replace the same name on line 2')
 
 
     def test_universal_intro(self):
@@ -336,14 +356,15 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
-        self.assertEquals(result.err_msg, None)
+        self.assertEqual(result.err_msg, None)
 
-        # TODO: Test with reference to a generic free variable
-        # line1 = ProofLineObj('1', 'P(a)', 'Premise')
-        # line2 = ProofLineObj('2', '∀x∈S P(x)', '∀I 1')
-        # proof = ProofObj(lines=[line1, line2])
-        # result = rule.verify(line2, proof, parser)
-        # self.assertFalse(result.is_valid)
+        # Test with reference to a generic free variable
+        line1 = ProofLineObj('1', 'P(a)', 'Premise')
+        line2 = ProofLineObj('2', '∀x∈S P(x)', '∀I 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 2: The name "a" on line 1 must be a generic free variable')
 
         # Test where root operand of line 2 is not ∀
         line1 = ProofLineObj('1', 'H(a)', 'Premise')
@@ -351,7 +372,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The root operand of line 1 should be the universal quantifier (∀)')
+        self.assertEqual(result.err_msg, 'Error on line 2: The root operand of line 1 should be the universal quantifier (∀)')
 
         # Test where line 1 and line 2 refer to different predicates
         line1 = ProofLineObj('1', 'G(a)', 'Premise')
@@ -359,7 +380,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The expressions on lines 1 and 2 do not refer to the same predicate')
+        self.assertEqual(result.err_msg, 'Error on line 2: The expressions on lines 1 and 2 do not refer to the same predicate')
 
         # Test where line 1 and 2 have different number of inputs
         line1 = ProofLineObj('1', 'H(a, b)', 'Premise')
@@ -367,7 +388,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The predicates on lines 1 and 2 do not have the same number of inputs')
+        self.assertEqual(result.err_msg, 'Error on line 2: The predicates on lines 1 and 2 do not have the same number of inputs')
 
         # Test where the variable on line 2 does not replace a name on line 1
         line1 = ProofLineObj('1', 'H(y)', 'Premise')
@@ -375,7 +396,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: Instances of variable "x" on line 2 should replace a name on line 1')
+        self.assertEqual(result.err_msg, 'Error on line 2: Instances of variable "x" on line 2 should replace a name on line 1')
 
         # Test where the variables on line 2 replace two different names on line 1
         line1 = ProofLineObj('1', 'H(a, b)', 'Premise')
@@ -383,7 +404,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: All instances of variable "x" on line 2 should replace the same name on line 1')
+        self.assertEqual(result.err_msg, 'Error on line 2: All instances of variable "x" on line 2 should replace the same name on line 1')
 
         # Test where the variable on line 2 already appears on line 1
         line1 = ProofLineObj('1', 'H(a, x)', 'Premise')
@@ -391,7 +412,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: Variable "x" on line 2 should not appear on line 1')
+        self.assertEqual(result.err_msg, 'Error on line 2: Variable "x" on line 2 should not appear on line 1')
 
         # Test where the variable on line 2 already appears on line 1
         line1 = ProofLineObj('1', 'H(a, a, b)', 'Premise')
@@ -399,7 +420,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         # self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: All instances of name "a" on line 1 should be replaced with the bound variable "x" on line 2')
+        self.assertEqual(result.err_msg, 'Error on line 2: All instances of name "a" on line 1 should be replaced with the bound variable "x" on line 2')
 
 
     def test_conversion_of_quantifiers(self):
@@ -417,7 +438,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
-        self.assertEquals(result.err_msg, None)
+        self.assertEqual(result.err_msg, None)
 
         # Test where line 1 is not a negation
         line1 = ProofLineObj('1', '∀x∈S F(x)', 'Premise')
@@ -425,7 +446,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 begins with a universal quantifier (∀), '\
+        self.assertEqual(result.err_msg, 'Error on line 2: If line 1 begins with a universal quantifier (∀), '\
             'it should be followed by a negation (¬) when applying Conversion of Quantifiers (CQ)')
 
         # Test where line 2 is not the negation of an existential quantifier
@@ -434,7 +455,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 begins with a universal quantifier (∀), '\
+        self.assertEqual(result.err_msg, 'Error on line 2: If line 1 begins with a universal quantifier (∀), '\
             'then line 2 should be the negation (¬) of an existential quantifier (∃) '\
             'when applying Conversion of Quantifiers (CQ)')
 
@@ -443,7 +464,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 begins with a universal quantifier (∀), '\
+        self.assertEqual(result.err_msg, 'Error on line 2: If line 1 begins with a universal quantifier (∀), '\
             'then line 2 should be the negation (¬) of an existential quantifier (∃) '\
             'when applying Conversion of Quantifiers (CQ)')
 
@@ -453,7 +474,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: Lines 1 and 2 should refer to the same predicate')
+        self.assertEqual(result.err_msg, 'Error on line 2: Lines 1 and 2 should refer to the same predicate')
 
         # Test where line 1 and line 2 have different number of inputs
         line1 = ProofLineObj('1', '∀x∈S ¬F(x, a)', 'Premise')
@@ -461,8 +482,23 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The predicates on lines 1 and 2 do not have the same number of inputs')
+        self.assertEqual(result.err_msg, 'Error on line 2: The predicates on lines 1 and 2 do not have the same number of inputs')
 
+        # Test where line 1 and line 2 refer to different variables
+        line1 = ProofLineObj('1', '∀x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∃y∈S F(y)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same variable')
+
+        # Test where line 1 and line 2 refer to different domains
+        line1 = ProofLineObj('1', '∀x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∃x∈U F(y)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same domain')
 
         ### Case 3
 
@@ -472,7 +508,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
-        self.assertEquals(result.err_msg, None)
+        self.assertEqual(result.err_msg, None)
 
         # Test where line 1 does not include a negation
         line1 = ProofLineObj('1', '∃x∈S F(x)', 'Premise')
@@ -480,7 +516,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 begins with an existential quantifier (∃), '\
+        self.assertEqual(result.err_msg, 'Error on line 2: If line 1 begins with an existential quantifier (∃), '\
             'it should be followed by a negation (¬) when applying Conversion of Quantifiers (CQ)')
 
         # Test where line 2 is not the negation of a universal quantifier
@@ -489,7 +525,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 begins with an existential quantifier (∃), '\
+        self.assertEqual(result.err_msg, 'Error on line 2: If line 1 begins with an existential quantifier (∃), '\
             'then line 2 should be the negation (¬) of a universal quantifier (∀) '\
             'when applying Conversion of Quantifiers (CQ)')
 
@@ -499,7 +535,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 begins with an existential quantifier (∃), '\
+        self.assertEqual(result.err_msg, 'Error on line 2: If line 1 begins with an existential quantifier (∃), '\
             'then line 2 should be the negation (¬) of a universal quantifier (∀) '\
             'when applying Conversion of Quantifiers (CQ)')
 
@@ -509,7 +545,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: Lines 1 and 2 should refer to the same predicate')
+        self.assertEqual(result.err_msg, 'Error on line 2: Lines 1 and 2 should refer to the same predicate')
 
         # Test where line 1 and line 2 have different number of inputs
         line1 = ProofLineObj('1', '∃x∈S ¬F(x, a)', 'Premise')
@@ -517,8 +553,23 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The predicates on lines 1 and 2 do not have the same number of inputs')
+        self.assertEqual(result.err_msg, 'Error on line 2: The predicates on lines 1 and 2 do not have the same number of inputs')
 
+        # Test where line 1 and 2 refer to different variables
+        line1 = ProofLineObj('1', '∃x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∀y∈S F(y)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same variable')
+
+        # Test where line 1 and 2 refer to different domains
+        line1 = ProofLineObj('1', '∃x∈S ¬F(x)', 'Premise')
+        line2 = ProofLineObj('2', '¬ ∀x∈U F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same domain')
 
         ### Case 2
 
@@ -528,7 +579,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
-        self.assertEquals(result.err_msg, None)
+        self.assertEqual(result.err_msg, None)
 
         # Test where line 2 does not begin with a universal quantifier
         line1 = ProofLineObj('1', '¬ ∃x∈S F(x)', 'Premise')
@@ -536,7 +587,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 is the negation of an existential quantifier, '\
+        self.assertEqual(result.err_msg, 'Error on line 2: If line 1 is the negation of an existential quantifier, '\
             'then line 2 should begin with a universal quantifier when applying Conversion of Quantifiers (CQ)')
 
         # Test where the quantifier on line 2 is not followed with a negation
@@ -545,8 +596,23 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The quantifier on line 2 should be followed by a negation (¬)')
+        self.assertEqual(result.err_msg, 'Error on line 2: The quantifier on line 2 should be followed by a negation (¬)')
 
+        # Test with different variables
+        line1 = ProofLineObj('1', '¬ ∃x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∀y∈S ¬F(y)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same variable')
+
+        # Test with different domains
+        line1 = ProofLineObj('1', '¬ ∃x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∀x∈U ¬F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same domain')
 
         ### Case 4
 
@@ -556,7 +622,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)
-        self.assertEquals(result.err_msg, None)
+        self.assertEqual(result.err_msg, None)
 
         # Test where line 2 does not begin with an existential quantifier
         line1 = ProofLineObj('1', '¬ ∀x∈S F(x)', 'Premise')
@@ -564,7 +630,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: If line 1 is the negation of a universal quantifier, '\
+        self.assertEqual(result.err_msg, 'Error on line 2: If line 1 is the negation of a universal quantifier, '\
             'then line 2 should begin with an existential quantifier when applying Conversion of Quantifiers (CQ)')
 
         # Test where the quantifier on line 2 is not followed by a negation
@@ -573,8 +639,7 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: The quantifier on line 2 should be followed by a negation (¬)')
-
+        self.assertEqual(result.err_msg, 'Error on line 2: The quantifier on line 2 should be followed by a negation (¬)')
 
         # Test where line 1 does not begin with a quantifier or a negation
         line1 = ProofLineObj('1', 'F(x)', 'Premise')
@@ -582,4 +647,20 @@ class FOLRulesTests(TestCase):
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEquals(result.err_msg, 'Error on line 2: Line 1 must begin with either a quantifier or a negation when applying Conversion of Quantifiers (CQ)')
+        self.assertEqual(result.err_msg, 'Error on line 2: Line 1 must begin with either a quantifier or a negation when applying Conversion of Quantifiers (CQ)')
+
+        # Test with different variables
+        line1 = ProofLineObj('1', '¬ ∀x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∃y∈S ¬F(y)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same variable')
+
+        # Test with different domains
+        line1 = ProofLineObj('1', '¬ ∀x∈S F(x)', 'Premise')
+        line2 = ProofLineObj('2', '∃x∈U ¬F(x)', 'CQ 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 2: The quantifiers on lines 1 and 2 do not refer to the same domain')

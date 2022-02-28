@@ -5,318 +5,6 @@ from proofchecker.utils.constants import Constants
 from proofchecker.utils.numlexer import lexer as numlexer
 from proofchecker.utils.tfllexer import IllegalCharacterError
 
-
-def verify_same_structure_FOL(tree_1: Node, tree_2: Node, line_no_1: ProofLineObj, line_no_2: ProofLineObj):
-    """
-    Test to determine that two trees have the same structure
-    """
-    # If both nodes are empty, they have same structure
-    if (tree_1.value == None and tree_2.value == None):
-        response = ProofResponse()
-        response.is_valid = True
-        return response
-
-    # If one node is empty and the other is not, return error message
-    if (tree_1 == None and tree_2 != None) or (tree_1 != None and tree_2 == None):
-        response = ProofResponse()
-        response.err_msg = "Lines {} and {} do not have similar structure"\
-            .format(line_no_1, line_no_2)
-        return response         
-
-    # If both nodes have values, continue
-    if (tree_1 != None) and (tree_2 != None):
-
-        # If one node has a left or right child where the other does not, return error message
-        if (tree_1.left == None and tree_2.left != None) or (tree_2.left == None and tree_1.left != None) \
-            or (tree_1.right == None and tree_2.left != None) or (tree_1.right == None and tree_2.right != None):
-                response = ProofResponse()
-                response.err_msg = "Lines {} and {} do not have similar structure"\
-                    .format(line_no_1, line_no_2)
-                return response
-
-        # If both trees have a left node, check the left nodes for equivalent structure (recursive)
-        if (tree_1.left != None) and (tree_2.left != None):
-            response = verify_same_structure_FOL(tree_1.left, tree_2.left, line_no_1, line_no_2)
-            if response.is_valid == False:
-                return response
-
-        # If both trees have a right node, check the right node for equivalent structure (recursive)
-        if (tree_1.right != None) and (tree_2.right != None):
-            response = verify_same_structure_FOL(tree_1.right, tree_2.right, line_no_1, line_no_2)
-            if response.is_valid == False:
-                return response
-
-        # If the values of the nodes are equivalent, return valid
-        if tree_1.value == tree_2.value:
-            response = ProofResponse()
-            response.is_valid = True
-            return response
-        
-        # If one node is a predicate and the other is not, return error message
-        if (is_predicate(tree_1.value[0]) and not is_predicate(tree_2.value[0]))\
-            or (is_predicate(tree_2.value[0]) and not is_predicate(tree_1.value[0])):
-                response = ProofResponse()
-                response.err_msg = "Lines {} and {} do not have similar structure"\
-                    .format(line_no_1, line_no_2)
-                return response            
-
-        # If the expressions refer to different predicates, return error message
-        if is_predicate(tree_1.value[0]) and is_predicate(tree_2.value[0]):
-            if tree_1.value[0] != tree_2.value[0]:
-                response = ProofResponse()
-                response.err_msg = "The expressions on lines {} and {} do not refer to the same predicate"\
-                    .format(line_no_1, line_no_2)
-                return response
-            else:
-                # If the predicates do not have the same number of inputs, return error message
-                inputs_1 = count_inputs(tree_1.value)
-                inputs_2 = count_inputs(tree_2.value)
-                response = ProofResponse()
-                if inputs_1 != inputs_2:
-                    response.err_msg = "The predicates on lines {} and {} do not have the same number of inputs"\
-                        .format(line_no_1, line_no_2)
-                    return response
-                else:
-                    response.is_valid = True
-                    return response
-            
-        # If the expressions refer to quantifiers but reference different variables, return error message:
-        if is_quantifier(tree_1.value[0]):
-            
-            # Check they refer to same quantifier
-            if tree_1.value[0] != tree_2.value[0]:
-                response = ProofResponse()
-                response.err_msg = "The expressions on lines {} and {} do not refer to the same quantifier"\
-                    .format(line_no_1, line_no_2)
-                return response
-
-            # Check they refer to same variable
-            if tree_1.value[1] != tree_2.value[1]:
-                response = ProofResponse()
-                response.err_msg = "The quantifiers on lines {} and {} do not refer to the same variable"\
-                    .format(line_no_1, line_no_2)
-                return response
-
-            # Check they refer to the same domain
-            if tree_1.value[3] != tree_2.value[3]:
-                response = ProofResponse()
-                response.err_msg = "The quantifiers on lines {} and {} do not refer to the same domain"\
-                    .format(line_no_1, line_no_2)
-                return response
-
-            # If they refer to same quantifier and same variable, return valid 
-            response = ProofResponse()
-            response.is_valid = True
-            return response
-        
-    # If we reached this point without returning a response, return valid
-    response = ProofResponse()
-    response.is_valid = True
-    return response
-
-
-def verify_var_replaces_every_name(var_tree: Node, name_tree: Node, var: str, var_line_no: str, name_line_no: str):
-    """
-    Verify all instances of var in var_tree are replaced by a single name in name_tree AND
-    that all instances of name in name_tree are replaced by var in var_tree
-    """
-    # If either node is empty, return valid
-    if (var_tree == None or name_tree == None):
-        response = ProofResponse
-        response.is_valid = True
-        return response
-
-    # If both trees have a left node, check the left nodes (recursive)
-    if (var_tree.left != None) and (name_tree.left != None):
-        response = verify_var_replaces_every_name(var_tree.left, name_tree.left, var, var_line_no, name_line_no)
-        if response.is_valid == False:
-            return response
-
-    # If both trees have a right node, check the right nodes (recursive)
-    if (var_tree.right != None) and (name_tree.right != None):
-        response = verify_var_replaces_every_name(var_tree.right, name_tree.right, var, var_line_no, name_line_no)
-        if response.is_valid == False:
-            return response
-
-    index = 0
-    var_indexes = []
-
-    # Eliminate whitespace to make sure indexes match
-    expression_with_vars = var_tree.value.replace(' ', '')
-    expression_with_names = name_tree.value.replace(' ', '')
-
-    # Make sure the bound variable does not appear in the expression with names
-    for ch in expression_with_names:
-        if ch == var:
-            response = ProofResponse()
-            response.err_msg = 'Variable "{}" on line {} should not appear on line {}'\
-                .format(var, var_line_no, name_line_no)
-            return response
-
-    # Keep track of the locations (indexes) of the bound variable on current line
-    for ch in expression_with_vars:
-        if ch == var:
-            var_indexes.append(index)
-        index += 1
-
-    # If there are no variables, stop here
-    if len(var_indexes) == 0:
-        response = ProofResponse()
-        response.is_valid = True
-        return response
-
-    # Get the values at these locations in line m
-    # Make sure they all represent names
-    names = []
-    for i in var_indexes:
-        names.append(expression_with_names[i])
-    
-    for ch in names:
-        if not is_name(ch):
-            response = ProofResponse()
-            response.err_msg = 'Instances of variable "{}" on line {} should replace a name on line {}'\
-                .format(var, var_line_no, name_line_no)
-            return response
-    
-    # Make sure they all use the same name
-    if len(names) > 1:
-        for ch in names:
-            if not ch == names[0]:
-                response = ProofResponse()
-                response.err_msg = 'All instances of variable "{}" on line {} should replace the same name on line {}'\
-                    .format(var, var_line_no, name_line_no)
-                return response
-    
-    # If there are no names, stop here
-    if len(names) == 0:
-        response = ProofResponse()
-        response.is_valid = True
-        return response        
-
-    # Now, check that all instances of this name in line_m are replaced by the same (bound) var in current line
-    name = names[0]
-    index = 0
-    name_indexes = []
-
-    # Keep track of the locations (indexes) of the bound variable on current line
-    for ch in expression_with_names:
-        if ch == name:
-            name_indexes.append(index)
-        index += 1
-
-    # Get the values at these locations in the current line
-    # Make sure they all are replaced by the bound variable
-    vars = []
-    for i in name_indexes:
-        vars.append(expression_with_vars[i])
-
-    for ch in vars:
-        if not (ch == var):
-            response = ProofResponse()
-            response.err_msg = 'All instances of name "{}" on line {} should be replaced with the bound variable "{}" on line {}'\
-                .format(name, name_line_no, var, var_line_no)
-            return response
-
-    # If we reach this point, return valid
-    response = ProofResponse()
-    response.is_valid = True
-    return response
-
-def verify_var_replaces_some_name(var_tree: Node, name_tree: Node, var: str, var_line_no: str, name_line_no: str):
-    """
-    Verify that all instances of var in var_tree are replaced by a single name in name_tree
-    """
-    # If either node is empty, return valid
-    if (var_tree == None or name_tree == None):
-        response = ProofResponse
-        response.is_valid = True
-        return response
-
-    # If both trees have a left node, check the left nodes (recursive)
-    if (var_tree.left != None) and (name_tree.left != None):
-        response = verify_var_replaces_some_name(var_tree.left, name_tree.left, var, var_line_no, name_line_no)
-        if response.is_valid == False:
-            return response
-
-    # If both trees have a right node, check the right nodes (recursive)
-    if (var_tree.right != None) and (name_tree.right != None):
-        response = verify_var_replaces_some_name(var_tree.right, name_tree.right, var, var_line_no, name_line_no)
-        if response.is_valid == False:
-            return response
-
-    index = 0
-    var_indexes = []
-
-    # Eliminate whitespace to make sure indexes match
-    expression_with_vars = var_tree.value.replace(' ', '')
-    expression_with_names = name_tree.value.replace(' ', '')
-
-    # Make sure the bound variable does not appear in the expression with names
-    for ch in expression_with_names:
-        if ch == var:
-            response = ProofResponse()
-            response.err_msg = 'Variable "{}" on line {} should not appear on line {}'\
-                .format(var, var_line_no, name_line_no)
-            return response
-
-    # Keep track of the locations (indexes) of the bound variable on current line
-    for ch in expression_with_vars:
-        if ch == var:
-            var_indexes.append(index)
-        index += 1
-
-    # If there are no variables, stop here
-    if len(var_indexes) == 0:
-        response = ProofResponse()
-        response.is_valid = True
-        return response
-
-    # Get the values at these locations in line m
-    # Make sure they all represent names
-    names = []
-    for i in var_indexes:
-        names.append(expression_with_names[i])
-    
-    for ch in names:
-        if not is_name(ch):
-            response = ProofResponse()
-            response.err_msg = 'Instances of variable "{}" on line {} should replace a name on line {}'\
-                .format(var, var_line_no, name_line_no)
-            return response
-    
-    # Make sure they all use the same name
-    if len(names) > 1:
-        for ch in names:
-            if not ch == names[0]:
-                response = ProofResponse()
-                response.err_msg = 'All instances of variable "{}" on line {} should replace the same name on line {}'\
-                    .format(var, var_line_no, name_line_no)
-                return response
-
-    # If we reach this point, return valid
-    response = ProofResponse()
-    response.is_valid = True
-    return response
-
-def count_inputs(expression: str):
-    """
-    Count the number of inputs to a predicate
-    (More accurately, counts the number of FOL variables and names in a string)
-    """
-    x = 0
-    for ch in expression:
-        if is_name(ch) or is_var(ch):
-            x += 1
-
-    return x
-
-
-def get_citable_lines(current_line: ProofLineObj, proof: ProofObj):
-    """
-    Returns a list of all lines that are citable from the current line
-    """
-    pass
-
 # Parsing methods
 def depth(line_no):
     """
@@ -422,6 +110,21 @@ def verify_expression(expression: str, parser):
             .format(str(expression))
         return response
     
+
+def get_citable_lines(current_line: ProofLineObj, proof: ProofObj):
+    """
+    Returns a list of all lines that are citable from the current line
+    """
+    citable_lines = []
+
+    for line in proof.lines:
+        if line != current_line:
+            result = verify_line_citation(current_line.line_no, line.line_no)
+            if result.is_valid:
+                citable_lines.append(line)
+
+    return citable_lines
+
 
 def verify_line_citation(current_line_no: str, cited_line_no: str):
     """
@@ -606,3 +309,372 @@ def clean_rule(rule: str):
         return clean_rule
 
     return rule
+
+
+# FOL Methods
+
+def count_inputs(expression: str):
+    """
+    Count the number of inputs to a predicate
+    (More accurately, counts the number of FOL variables and names in a string)
+    """
+    x = 0
+    for ch in expression:
+        if is_name(ch) or is_var(ch):
+            x += 1
+
+    return x
+
+
+def verify_same_var_and_domain(tree_1: Node, tree_2: Node, line_no_1: str, line_no_2: str):
+    """
+    Check that two quantifiers refer to the same variable and domain
+    """
+    # If the expressions refer to quantifiers but reference different variables, return error message:
+    if is_quantifier(tree_1.value[0]):
+
+        # Check they refer to same variable
+        if tree_1.value[1] != tree_2.value[1]:
+            response = ProofResponse()
+            response.err_msg = "The quantifiers on lines {} and {} do not refer to the same variable"\
+                .format(line_no_1, line_no_2)
+            return response
+
+        # Check they refer to the same domain
+        if tree_1.value[3] != tree_2.value[3]:
+            response = ProofResponse()
+            response.err_msg = "The quantifiers on lines {} and {} do not refer to the same domain"\
+                .format(line_no_1, line_no_2)
+            return response
+
+    response = ProofResponse()
+    response.is_valid = True
+    return response
+
+
+def find_c(var_tree: Node, name_tree: Node, var: str):
+    """
+    Find the name ("c") in name_tree that replaces the var in var_tree
+    (Used for ∃E and ∀I validation)
+    """
+    # If either node is empty, return None
+    if (var_tree == None or name_tree == None):
+        return None
+
+    if not is_predicate(var_tree.value[0]):
+        if (var_tree.left != None) and (name_tree.left != None):
+            result = find_c(var_tree.left, name_tree.left, var)
+            if result != None:
+                return result
+        if (var_tree.right != None) and (name_tree.right != None):
+            result = find_c(var_tree.right, name_tree.right, var)
+            if result != None:
+                return result
+
+    index = 0
+    var_indexes = []
+
+    # Eliminate whitespace to make sure indexes match
+    expression_with_vars = var_tree.value.replace(' ', '')
+    expression_with_names = name_tree.value.replace(' ', '')
+
+    # Keep track of the locations (indexes) of the bound variable on current line
+    for ch in expression_with_vars:
+        if ch == var:
+            var_indexes.append(index)
+        index += 1
+
+    # If there are no variables, return None
+    if len(var_indexes) == 0:
+        return None
+
+    # Get the values at these locations in line m
+    names = []
+    for i in var_indexes:
+        names.append(expression_with_names[i])    
+
+    # If there are no names, return None
+    if len(names) == 0:
+        return None
+        
+    return names[0]
+
+
+def verify_same_structure_FOL(tree_1: Node, tree_2: Node, line_no_1: str, line_no_2: str):
+    """
+    Test to determine that two trees have the same structure
+    """
+    # If both nodes are empty, they have same structure
+    if (tree_1.value == None and tree_2.value == None):
+        response = ProofResponse()
+        response.is_valid = True
+        return response
+
+    # If one node is empty and the other is not, return error message
+    if (tree_1 == None and tree_2 != None) or (tree_1 != None and tree_2 == None):
+        response = ProofResponse()
+        response.err_msg = "Lines {} and {} do not have similar structure"\
+            .format(line_no_1, line_no_2)
+        return response         
+
+    # If both nodes have values, continue
+    if (tree_1 != None) and (tree_2 != None):
+
+        # If one node has a left or right child where the other does not, return error message
+        if (tree_1.left == None and tree_2.left != None) or (tree_2.left == None and tree_1.left != None) \
+            or (tree_1.right == None and tree_2.left != None) or (tree_1.right == None and tree_2.right != None):
+                response = ProofResponse()
+                response.err_msg = "Lines {} and {} do not have similar structure"\
+                    .format(line_no_1, line_no_2)
+                return response
+
+        # If both trees have a left node, check the left nodes for equivalent structure (recursive)
+        if (tree_1.left != None) and (tree_2.left != None):
+            response = verify_same_structure_FOL(tree_1.left, tree_2.left, line_no_1, line_no_2)
+            if response.is_valid == False:
+                return response
+
+        # If both trees have a right node, check the right node for equivalent structure (recursive)
+        if (tree_1.right != None) and (tree_2.right != None):
+            response = verify_same_structure_FOL(tree_1.right, tree_2.right, line_no_1, line_no_2)
+            if response.is_valid == False:
+                return response
+
+        # If the values of the nodes are equivalent, return valid
+        if tree_1.value == tree_2.value:
+            response = ProofResponse()
+            response.is_valid = True
+            return response
+        
+        # If one node is a predicate and the other is not, return error message
+        if (is_predicate(tree_1.value[0]) and not is_predicate(tree_2.value[0]))\
+            or (is_predicate(tree_2.value[0]) and not is_predicate(tree_1.value[0])):
+                response = ProofResponse()
+                response.err_msg = "Lines {} and {} do not have similar structure"\
+                    .format(line_no_1, line_no_2)
+                return response            
+
+        # If the expressions refer to different predicates, return error message
+        if is_predicate(tree_1.value[0]) and is_predicate(tree_2.value[0]):
+            if tree_1.value[0] != tree_2.value[0]:
+                response = ProofResponse()
+                response.err_msg = "The expressions on lines {} and {} do not refer to the same predicate"\
+                    .format(line_no_1, line_no_2)
+                return response
+            else:
+                # If the predicates do not have the same number of inputs, return error message
+                inputs_1 = count_inputs(tree_1.value)
+                inputs_2 = count_inputs(tree_2.value)
+                response = ProofResponse()
+                if inputs_1 != inputs_2:
+                    response.err_msg = "The predicates on lines {} and {} do not have the same number of inputs"\
+                        .format(line_no_1, line_no_2)
+                    return response
+                else:
+                    response.is_valid = True
+                    return response
+            
+        # If the expressions refer to quantifiers but reference different variables, return error message:
+        if is_quantifier(tree_1.value[0]):
+
+            # Check they refer to same quantifier
+            if tree_1.value[0] != tree_2.value[0]:
+                response = ProofResponse()
+                response.err_msg = "The expressions on lines {} and {} do not refer to the same quantifier"\
+                    .format(line_no_1, line_no_2)
+                return response
+
+            # Check they refer to the same variable and domain
+            result = verify_same_var_and_domain(tree_1, tree_2, line_no_1, line_no_2)
+            if result.is_valid == False:
+                return result
+        
+    # If we reached this point without returning a response, return valid
+    response = ProofResponse()
+    response.is_valid = True
+    return response
+
+
+def verify_var_replaces_every_name(var_tree: Node, name_tree: Node, var: str, var_line_no: str, name_line_no: str):
+    """
+    Verify all instances of var in var_tree are replaced by a single name in name_tree AND
+    that all instances of name in name_tree are replaced by var in var_tree
+    """
+    # If either node is empty, return valid
+    if (var_tree == None or name_tree == None):
+        response = ProofResponse
+        response.is_valid = True
+        return response
+
+    # If both trees have a left node, check the left nodes (recursive)
+    if (var_tree.left != None) and (name_tree.left != None):
+        response = verify_var_replaces_every_name(var_tree.left, name_tree.left, var, var_line_no, name_line_no)
+        if response.is_valid == False:
+            return response
+
+    # If both trees have a right node, check the right nodes (recursive)
+    if (var_tree.right != None) and (name_tree.right != None):
+        response = verify_var_replaces_every_name(var_tree.right, name_tree.right, var, var_line_no, name_line_no)
+        if response.is_valid == False:
+            return response
+
+    index = 0
+    var_indexes = []
+
+    # Eliminate whitespace to make sure indexes match
+    expression_with_vars = var_tree.value.replace(' ', '')
+    expression_with_names = name_tree.value.replace(' ', '')
+
+    # Make sure the bound variable does not appear in the expression with names
+    for ch in expression_with_names:
+        if ch == var:
+            response = ProofResponse()
+            response.err_msg = 'Variable "{}" on line {} should not appear on line {}'\
+                .format(var, var_line_no, name_line_no)
+            return response
+
+    # Keep track of the locations (indexes) of the bound variable on current line
+    for ch in expression_with_vars:
+        if ch == var:
+            var_indexes.append(index)
+        index += 1
+
+    # If there are no variables, stop here
+    if len(var_indexes) == 0:
+        response = ProofResponse()
+        response.is_valid = True
+        return response
+
+    # Get the values at these locations in line m
+    # Make sure they all represent names
+    names = []
+    for i in var_indexes:
+        names.append(expression_with_names[i])
+    
+    for ch in names:
+        if not is_name(ch):
+            response = ProofResponse()
+            response.err_msg = 'Instances of variable "{}" on line {} should replace a name on line {}'\
+                .format(var, var_line_no, name_line_no)
+            return response
+    
+    # Make sure they all use the same name
+    if len(names) > 1:
+        for ch in names:
+            if not ch == names[0]:
+                response = ProofResponse()
+                response.err_msg = 'All instances of variable "{}" on line {} should replace the same name on line {}'\
+                    .format(var, var_line_no, name_line_no)
+                return response
+    
+    # If there are no names, stop here
+    if len(names) == 0:
+        response = ProofResponse()
+        response.is_valid = True
+        return response        
+
+    # Now, check that all instances of this name in line_m are replaced by the same (bound) var in current line
+    name = names[0]
+    index = 0
+    name_indexes = []
+
+    # Keep track of the locations (indexes) of the bound variable on current line
+    for ch in expression_with_names:
+        if ch == name:
+            name_indexes.append(index)
+        index += 1
+
+    # Get the values at these locations in the current line
+    # Make sure they all are replaced by the bound variable
+    vars = []
+    for i in name_indexes:
+        vars.append(expression_with_vars[i])
+
+    for ch in vars:
+        if not (ch == var):
+            response = ProofResponse()
+            response.err_msg = 'All instances of name "{}" on line {} should be replaced with the bound variable "{}" on line {}'\
+                .format(name, name_line_no, var, var_line_no)
+            return response
+
+    # If we reach this point, return valid
+    response = ProofResponse()
+    response.is_valid = True
+    return response
+
+
+def verify_var_replaces_some_name(var_tree: Node, name_tree: Node, var: str, var_line_no: str, name_line_no: str):
+    """
+    Verify that all instances of var in var_tree are replaced by a single name in name_tree
+    """
+    # If either node is empty, return valid
+    if (var_tree == None or name_tree == None):
+        response = ProofResponse
+        response.is_valid = True
+        return response
+
+    # If both trees have a left node, check the left nodes (recursive)
+    if (var_tree.left != None) and (name_tree.left != None):
+        response = verify_var_replaces_some_name(var_tree.left, name_tree.left, var, var_line_no, name_line_no)
+        if response.is_valid == False:
+            return response
+
+    # If both trees have a right node, check the right nodes (recursive)
+    if (var_tree.right != None) and (name_tree.right != None):
+        response = verify_var_replaces_some_name(var_tree.right, name_tree.right, var, var_line_no, name_line_no)
+        if response.is_valid == False:
+            return response
+
+    index = 0
+    var_indexes = []
+
+    # Eliminate whitespace to make sure indexes match
+    expression_with_vars = var_tree.value.replace(' ', '')
+    expression_with_names = name_tree.value.replace(' ', '')
+
+    # Make sure the bound variable does not appear in the expression with names
+    for ch in expression_with_names:
+        if ch == var:
+            response = ProofResponse()
+            response.err_msg = 'Variable "{}" on line {} should not appear on line {}'\
+                .format(var, var_line_no, name_line_no)
+            return response
+
+    # Keep track of the locations (indexes) of the bound variable on current line
+    for ch in expression_with_vars:
+        if ch == var:
+            var_indexes.append(index)
+        index += 1
+
+    # If there are no variables, stop here
+    if len(var_indexes) == 0:
+        response = ProofResponse()
+        response.is_valid = True
+        return response
+
+    # Get the values at these locations in line m
+    # Make sure they all represent names
+    names = []
+    for i in var_indexes:
+        names.append(expression_with_names[i])
+    
+    for ch in names:
+        if not is_name(ch):
+            response = ProofResponse()
+            response.err_msg = 'Instances of variable "{}" on line {} should replace a name on line {}'\
+                .format(var, var_line_no, name_line_no)
+            return response
+    
+    # Make sure they all use the same name
+    if len(names) > 1:
+        for ch in names:
+            if not ch == names[0]:
+                response = ProofResponse()
+                response.err_msg = 'All instances of variable "{}" on line {} should replace the same name on line {}'\
+                    .format(var, var_line_no, name_line_no)
+                return response
+
+    # If we reach this point, return valid
+    response = ProofResponse()
+    response.is_valid = True
+    return response

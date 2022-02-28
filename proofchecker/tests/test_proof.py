@@ -1,8 +1,7 @@
 from django.test import TestCase
-from django.urls import reverse
 
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
-from proofchecker.proofs.proofutils import get_line_no, get_line_nos, get_lines_in_subproof, \
+from proofchecker.proofs.proofutils import find_c, get_citable_lines, get_line_no, get_line_nos, get_lines_in_subproof, \
     get_premises, is_conclusion, is_valid_expression, is_var, make_tree, verify_expression, verify_line_citation, \
     depth, verify_line_citation, clean_rule, verify_same_structure_FOL, count_inputs, verify_var_replaces_every_name
 from proofchecker.proofs.proofchecker import verify_proof, verify_rule
@@ -130,6 +129,45 @@ class GettersTests(TestCase):
         self.assertEqual(result, ['A∧C', 'B∧C', 'D', 'E'])
 
 class HelpersTests(TestCase):
+
+    def test_get_citable_lines(self):
+        """
+        Verify that the get_citable_lines() function returns the correct lines
+        """
+        line1 = ProofLineObj('1', 'C', 'Premise')
+        line2_1 = ProofLineObj('2.1', 'A', 'Assumption')
+        line2_2 = ProofLineObj('2.2', 'A', 'R 2.1')
+        line3_1 = ProofLineObj('3.1', 'B', 'Assumption')
+        line3_2 = ProofLineObj('3.2', 'B', 'R 3.1')
+        line4 = ProofLineObj('4', 'C', 'R 1')
+        proof = ProofObj(lines=[line1, line2_1, line2_2, line3_1, line3_2, line4])
+        result = get_citable_lines(line3_2, proof)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result, [line1, line3_1])
+
+
+    def test_find_c(self):
+        """
+        Verify that the find_c() function returns the correct name
+        """
+        parser = folparser.parser
+
+        # Should return 'a'
+        line_1 = '∃x∈S F(b, x, x)'
+        line_2 = 'F(b, a, a)'
+        tree_1 = make_tree(line_1, parser)
+        tree_2 = make_tree(line_2, parser)
+        result = find_c(tree_1.right, tree_2, 'x')
+        self.assertEqual(result, 'a')
+
+        # Should return 'g'
+        line_1 = '∃y∈S F(x, x, y)'
+        line_2 = 'F(x, x, g)'
+        tree_1 = make_tree(line_1, parser)
+        tree_2 = make_tree(line_2, parser)
+        result = find_c(tree_1.right, tree_2, 'y')
+        self.assertEqual(result, 'g')
+
 
     def test_count_inputs(self):
         """

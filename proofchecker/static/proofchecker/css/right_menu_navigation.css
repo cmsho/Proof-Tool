@@ -6,32 +6,38 @@
   overflow-y : scroll;
 }
 
-.btn-group button{
-  background-color: white;
-  border: 3px solid #072a4d;
-  color: #072a4d;
-  padding: 10px 15px;
-  cursor: pointer;
-  float: left;  
-  font-weight: bold;
-  width:145px;
+#menu-option-buttons{
+  padding-top: 10px;
+  text-align: center;
 }
 
-.btn-group button:not(:last-child) {
-  border-right: none;
+#rules{
+  width:135px;
 }
 
-/* Clear floats (clearfix hack) */
-.btn-group:after {
-  content: "";
-  clear: both;
-  display: table;
+#help{
+  width:135px;
 }
 
-/* Add a background color on hover */
-.btn-group button:hover {
-  background-color: #afafaf;
+.rules-buttons{
+  text-align: center;
+  padding-bottom: 5px;
 }
+
+#TFL{
+  width:135px;
+}
+#FOL{
+  width:135px;
+}
+
+.right-nav-divider {
+  border: none;
+  height: 1px;
+  background-color: grey; 
+  margin-right:10px;
+}
+
 
 #menu{
   height:inherit;
