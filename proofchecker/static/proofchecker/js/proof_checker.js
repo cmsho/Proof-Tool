@@ -228,11 +228,12 @@ function generate_parent_row(currentRow) {
 
 
     if (originalCurrentRowInfo.final_value != 1) {
-        renumber_rows(1, currentRow)
+        updated_rows = renumber_rows(1, currentRow)
 
     }
 
     reset_order_fields()
+    update_rule_line_references(updated_rows)
 }
 
 
@@ -252,8 +253,11 @@ function insert_row_current_level(index) {
     newRow.children[0].children[0].value = prevRowLineNumberSegments.join('.')
     newRow.children[0].children[0].setAttribute("readonly", true)
 
-    renumber_rows(1, newRow)
+    updated_rows = renumber_rows(1, newRow)
     reset_order_fields()
+
+    update_rule_line_references(updated_rows)
+
 }
 
 
@@ -262,6 +266,8 @@ function insert_row_current_level(index) {
  */
 function delete_row(deleted_row_index) {
     let deleted_row = document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index);
+
+    let deleted_row_value = deleted_row.children[0].children[0].value;
 
     while (true) {
         if (checkIfRowIsUnique(deleted_row) === true) {
@@ -281,7 +287,7 @@ function delete_row(deleted_row_index) {
 
     //hide row
     document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index).hidden = true;
-    renumber_rows(-1, deleted_row)
+    updated_rows = renumber_rows(-1, deleted_row)
     deleted_row.children[0].children[0].value = '0'
 
     //if id fields is empty that means this deleted (hidden now) row is a new row.. not existing one.. so we can actually remove it.
@@ -291,6 +297,11 @@ function delete_row(deleted_row_index) {
         update_form_count()
     }
     reset_order_fields()
+
+
+    updated_rows[deleted_row_value] = "delete";
+    update_rule_line_references(updated_rows)
+
 }
 
 
@@ -622,6 +633,8 @@ function checkIfRowIsUnique(currRow) {
 
 function renumber_rows(direction, newlyChangedRow) {
 
+    updated_rows = {}
+
     //getting currentRow that just got changed
     let currRow = newlyChangedRow;
     //getting the following valid row (ignoring rows that are already marked for deletion)
@@ -649,9 +662,15 @@ function renumber_rows(direction, newlyChangedRow) {
 
             //if next row starts with current row's prefix then we will increase (for insert / direction 1) or decrease (for deletion / direction -1) next row's line number
             if (nextRowInfo.line_number_of_row.startsWith(currRowStringOfPrefix)) {
+
+                let temporary_original_row = nextRow.children[0].children[0].value;
+
                 nextRowInfo.list_of_line_number[indexOfChangedElement] = Number(nextRowInfo.list_of_line_number[indexOfChangedElement]) + direction
                 const new_row_number = nextRowInfo.list_of_line_number.join('.');
                 nextRow.children[0].children[0].value = new_row_number
+
+                updated_rows[temporary_original_row] = new_row_number;
+
             }
 
             //setting up next for for next loop
@@ -659,7 +678,40 @@ function renumber_rows(direction, newlyChangedRow) {
             nextRowInfo = (nextRow !== null) ? getObjectsRowInfo(nextRow) : null;
         }
     }
+
+    // updated_rows[] = ;
+    console.log(updated_rows);
+    return updated_rows;
+    // update_rule_line_references(updated_rows);
 }
+
+
+function update_rule_line_references(updated_rows) {
+    if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
+        let row = document.getElementById(`${FORMSET_PREFIX}-0`)
+
+        while (row !== null) {
+            if (!row.hidden) {
+                let rule_text = row.children[2].children[0].value.split(/[ ,]+/);;
+                for (let i = 0; i < rule_text.length; i++) {
+                    if (rule_text[i] in updated_rows) {
+                        if (updated_rows[rule_text[i]] == "delete") {
+                            rule_text = rule_text.filter(e => e !== rule_text[i])
+                        }
+                        else {
+                            let original_value = rule_text[i]
+                            rule_text[i] = updated_rows[original_value]
+                        }
+                    }
+                }
+                row.children[2].children[0].value = rule_text.join(" ")
+            }
+            row = row.nextElementSibling;
+        }
+    }
+
+}
+
 
 
 
