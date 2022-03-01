@@ -199,3 +199,8 @@ tt {
 [id$=line_no]{
   width:75px;
 }
+
+.dropdown-menu {
+  max-height: 300px;
+  overflow-y: auto;
+}
