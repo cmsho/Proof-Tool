@@ -1,5 +1,5 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import clean_rule, get_line, is_name, is_var, verify_line_citation, make_tree, \
+from proofchecker.proofs.proofutils import clean_rule, get_line, verify_line_citation, make_tree, \
     verify_same_structure_FOL, verify_var_replaces_some_name
 from .rule import Rule
 

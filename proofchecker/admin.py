@@ -29,15 +29,15 @@ class ProofAdmin(admin.ModelAdmin):
 
     def created_by_user(self, obj):
         return format_html('<a href="{}" target="_blank">{}</a>',
-                           "/admin/proofchecker/user/" + str(obj.created_by.pk) + "/change/", obj.created_by.email)
+                           "/admin/proofchecker/user/" + str(obj.created_by.pk) + "/change/", obj.created_by.username)
 
     created_by_user.short_description = "Created By"
 
     def proof_title(self, obj):
         return format_html('<a href="{}" target="_blank">{}</a>',
                            "/admin/proofchecker/proof/" + str(obj.id) + "/change/",
-                           obj.name + ": " + obj.premises + " ∴ " + obj.conclusion)
+                           obj.name)
 
     def view_proof_in_application(self, obj):
         return format_html('<a href="{}" target="_blank">{}</a>', "/proofs/" + str(obj.id),
-                           obj.name + ": " + obj.premises + " ∴ " + obj.conclusion)
+                           obj.name)
