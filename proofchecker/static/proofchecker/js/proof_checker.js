@@ -197,6 +197,7 @@ function generate_new_subproof_row_number(currentRow) {
     // Get the row that the button was clicked
     const original_row_number_of_clicked_button = currentRow.children[0].children[0].value
 
+
     // Update row number of clicked button
     currentRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
 
@@ -204,6 +205,13 @@ function generate_new_subproof_row_number(currentRow) {
     if (currentRow.children[2].children[0].value.length == 0) {
         currentRow.children[2].children[0].value = 'Assumption'
     }
+
+    updated_rows = {};
+    updated_rows[original_row_number_of_clicked_button] = currentRow.children[0].children[0].value;
+
+    update_rule_line_references(updated_rows);
+
+
 }
 
 
@@ -228,9 +236,10 @@ function generate_parent_row(currentRow) {
 
 
     if (originalCurrentRowInfo.final_value != 1) {
-        updated_rows = renumber_rows(1, currentRow)
-
+        updated_rows = renumber_rows(1, currentRow);
     }
+
+    updated_rows[original_row_number_of_clicked_button] = currentRow.children[0].children[0].value;
 
     reset_order_fields()
     update_rule_line_references(updated_rows)
@@ -299,7 +308,7 @@ function delete_row(deleted_row_index) {
     reset_order_fields()
 
 
-    updated_rows[deleted_row_value] = "delete";
+    updated_rows[deleted_row_value] = "";
     update_rule_line_references(updated_rows)
 
 }
@@ -687,6 +696,7 @@ function renumber_rows(direction, newlyChangedRow) {
 
 
 function update_rule_line_references(updated_rows) {
+
     if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
         let row = document.getElementById(`${FORMSET_PREFIX}-0`)
 
@@ -695,13 +705,8 @@ function update_rule_line_references(updated_rows) {
                 let rule_text = row.children[2].children[0].value.split(/[ ,]+/);;
                 for (let i = 0; i < rule_text.length; i++) {
                     if (rule_text[i] in updated_rows) {
-                        if (updated_rows[rule_text[i]] == "delete") {
-                            rule_text = rule_text.filter(e => e !== rule_text[i])
-                        }
-                        else {
-                            let original_value = rule_text[i]
-                            rule_text[i] = updated_rows[original_value]
-                        }
+                        let original_value = rule_text[i]
+                        rule_text[i] = updated_rows[original_value].length == 0 ? "" : `${updated_rows[original_value]},`
                     }
                 }
                 row.children[2].children[0].value = rule_text.join(" ")
