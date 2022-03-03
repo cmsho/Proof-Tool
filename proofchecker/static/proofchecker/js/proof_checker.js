@@ -27,6 +27,7 @@ function reload_page() {
     hide_make_parent_button()
     update_row_indentations()
     updateLineCount()
+
 }
 
 
@@ -179,6 +180,7 @@ function create_subproof(obj) {
  */
 function delete_form(obj) {
     delete_row(get_form_id(obj))
+    reset_order_fields()
     hide_make_parent_button()
     update_row_indentations()
     updateLineCount()
@@ -208,6 +210,8 @@ function generate_new_subproof_row_number(currentRow) {
 
     updated_rows = {};
     updated_rows[original_row_number_of_clicked_button] = currentRow.children[0].children[0].value;
+
+    reset_order_fields()
 
     update_rule_line_references(updated_rows);
 
@@ -688,10 +692,7 @@ function renumber_rows(direction, newlyChangedRow) {
         }
     }
 
-    // updated_rows[] = ;
-    console.log(updated_rows);
     return updated_rows;
-    // update_rule_line_references(updated_rows);
 }
 
 
@@ -702,21 +703,35 @@ function update_rule_line_references(updated_rows) {
 
         while (row !== null) {
             if (!row.hidden) {
-                let rule_text = row.children[2].children[0].value.split(/[ ,]+/);;
+                let rule_text = row.children[2].children[0].value.split(/[ ,]+/)
+                let new_rule_text = [rule_text[0]];
+
                 for (let i = 0; i < rule_text.length; i++) {
                     if (rule_text[i] in updated_rows) {
-                        let original_value = rule_text[i]
-                        rule_text[i] = updated_rows[original_value].length == 0 ? "" : `${updated_rows[original_value]},`
+                        // let original_value = rule_text[i]
+                        let new_value = updated_rows[rule_text[i]]
+                        if (new_value.length != 0) {
+                            new_rule_text.push(new_value)
+                        }
+                    }
+                    else {
+                        if (i > 0) {
+                            new_rule_text.push(rule_text[i]);
+                        }
                     }
                 }
-                row.children[2].children[0].value = rule_text.join(" ")
+                for (let i = 0; i < new_rule_text.length; i++) {
+                    if (i > 0 & i < new_rule_text.length - 1) {
+                        new_rule_text[i] = `${new_rule_text[i]},`
+                    }
+                }
+
+                row.children[2].children[0].value = new_rule_text.join(" ");
             }
             row = row.nextElementSibling;
         }
     }
-
 }
-
 
 
 
@@ -775,16 +790,24 @@ function updateFormsetId(old_id, new_id) {
 
 
 function hide_make_parent_button() {
+
+
     let all_conclude_btn = document.getElementById(FORMSET_TBODY_ID).querySelectorAll('.make_parent')
+
+    // If it necessary to have this if I just iterate over all of the visible rows and hide the ones that are problemative?
+    // This makes all of the left arrow buttons visible
     for (let i = 0; i < all_conclude_btn.length; i++) {
         // all_conclude_btn.item(i).hidden = false
         all_conclude_btn.item(i).disabled = false
     }
 
+
     let curr_form_obj = document.getElementById(`${FORMSET_PREFIX}-0`)
     let next_form_obj = getNextValidRow(curr_form_obj)
 
+
     while (curr_form_obj !== null || next_form_obj !== null) {
+
         const current_row_info = getObjectsRowInfo(curr_form_obj)
         if (current_row_info.list_of_line_number.length === 1) {
             // curr_form_obj.children[4].children[0].hidden = true
