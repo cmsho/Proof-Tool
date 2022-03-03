@@ -87,7 +87,8 @@ def p_formula(p):
 
 def p_atomic_formula_x(p):
     '''
-    atomic_formula : PREDICATE term_x
+    atomic_formula : PREDICATE term
+                   | PREDICATE term_x
     '''
     p[0] = (p[1] + p[2])
 
