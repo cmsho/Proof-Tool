@@ -430,12 +430,12 @@ function replaceCharacter(ev) {
     let txt = document.getElementById(ev.id).value;
     txt = txt.replace("\\and", "∧");
     txt = txt.replace("\\or", "∨");
-    txt = txt.replace("\\implies", "→");
+    txt = txt.replace("\\imp", "→");
     txt = txt.replace("\\not", "¬");
     txt = txt.replace("\\iff", "↔");
-    txt = txt.replace("\\falsum", "⊥");
-    txt = txt.replace("\\forall", "∀");
-    txt = txt.replace("\\exists", "∃");
+    txt = txt.replace("\\con", "⊥");
+    txt = txt.replace("\\all", "∀");
+    txt = txt.replace("\\exi", "∃");
     txt = txt.replace("\\in", "∈");
     document.getElementById(ev.id).value = txt;
 }
