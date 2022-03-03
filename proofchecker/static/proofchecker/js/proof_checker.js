@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', reload_page, false);
  */
 function reload_page() {
     //this function will run on page load
+    updateLineCount()
 
     //will sort proof table based on ORDER field
     sort_table()
@@ -51,20 +52,15 @@ window.onload = function () {
 
 // Displayed line count
 function updateLineCount() {
-    let currentLineCount = document.getElementById("line_counter")
+    let table = document.getElementById("proof-table");
     let counter = 0;
 
-    if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
-        let row = document.getElementById(`${FORMSET_PREFIX}-0`)
-
-        while (row !== null) {
-            if (!row.hidden) {
-                counter++
-            }
-            row = row.nextElementSibling;
+    for (let i = 1; i < table.rows.length - 1; i++) {
+        if (!table.rows[i].hidden) {
+            counter++
         }
     }
-    currentLineCount.innerText = counter;
+    document.getElementById("line_counter").innerText = counter;
 }
 
 /**
