@@ -339,7 +339,7 @@ function update_form_count() {
     const fomrsetManagerTotalFormCounter = document.getElementById(FORMSET_TOTALFORMS_ID)
     let currentFormCount = document.getElementsByClassName(FORMSET_TR_CLASS).length
     fomrsetManagerTotalFormCounter.setAttribute('value', currentFormCount)
-    console.log(fomrsetManagerTotalFormCounter);
+    // console.log(fomrsetManagerTotalFormCounter);
 }
 
 
@@ -791,26 +791,26 @@ function updateFormsetId(old_id, new_id) {
 
 function hide_make_parent_button() {
 
+    let table = document.getElementById("proof-table");
 
+    // Make all buttons visible
     let all_conclude_btn = document.getElementById(FORMSET_TBODY_ID).querySelectorAll('.make_parent')
-
-    // If it necessary to have this if I just iterate over all of the visible rows and hide the ones that are problemative?
-    // This makes all of the left arrow buttons visible
     for (let i = 0; i < all_conclude_btn.length; i++) {
-        // all_conclude_btn.item(i).hidden = false
         all_conclude_btn.item(i).disabled = false
     }
 
+    for (let i = 1; i < table.rows.length - 1; i++) {
+        // console.log(table.rows[i])
 
-    let curr_form_obj = document.getElementById(`${FORMSET_PREFIX}-0`)
-    let next_form_obj = getNextValidRow(curr_form_obj)
+        if (i == table.rows.length - 1) {
+            break;
+        }
 
-
-    while (curr_form_obj !== null || next_form_obj !== null) {
+        let curr_form_obj = table.rows[i];
+        let next_form_obj = getNextValidRow(curr_form_obj)
 
         const current_row_info = getObjectsRowInfo(curr_form_obj)
         if (current_row_info.list_of_line_number.length === 1) {
-            // curr_form_obj.children[4].children[0].hidden = true
             curr_form_obj.children[4].children[0].disabled = true
         }
 
@@ -818,15 +818,12 @@ function hide_make_parent_button() {
             const next_row_info = getObjectsRowInfo(next_form_obj)
             if (current_row_info.list_of_line_number.length > 1) {
                 if (current_row_info.string_of_prefix === next_row_info.string_of_prefix) {
-                    // curr_form_obj.children[4].children[0].hidden = true
                     curr_form_obj.children[4].children[0].disabled = true
 
                 }
             }
             curr_form_obj = next_form_obj
             next_form_obj = getNextValidRow(curr_form_obj)
-        } else {
-            break;
         }
     }
 }
