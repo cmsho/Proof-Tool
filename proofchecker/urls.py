@@ -1,9 +1,13 @@
+from django.conf.urls import url
+from django.views.generic import RedirectView
+from django.http import HttpResponse
 from django.contrib import admin
 from django.urls import path
 
 from . import views
 
 admin.site.site_header = "ProofChecker Admin"
+
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -16,5 +20,7 @@ urlpatterns = [
     path("proofs/<pk>/delete/", views.ProofDeleteView.as_view(), name="delete_proof"),
     path("proofs/assignmentpage/", views.AssignmentPage, name='assignment_page'),
     path("proofs/checker/", views.proof_checker, name='proof_checker'),
-    path("proofs/syntaxtest", views.SyntaxTestPage, name='syntax_test'),
+    path("tests/syntaxtest", views.SyntaxTestPage, name='syntax_test'),
+    path("feedback/", views.feedback_form, name="feedback"),
+
 ]

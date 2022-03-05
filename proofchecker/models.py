@@ -116,8 +116,8 @@ class ProofLine(models.Model):
     proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
     line_no = models.CharField(max_length=100, validators=[validate_line_no])
     # TODO: Add a validator for the formula field.
-    formula = models.CharField(max_length=255)
-    rule = models.CharField(max_length=255)
+    formula = models.CharField(max_length=255, blank=True, null=True)
+    rule = models.CharField(max_length=255, blank=True, null=True)
     ORDER = models.IntegerField(null=True)
 
     def __str__(self):
@@ -172,3 +172,12 @@ class StudentAssignment(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     submitted_on = models.DateTimeField(auto_now_add=True)
     grade = models.DecimalField(max_digits=5, decimal_places=2)
+
+class Feedback(models.Model):
+    name = models.CharField(max_length=120)
+    email = models.EmailField()
+    subject = models.CharField(max_length=120)
+    details = models.TextField(max_length=700)
+
+    def __str__(self):
+        return self.name

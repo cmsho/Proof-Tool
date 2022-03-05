@@ -9,11 +9,15 @@ from django.forms import inlineformset_factory
 
 from proofchecker.utils import tflparser
 from proofchecker.utils import folparser
-from .forms import ProofCheckerForm, ProofForm, ProofLineForm
-from .models import Proof, Problem, Assignment, Instructor, ProofLine
+from .forms import ProofCheckerForm, ProofForm, ProofLineForm, FeedbackForm
+from .models import Proof, Problem, Assignment, Instructor, ProofLine, Feedback
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import get_premises
 from proofchecker.proofs.proofchecker import verify_proof
+
+from django.contrib import messages
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
 
 
 def home(request):
@@ -27,7 +31,7 @@ def AssignmentPage(request):
 
 
 def SyntaxTestPage(request):
-    return render(request, "proofchecker/syntax_test.html")
+    return render(request, "proofchecker/testpages/syntax_test.html")
 
 
 def proof_checker(request):
@@ -94,6 +98,7 @@ def proof_checker(request):
         "formset": formset
     }
     return render(request, 'proofchecker/proof_checker.html', context)
+
 
 @login_required
 def proof_create_view(request):
@@ -225,3 +230,29 @@ class ProofDeleteView(DeleteView):
 class ProblemView(ListView):
     model = Problem
     template_name = "proofchecker/problems.html"
+
+
+def feedback_form(request):
+    if request.POST:
+        form = FeedbackForm(request.POST)
+
+        if form.is_valid():
+            name = form.cleaned_data.get('name')
+            email = form.cleaned_data.get('email')
+            details = form.cleaned_data.get('details')
+            subject = form.cleaned_data.get('subject')
+            domain = get_current_site(request).domain
+            mail_subject = 'Bug/Feedback - ' + subject
+
+            email_body = details+"\n\nReported By - "+name+"\nEmail - "+email
+
+            to_email = 'proofchecker.pwreset@gmail.com'
+            email = EmailMessage(
+                mail_subject, email_body, to=[to_email])
+            email.send()
+            messages.success(
+                request, f'Your Feedback/Bug has been recorded. Thank you')
+            return redirect('home')
+    else:
+        form = FeedbackForm()
+    return render(request, 'proofchecker/feedback_form.html', {'form': form})
