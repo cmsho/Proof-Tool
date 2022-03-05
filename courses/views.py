@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -34,7 +35,8 @@ def course_create_view(request):
             for student in selected_students:
                 course.students.add(student)
             course.save()
-            return HttpResponseRedirect(reverse('all_courses'))
+            messages.success(request, f'Course saved successfully')
+            return HttpResponseRedirect(reverse('edit_course', kwargs={'pk': course.id}))
 
     context = {
         "form": form,
@@ -48,7 +50,6 @@ def course_edit_view(request, pk=None):
     course = get_object_or_404(Course, pk=pk)
     form = CourseCreateForm(request.POST or None, instance=course)
     students = Student.objects.all()
-    selected_students = []
 
     if request.POST:
         if form.is_valid():
@@ -60,13 +61,14 @@ def course_edit_view(request, pk=None):
             for student in selected_students:
                 course.students.add(student)
             course.save()
-            return HttpResponseRedirect(reverse('all_courses'))
-    else:
-        for student in students:
-            if student.course_set.filter(pk=course.pk).exists():
-                selected_students.append({'student': student, 'selected': 'selected'})
-            else:
-                selected_students.append({'student': student, 'selected': ''})
+            messages.success(request, f'Course saved successfully')
+
+    selected_students = []
+    for student in students:
+        if student.course_set.filter(pk=course.pk).exists():
+            selected_students.append({'student': student, 'selected': 'selected'})
+        else:
+            selected_students.append({'student': student, 'selected': None})
 
     context = {
         "form": form,

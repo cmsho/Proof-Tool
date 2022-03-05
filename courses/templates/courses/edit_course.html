@@ -3,45 +3,76 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <div class="container w100">
-    <br>
-    <h3>Edit Course</h3>
-    <hr>
-    <form action="" method="post">
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-sm-4 col-form-label"><label for="formGroupExampleInput">Title*</label></div>
-            <div class="col-sm-8">{{ form.title }}</div>
+    <div class="row">
+        <div class="container">
+            <br>
+            <h3>Course Details</h3>
+            <hr>
         </div>
-        <div class="row">
-            <div class="col-sm-4 col-form-label"><label for="formGroupExampleInput2">Term*</label></div>
-            <div class="col-sm-8">{{ form.term }}</div>
-        </div>
-        <div class="row">
-            <div class="col-sm-4 col-form-label"><label for="formGroupExampleInput2">Section*</label></div>
-            <div class="col-sm-8">{{ form.section }}</div>
-        </div>
-        <div class="row">
-            <div class="col-sm-4 col-form-label"><label for="id_students">Select Students</label></div>
-            <div class="col-sm-8">
-                <select class="selectpicker" multiple data-live-search="true" title="Select " id="id_students"
-                        name="studentsSelector[]">
-                    {% for student in students %}
-                        <option {{ student.selected }}
-                                value="{{ student.student.user.id }}">{{ student.student.user.username }}</option>
-                    {% endfor %}
-                </select>
+    </div>
+    <div class="row">
+        <div class="col-8">
+            <div class="container">
+                <div clsss="row">
+                    <div class="col">
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-sm-4 col-form-label"><label for="formGroupExampleInput">Title*</label>
+                                </div>
+                                <div class="col-sm-8">{{ form.title }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4 col-form-label"><label for="formGroupExampleInput2">Term*</label>
+                                </div>
+                                <div class="col-sm-8">{{ form.term }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4 col-form-label"><label
+                                        for="formGroupExampleInput2">Section*</label></div>
+                                <div class="col-sm-8">{{ form.section }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4 col-form-label"><label for="id_students">Select Students</label>
+                                </div>
+                                <div class="col-sm-8">
+                                    <select class="selectpicker" multiple data-live-search="true" title="Select "
+                                            id="id_students"
+                                            name="studentsSelector[]">
+                                        {% for student in students %}
+                                            <option {{ student.selected }}
+                                                    value="{{ student.student.user.id }}">{{ student.student.user.username }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                {% for student in selected_students %}
+                                    {{ student.user.username }}
+                                {% endfor %}
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <a class="btn btn-primary" href={% url 'all_courses' %}>Back</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="row">
-            {% for student in selected_students %}
-                {{ student.user.username }}
-            {% endfor %}
+        <div class="col-4 ml-auto border-left">
+            <div class="container">
+                <div class="row">
+                    <b>Enrolled Students:</b>
+                </div>
+                 {% for student in students %}
+                     {% if student.selected %}
+                         <div class="row">{{ student.student.user.username }}</div>
+                     {% endif %}
+                {% endfor %}
+            </div>
         </div>
-        <div class="form-group">
-            <button type="submit" class="btn btn-success">Save</button>
-        </div>
-    </form>
+    </div>
 {% endblock %}
 
 
