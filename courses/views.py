@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
 from accounts.decorators import instructor_required
@@ -19,8 +19,6 @@ class CourseView(ListView):
     def get_queryset(self):
         return Course.objects.filter(instructor__user=self.request.user)
 
-
-
 @instructor_required
 def course_create_view(request):
     form = CourseCreateForm(request.POST or None)
@@ -28,10 +26,6 @@ def course_create_view(request):
 
     if request.POST:
         if form.is_valid():
-            # pass
-            # title = form.cleaned_data.get('title')
-            # term = form.cleaned_data.get('term')
-            # section = form.cleaned_data.get('section')
             selected_students = request.POST.getlist('studentsSelector[]')
             course = form.save(commit=False)
             course.instructor = Instructor.objects.get(user_id=request.user)
@@ -40,6 +34,7 @@ def course_create_view(request):
             for student in selected_students:
                 course.students.add(student)
             course.save()
+            return HttpResponseRedirect(reverse('all_courses'))
 
     context = {
         "form": form,
@@ -47,6 +42,37 @@ def course_create_view(request):
     }
     return render(request, "courses/add_course.html", context)
 
+
+@instructor_required
+def course_edit_view(request, pk=None):
+    course = get_object_or_404(Course, pk=pk)
+    form = CourseCreateForm(request.POST or None, instance=course)
+    students = Student.objects.all()
+    selected_students = []
+
+    if request.POST:
+        if form.is_valid():
+            selected_students = request.POST.getlist('studentsSelector[]')
+            course = form.save(commit=False)
+            course.instructor = Instructor.objects.get(user_id=request.user)
+            course.save()
+            course.students.clear()
+            for student in selected_students:
+                course.students.add(student)
+            course.save()
+            return HttpResponseRedirect(reverse('all_courses'))
+    else:
+        for student in students:
+            if student.course_set.filter(pk=course.pk).exists():
+                selected_students.append({'student': student, 'selected': 'selected'})
+            else:
+                selected_students.append({'student': student, 'selected': ''})
+
+    context = {
+        "form": form,
+        "students": selected_students,
+    }
+    return render(request, "courses/edit_course.html", context)
 
 
 class CourseCreateView(CreateView):
