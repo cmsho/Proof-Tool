@@ -1,6 +1,6 @@
 from accounts.decorators import instructor_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -13,6 +13,17 @@ from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
 from proofchecker.proofs.proofutils import get_premises
 from proofchecker.utils import tflparser
 from proofchecker.utils import folparser
+
+from .forms import ProofCheckerForm, ProofForm, ProofLineForm, FeedbackForm
+from .models import Proof, Problem, Assignment, Instructor, ProofLine, Feedback
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
+from proofchecker.proofs.proofutils import get_premises
+from proofchecker.proofs.proofchecker import verify_proof
+
+from django.contrib import messages
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
+
 
 def home(request):
     proofs = Proof.objects.all()
@@ -222,7 +233,30 @@ class ProblemView(ListView):
     model = Problem
     template_name = "proofchecker/problems.html"
 
+def feedback_form(request):
+    if request.POST:
+        form = FeedbackForm(request.POST)
 
+        if form.is_valid():
+            name = form.cleaned_data.get('name')
+            email = form.cleaned_data.get('email')
+            details = form.cleaned_data.get('details')
+            subject = form.cleaned_data.get('subject')
+            domain = get_current_site(request).domain
+            mail_subject = 'Bug/Feedback - ' + subject
+
+            email_body = details+"\n\nReported By - "+name+"\nEmail - "+email
+
+            to_email = 'proofchecker.pwreset@gmail.com'
+            email = EmailMessage(
+                mail_subject, email_body, to=[to_email])
+            email.send()
+            messages.success(
+                request, f'Your Feedback/Bug has been recorded. Thank you')
+            return redirect('home')
+    else:
+        form = FeedbackForm()
+    return render(request, 'proofchecker/feedback_form.html', {'form': form})
 @instructor_required
 def student_proofs_view(request, pk=None):
     courses = Course.objects.filter(instructor__user=request.user)
