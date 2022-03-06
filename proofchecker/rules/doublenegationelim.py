@@ -20,7 +20,7 @@ class DoubleNegationElim(Rule):
             target_line = get_line_DNE(rule, proof)
 
             # Verify if line citation is valid
-            result = verify_line_citation(current_line, target_line)
+            result = verify_line_citation(current_line.line_no, target_line.line_no)
             if result.is_valid == False:
                 return result
 
@@ -32,29 +32,30 @@ class DoubleNegationElim(Rule):
                 root_m = make_tree(expression, parser)
                 root_current = make_tree(current_line.expression, parser)
 
-
                 if root_m.value == '¬':
                     if root_m.right.value == '¬':
                         if root_m.right.right == root_current:
                             response.is_valid = True
                             return response
                         else:
-                            response.err_msg = "Lines {} and {} are not equivalent"\
-                                .format(str(target_line.line_no), str(current_line.line_no))
+                            response.err_msg = "Error on line {}: Lines {} and {} are not equivalent"\
+                                .format(str(current_line.line_no), str(target_line.line_no), str(current_line.line_no))
                             return response
                     else:
-                        response.err_msg = "Line {} is not an instance of double-not operators"\
-                            .format(str(target_line.line_no))
+                        response.err_msg = "Error on line {}: Line {} is not an instance of double-not operators"\
+                            .format(str(current_line.line_no), str(target_line.line_no))
                         return response
                 else:
-                    response.err_msg = "The main logical operator on line {} is not '¬'"\
-                        .format(str(target_line.line_no))
+                    response.err_msg = "Error on line {}: The main logical operator on line {} is not '¬'"\
+                        .format(str(current_line.line_no), str(target_line.line_no))
                     return response
 
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Double Not Elimination: DNE m"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Double Not Elimination: DNE m"\
+                    .format(str(current_line.line_no))
                 return response
 
         except:
-            response.err_msg = "Rule not formatted properly.  Double Not Elimination: DNE m"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Double Not Elimination: DNE m"\
+                .format(str(current_line.line_no))
             return response

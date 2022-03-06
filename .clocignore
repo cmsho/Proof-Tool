@@ -1,0 +1,5 @@
+proofchecker/utils/ply
+htmlcov
+proofchecker/static/proofchecker/js/testscripts
+proofchecker/static/proofchecker/js/qunit-2.17.2.js
+proofchecker/static/proofchecker/js/blanket.min.js

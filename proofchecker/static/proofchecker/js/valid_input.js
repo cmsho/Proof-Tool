@@ -4,6 +4,24 @@ const conclusionBox = document.getElementById('id_conclusion');
 premisesBox.addEventListener("focusout", isValidPremiseInput);
 conclusionBox.addEventListener("focusout", isValidConclusionInput);
 
+function applyTest(elementID)
+{
+    let proofBox = document.getElementById(elementID);
+    proofBox.addEventListener("onmouseover", makeGreen(elementID));
+    proofBox.addEventListener("onmouseout", makeWhite(elementID));
+}
+
+function makeGreen(elementID)
+{
+    let proofBox = document.getElementById(elementID);
+    proofBox.style.backgroundColor = "green";
+}
+
+function makeWhite(elementID)
+{
+    let proofBox = document.getElementById(elementID);
+    proofBox.style.backgroundColor = "white";
+}
 
 function isValidPremiseInput()
 {
@@ -44,6 +62,7 @@ function invalidPremiseInputMessage(string){
     let errorDiv = document.getElementById('valid-premise-div');
 
     errorDiv.innerHTML = premiseHeader.bold() + errorString;
+    setPremiseTooltipError(errorString);
 }
 
 
@@ -62,6 +81,7 @@ function clearPremiseErrorDiv()
 {
     let errorDiv = document.getElementById('valid-premise-div');
     errorDiv.innerHTML = "";
+
 }
 
 function clearConclusionErrorDiv()

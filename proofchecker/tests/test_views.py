@@ -149,7 +149,7 @@ class ProofViewTest(TestCase):
         login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
         response = self.client.get(reverse('all_proofs'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['proof_list']), 13)
+        self.assertEqual(len(response.context['proof_list']), 6) # Paginated
 
 
 class ProofUpdateViewTest(TestCase):

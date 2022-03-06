@@ -20,7 +20,7 @@ class Explosion(Rule):
             target_line = get_line(rule, proof)
 
             # Verify if line citation is valid
-            result = verify_line_citation(current_line, target_line)
+            result = verify_line_citation(current_line.line_no, target_line.line_no)
             if result.is_valid == False:
                 return result
 
@@ -33,14 +33,16 @@ class Explosion(Rule):
                     response.is_valid = True
                     return response
                 else:
-                    response.err_msg = "Line {} should be '⊥' (Contradiction)"\
-                        .format(str(target_line.line_no))
+                    response.err_msg = "Error on line {}: Line {} should be '⊥' (Contradiction)"\
+                        .format(str(current_line.line_no), str(target_line.line_no))
                     return response
 
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Explosion: X m"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Explosion: X m"\
+                    .format(str(current_line.line_no))
                 return response      
 
         except:
-            response.err_msg = "Rule not formatted properly.  Explosion: X m"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Explosion: X m"\
+                .format(str(current_line.line_no))
             return response 

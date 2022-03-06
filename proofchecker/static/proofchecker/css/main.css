@@ -185,8 +185,22 @@ tt {
   margin-bottom: 5px;
 }
 
+#id_question{
+  width:100%;
+  margin-bottom: 5px;
+}
+
+#id_grade{
+  width:100%;
+  margin-bottom: 5px;
+}
 
 
 [id$=line_no]{
   width:75px;
+}
+
+.dropdown-menu {
+  max-height: 300px;
+  overflow-y: auto;
 }

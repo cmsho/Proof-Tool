@@ -1,5 +1,5 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import clean_rule, get_line_no, get_lines_in_subproof, verify_subproof_citation, make_tree, get_expressions
+from proofchecker.proofs.proofutils import clean_rule, get_line_no, get_lines_in_subproof, verify_line_citation, make_tree, get_expressions
 from .rule import Rule
 
 class ConditionalIntro(Rule):
@@ -21,11 +21,10 @@ class ConditionalIntro(Rule):
             target_line_no = get_line_no(rule)
             target_lines = get_lines_in_subproof(target_line_no, proof)
 
-            # Verify that subproof citation are valid
-            for line in target_lines:
-                result = verify_subproof_citation(current_line, line)
-                if result.is_valid == False:
-                    return result
+            # Verify the line citation is valid
+            result = verify_line_citation(current_line.line_no, target_line_no)
+            if result.is_valid == False:
+                return result
             
             # Search for lines in the proof
             try:
@@ -39,14 +38,16 @@ class ConditionalIntro(Rule):
                     response.is_valid = True
                     return response
                 else:
-                    response.err_msg = "The expressions on lines {} and {} do not match the implication on line {}"\
-                        .format(str(target_lines[0].line_no),str(target_lines[1].line_no),str(current_line.line_no))
+                    response.err_msg = "Error on line {}: The expressions on lines {} and {} do not match the implication on line {}"\
+                        .format(str(current_line.line_no), str(target_lines[0].line_no),str(target_lines[1].line_no),str(current_line.line_no))
                     return response
 
             except:
-                response.err_msg = "Line numbers are not specified correctly.  Conditional Introduction: →I m"
+                response.err_msg = "Error on line {}: Line numbers are not specified correctly.  Conditional Introduction: →I m"\
+                    .format(str(current_line.line_no))
                 return response
 
         except:
-            response.err_msg = "Rule not formatted properly.  Conditional Introduction: →I m"
+            response.err_msg = "Error on line {}: Rule not formatted properly.  Conditional Introduction: →I m"\
+                .format(str(current_line.line_no))
             return response
