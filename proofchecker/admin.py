@@ -16,6 +16,7 @@ admin.site.register(StudentAssignment)
 class ProofLineInline(admin.TabularInline):
     model = ProofLine
     extra = 0
+    ordering = ("ORDER",)
 
 
 @admin.register(Proof)
