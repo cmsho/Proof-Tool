@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', reload_page, false);
  */
 function reload_page() {
     //this function will run on page load
+    updateLineCount()
 
     //will sort proof table based on ORDER field
     sort_table()
@@ -27,6 +28,7 @@ function reload_page() {
     hide_make_parent_button()
     update_row_indentations()
     updateLineCount()
+
 }
 
 
@@ -50,20 +52,15 @@ window.onload = function () {
 
 // Displayed line count
 function updateLineCount() {
-    let currentLineCount = document.getElementById("line_counter")
+    let table = document.getElementById("proof-table");
     let counter = 0;
 
-    if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
-        let row = document.getElementById(`${FORMSET_PREFIX}-0`)
-
-        while (row !== null) {
-            if (!row.hidden) {
-                counter++
-            }
-            row = row.nextElementSibling;
+    for (let i = 1; i < table.rows.length - 1; i++) {
+        if (!table.rows[i].hidden) {
+            counter++
         }
     }
-    currentLineCount.innerText = counter;
+    document.getElementById("line_counter").innerText = counter;
 }
 
 /**
@@ -179,6 +176,7 @@ function create_subproof(obj) {
  */
 function delete_form(obj) {
     delete_row(get_form_id(obj))
+    reset_order_fields()
     hide_make_parent_button()
     update_row_indentations()
     updateLineCount()
@@ -197,6 +195,7 @@ function generate_new_subproof_row_number(currentRow) {
     // Get the row that the button was clicked
     const original_row_number_of_clicked_button = currentRow.children[0].children[0].value
 
+
     // Update row number of clicked button
     currentRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
 
@@ -204,6 +203,15 @@ function generate_new_subproof_row_number(currentRow) {
     if (currentRow.children[2].children[0].value.length == 0) {
         currentRow.children[2].children[0].value = 'Assumption'
     }
+
+    updated_rows = {};
+    updated_rows[original_row_number_of_clicked_button] = currentRow.children[0].children[0].value;
+
+    reset_order_fields()
+
+    update_rule_line_references(updated_rows);
+
+
 }
 
 
@@ -228,11 +236,13 @@ function generate_parent_row(currentRow) {
 
 
     if (originalCurrentRowInfo.final_value != 1) {
-        renumber_rows(1, currentRow)
-
+        updated_rows = renumber_rows(1, currentRow);
     }
 
+    updated_rows[original_row_number_of_clicked_button] = currentRow.children[0].children[0].value;
+
     reset_order_fields()
+    update_rule_line_references(updated_rows)
 }
 
 
@@ -252,8 +262,11 @@ function insert_row_current_level(index) {
     newRow.children[0].children[0].value = prevRowLineNumberSegments.join('.')
     newRow.children[0].children[0].setAttribute("readonly", true)
 
-    renumber_rows(1, newRow)
+    updated_rows = renumber_rows(1, newRow)
     reset_order_fields()
+
+    update_rule_line_references(updated_rows)
+
 }
 
 
@@ -262,6 +275,8 @@ function insert_row_current_level(index) {
  */
 function delete_row(deleted_row_index) {
     let deleted_row = document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index);
+
+    let deleted_row_value = deleted_row.children[0].children[0].value;
 
     while (true) {
         if (checkIfRowIsUnique(deleted_row) === true) {
@@ -281,7 +296,7 @@ function delete_row(deleted_row_index) {
 
     //hide row
     document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index).hidden = true;
-    renumber_rows(-1, deleted_row)
+    updated_rows = renumber_rows(-1, deleted_row)
     deleted_row.children[0].children[0].value = '0'
 
     //if id fields is empty that means this deleted (hidden now) row is a new row.. not existing one.. so we can actually remove it.
@@ -291,6 +306,11 @@ function delete_row(deleted_row_index) {
         update_form_count()
     }
     reset_order_fields()
+
+
+    updated_rows[deleted_row_value] = "";
+    update_rule_line_references(updated_rows)
+
 }
 
 
@@ -315,7 +335,7 @@ function update_form_count() {
     const fomrsetManagerTotalFormCounter = document.getElementById(FORMSET_TOTALFORMS_ID)
     let currentFormCount = document.getElementsByClassName(FORMSET_TR_CLASS).length
     fomrsetManagerTotalFormCounter.setAttribute('value', currentFormCount)
-    console.log(fomrsetManagerTotalFormCounter);
+    // console.log(fomrsetManagerTotalFormCounter);
 }
 
 
@@ -622,6 +642,8 @@ function checkIfRowIsUnique(currRow) {
 
 function renumber_rows(direction, newlyChangedRow) {
 
+    updated_rows = {}
+
     //getting currentRow that just got changed
     let currRow = newlyChangedRow;
     //getting the following valid row (ignoring rows that are already marked for deletion)
@@ -649,14 +671,60 @@ function renumber_rows(direction, newlyChangedRow) {
 
             //if next row starts with current row's prefix then we will increase (for insert / direction 1) or decrease (for deletion / direction -1) next row's line number
             if (nextRowInfo.line_number_of_row.startsWith(currRowStringOfPrefix)) {
+
+                let temporary_original_row = nextRow.children[0].children[0].value;
+
                 nextRowInfo.list_of_line_number[indexOfChangedElement] = Number(nextRowInfo.list_of_line_number[indexOfChangedElement]) + direction
                 const new_row_number = nextRowInfo.list_of_line_number.join('.');
                 nextRow.children[0].children[0].value = new_row_number
+
+                updated_rows[temporary_original_row] = new_row_number;
+
             }
 
             //setting up next for for next loop
             nextRow = getNextValidRow(nextRow)
             nextRowInfo = (nextRow !== null) ? getObjectsRowInfo(nextRow) : null;
+        }
+    }
+
+    return updated_rows;
+}
+
+
+function update_rule_line_references(updated_rows) {
+
+    if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
+        let row = document.getElementById(`${FORMSET_PREFIX}-0`)
+
+        while (row !== null) {
+            if (!row.hidden) {
+                let rule_text = row.children[2].children[0].value.split(/[ ,]+/)
+                let new_rule_text = [rule_text[0]];
+
+                for (let i = 0; i < rule_text.length; i++) {
+                    if (rule_text[i] in updated_rows) {
+                        // let original_value = rule_text[i]
+                        let new_value = updated_rows[rule_text[i]]
+                        if (new_value.length != 0) {
+                            new_rule_text.push(new_value)
+                        }
+                    }
+                    else {
+                        if (i > 0) {
+                            new_rule_text.push(rule_text[i]);
+                        }
+                    }
+                }
+                for (let i = 0; i < new_rule_text.length; i++) {
+                    if (i > 0 & i < new_rule_text.length - 1) {
+                        new_rule_text[i] = `${new_rule_text[i]},`
+                    }
+                }
+
+                row.children[2].children[0].value = new_rule_text.join(" ");
+            }
+            row = row.nextElementSibling;
         }
     }
 }
@@ -718,19 +786,27 @@ function updateFormsetId(old_id, new_id) {
 
 
 function hide_make_parent_button() {
+
+    let table = document.getElementById("proof-table");
+
+    // Make all buttons visible
     let all_conclude_btn = document.getElementById(FORMSET_TBODY_ID).querySelectorAll('.make_parent')
     for (let i = 0; i < all_conclude_btn.length; i++) {
-        // all_conclude_btn.item(i).hidden = false
         all_conclude_btn.item(i).disabled = false
     }
 
-    let curr_form_obj = document.getElementById(`${FORMSET_PREFIX}-0`)
-    let next_form_obj = getNextValidRow(curr_form_obj)
+    for (let i = 1; i < table.rows.length - 1; i++) {
+        // console.log(table.rows[i])
 
-    while (curr_form_obj !== null || next_form_obj !== null) {
+        if (i == table.rows.length - 1) {
+            break;
+        }
+
+        let curr_form_obj = table.rows[i];
+        let next_form_obj = getNextValidRow(curr_form_obj)
+
         const current_row_info = getObjectsRowInfo(curr_form_obj)
         if (current_row_info.list_of_line_number.length === 1) {
-            // curr_form_obj.children[4].children[0].hidden = true
             curr_form_obj.children[4].children[0].disabled = true
         }
 
@@ -738,15 +814,12 @@ function hide_make_parent_button() {
             const next_row_info = getObjectsRowInfo(next_form_obj)
             if (current_row_info.list_of_line_number.length > 1) {
                 if (current_row_info.string_of_prefix === next_row_info.string_of_prefix) {
-                    // curr_form_obj.children[4].children[0].hidden = true
                     curr_form_obj.children[4].children[0].disabled = true
 
                 }
             }
             curr_form_obj = next_form_obj
             next_form_obj = getNextValidRow(curr_form_obj)
-        } else {
-            break;
         }
     }
 }
