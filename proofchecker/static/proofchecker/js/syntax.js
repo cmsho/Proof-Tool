@@ -446,8 +446,6 @@ function isLogicRule(string){
             return true;
         }
     }
-
-    let line = string;
     for (var i = 0; i < FOL_BASIC_RULES.length; i++) {
         if (FOL_BASIC_RULES[i] == line) {
             return true;
