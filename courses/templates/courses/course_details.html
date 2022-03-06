@@ -78,15 +78,15 @@
 
         <div class="col-4 ml-auto">
             <div class="container">
-                {% if assignments %}
-                    <div class="row">
-                        <b>Course Assignments:</b>
-                    </div>
-                    {% for assignment in assignments %}
-                        <div class="row">{{ assignment.due_by }} {{ assignment.title }}</div>
-                    {% endfor %}
-                    <hr>
-                {% endif %}
+{#                {% if assignments %}#}
+{#                    <div class="row">#}
+{#                        <b>Course Assignments:</b>#}
+{#                    </div>#}
+{#                    {% for assignment in assignments %}#}
+{#                        <div class="row">{{ assignment.due_by }} {{ assignment.title }}</div>#}
+{#                    {% endfor %}#}
+{#                    <hr>#}
+{#                {% endif %}#}
                 {% if request.user.is_instructor %}
                     {% if selected_students_count > 0 %}
                         <div class="row">
