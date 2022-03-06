@@ -94,7 +94,11 @@
                         </div>
                         {% for student in students %}
                             {% if student.selected %}
-                                <div class="row">{{ student.student.user.username }}</div>
+                                <div class="row">
+                                {{ student.student.user.username }}
+                                <div class="mr-2"></div>
+                                <a href={% url 'course_student_proofs' course_id=course.id student_id=student.student.user.pk %} target="_blank">[view proofs]</a>
+                                </div>
                             {% endif %}
                         {% endfor %}
                     {% endif %}

@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.views.generic import DeleteView
 
 from accounts.decorators import instructor_required, student_required
-from proofchecker.models import Course, Instructor
+from proofchecker.models import Course, Instructor, Proof
 from proofchecker.models import Student
 from .forms import CourseCreateForm
 
@@ -66,11 +66,12 @@ def course_detail_view(request, course_id=None):
     selected_students_count = 0
     selected_students = []
     for student in students:
+        proofs = Proof.objects.filter(created_by__student=student)
         if student.course_set.filter(id=course_id).exists():
-            selected_students.append({'student': student, 'selected': 'selected'})
+            selected_students.append({'student': student, 'selected': 'selected', 'proofs': proofs})
             selected_students_count += 1
         else:
-            selected_students.append({'student': student, 'selected': None})
+            selected_students.append({'student': student, 'selected': None, 'proofs': proofs})
 
     back_view = "student_courses"
     if request.user.is_instructor:
@@ -78,6 +79,7 @@ def course_detail_view(request, course_id=None):
 
     context = {
         "form": form,
+        "course" : course,
         "assignments": assignments,
         "students": selected_students,
         "selected_students_count": selected_students_count,
