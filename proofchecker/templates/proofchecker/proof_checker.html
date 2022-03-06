@@ -3,7 +3,7 @@
 <h2>
     <strong>ProofChecker v0.1: </strong>Validate your proof!</h2>
 <div class="alert alert-warning">
-    <strong>WARNING:</strong> You cannot save proofs without signing in!</div>
+    <strong>WARNING:</strong> You cannot save proofs without signing in!!!</div>
 <hr>
 
 <form action="" method="post">
@@ -22,10 +22,10 @@
         </div>
         {% endfor%}
         <button id="btn_start_proof" class="btn btn-primary mx-2" type="button" onclick="start_proof(this)">Start Proof</button>
-        <button id="btn_restart_proof" class="btn btn-primary mx-2 hidden" type="button" onclick="restart_proof(this)">Restart Proof</button>
-
+        <button id="btn_restart_proof" class="btn btn-primary mx-2 hidden" type="button" onclick="restart_proof(this)">Restart Proof</button>       
     </table>
-
+    <div id="valid-premise-div"></div>
+    <div id="valid-conclusion-div"></div>
     <div class="accordion" id="accordionExample">
         <div class="card">
             <div class="card-header" id="headingOne">
@@ -81,8 +81,6 @@
                 <td>Rule</td>
             </tr>
         </thead>
-        <div id="valid-premise-div" />
-        <div id="valid-conclusion-div" />
         <br>
         <tbody id="proofline-list">
             {% for line in formset %} {% if line.DELETE.value %}
@@ -246,4 +244,6 @@
 <button id="download" name="download" type="submit" class="btn btn-primary mb-3">Download</button>
 
 <script src="{% static 'js/proof_checker.js' %}"></script>
+<script src="{% static 'js/syntax.js' %}"></script>
+<script src="{% static 'js/valid_input.js' %}"></script>
 {% endblock %}
