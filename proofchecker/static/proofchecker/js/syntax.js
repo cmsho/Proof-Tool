@@ -6,8 +6,8 @@ A Javascript equivalent to the current Syntax Python file that valid_input.js ut
 const ATOMIC = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-const TFL_BASIC_RULES = ['∧I','∧E','∨I','∨E','¬I','¬E','→I','→E','X','IP',];
-const TFL_DERIVED_RULES = ['⊥I','⊥E','TND','↔I','↔E','DS','R','MT','DNE','DeM','Pr','Hyp','LEM']
+const TFL_BASIC_RULES = ['∧I','∧E','∨I','∨E','¬I','¬E','→I','→E','X','IP'];
+const TFL_DERIVED_RULES = ['⊥I','⊥E','TND','↔I','↔E','DS','R','MT','DNE','DeM','Pr','Hyp','LEM'];
 
 
 //FOL Syntax fields
@@ -15,6 +15,8 @@ const NAMES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
 const VARS = ['s', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 const PREDICATES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R','S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 const QUANTIFIERS = ['∀','∃'];
+const FOL_BASIC_RULES = ['∃I','∃E','∀I','∀E','=I','=E'];
+const FOL_DERIVED_RULES = ['CQ'];
 
 //General syntax
 const CONNECTIVES = ['∧', '∨', '¬', '→', '→', '↔','^', '&', 'v', '>', '->', '<->','-','~'];
@@ -23,6 +25,7 @@ const OPEN_PARENS=['(', '[', '{'];
 const CLOSED_PARENS=[')', ']', '}'];
 const DELIMITERS = [',', ' '];
 const CONTRADICTION = ['⊥'];
+const DOMAIN = ['∈'];
 
 function isValidTFL(string) {
 
@@ -43,7 +46,7 @@ function isValidTFL(string) {
     line.replace(/\s+/g, '');
 
     //Check if the string is a derived rule
-    if(isDerivedRule(line))
+    if(isLogicRule(line))
     {
         return "This is a valid TFL statement";
     }
@@ -166,7 +169,7 @@ function isValidFOL(string){
     line.replace(/\s+/g, '');
 
     //Check if the string is a derived rule
-    if(isDerivedRule(line))
+    if(isLogicRule(line))
     {
         return "This is a valid FOL statement";
     }
@@ -321,7 +324,7 @@ function hasValidTFLSymbols(string){
     //Verifies that all characters in a string are valid TFL symbols
     for(var i = 0; i < line.length; i++)
     {
-        if(!(ATOMIC.includes(line.charAt(i)) || CONNECTIVES.includes(line.charAt(i)) || PARENS.includes(line.charAt(i)) || DELIMITERS.includes(line.charAt(i) || CONTRADICTION.includes(line.charAt(i)))))
+        if(!(ATOMIC.includes(line.charAt(i)) || CONNECTIVES.includes(line.charAt(i)) || PARENS.includes(line.charAt(i)) || DELIMITERS.includes(line.charAt(i) || DOMAIN.includes(line.charAt(i)) || CONTRADICTION.includes(line.charAt(i)))))
         {
             return false;
         }
@@ -339,7 +342,7 @@ function hasValidFOLSymbols(string){
     //Verifies that all characters in a string are valid FOL symbols
     for(var i = 0; i < line.length; i++)
     {
-        if(!(NAMES.includes(line.charAt(i)) || VARS.includes(line.charAt(i)) || PREDICATES.includes(line.charAt(i)) || QUANTIFIERS.includes(line.charAt(i) || CONNECTIVES.includes(line.charAt(i)) || PARENS.includes(line.charAt(i)) || CONTRADICTION.includes(line.charAt(i)) || DELIMITERS.includes(line.charAt(i)))))
+        if(!(NAMES.includes(line.charAt(i)) || VARS.includes(line.charAt(i)) || PREDICATES.includes(line.charAt(i)) || QUANTIFIERS.includes(line.charAt(i) || CONNECTIVES.includes(line.charAt(i)) || PARENS.includes(line.charAt(i)) || DOMAIN.includes(line.charAt(i)) || CONTRADICTION.includes(line.charAt(i)) || DELIMITERS.includes(line.charAt(i)))))
         {
             return false;
         }
@@ -428,9 +431,9 @@ function setDepthArray(string){
     return depthArray;
 }
 
-function isDerivedRule(string){
-    //If the string is a derived rule for TFL or FOL, then it's a valid statement. 
+function isLogicRule(string){
 
+    //If the string is a derived rule for FOL or TFL, then the syntax is valid.
     let line = string;
     for (var i = 0; i < TFL_BASIC_RULES.length; i++) {
         if (TFL_BASIC_RULES[i] == line) {
@@ -444,6 +447,19 @@ function isDerivedRule(string){
         }
     }
 
+    let line = string;
+    for (var i = 0; i < FOL_BASIC_RULES.length; i++) {
+        if (FOL_BASIC_RULES[i] == line) {
+            return true;
+        }
+    }
+
+    for (var i = 0; i < FOL_DERIVED_RULES.length; i++) {
+        if (FOL_DERIVED_RULES[i] == line) {
+            return true;
+        }
+    }
+
+
     return false;
 }
-
