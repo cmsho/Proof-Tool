@@ -29,8 +29,7 @@
 
 
     <!-- JS for Download Button -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-          crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
 
 
@@ -168,7 +167,15 @@
                 <span class="nav-left__label">Sign Up</span>
             </a>
 
-        {% endif %}
+            <a href="{% url 'feedback' %}" class="nav__link">
+                <div class="nav__icon-container">
+                    <i class="material-icons"> info</i>
+                </div>
+                <span class="nav-left__label">Report Bug / Feedback </span>
+            </a>
+
+            {% endif %}
+            
 
     </nav>
     <main class="main">

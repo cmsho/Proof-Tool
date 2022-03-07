@@ -175,3 +175,12 @@ class StudentAssignment(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     submitted_on = models.DateTimeField(auto_now_add=True)
     grade = models.DecimalField(max_digits=5, decimal_places=2)
+
+class Feedback(models.Model):
+    name = models.CharField(max_length=120)
+    email = models.EmailField()
+    subject = models.CharField(max_length=120)
+    details = models.TextField(max_length=700)
+
+    def __str__(self):
+        return self.name
