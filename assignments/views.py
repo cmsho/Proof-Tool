@@ -15,7 +15,7 @@ from proofchecker.proofs.proofchecker import verify_proof
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
 from proofchecker.proofs.proofutils import get_premises
 from proofchecker.utils import folparser, tflparser
-from .forms import AssignmentForm, ProblemForm, ProblemProofForm
+from .forms import AssignmentForm, ProblemForm, ProblemProofForm, StudentProblemProofForm, StudentProblemForm
 
 
 @login_required
@@ -204,7 +204,7 @@ def problem_details_view(request, pk=None):
 @login_required
 def problem_solution_view(request, problem_id=None):
     problem = get_object_or_404(Problem, pk=problem_id)
-    problem_form = ProblemForm(request.POST or None, instance=problem)
+    problem_form = StudentProblemForm(request.POST or None, instance=problem)
 
     studentPk = request.GET.get('studentId')
     if studentPk is None:
@@ -238,7 +238,7 @@ def problem_solution_view(request, problem_id=None):
                                           proof=Proof.objects.get(id=proof.id))
         solution.save()
 
-    proof_form = ProblemProofForm(request.POST or None, instance=proof)
+    proof_form = StudentProblemProofForm(request.POST or None, instance=proof)
 
     ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     formset = ProofLineFormset(request.POST or None, instance=proof, queryset=proof.proofline_set.order_by("ORDER"))
