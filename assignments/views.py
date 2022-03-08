@@ -185,6 +185,7 @@ def problem_details_view(request, pk=None):
 
             problem.proof = proof
             problem.save()
+            messages.success(request, "Problem saved successfully")
 
             if assignmentPk is not None:
                 # problem page loaded from assignment page
@@ -274,6 +275,7 @@ def problem_solution_view(request, problem_id=None):
             elif 'submit' in request.POST:
                 proof.save()
                 formset.save()
+                messages.success(request, "Solution saved successfully")
                 return HttpResponseRedirect(reverse('all_assignments'))
 
     context = {

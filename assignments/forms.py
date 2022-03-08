@@ -31,10 +31,10 @@ class StudentProblemForm(ProblemForm):
     def __init__(self, *args, **kwargs):
         super(StudentProblemForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
-        if instance and instance.id:
-            self.fields['question'].widget.attrs['disabled'] = 'disabled'
-            self.fields['point'].widget.attrs['disabled'] = 'disabled'
-            self.fields['target_steps'].widget.attrs['disabled'] = 'disabled'
+        # if instance and instance.id:
+        #     self.fields['question'].widget.attrs['disabled'] = 'disabled'
+        #     self.fields['point'].widget.attrs['disabled'] = 'disabled'
+        #     self.fields['target_steps'].widget.attrs['disabled'] = 'disabled'
 
 
 class ProblemProofForm(forms.ModelForm):
@@ -52,7 +52,7 @@ class StudentProblemProofForm(ProblemProofForm):
     def __init__(self, *args, **kwargs):
         super(StudentProblemProofForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
-        if instance and instance.id:
-            self.fields['rules'].widget.attrs['disabled'] = 'disabled'
-            self.fields['premises'].widget.attrs['disabled'] = 'disabled'
-            self.fields['conclusion'].widget.attrs['disabled'] = 'disabled'
+        # if instance and instance.id:
+        #     self.fields['rules'].widget.attrs['disabled'] = 'disabled'
+        #     self.fields['premises'].widget.attrs['disabled'] = 'disabled'
+        #     self.fields['conclusion'].widget.attrs['disabled'] = 'disabled'
