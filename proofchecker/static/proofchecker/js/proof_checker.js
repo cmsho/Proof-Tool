@@ -137,6 +137,7 @@ function restart_proof() {
  * Inserts form below current line
  */
 function insert_form(obj) {
+    console.log(obj)
     //inserts new row with latest index at current object's next position
     insert_row_current_level(get_form_id(obj))
     hide_make_parent_button()
@@ -168,6 +169,168 @@ function create_subproof(obj) {
     reset_order_fields()
     update_row_indentations()
     updateLineCount()
+}
+
+
+/**
+ * Moves current row up
+ */
+function move_up(obj) {
+    console.log("Here")
+    // get the current row
+    const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
+
+    let previousRow = getPreviousValidRow(currentRow);
+    let nextRow = getNextValidRow(currentRow);
+
+
+    if (previousRow != null) {
+        // Get previous row information
+        let previousRowInfo = getObjectsRowInfo(previousRow);
+        // Get current row information
+        let currentRowInfo = getObjectsRowInfo(currentRow);
+        // Get next row information
+        let nextRowInfo = getObjectsRowInfo(nextRow);
+
+
+        // If the prefixes are the same then swap the rows
+        if (previousRowInfo.string_of_prefix == currentRowInfo.string_of_prefix) {
+            console.log("They are in line with each other")
+
+
+            // Get previous row line number
+            const previousRowLineNumber = previousRowInfo.line_number_of_row;
+            // Get previous row expression
+            const previousRowExpression = previousRow.children[1].children[0].value
+            // Get previous row rule
+            const previousRowRule = previousRow.children[2].children[0].value
+
+
+            // Get current row line number
+            const currentRowLineNumber = currentRowInfo.line_number_of_row;
+            // Get current row expression
+            const currentRowExpression = currentRow.children[1].children[0].value
+            // Get current row rule
+            const currentRowRule = currentRow.children[2].children[0].value
+
+            console.log("Previous")
+            console.log(previousRowLineNumber)
+            console.log(previousRowExpression)
+            console.log(previousRowRule)
+
+            console.log("Next")
+            console.log(currentRowLineNumber)
+            console.log(currentRowExpression)
+            console.log(currentRowRule)
+
+
+            // Set new row expression to original current row expression
+            previousRow.children[1].children[0].value = currentRowExpression
+            // Set new row rule to original curren row expression
+            previousRow.children[2].children[0].value = currentRowRule
+
+
+            // Set new row expression to original current row expression
+            currentRow.children[1].children[0].value = previousRowExpression
+            // Set new row rule to original curren row expression
+            currentRow.children[2].children[0].value = previousRowRule
+
+
+
+            updated_rows[previousRowLineNumber] = currentRowLineNumber;
+            updated_rows[currentRowLineNumber] = previousRowLineNumber;
+            update_rule_line_references(updated_rows)
+
+        }
+        // Else move the current row in line with the previous row
+        else {
+            if (previousRowInfo.list_of_line_number.length > 1) {
+                console.log("Previous is not integer")
+
+                // Get current row expression
+                const currentRowExpression = currentRow.children[1].children[0].value
+                // Get current row rule
+                const currentRowRule = currentRow.children[2].children[0].value
+
+
+                //Insert row after previous row
+                let previousRow = getPreviousValidRow(currentRow);
+                console.log(previousRow)
+                let insertObj = previousRow.children[3].children[0]
+                console.log(insertObj)
+                insert_row_current_level(get_form_id(insertObj))
+
+
+                // Get the new row
+                let newRow = previousRow.nextElementSibling
+                // Set new row expression to original current row expression
+                newRow.children[1].children[0].value = currentRowExpression
+                // Set new row rule to original curren row expression
+                newRow.children[2].children[0].value = currentRowRule
+                // Get new row info
+                let newRowInfo = getObjectsRowInfo(newRow)
+
+                // Get the new line number value for the original current row that will be deleted
+                let updatedCurrentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
+                let updatedCurrentRowInfo = getObjectsRowInfo(updatedCurrentRow)
+                const udatedCurrentRowLineNumber = updatedCurrentRowInfo.line_number_of_row
+                console.log(udatedCurrentRowLineNumber)
+
+                //Update all references to the new line number of the current row with the line number of the added row
+                updated_rows[udatedCurrentRowLineNumber] = newRowInfo.line_number_of_row;
+                update_rule_line_references(updated_rows)
+
+
+                delete_row(get_form_id(obj))
+                update_row_indentations()
+
+                hide_make_parent_button();
+                reset_order_fields();
+            } else {
+                console.log("Previous is integer")
+
+                // Get current row expression
+                const currentRowExpression = currentRow.children[1].children[0].value
+                // Get current row rule
+                const currentRowRule = currentRow.children[2].children[0].value
+
+
+                //Insert row after previous row
+                let previousRow = getPreviousValidRow(currentRow);
+                console.log(previousRow)
+                let insertObj = previousRow.children[3].children[0]
+                console.log(insertObj)
+                insert_row_current_level(get_form_id(insertObj))
+
+
+                // Get the new row
+                let newRow = previousRow.nextElementSibling
+                // Set new row expression to original current row expression
+                newRow.children[1].children[0].value = currentRowExpression
+                // Set new row rule to original curren row expression
+                newRow.children[2].children[0].value = currentRowRule
+                // Get new row info
+                let newRowInfo = getObjectsRowInfo(newRow)
+
+                // Get the new line number value for the original current row that will be deleted
+                let updatedCurrentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
+                let updatedCurrentRowInfo = getObjectsRowInfo(updatedCurrentRow)
+                const udatedCurrentRowLineNumber = updatedCurrentRowInfo.line_number_of_row
+                console.log(udatedCurrentRowLineNumber)
+
+                //Update all references to the new line number of the current row with the line number of the added row
+                updated_rows[udatedCurrentRowLineNumber] = newRowInfo.line_number_of_row;
+                update_rule_line_references(updated_rows)
+
+
+                delete_row(get_form_id(obj))
+                update_row_indentations()
+
+                hide_make_parent_button();
+                reset_order_fields();
+            }
+        }
+    }
 }
 
 
@@ -268,6 +431,16 @@ function insert_row_current_level(index) {
     update_rule_line_references(updated_rows)
 
 }
+
+
+
+/**
+ * Moves the current row up
+ */
+function move_current_row_up(index) {
+    // To be populated with information from above function
+}
+
 
 
 /**
@@ -775,7 +948,7 @@ function updateFormsetId(old_id, new_id) {
     const targeted_element = document.getElementById(FORMSET_PREFIX + '-' + old_id)
     if (targeted_element !== null) {
         document.getElementById(FORMSET_PREFIX + '-' + old_id).setAttribute('id', `${FORMSET_PREFIX}-${new_id}`)
-        const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'make_parent-btn', 'create_subproof-btn', 'delete-btn', 'id', 'DELETE', 'ORDER']
+        const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'make_parent-btn', 'create_subproof-btn', 'move_up-btn', 'delete-btn', 'id', 'DELETE', 'ORDER']
         fields.forEach(function (field) {
             document.getElementById('id_' + FORMSET_PREFIX + '-' + old_id + '-' + field).setAttribute('name', `${FORMSET_PREFIX}-${new_id}-${field}`)
             document.getElementById('id_' + FORMSET_PREFIX + '-' + old_id + '-' + field).setAttribute('id', `id_${FORMSET_PREFIX}-${new_id}-${field}`)
