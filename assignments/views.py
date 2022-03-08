@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.forms import inlineformset_factory
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DeleteView
@@ -11,6 +11,10 @@ from accounts.decorators import instructor_required
 from proofchecker.forms import ProofLineForm
 from proofchecker.models import Proof, ProofLine, Problem, Assignment, Instructor, Course, Student, \
     StudentProblemSolution, User
+from proofchecker.proofs.proofchecker import verify_proof
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
+from proofchecker.proofs.proofutils import get_premises
+from proofchecker.utils import folparser, tflparser
 from .forms import AssignmentForm, ProblemForm, ProblemProofForm
 
 
@@ -197,6 +201,7 @@ def problem_details_view(request, pk=None):
     return render(request, 'assignments/problem_details.html', context)
 
 
+@login_required
 def problem_solution_view(request, problem_id=None):
     problem = get_object_or_404(Problem, pk=problem_id)
     problem_form = ProblemForm(request.POST or None, instance=problem)
@@ -209,7 +214,8 @@ def problem_solution_view(request, problem_id=None):
     assignmentPk = request.GET.get('assignment')
     proof = None
     try:
-        solution = StudentProblemSolution.objects.get(student__user_id=studentPk, assignment_id=assignmentPk, problem_id=problem.id)
+        solution = StudentProblemSolution.objects.get(student__user_id=studentPk, assignment_id=assignmentPk,
+                                                      problem_id=problem.id)
         proof = solution.proof
     except StudentProblemSolution.DoesNotExist:
         print("no solution exists")
@@ -237,22 +243,45 @@ def problem_solution_view(request, problem_id=None):
     ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     formset = ProofLineFormset(request.POST or None, instance=proof, queryset=proof.proofline_set.order_by("ORDER"))
 
+    response = None
     if request.POST:
         if all([problem_form.is_valid(), proof_form.is_valid(), formset.is_valid()]):
-            proof.save()
-            formset.save()
+            parent = proof_form.save(commit=False)
+            if 'check_proof' in request.POST:
+                proof = ProofObj(lines=[])  #
+                proof.rules = str(parent.rules)
+                proof.premises = get_premises(parent.premises)
+                proof.conclusion = str(parent.conclusion)
 
-            if assignmentPk is not None:
-                # problem page loaded from assignment page
-                return redirect("/assignment/" + assignmentPk + "/details")
+                for line in formset.ordered_forms:
+                    if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
+                        proofline = ProofLineObj()
+                        child = line.save(commit=False)
+                        child.proof = parent
+                        proofline.line_no = str(child.line_no)
+                        proofline.expression = str(child.formula)
+                        proofline.rule = str(child.rule)
+                        proof.lines.append(proofline)
 
-            return HttpResponseRedirect(reverse('all_assignments'))
+                # Determine which parser to user based on selected rules
+                if ((proof.rules == 'fol_basic') or (proof.rules == 'fol_derived')):
+                    parser = folparser.parser
+                else:
+                    parser = tflparser.parser
+
+                response = verify_proof(proof, parser)
+
+            elif 'submit' in request.POST:
+                proof.save()
+                formset.save()
+                return HttpResponseRedirect(reverse('all_assignments'))
 
     context = {
         "object": problem,
         "problem_form": problem_form,
         "proof_form": proof_form,
-        "formset": formset
+        "formset": formset,
+        "response": response
     }
     return render(request, 'assignments/problem_solution.html', context)
 
