@@ -108,7 +108,7 @@ def course_create_view(request):
         if form.is_valid():
             selected_students = request.POST.getlist('studentsSelector[]')
             course = form.save(commit=False)
-            course.instructor = Instructor.objects.get(user_id=request.user)
+            course.instructor = Instructor.objects.get(user=request.user)
             course.save()
             course.students.clear()
             for student in selected_students:
@@ -124,77 +124,6 @@ def course_create_view(request):
     return render(request, "courses/add_course.html", context)
 
 
-
-
-
-
-# class CourseView(ListView):
-#     model = Course
-#     template_name = "courses/allcourses.html"
-#
-#     def get_queryset(self):
-#         if self.request.user.is_instructor:
-#             template_name = "courses/allcourses.html"
-#             return Course.objects.filter(instructor__user=self.request.user)
-#         elif self.request.user.is_student:
-#             template_name = "courses/allcourses.html"
-#             return Student.objects.get(user=self.request.user).course_set.all();
-# @login_required
-# def course_edit_view(request, pk=None):
-#     course = get_object_or_404(Course, pk=pk)
-#     form = CourseCreateForm(request.POST or None, instance=course)
-#     students = Student.objects.all()
-#
-#     if request.user.is_instructor:
-#         if request.POST:
-#             if form.is_valid():
-#                 selected_students = request.POST.getlist('studentsSelector[]')
-#                 course = form.save(commit=False)
-#                 course.instructor = Instructor.objects.get(user_id=request.user)
-#                 course.save()
-#                 course.students.clear()
-#                 for student in selected_students:
-#                     course.students.add(student)
-#                 course.save()
-#                 messages.success(request, f'Course saved successfully')
-#             else:
-#                 messages.error(request, f'Validation failed. Course is not saved.')
-#
-#     selected_students = []
-#     for student in students:
-#         if student.course_set.filter(pk=course.pk).exists():
-#             selected_students.append({'student': student, 'selected': 'selected'})
-#         else:
-#             selected_students.append({'student': student, 'selected': None})
-#
-#     context = {
-#         "form": form,
-#         "students": selected_students,
-#     }
-#     return render(request, "courses/update_course.html", context)
-#
-#
-# class CourseCreateView(CreateView):
-#     model = Course
-#     form_class = CourseCreateForm
-#     template_name = "courses/add_course.html"
-#     success_url = "/courses/"
-#
-#     def form_valid(self, form):
-#         form.instance.instructor = Instructor.objects.filter(user=self.request.user).first()
-#         return super().form_valid(form)
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["students"] = Student.objects.all()
-#         return context
-#
-#
-# class CourseUpdateView(UpdateView):
-#     model = Course
-#     form_class = CourseCreateForm
-#     template_name = "courses/update_course.html"
-#     success_url = "/courses/"
 
 
 class CourseDeleteView(DeleteView):

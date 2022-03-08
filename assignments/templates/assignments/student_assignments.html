@@ -1,0 +1,27 @@
+{% extends 'proofchecker/base.html' %}
+{% block content %}
+    <br>
+    <h5><b>Assignments</b></h5>
+    <hr>
+    <div class="d-flex flex-row justify-content-start">
+        <div class="row">
+            {% for object in object_list %}
+                <div class="col">
+                    <div class="card bg-light mb-3" style="width: 20rem;">
+                        <div class="card-header">
+                            <h5 style="text-align: center"><b> {{ object.title }}</b></h5>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><b>Title:</b> {{ object.title }}</li>
+                            <li class="list-group-item"><b>Course:</b> {{ object.course }}</li>
+                            <li class="list-group-item"><b>Due By:</b> {{ object.due_by }}</li>
+                        </ul>
+                        <div class="card-body">
+                            <a href="{% url 'assignment_details' object.id %}" class="card-link btn btn-primary btn-sm">View</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

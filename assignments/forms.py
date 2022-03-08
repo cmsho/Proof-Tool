@@ -3,10 +3,17 @@ from django import forms
 from proofchecker.models import Assignment, Problem, Proof
 
 
+class DateInput(forms.DateInput):
+    input_type = 'date'
+
+
 class AssignmentForm(forms.ModelForm):
     class Meta:
         model = Assignment
-        fields = ['title', 'course', 'due_by', 'problems']
+        fields = ['title', 'course', 'due_by']
+        widgets = {
+            'due_by': DateInput()
+        }
 
 
 class ProblemForm(forms.ModelForm):

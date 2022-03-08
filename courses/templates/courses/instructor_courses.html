@@ -4,7 +4,7 @@
     <br>
     <h5><b>Courses</b></h5>
     <hr>
-    <a href="{% url 'add_course' %}" class="btn btn-primary"> Add a new course </a>
+    <a href="{% url 'add_course' %}" class="btn btn-primary btn-sm"> Add a new course </a>
     <hr>
 
     <div class="d-flex flex-row justify-content-start">
@@ -20,8 +20,8 @@
                         <li class="list-group-item"><b>Total Students:</b> {{ object.students.count }}</li>
                     </ul>
                     <div class="card-body">
-                        <a href="{% url 'course_details' object.id %}" class="card-link btn btn-primary">View / Edit</a>
-                        <a href="{% url 'delete_course' object.id %}" class="card-link btn btn-secondary">Delete</a>
+                        <a href="{% url 'course_details' object.id %}" class="card-link btn btn-primary btn-sm">View / Edit</a>
+                        <a href="{% url 'delete_course' object.id %}" class="card-link btn btn-secondary btn-sm">Delete</a>
                     </div>
                 </div>
             {% endfor %}

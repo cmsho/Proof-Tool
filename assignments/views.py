@@ -1,52 +1,78 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.forms import inlineformset_factory
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DeleteView
 
+from accounts.decorators import instructor_required
 from proofchecker.forms import ProofLineForm
-from proofchecker.models import Proof, ProofLine, Problem, Assignment, Instructor
+from proofchecker.models import Proof, ProofLine, Problem, Assignment, Instructor, Course, Student, \
+    StudentProblemSolution, User
 from .forms import AssignmentForm, ProblemForm, ProblemProofForm
 
 
-
-class AssignmentListView(ListView):
-    model = Assignment
-    template_name = "assignments/assignments.html"
-
-    def get_queryset(self):
-        return Assignment.objects.filter(created_by__user=self.request.user)
-
-
 @login_required
+def all_assignments_view(request):
+    if request.user.is_instructor:
+        return instructor_assignments_view(request)
+    elif request.user.is_student:
+        return student_assignments_view(request)
+
+
+def instructor_assignments_view(request):
+    object_list = Assignment.objects.filter(created_by__user=request.user)
+    context = {
+        "object_list": object_list,
+    }
+    return render(request, "assignments/instructor_assignments.html", context)
+
+
+def student_assignments_view(request):
+    object_list = Assignment.objects.filter(course__in=Course.objects.filter(Q(students__user=request.user)))
+    context = {
+        "object_list": object_list,
+    }
+    return render(request, "assignments/student_assignments.html", context)
+
+
+#
+# @login_required(decorators, name='dispatch')
+# class AssignmentListView(ListView):
+#     model = Assignment
+#     template_name = "assignments/instructor_assignments.html"
+#
+#     def get_queryset(self):
+#         return Assignment.objects.filter(created_by__user=self.request.user)
+#
+
+
+@instructor_required
 def create_assignment_view(request):
     form = AssignmentForm(request.POST or None)
-
-    context = {
-        "form": form,
-    }
+    instructor = Instructor.objects.get(user=request.user)
 
     if request.POST:
         if form.is_valid():
             assignment = form.save(commit=False)
-            assignment.created_by = Instructor.objects.filter(user=request.user).first()
+            assignment.created_by = instructor
             assignment.save()
+            messages.success(request, 'Assignment got created successfully!')
 
-            if request.htmx.current_url is not None:
-                #call came in from htmx button
-                return HttpResponse(assignment.id)
-            else:
-                return HttpResponseRedirect(reverse('all_assignments'))
+            return HttpResponseRedirect(reverse('assignment_details', kwargs={'pk': assignment.pk}))
         else:
-            if request.htmx.current_url is not None:
-                return HttpResponse('')
+            messages.error(request, form.errors)
 
-    return render(request, 'assignments/assignment_add_edit.html', context)
+    context = {
+        "form": form,
+    }
+    return render(request, 'assignments/add_assignment.html', context)
 
 
-
-def update_assignment_view(request, pk=None):
+@login_required
+def assignment_details_view(request, pk=None):
     assignment = get_object_or_404(Assignment, pk=pk)
     form = AssignmentForm(request.POST or None, instance=assignment)
     problems = assignment.problems.all()
@@ -57,21 +83,16 @@ def update_assignment_view(request, pk=None):
             assignment.problems.add(*problems)
             assignment.save()
 
-            if request.htmx.current_url is not None:
-                return HttpResponse(pk)
-            else:
-                return HttpResponseRedirect(reverse('all_assignments'))
+            return HttpResponseRedirect(reverse('all_assignments'))
         else:
-            if request.htmx.current_url is not None:
-                return HttpResponse('')
+            messages.error(request, form.errors)
 
     context = {
         "assignment": assignment,
         "form": form,
         "problems": problems
     }
-    return render(request, 'assignments/assignment_add_edit.html', context)
-
+    return render(request, 'assignments/assignment_details.html', context)
 
 
 class AssignmentDeleteView(DeleteView):
@@ -110,30 +131,44 @@ def create_problem(request):
                 assignment.problems.add(problem)
                 assignment.save()
 
-                return redirect("/assignment/" + assignmentPk + "/update")
+                return redirect("/assignment/" + assignmentPk + "/details")
 
-            return HttpResponseRedirect(reverse('all_problems'))
+            return HttpResponseRedirect(reverse('all_assignments'))
 
     context = {
         "problem_form": problem_form,
         "proof_form": proof_form,
         "formset": formset
     }
-    return render(request, 'assignments/problem_add_edit.html', context)
+    return render(request, 'assignments/problem_details.html', context)
 
 
-
-def problem_update_view(request, pk=None):
+@login_required
+def problem_details_view(request, pk=None):
     problem = get_object_or_404(Problem, pk=pk)
     problem_form = ProblemForm(request.POST or None, instance=problem)
+
+    studentPk = request.GET.get('studentId')
+    if studentPk is None:
+        if request.user.is_student:
+            studentPk = request.user.pk
+
+    assignmentPk = request.GET.get('assignment')
+    proof = None
+    try:
+        solution = StudentProblemSolution.objects.get(student__user_id=studentPk,
+                                                      assignment=Assignment.objects.get(id=assignmentPk),
+                                                      problem=problem)
+        if solution is not None:
+            return problem_solution_view(request, problem.id)
+    except StudentProblemSolution.DoesNotExist:
+        pass
 
     proof = Proof.objects.get(problem=problem)
     proof_form = ProblemProofForm(request.POST or None, instance=proof)
 
     ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
     formset = ProofLineFormset(request.POST or None, instance=proof, queryset=proof.proofline_set.order_by("ORDER"))
-
-    assignmentPk = request.GET.get('assignment')
 
     if request.POST:
         if all([problem_form.is_valid(), proof_form.is_valid(), formset.is_valid()]):
@@ -149,9 +184,9 @@ def problem_update_view(request, pk=None):
 
             if assignmentPk is not None:
                 # problem page loaded from assignment page
-                return redirect("/assignment/" + assignmentPk + "/update")
+                return redirect("/assignment/" + assignmentPk + "/details")
 
-            return HttpResponseRedirect(reverse('all_problems'))
+            return HttpResponseRedirect(reverse('all_assignments'))
 
     context = {
         "object": problem,
@@ -159,8 +194,67 @@ def problem_update_view(request, pk=None):
         "proof_form": proof_form,
         "formset": formset
     }
-    return render(request, 'assignments/problem_add_edit.html', context)
+    return render(request, 'assignments/problem_details.html', context)
 
+
+def problem_solution_view(request, problem_id=None):
+    problem = get_object_or_404(Problem, pk=problem_id)
+    problem_form = ProblemForm(request.POST or None, instance=problem)
+
+    studentPk = request.GET.get('studentId')
+    if studentPk is None:
+        if request.user.is_student:
+            studentPk = request.user.pk
+
+    assignmentPk = request.GET.get('assignment')
+    proof = None
+    try:
+        solution = StudentProblemSolution.objects.get(student__user_id=studentPk, assignment_id=assignmentPk, problem_id=problem.id)
+        proof = solution.proof
+    except StudentProblemSolution.DoesNotExist:
+        print("no solution exists")
+        problem_proof_id = problem.proof.id
+        proof = Proof.objects.get(id=problem_proof_id)
+        proof.id = None
+        proof.created_by = User.objects.get(pk=studentPk)
+        proof.save()
+
+        prooflines = ProofLine.objects.filter(proof_id=problem_proof_id)
+
+        for proofline in prooflines:
+            proofline.id = None
+            proofline.proof = proof
+            proofline.save()
+
+        solution = StudentProblemSolution(student=Student.objects.get(user_id=studentPk),
+                                          assignment=Assignment.objects.get(id=assignmentPk),
+                                          problem=Problem.objects.get(pk=problem_id),
+                                          proof=Proof.objects.get(id=proof.id))
+        solution.save()
+
+    proof_form = ProblemProofForm(request.POST or None, instance=proof)
+
+    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
+    formset = ProofLineFormset(request.POST or None, instance=proof, queryset=proof.proofline_set.order_by("ORDER"))
+
+    if request.POST:
+        if all([problem_form.is_valid(), proof_form.is_valid(), formset.is_valid()]):
+            proof.save()
+            formset.save()
+
+            if assignmentPk is not None:
+                # problem page loaded from assignment page
+                return redirect("/assignment/" + assignmentPk + "/details")
+
+            return HttpResponseRedirect(reverse('all_assignments'))
+
+    context = {
+        "object": problem,
+        "problem_form": problem_form,
+        "proof_form": proof_form,
+        "formset": formset
+    }
+    return render(request, 'assignments/problem_solution.html', context)
 
 
 class ProblemView(ListView):
@@ -169,7 +263,6 @@ class ProblemView(ListView):
 
     # def get_queryset(self):
     #     return Problem.objects.filter(instructor__user=self.request.user)
-
 
 
 class ProblemDeleteView(DeleteView):

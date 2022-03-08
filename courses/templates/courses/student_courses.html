@@ -24,7 +24,7 @@
         </form>
         <hr>
     {% else %}
-        <p style="color:#0056b3;">You are already enrolled in all available courses!</p>
+        <p style="color:#0056b3;">No courses are available to be enrolled in currently.</p>
     {% endif %}
     <p>Enrolled Courses:</p>
     <div class="d-flex flex-row justify-content-start">
@@ -41,7 +41,7 @@
                         <li class="list-group-item"><b>Total Students:</b> {{ object.students.count }}</li>
                     </ul>
                     <div class="card-body">
-                        <a href="{% url 'course_details' object.id %}" class="card-link btn btn-primary">Details</a>
+                        <a href="{% url 'course_details' object.id %}" class="card-link btn btn-primary btn-sm">View</a>
                     </div>
                 </div>
             {% endfor %}

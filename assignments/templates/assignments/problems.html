@@ -21,7 +21,7 @@
                             <li class="list-group-item"><b>Point</b> {{ object.point }}</li>
                         </ul>
                         <div class="card-body">
-                            <a href="{% url 'edit_problem' object.id %}" class="card-link btn btn-primary">Edit</a>
+                            <a href="{% url 'problem_details' object.id %}" class="card-link btn btn-primary">Edit</a>
                             <a href="{% url 'delete_problem' object.id %}"
                                class="card-link btn btn-secondary">Delete</a>
                         </div>
