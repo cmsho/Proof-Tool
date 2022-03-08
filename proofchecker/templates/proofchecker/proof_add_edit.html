@@ -134,14 +134,23 @@
                     </td>
 
                     <td>
-                        <button class="move_up btn btn-light" type="button" name="proofline_set-{{ forloop.counter0 }}-move_up-btn" id="id_proofline_set-{{ forloop.counter0 }}-move_up-btn"
-                            value="Move Up" onclick="move_up(this)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-up-square-fill" viewBox="0 0 16 16">
-                                <path d="M2 16a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2zm6.5-4.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 1 0z"
+                        <button class="move_up btn btn-sm btn-light" type="button" name="proofline_set-{{ forloop.counter0 }}-move-btn" id="id_proofline_set-{{ forloop.counter0 }}-move-btn"
+                            value="Move Up" style="padding-bottom:0px;padding-top:0px;margin-bottom:-10px;margin-top:-15px" onclick="move_up(this)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-caret-up-fill" viewBox="0 0 16 16"
+                                margin="0px">
+                                <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"
                                 />
                             </svg>
                         </button>
-
+                        <br>
+                        <button class="move_down btn btn-sm btn-light" type="button" name="proofline_set-{{ forloop.counter0 }}-move-btn" id="id_proofline_set-{{ forloop.counter0 }}-move-btn"
+                            value="Move Down" style="padding-top:0px;padding-bottom:0px;margin-bottom:-10px;margin-top:-30px"
+                            onclick="move_down(this)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
+                                <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"
+                                />
+                            </svg>
+                        </button>
                     </td>
 
                     <td>
@@ -194,13 +203,23 @@
             </td>
 
             <td>
-                <button class="move_up btn btn-light" type="button" name="proofline_set-__prefix__-move_up-btn" id="id_proofline_set-__prefix__-move_up-btn"
-                    value="Move Up" onclick="move_up(this)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-up-square-fill" viewBox="0 0 16 16">
-                        <path d="M2 16a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2zm6.5-4.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 1 0z"
+                <button class="move_up btn btn-sm btn-light" type="button" name="proofline_set-__prefix__-move-btn" id="id_proofline_set-__prefix__-move-btn"
+                    value="Move Up" style="padding-bottom:0px;padding-top:0px;margin-bottom:-10px;margin-top:-15px" onclick="move_up(this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-caret-up-fill" viewBox="0 0 16 16"
+                        margin="0px">
+                        <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"
                         />
                     </svg>
                 </button>
+                <br>
+                <button class="move_down btn btn-sm btn-light" type="button" name="proofline_set-__prefix__-move-btn" id="id_proofline_set-__prefix__-move-btn"
+                    value="Move Down" style="padding-top:0px;padding-bottom:0px;margin-bottom:-10px;margin-top:-30px" onclick="move_down(this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
+                        <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"
+                        />
+                    </svg>
+                </button>
+
             </td>
 
             <td>

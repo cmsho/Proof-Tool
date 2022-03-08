@@ -337,6 +337,131 @@ function move_up(obj) {
 /**
  * delete current row
  */
+function move_down(obj) {
+    console.log("Move DOWN")
+
+    console.log("Here")
+    // get the current row
+    const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
+
+    let previousRow = getPreviousValidRow(currentRow);
+    let nextRow = getNextValidRow(currentRow);
+
+
+    if (previousRow != null) {
+        // Get previous row information
+        let previousRowInfo = getObjectsRowInfo(previousRow);
+        // Get current row information
+        let currentRowInfo = getObjectsRowInfo(currentRow);
+        // Get next row information
+        let nextRowInfo = getObjectsRowInfo(nextRow);
+
+
+        // If the prefixes are the same then swap the rows
+        if (currentRowInfo.string_of_prefix == nextRowInfo.string_of_prefix) {
+            console.log("Current and next are in line with each other")
+
+            // Get current row line number
+            const currentRowLineNumber = currentRowInfo.line_number_of_row;
+            // Get current row expression
+            const currentRowExpression = currentRow.children[1].children[0].value
+            // Get current row rule
+            const currentRowRule = currentRow.children[2].children[0].value
+
+            // Get previous row line number
+            const nextRowLineNumber = nextRowInfo.line_number_of_row;
+            // Get previous row expression
+            const nextRowExpression = nextRow.children[1].children[0].value
+            // Get previous row rule
+            const nextRowRule = nextRow.children[2].children[0].value
+
+
+            console.log("Current")
+            console.log(currentRowLineNumber)
+            console.log(currentRowExpression)
+            console.log(currentRowRule)
+
+            console.log("Next")
+            console.log(nextRowLineNumber)
+            console.log(nextRowExpression)
+            console.log(nextRowRule)
+
+            // Set new row expression to original current row expression
+            currentRow.children[1].children[0].value = nextRowExpression
+            // Set new row rule to original curren row expression
+            currentRow.children[2].children[0].value = nextRowRule
+
+            // Set new row expression to original current row expression
+            nextRow.children[1].children[0].value = currentRowExpression
+            // Set new row rule to original curren row expression
+            nextRow.children[2].children[0].value = currentRowRule
+
+
+            updated_rows[currentRowLineNumber] = nextRowLineNumber;
+            updated_rows[nextRowLineNumber] = currentRowLineNumber;
+            update_rule_line_references(updated_rows)
+
+        }
+        // Else move the current row in line with the next row
+        else {
+            console.log("Current and next NOT in line with each other")
+
+            // Get current row line number
+            const currentRowLineNumber = currentRow.children[0].children[0].value
+            // Get current row expression
+            const currentRowExpression = currentRow.children[1].children[0].value
+            // Get current row rule
+            const currentRowRule = currentRow.children[2].children[0].value
+            // Get next row line number
+            const nextRowLineNumber = nextRow.children[0].children[0].value
+            // Get next row expression
+            const nextRowExpression = nextRow.children[1].children[0].value
+            // Get next row rule
+            const nextRowRule = nextRow.children[2].children[0].value
+
+
+            // Insert after next row
+            let insertObj = nextRow.children[3].children[0]
+            insert_row_current_level(get_form_id(insertObj))
+
+            // Get the new row
+            let newRow = nextRow.nextElementSibling;
+            // Set new row expression to next row expression
+            newRow.children[1].children[0].value = nextRowExpression;
+            // Set new row rule to next row rule
+            newRow.children[2].children[0].value = nextRowRule;
+
+            // Set next row expression to current row expression
+            nextRow.children[1].children[0].value = currentRowExpression;
+            // Set next row rule to current row rule
+            nextRow.children[2].children[0].value = currentRowRule;
+            // Get new row info
+            let newRowInfo = getObjectsRowInfo(newRow)
+
+
+            updated_rows[currentRowLineNumber] = nextRowInfo.line_number_of_row;
+            updated_rows[nextRowLineNumber] = newRowInfo.line_number_of_row;
+            update_rule_line_references(updated_rows)
+
+            delete_row(get_form_id(obj))
+
+
+
+            update_row_indentations()
+
+            hide_make_parent_button();
+            reset_order_fields();
+
+
+        }
+    }
+
+}
+
+
+/**
+ * delete current row
+ */
 function delete_form(obj) {
     delete_row(get_form_id(obj))
     reset_order_fields()
@@ -948,7 +1073,7 @@ function updateFormsetId(old_id, new_id) {
     const targeted_element = document.getElementById(FORMSET_PREFIX + '-' + old_id)
     if (targeted_element !== null) {
         document.getElementById(FORMSET_PREFIX + '-' + old_id).setAttribute('id', `${FORMSET_PREFIX}-${new_id}`)
-        const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'make_parent-btn', 'create_subproof-btn', 'move_up-btn', 'delete-btn', 'id', 'DELETE', 'ORDER']
+        const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'make_parent-btn', 'create_subproof-btn', 'move-btn', 'delete-btn', 'id', 'DELETE', 'ORDER']
         fields.forEach(function (field) {
             document.getElementById('id_' + FORMSET_PREFIX + '-' + old_id + '-' + field).setAttribute('name', `${FORMSET_PREFIX}-${new_id}-${field}`)
             document.getElementById('id_' + FORMSET_PREFIX + '-' + old_id + '-' + field).setAttribute('id', `id_${FORMSET_PREFIX}-${new_id}-${field}`)
