@@ -189,7 +189,7 @@ def problem_details_view(request, pk=None):
 
             if assignmentPk is not None:
                 # problem page loaded from assignment page
-                return redirect("/assignment/" + assignmentPk + "/details")
+                return HttpResponseRedirect(reverse('assignment_details', kwargs={'pk': assignmentPk}))
 
             return HttpResponseRedirect(reverse('all_assignments'))
 
@@ -276,7 +276,7 @@ def problem_solution_view(request, problem_id=None):
                 proof.save()
                 formset.save()
                 messages.success(request, "Solution saved successfully")
-                return HttpResponseRedirect(reverse('all_assignments'))
+                return HttpResponseRedirect(reverse('assignment_details', kwargs={'pk': assignmentPk}))
 
     context = {
         "object": problem,
