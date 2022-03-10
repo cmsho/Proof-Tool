@@ -71,6 +71,10 @@ function setStartRestartButtonAtBeginning() {
     if (document.getElementById(`id_${FORMSET_PREFIX}-0-rule`) !== null && document.getElementById(`id_${FORMSET_PREFIX}-0-rule`).value !== '') {
         document.getElementById("btn_start_proof").hidden = true
         document.getElementById("btn_restart_proof").classList.remove("hidden")
+    } else {
+        document.getElementById("btn_start_proof").classList.remove("hidden")
+        document.getElementById("btn_start_proof").hidden=false
+        document.getElementById("btn_restart_proof").hidden=true
     }
 }
 

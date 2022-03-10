@@ -204,3 +204,14 @@ tt {
   max-height: 300px;
   overflow-y: auto;
 }
+
+
+#id_point{
+  width:100%;
+  margin-bottom: 5px;
+}
+
+#id_target_steps{
+  width:100%;
+  margin-bottom: 5px;
+}
