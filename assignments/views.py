@@ -55,7 +55,7 @@ def student_assignments_view(request):
 
 @instructor_required
 def create_assignment_view(request):
-    form = AssignmentForm(request.POST or None)
+    form = AssignmentForm(request.user, request.POST or None)
     instructor = Instructor.objects.get(user=request.user)
 
     if request.POST:

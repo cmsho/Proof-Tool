@@ -1,6 +1,6 @@
 from django import forms
 
-from proofchecker.models import Assignment, Problem, Proof
+from proofchecker.models import Assignment, Problem, Proof, Course
 
 
 class DateInput(forms.DateInput):
@@ -14,6 +14,10 @@ class AssignmentForm(forms.ModelForm):
         widgets = {
             'due_by': DateInput()
         }
+
+    def __init__(self, user, *args, **kwargs):
+        super(AssignmentForm, self).__init__(*args, **kwargs)
+        self.fields['course'].queryset = Course.objects.filter(instructor__user=user)
 
 
 class ProblemForm(forms.ModelForm):
