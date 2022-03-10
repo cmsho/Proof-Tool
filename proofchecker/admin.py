@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import User, Proof, Problem, Student, Instructor, Assignment, Course, StudentAssignment, ProofLine
+from .models import User, Proof, Problem, Student, Instructor, Assignment, Course, ProofLine, \
+    StudentProblemSolution
 
 # Register your models here.
 admin.site.register(User)
@@ -10,12 +11,13 @@ admin.site.register(Student)
 admin.site.register(Instructor)
 admin.site.register(Assignment)
 admin.site.register(Course)
-admin.site.register(StudentAssignment)
+admin.site.register(StudentProblemSolution)
 
 
 class ProofLineInline(admin.TabularInline):
     model = ProofLine
     extra = 0
+    ordering = ("ORDER",)
 
 
 @admin.register(Proof)

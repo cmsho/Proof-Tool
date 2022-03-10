@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Proof, ProofLine
+from .models import Proof, ProofLine, Feedback
 
 
 class ProofForm(forms.ModelForm):
@@ -34,3 +34,9 @@ class ProofLineForm(forms.ModelForm):
         super(ProofLineForm, self).__init__(*args, **kwargs)
         for visible in self.visible_fields():
             visible.field.widget.attrs['onkeydown'] = 'replaceCharacter(this)'
+
+
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        model = Feedback
+        exclude = []

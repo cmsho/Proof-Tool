@@ -538,7 +538,7 @@ class ProofTests(TestCase):
         result = verify_line_citation(line5.line_no, line3.line_no)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg,\
-            'Error on line 4: Invalid citation: Line 4 exists within in a subproof at a lower depth than line 2.2')
+            'Error on line 4: Invalid citation: Line 2.2 exists within in a subproof at a lower depth than line 4')
 
         # Test with the cited line occurring after the current line
         line1 = ProofLineObj('1', 'A∧B', '∧I 1, 2')

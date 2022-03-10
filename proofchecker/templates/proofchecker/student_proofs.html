@@ -34,6 +34,5 @@
                 <li class="list-group-item"><a href="{% url 'update_proof' proof.id %}" target="_blank">{{ proof.name }} : {{ proof.premises }} ∴ {{ proof.conclusion }}</a></li>
             {% endfor %}
         </ol>
-
     {% endif %}
 {% endblock %}

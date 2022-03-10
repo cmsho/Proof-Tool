@@ -71,6 +71,10 @@ function setStartRestartButtonAtBeginning() {
     if (document.getElementById(`id_${FORMSET_PREFIX}-0-rule`) !== null && document.getElementById(`id_${FORMSET_PREFIX}-0-rule`).value !== '') {
         document.getElementById("btn_start_proof").hidden = true
         document.getElementById("btn_restart_proof").classList.remove("hidden")
+    } else {
+        document.getElementById("btn_start_proof").classList.remove("hidden")
+        document.getElementById("btn_start_proof").hidden=false
+        document.getElementById("btn_restart_proof").hidden=true
     }
 }
 
@@ -736,12 +740,12 @@ function replaceCharacter(ev) {
     let txt = document.getElementById(ev.id).value;
     txt = txt.replace("\\and", "∧");
     txt = txt.replace("\\or", "∨");
-    txt = txt.replace("\\implies", "→");
+    txt = txt.replace("\\imp", "→");
     txt = txt.replace("\\not", "¬");
     txt = txt.replace("\\iff", "↔");
-    txt = txt.replace("\\falsum", "⊥");
-    txt = txt.replace("\\forall", "∀");
-    txt = txt.replace("\\exists", "∃");
+    txt = txt.replace("\\con", "⊥");
+    txt = txt.replace("\\all", "∀");
+    txt = txt.replace("\\exi", "∃");
     txt = txt.replace("\\in", "∈");
     document.getElementById(ev.id).value = txt;
 }

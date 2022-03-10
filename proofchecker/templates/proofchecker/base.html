@@ -29,13 +29,13 @@
 
 
     <!-- JS for Download Button -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-          crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
 
 
     <title> {% block title %}Proof Checker{% endblock %} </title>
     {% block head %}{% endblock %}
+    {% block additionalFiles %}{% endblock %}
 </head>
 
 <body>
@@ -67,6 +67,7 @@
         </div>
 
         {% if user.is_authenticated %}
+
             <a href="{% url 'home' %}" class="nav__link">
                 <div class="nav__icon-container">
                     <i class="material-icons"> home</i>
@@ -75,6 +76,7 @@
             </a>
 
             {% if user.is_student %}
+
                 <a href="{% url 'student_profile' %}" class="nav__link">
                     <div class="nav__icon-container">
                         <i class="material-icons"> person</i>
@@ -82,7 +84,21 @@
                     <span class="nav-left__label">Profile</span>
                 </a>
 
+                <a href="{% url 'student_courses' %}" class="nav__link">
+                    <div class="nav__icon-container">
+                        <i class="material-icons">assignment</i>
+                    </div>
+                    <span class="nav-left__label">Courses</span>
+                </a>
+
+                <a href="{% url 'all_assignments' %}" class="nav__link">
+                    <div class="nav__icon-container">
+                        <i class="material-icons">assignment</i>
+                    </div>
+                    <span class="nav-left__label">Assignments</span>
+                </a>
             {% elif user.is_instructor %}
+
                 <a href="{% url 'instructor_profile' %}" class="nav__link">
                     <div class="nav__icon-container">
                         <i class="material-icons"> person</i>
@@ -90,7 +106,7 @@
                     <span class="nav-left__label">Profile</span>
                 </a>
 
-                <a href="{% url 'all_courses' %}" class="nav__link">
+                <a href="{% url 'instructor_courses' %}" class="nav__link">
                     <div class="nav__icon-container">
                         <i class="material-icons">assignment</i>
                     </div>
@@ -104,13 +120,23 @@
                     <span class="nav-left__label">Assignments</span>
                 </a>
 
-                <a href="{% url 'all_problems' %}" class="nav__link">
-                    <div class="nav__icon-container">
-                        <i class="material-icons"> assignment</i>
-                    </div>
-                    <span class="nav-left__label">Problems</span>
-                </a>
+{#                <a href="{% url 'all_problems' %}" class="nav__link">#}
+{#                    <div class="nav__icon-container">#}
+{#                        <i class="material-icons"> assignment</i>#}
+{#                    </div>#}
+{#                    <span class="nav-left__label">Problems</span>#}
+{#                </a>#}
 
+            {% endif %}
+
+            <a href="{% url 'all_proofs' %}" class="nav__link">
+                <div class="nav__icon-container">
+                    <i class="material-icons"> assignment</i>
+                </div>
+                <span class="nav-left__label">Proofs</span>
+            </a>
+
+            {% if user.is_instructor %}
                 <a href="{% url 'student_proofs' %}" class="nav__link">
                     <div class="nav__icon-container">
                         <i class="material-icons">assignment</i>
@@ -119,13 +145,6 @@
                 </a>
             {% endif %}
 
-
-            <a href="{% url 'all_proofs' %}" class="nav__link">
-                <div class="nav__icon-container">
-                    <i class="material-icons"> assignment</i>
-                </div>
-                <span class="nav-left__label">Proofs</span>
-            </a>
             <a href="{% url 'logout' %}" class="nav__link">
                 <div class="nav__icon-container">
                     <i class="material-icons"> logout</i>
@@ -154,7 +173,15 @@
                 <span class="nav-left__label">Sign Up</span>
             </a>
 
-        {% endif %}
+            <a href="{% url 'feedback' %}" class="nav__link">
+                <div class="nav__icon-container">
+                    <i class="material-icons"> info</i>
+                </div>
+                <span class="nav-left__label">Report Bug / Feedback </span>
+            </a>
+
+            {% endif %}
+            
 
     </nav>
     <main class="main">

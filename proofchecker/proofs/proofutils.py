@@ -142,7 +142,7 @@ def verify_line_citation(current_line_no: str, cited_line_no: str):
         # before the line where the rule is applied (this is a violation)
         if cited_depth > current_depth:
             response.err_msg = "Error on line {}: Invalid citation: Line {} exists within in a subproof at a lower depth than line {}"\
-                .format(current_line_no, current_line_no, cited_line_no)
+                .format(current_line_no, cited_line_no, current_line_no)
             return response
 
         # Create an array of nested line numbers

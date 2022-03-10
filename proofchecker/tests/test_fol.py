@@ -30,6 +30,13 @@ class FOLParserTests(TestCase):
         self.assertEqual(node1.right.right.value, '∃y∈U')
         self.assertEqual(node1.right.right.right.value, '¬')
         self.assertEqual(node1.right.right.right.right.value, 'F(y)')
+        
+        str2 = '∀x∈U Fxab ∨ Gy'
+        node2 = folparser.parser.parse(str2, lexer=lexer)
+        self.assertEqual(node2.value, '∀x∈U')
+        self.assertEqual(node2.right.value, '∨')
+        self.assertEqual(node2.right.left.value, 'Fxab')
+        self.assertEqual(node2.right.right.value, 'Gy')
 
     def test_parser(self):
         """

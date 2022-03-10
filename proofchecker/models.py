@@ -102,7 +102,8 @@ class Proof(models.Model):
         ordering = ['-id']
 
     def __str__(self):
-        return ("Proof {}:\nPremises: {},\nConclusion: {}\nLine Count: {}").format(
+        return ("{}. Proof {}:\nPremises: {},\nConclusion: {}\nLine Count: {}").format(
+            self.pk,
             self.name,
             self.premises,
             self.conclusion,
@@ -122,7 +123,8 @@ class ProofLine(models.Model):
     ORDER = models.IntegerField(null=True)
 
     def __str__(self):
-        return ('Line {}: {}, {}'.format(
+        return ('{}. Line {}: {}, {}'.format(
+            self.pk,
             self.line_no,
             self.formula,
             self.rule
@@ -170,8 +172,32 @@ class Assignment(models.Model):
         return "/assignments"
 
 
-class StudentAssignment(models.Model):
+class StudentProblemSolution(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
-    submitted_on = models.DateTimeField(auto_now_add=True)
-    grade = models.DecimalField(max_digits=5, decimal_places=2)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    proof = models.OneToOneField(Proof, on_delete=models.DO_NOTHING)
+    submitted_on = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    grade = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+
+    class Meta:
+        unique_together = (("student", "assignment", "problem", "proof"),)
+
+    def __str__(self):
+        return ('{}. student {}, assignment {}, problem {}, proof {}'.format(
+            self.pk,
+            self.student.user.pk,
+            self.assignment.id,
+            self.problem.id,
+            self.proof.id
+        ))
+
+
+class Feedback(models.Model):
+    name = models.CharField(max_length=120)
+    email = models.EmailField()
+    subject = models.CharField(max_length=120)
+    details = models.TextField(max_length=700)
+
+    def __str__(self):
+        return self.name
