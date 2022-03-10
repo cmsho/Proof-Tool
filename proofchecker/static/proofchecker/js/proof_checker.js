@@ -73,8 +73,8 @@ function setStartRestartButtonAtBeginning() {
         document.getElementById("btn_restart_proof").classList.remove("hidden")
     } else {
         document.getElementById("btn_start_proof").classList.remove("hidden")
-        document.getElementById("btn_start_proof").hidden=false
-        document.getElementById("btn_restart_proof").hidden=true
+        document.getElementById("btn_start_proof").hidden = false
+        document.getElementById("btn_restart_proof").hidden = true
     }
 }
 
@@ -141,7 +141,6 @@ function restart_proof() {
  * Inserts form below current line
  */
 function insert_form(obj) {
-    console.log(obj)
     //inserts new row with latest index at current object's next position
     insert_row_current_level(get_form_id(obj))
     hide_make_parent_button()
@@ -180,276 +179,22 @@ function create_subproof(obj) {
  * Moves current row up
  */
 function move_up(obj) {
-    console.log("Move Up")
-
-    const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
-
-    let previousRow = getPreviousValidRow(currentRow);
-    let nextRow = getNextValidRow(currentRow);
-
-
-
-
-    while (true) {
-        if (previousRow == null || !previousRow.hidden) {
-            break;
-        }
-        previousRow = previousRow.previousElementSibling;
-
-    }
-
-    console.log("----------------------------------")
-    console.log("Previous Row")
-    console.log(previousRow)
-    console.log("Current Row")
-    console.log(currentRow)
-    console.log("Next Row")
-    console.log(nextRow)
-
-    // If the previous row is not null then continue
-    if (previousRow != null) {
-        console.log("Previous row is not null so can move up")
-
-        // Get previous row information
-        let previousRowInfo = getObjectsRowInfo(previousRow);
-        // Get current row information
-        let currentRowInfo = getObjectsRowInfo(currentRow);
-        // Get next row information
-        let nextRowInfo = getObjectsRowInfo(nextRow);
-
-        console.log(previousRowInfo)
-        console.log(currentRowInfo)
-        console.log(nextRowInfo)
-
-
-        // Get original previous row line number
-        const originalPreviousRowLineNumber = previousRowInfo.line_number_of_row;
-        // Get original previous row expression
-        const originalPreviousRowExpression = previousRow.children[1].children[0].value;
-        // get original previous row rule
-        const originalPreviousRowRule = previousRow.children[2].children[0].value;
-
-        console.log("Original Previous row info")
-        console.log(originalPreviousRowLineNumber)
-        console.log(originalPreviousRowExpression)
-        console.log(originalPreviousRowRule)
-
-
-        // Get original current row line number
-        const originalCurrentRowLineNumber = currentRowInfo.line_number_of_row;
-        // Get original current row expression
-        const originalCurrentRowExpression = currentRow.children[1].children[0].value;
-        // get original current row rule
-        const originalCurrentRowRule = currentRow.children[2].children[0].value;
-
-        console.log("Original current row info")
-        console.log(originalCurrentRowLineNumber)
-        console.log(originalCurrentRowExpression)
-        console.log(originalCurrentRowRule)
-
-        // Insert row after previous row
-        let insertObj = previousRow.children[3].children[0]
-        insert_row_current_level(get_form_id(insertObj));
-        update_row_indentations()
-
-        // Get information for inserted row
-        let newlyInsertedRow = previousRow.nextElementSibling;
-
-
-        console.log("Inserted row line number")
-        console.log(newlyInsertedRow.children[0].children[0].value)
-        newlyInsertedRow.children[1].children[0].value = "Here"
-
-        if (previousRowInfo.string_of_prefix == currentRowInfo.string_of_prefix) {
-            console.log("Performing a swap")
-
-            // Change newly inserted row expression to the original previous row expression
-            newlyInsertedRow.children[1].children[0].value = originalPreviousRowExpression;
-            // Change newly inserted row rule to the original previous row rule
-            newlyInsertedRow.children[2].children[0].value = originalPreviousRowRule;
-
-            // Change previous row expression to the original current row expression
-            previousRow.children[1].children[0].value = originalCurrentRowExpression;
-            // Change previous row rule to the original current row rule
-            previousRow.children[2].children[0].value = originalCurrentRowRule;
-
-
-            // Update the line references originally pointing to the current row to the previous row
-            updated_rows[originalCurrentRowLineNumber] = originalPreviousRowLineNumber;
-            // Update the line references originally pointing to the previous row to the newly added row
-            updated_rows[originalPreviousRowLineNumber] = newlyInsertedRow.children[0].children[0].value;
-            update_rule_line_references(updated_rows);
-
-        }
-
-        else {
-            console.log("Moving current row up")
-            // Change newly inserted row expression to the original current row expression
-            newlyInsertedRow.children[1].children[0].value = originalCurrentRowExpression;
-            // Change newly inserted row rule to the original current row rule
-            newlyInsertedRow.children[2].children[0].value = originalCurrentRowRule;
-
-            // Update the line references originally pointing to the current row to the newly added row
-            updated_rows[originalCurrentRowLineNumber] = newlyInsertedRow.children[0].children[0].value;
-            update_rule_line_references(updated_rows);
-
-        }
-        // Delete the original current row
-        delete_row(get_form_id(obj))
-        update_row_indentations()
-
-        hide_make_parent_button();
-        reset_order_fields();
-    }
-    // Otherwise you cannot move the current row up
-    else {
-        console.log("Previous row is null so cannot move up")
-    }
-
+    move_current_row_up(obj);
+    update_row_indentations();
+    hide_make_parent_button();
+    reset_order_fields();
 }
 
 
 /**
- * delete current row
+ * Move current row down
  */
 function move_down(obj) {
-    console.log("Move DOWN")
-
-    console.log("Here")
-    // get the current row
-    const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
-
-    console.log(currentRow)
-
-    let previousRow = getPreviousValidRow(currentRow);
-    let nextRow = getNextValidRow(currentRow);
-
-    console.log("----------------------------------")
-    console.log("Previous Row")
-    console.log(previousRow)
-    console.log("Current Row")
-    console.log(currentRow)
-    console.log("Next Row")
-    console.log(nextRow)
-
-
-    // If the current next row is hidden move to the next element until you find one that's not hidden
-
-    while (true) {
-        if (nextRow == null || !nextRow.hidden) {
-            break;
-        }
-        nextRow = nextRow.nextElementSibling
-
-    }
-
-
-    console.log("Next Row Test")
-    console.log(nextRow)
-
-    if (nextRow != null) {
-        console.log("Next row is not null so can move down")
-
-        // Get previous row information
-        let previousRowInfo = getObjectsRowInfo(previousRow);
-        // Get current row information
-        let currentRowInfo = getObjectsRowInfo(currentRow);
-        // Get next row information
-        let nextRowInfo = getObjectsRowInfo(nextRow);
-
-        console.log(previousRowInfo)
-        console.log(currentRowInfo)
-        console.log(nextRowInfo)
-
-        // Get original current row line number
-        const originalCurrentRowLineNumber = currentRowInfo.line_number_of_row;
-        // Get original current row expression
-        const originalCurrentRowExpression = currentRow.children[1].children[0].value;
-        // get original current row rule
-        const originalCurrentRowRule = currentRow.children[2].children[0].value;
-
-        console.log("Original current row info")
-        console.log(originalCurrentRowLineNumber)
-        console.log(originalCurrentRowExpression)
-        console.log(originalCurrentRowRule)
-
-        // Get original next row line number
-        const originalNextRowLineNumber = nextRowInfo.line_number_of_row;
-        // Get original next row expression
-        const originalNextRowExpression = nextRow.children[1].children[0].value;
-        // get original next row rule
-        const originalNextRowRule = nextRow.children[2].children[0].value;
-
-        console.log("Original next row info")
-        console.log(originalNextRowLineNumber)
-        console.log(originalNextRowExpression)
-        console.log(originalNextRowRule)
-
-        // Insert row after next row
-        let insertObj = nextRow.children[3].children[0]
-        insert_row_current_level(get_form_id(insertObj));
-        update_row_indentations()
-
-        // Get information for inserted row
-        let newlyInsertedRow = nextRow.nextElementSibling;
-
-
-        console.log("Inserted row line number")
-        console.log(newlyInsertedRow.children[0].children[0].value)
-        newlyInsertedRow.children[1].children[0].value = "Here"
-
-
-        // if the prefix of current and next match then it is a swap
-        if (currentRowInfo.string_of_prefix == nextRowInfo.string_of_prefix) {
-            console.log("Performing a swap")
-
-            // Copy original current row information to new row
-            // Change newly inserted row expression to original current row expression
-            newlyInsertedRow.children[1].children[0].value = originalCurrentRowExpression;
-            // Change newly inserted row rule to original current row rule
-            newlyInsertedRow.children[2].children[0].value = originalCurrentRowRule;
-
-            //Update the line references originally pointing to current row to newly added row
-            updated_rows[originalCurrentRowLineNumber] = newlyInsertedRow.children[0].children[0].value;
-            update_rule_line_references(updated_rows)
-
-
-        }
-        // otherwise you're switching the level of current to match next
-        else {
-            console.log("Moving current row in line with next row")
-
-            // Change newly inserted row expression to original next row expression
-            newlyInsertedRow.children[1].children[0].value = originalNextRowExpression;
-            // Change newly inserted row rule to original next row rule
-            newlyInsertedRow.children[2].children[0].value = originalNextRowRule;
-
-            // Change next row expression to original current row expression
-            nextRow.children[1].children[0].value = originalCurrentRowExpression;
-            // Change next row rule to original current row rule
-            nextRow.children[2].children[0].value = originalCurrentRowRule;
-
-            // Update the line references originally pointing to the current row to the next row
-            updated_rows[originalCurrentRowLineNumber] = originalNextRowLineNumber
-            // Update the line references originally potinting to the next row to the newly added row
-            updated_rows[originalNextRowLineNumber] = newlyInsertedRow.children[0].children[0].value;
-            update_rule_line_references(updated_rows)
-
-        }
-
-        // Delete the original current row
-        delete_row(get_form_id(obj))
-        update_row_indentations()
-
-        hide_make_parent_button();
-        reset_order_fields();
-
-    } else {
-        console.log("Next row is null so cant move down")
-    }
-
+    move_current_row_down(obj);
+    update_row_indentations();
+    hide_make_parent_button();
+    reset_order_fields();
 }
-
 
 /**
  * delete current row
@@ -554,10 +299,173 @@ function insert_row_current_level(index) {
 /**
  * Moves the current row up
  */
-function move_current_row_up(index) {
-    // To be populated with information from above function
+function move_current_row_up(obj) {
+
+    // Get the current row
+    const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
+
+    // Get the previous row
+    let previousRow = getPreviousValidRow(currentRow);
+
+    // If the previous row is hidden then continue to search until you find a visible previous row or null
+    while (true) {
+        if (previousRow == null || !previousRow.hidden) {
+            break;
+        }
+        previousRow = previousRow.previousElementSibling;
+    }
+
+    // If the previous row is not null then continue
+    if (previousRow != null) {
+        // Get previous row information
+        let previousRowInfo = getObjectsRowInfo(previousRow);
+        // Get current row information
+        let currentRowInfo = getObjectsRowInfo(currentRow);
+
+        // Get original previous row line number
+        const originalPreviousRowLineNumber = previousRowInfo.line_number_of_row;
+        // Get original previous row expression
+        const originalPreviousRowExpression = previousRow.children[1].children[0].value;
+        // get original previous row rule
+        const originalPreviousRowRule = previousRow.children[2].children[0].value;
+
+        // Get original current row line number
+        const originalCurrentRowLineNumber = currentRowInfo.line_number_of_row;
+        // Get original current row expression
+        const originalCurrentRowExpression = currentRow.children[1].children[0].value;
+        // get original current row rule
+        const originalCurrentRowRule = currentRow.children[2].children[0].value;
+
+        // Insert row after previous row
+        let insertObj = previousRow.children[3].children[0]
+        insert_row_current_level(get_form_id(insertObj));
+        update_row_indentations()
+        // Get the newly inserted row
+        let newlyInsertedRow = previousRow.nextElementSibling;
+
+        // If they are in line with each other then swap
+        if (previousRowInfo.string_of_prefix == currentRowInfo.string_of_prefix) {
+            // Change newly inserted row expression to the original previous row expression
+            newlyInsertedRow.children[1].children[0].value = originalPreviousRowExpression;
+            // Change newly inserted row rule to the original previous row rule
+            newlyInsertedRow.children[2].children[0].value = originalPreviousRowRule;
+
+            // Change previous row expression to the original current row expression
+            previousRow.children[1].children[0].value = originalCurrentRowExpression;
+            // Change previous row rule to the original current row rule
+            previousRow.children[2].children[0].value = originalCurrentRowRule;
+
+
+            // Update the line references originally pointing to the current row to the previous row
+            updated_rows[originalCurrentRowLineNumber] = originalPreviousRowLineNumber;
+            // Update the line references originally pointing to the previous row to the newly added row
+            updated_rows[originalPreviousRowLineNumber] = newlyInsertedRow.children[0].children[0].value;
+            update_rule_line_references(updated_rows);
+
+        }
+        // Otherwise move current in line
+        else {
+            // Change newly inserted row expression to the original current row expression
+            newlyInsertedRow.children[1].children[0].value = originalCurrentRowExpression;
+            // Change newly inserted row rule to the original current row rule
+            newlyInsertedRow.children[2].children[0].value = originalCurrentRowRule;
+
+            // Update the line references originally pointing to the current row to the newly added row
+            updated_rows[originalCurrentRowLineNumber] = newlyInsertedRow.children[0].children[0].value;
+            update_rule_line_references(updated_rows);
+
+        }
+        // Delete the original current row
+        delete_row(get_form_id(obj))
+    }
 }
 
+
+/**
+ * Moves the current row up
+ */
+function move_current_row_down(obj) {
+
+
+    // Get the current row
+    const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
+
+
+    // Get the next row
+    let nextRow = getNextValidRow(currentRow);
+
+    // If the next row is hidden move to the next element until you find one that's not hidden
+    while (true) {
+        if (nextRow == null || !nextRow.hidden) {
+            break;
+        }
+        nextRow = nextRow.nextElementSibling
+    }
+
+    // If the next row is not null then move the row down
+    if (nextRow != null) {
+        // Get current row information
+        let currentRowInfo = getObjectsRowInfo(currentRow);
+        // Get next row information
+        let nextRowInfo = getObjectsRowInfo(nextRow);
+
+        // Get original current row line number
+        const originalCurrentRowLineNumber = currentRowInfo.line_number_of_row;
+        // Get original current row expression
+        const originalCurrentRowExpression = currentRow.children[1].children[0].value;
+        // get original current row rule
+        const originalCurrentRowRule = currentRow.children[2].children[0].value;
+
+        // Get original next row line number
+        const originalNextRowLineNumber = nextRowInfo.line_number_of_row;
+        // Get original next row expression
+        const originalNextRowExpression = nextRow.children[1].children[0].value;
+        // get original next row rule
+        const originalNextRowRule = nextRow.children[2].children[0].value;
+
+        // Insert row after next row
+        let insertObj = nextRow.children[3].children[0]
+        insert_row_current_level(get_form_id(insertObj));
+        update_row_indentations()
+
+        // Get information for inserted row
+        let newlyInsertedRow = nextRow.nextElementSibling;
+
+        // if the prefix of current and next match then it is a swap
+        if (currentRowInfo.string_of_prefix == nextRowInfo.string_of_prefix) {
+            // Change newly inserted row expression to original current row expression
+            newlyInsertedRow.children[1].children[0].value = originalCurrentRowExpression;
+            // Change newly inserted row rule to original current row rule
+            newlyInsertedRow.children[2].children[0].value = originalCurrentRowRule;
+
+            //Update the line references originally pointing to current row to newly added row
+            updated_rows[originalCurrentRowLineNumber] = newlyInsertedRow.children[0].children[0].value;
+            update_rule_line_references(updated_rows)
+        }
+        // otherwise you're switching the level of current to match next
+        else {
+            // Change newly inserted row expression to original next row expression
+            newlyInsertedRow.children[1].children[0].value = originalNextRowExpression;
+            // Change newly inserted row rule to original next row rule
+            newlyInsertedRow.children[2].children[0].value = originalNextRowRule;
+            // Change next row expression to original current row expression
+            nextRow.children[1].children[0].value = originalCurrentRowExpression;
+            // Change next row rule to original current row rule
+            nextRow.children[2].children[0].value = originalCurrentRowRule;
+
+            // Update the line references originally pointing to the current row to the next row
+            updated_rows[originalCurrentRowLineNumber] = originalNextRowLineNumber
+            // Update the line references originally potinting to the next row to the newly added row
+            updated_rows[originalNextRowLineNumber] = newlyInsertedRow.children[0].children[0].value;
+            update_rule_line_references(updated_rows)
+
+        }
+
+        // Delete the original current row
+        delete_row(get_form_id(obj))
+    }
+
+}
 
 
 /**
