@@ -270,11 +270,10 @@
         </tr>
     </table>
     {% endif %}
-    <hr> {#
-    <button name="check_proof" type="submit" class="btn btn-primary mb-3">Check Proof</button>#} {% if request.user.is_instructor %}
+    <hr>
+{% if request.user.is_instructor %}
     <button name="submit" type="submit" class="btn btn-primary mb-3">Save</button>
-    {#
-    <button name="check_proof" type="submit" class="btn btn-primary mb-3">Check Proof</button>#} {% endif %} {% if request.GET.assignment %}
+{% endif %} {% if request.GET.assignment %}
     <a class="btn btn-primary mb-3" href="{% url 'assignment_details' request.GET.assignment %}">Back</a>
     {% endif %}
 
