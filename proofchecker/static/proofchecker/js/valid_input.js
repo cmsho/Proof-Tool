@@ -6,7 +6,10 @@ premisesBox.addEventListener("focusout", isValidPremiseInput);
 conclusionBox.addEventListener("focusout", isValidConclusionInput);
 syntaxBox.addEventListener("change", checkAllFields);
 
-
+function checkEntry()
+{
+    
+}
 
 function isValidPremiseInput()
 {

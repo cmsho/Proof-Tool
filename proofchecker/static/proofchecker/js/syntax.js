@@ -14,7 +14,7 @@ const TFL_DERIVED_RULES = ['⊥I','⊥E','TND','↔I','↔E','DS','R','MT','DNE'
 const NAMES = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r'];
 const VARS = ['s', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 const PREDICATES = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-const QUANTIFIERS = ['∀','∃'];
+const QUANTIFIERS = ['∀','∃','='];
 const FOL_BASIC_RULES = ['∃I','∃E','∀I','∀E','=I','=E'];
 const FOL_DERIVED_RULES = ['CQ'];
 
