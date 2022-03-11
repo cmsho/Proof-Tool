@@ -1,10 +1,11 @@
 {% extends 'proofchecker/base.html' %} {% load static %} {% block content %}
 
-<h2>
-    <strong>ProofChecker v0.1: </strong>Validate your proof!</h2>
-<div class="alert alert-warning">
-    <strong>WARNING:</strong> You cannot save proofs without signing in!!!</div>
-<hr>
+    <h2>
+        <strong>ProofChecker v0.1: </strong>Validate your proof!</h2>
+    <div class="alert alert-warning">
+        <strong>WARNING:</strong> You cannot save proofs without signing in!
+    </div>
+    <hr>
 
     <form action="" method="post">
         <table class="table table-hover table-large">
@@ -16,25 +17,11 @@
                     {{ line.label }}
                 </div>
 
-            <div class="col-12 col-md-8">
-                {{line}}
+                <div class="col-12 col-md-8">
+                    {{ line }}
+                </div>
             </div>
-        </div>
-    {% endfor%}      
-    </table>
-    <div id="valid-premise-div"></div>
-    <div id="valid-conclusion-div"></div>
-    <div id="dynamic-proofbox-div"></div>
-    <div class="accordion" id="accordionExample">
-        <div class="card">
-            <div class="card-header" id="headingOne">
-                <h2 class="mb-0">
-                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true"
-                        aria-controls="collapseOne">
-                        Click here to understand what each button does!
-                    </button>
-                </h2>
-            </div>
+        {% endfor %}
             <button id="btn_start_proof" class="btn btn-primary mx-2" type="button" onclick="start_proof(this)">Start
                 Proof
             </button>
@@ -44,6 +31,8 @@
 
         </table>
 
+        <div id="valid-premise-div"></div>
+        <div id="valid-conclusion-div"></div>
         <div class="accordion" id="accordionExample">
             <div class="card">
                 <div class="card-header" id="headingOne">
@@ -295,7 +284,7 @@
 
     <button id="download" name="download" type="submit" class="btn btn-primary mb-3">Download</button>
 
-<script src="{% static 'js/proof_checker.js' %}"></script>
-<script src="{% static 'js/syntax.js' %}"></script>
-<script src="{% static 'js/valid_input.js' %}"></script>
+    <script src="{% static 'js/proof_checker.js' %}"></script>
+    <script src="{% static 'js/syntax.js' %}"></script>
+    <script src="{% static 'js/valid_input.js' %}"></script>
 {% endblock %}
