@@ -39,4 +39,10 @@ class ProofLineForm(forms.ModelForm):
 class FeedbackForm(forms.ModelForm):
     class Meta:
         model = Feedback
-        exclude = []
+        fields = ['name', 'email', 'subject', 'details', 'attach']
+        widgets = {
+            'attach': forms.FileInput(attrs={'multiple': ''}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(FeedbackForm, self).__init__(*args, **kwargs)
