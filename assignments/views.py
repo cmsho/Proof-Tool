@@ -78,7 +78,7 @@ def create_assignment_view(request):
 @login_required
 def assignment_details_view(request, pk=None):
     assignment = get_object_or_404(Assignment, pk=pk)
-    form = AssignmentForm(request.POST or None, instance=assignment)
+    form = AssignmentForm(request.user, request.POST or None, instance=assignment)
     problems = assignment.problems.all()
 
     if request.POST:
