@@ -17,7 +17,10 @@ class AssignmentForm(forms.ModelForm):
 
     def __init__(self, user, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
-        self.fields['course'].queryset = Course.objects.filter(instructor__user=user)
+        if user.is_instructor:
+            self.fields['course'].queryset = Course.objects.filter(instructor__user=user)
+        elif user.is_student:
+            self.fields['course'].queryset = Course.objects.filter(students__user=user)
 
 
 class ProblemForm(forms.ModelForm):
