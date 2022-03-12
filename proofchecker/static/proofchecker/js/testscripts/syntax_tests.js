@@ -18,7 +18,7 @@ QUnit.test("Has Valid Symbols with Valid Symbols Test", function( assert ) {
 
       //hasValidSymbols() should return True if all characters in the string are valid TFL symbols
       var value = "A->B"; 
-      var result = hasValidSymbols(value);
+      var result = hasValidTFLSymbols(value);
       assert.true(result, "The expression " + value + " is valid!");
 });
 
@@ -26,7 +26,7 @@ QUnit.test("Has Valid Symbols with Invalid Symbols Test", function( assert ) {
 
       //hasValidSymbols() should return False if one or more characters in the string are not valid TFL symbols
       var value = "A>B=C"; 
-      var result = hasValidSymbols(value);
+      var result = hasValidTFLSymbols(value);
       assert.false(result, "The expression " + value + " is invalid!");
 });
 
@@ -35,7 +35,7 @@ QUnit.test("Has Valid Symbols with Multiple Commas Test", function ( assert ) {
       //An input string that delimits clauses with commmas should be accepted
       let str = 'AvB,A→B,B→C';
 
-      assert.true(hasValidSymbols(str), "The expression " + str + " is valid!");
+      assert.true(hasValidTFLSymbols(str), "The expression " + str + " is valid!");
 
 })
 

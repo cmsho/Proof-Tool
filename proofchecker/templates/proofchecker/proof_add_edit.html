@@ -27,6 +27,8 @@
         </button>
     </table>
 
+    <div id="valid-premise-div"></div>
+    <div id="valid-conclusion-div"></div>
     <div class="accordion" id="accordionExample">
         <div class="card">
             <div class="card-header" id="headingOne">
@@ -311,4 +313,6 @@
 
 <button id="download" name="download" type="submit" class="btn btn-primary mb-3">Download</button>
 
+<script src="{% static 'js/syntax.js' %}"></script>
+<script src="{% static 'js/valid_input.js' %}"></script>
 <script src="{% static 'js/proof_checker.js' %}"></script> {% endblock %}
