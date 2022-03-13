@@ -254,6 +254,8 @@ def feedback_form(request):
             email = form.cleaned_data.get('email')
             details = form.cleaned_data.get('details')
             subject = form.cleaned_data.get('subject')
+            attach = request.FILES['attach']
+            # attach = request.FILES.getlist('attach')
             domain = get_current_site(request).domain
             mail_subject = 'Bug/Feedback - ' + subject
 
@@ -262,6 +264,7 @@ def feedback_form(request):
             to_email = 'proofchecker.pwreset@gmail.com'
             email = EmailMessage(
                 mail_subject, email_body, to=[to_email])
+            email.attach(attach.name, attach.read(), attach.content_type)
             email.send()
             messages.success(
                 request, f'Your Feedback/Bug has been recorded. Thank you')
