@@ -79,7 +79,7 @@ def course_detail_view(request, course_id=None):
 
     context = {
         "form": form,
-        "course" : course,
+        "course": course,
         "assignments": assignments,
         "students": selected_students,
         "selected_students_count": selected_students_count,
@@ -95,8 +95,6 @@ def instructor_courses_view(request):
         "object_list": object_list
     }
     return render(request, "courses/instructor_courses.html", context)
-
-
 
 
 @instructor_required
@@ -124,9 +122,7 @@ def course_create_view(request):
     return render(request, "courses/add_course.html", context)
 
 
-
-
 class CourseDeleteView(DeleteView):
     model = Course
     template_name = "courses/delete_course.html"
-    success_url = "/courses/"
+    success_url = "/courses/all"
