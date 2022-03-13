@@ -1,14 +1,19 @@
+from accounts.decorators import instructor_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.forms.models import modelformset_factory
+from django.views.generic import ListView, DetailView,  DeleteView
 from django.forms import inlineformset_factory
-
+from proofchecker.forms import ProofForm, ProofLineForm
+from proofchecker.models import Proof, Problem, ProofLine, Student, Course
+from proofchecker.proofs.proofchecker import verify_proof
+from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
+from proofchecker.proofs.proofutils import get_premises
 from proofchecker.utils import tflparser
 from proofchecker.utils import folparser
+
 from .forms import ProofCheckerForm, ProofForm, ProofLineForm, FeedbackForm
 from .models import Proof, Problem, Assignment, Instructor, ProofLine, Feedback
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
@@ -24,10 +29,6 @@ def home(request):
     proofs = Proof.objects.all()
     context = {"proofs": proofs}
     return render(request, "proofchecker/home.html", context)
-
-
-def AssignmentPage(request):
-    return render(request, "proofchecker/assignment_page.html")
 
 
 def SyntaxTestPage(request):
@@ -212,6 +213,7 @@ def proof_update_view(request, pk=None):
 class ProofView(LoginRequiredMixin, ListView):
     model = Proof
     template_name = "proofchecker/allproofs.html"
+    paginate_by = 6
 
     def get_queryset(self):
         return Proof.objects.filter(created_by=self.request.user)
@@ -230,7 +232,6 @@ class ProofDeleteView(DeleteView):
 class ProblemView(ListView):
     model = Problem
     template_name = "proofchecker/problems.html"
-
 
 def feedback_form(request):
     if request.POST:
@@ -259,3 +260,50 @@ def feedback_form(request):
     else:
         form = FeedbackForm()
     return render(request, 'proofchecker/feedback_form.html', {'form': form})
+@instructor_required
+def student_proofs_view(request, pk=None):
+    courses = Course.objects.filter(instructor__user=request.user)
+
+    students = []
+    for course in courses:
+        for student in course.students.all():
+            students.append(student)
+
+    students = list(set(students))
+
+    student = None
+    proofs = None
+
+    if pk is not None:
+        student = Student.objects.get(user__pk=pk)
+        proofs = Proof.objects.filter(created_by=pk)
+
+    context = {
+        "students": students,
+        "student": student,
+        "proofs": proofs
+    }
+    return render(request, 'proofchecker/student_proofs.html', context)
+
+
+
+@instructor_required
+def course_student_proofs_view(request, course_id=None, student_id=None):
+
+    students = []
+    students.append(Course.objects.get(id=course_id).students.all())
+
+    student = None
+    proofs = None
+
+    if student_id is not None:
+        student = Student.objects.get(user__pk=student_id)
+        proofs = Proof.objects.filter(created_by=student_id)
+
+    context = {
+        "students": students,
+        "student": student,
+        "proofs": proofs
+    }
+    return render(request, 'proofchecker/course_student_proofs.html', context)
+

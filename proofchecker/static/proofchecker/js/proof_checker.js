@@ -10,14 +10,6 @@ const FORMSET_TR_CLASS = "proofline_set";                       // for modelform
 
 document.addEventListener('DOMContentLoaded', reload_page, false);
 
-
-// Functionality for hovering on the buttons
-$(document).ready(function () {
-    $('[data-toggle="tooltip"]').tooltip();
-});
-
-
-
 // ---------------------------------------------------------------------------------------------------------------------
 // functions
 // ---------------------------------------------------------------------------------------------------------------------
@@ -34,8 +26,45 @@ function reload_page() {
 
     hide_make_parent_button()
     update_row_indentations()
+    updateLineCount()
 }
 
+
+
+// Downlaod button
+window.onload = function () {
+    document.getElementById("download")
+        .addEventListener("click", () => {
+            const form = this.document.getElementById("proof_form");
+            var opt = {
+                margin: .25,
+                filename: `${this.document.getElementById("id_name").value.replace(" ", "_")}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 1 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().from(form).set(opt).save();
+        })
+}
+
+
+// Displayed line count
+function updateLineCount() {
+    let currentLineCount = document.getElementById("line_counter")
+    let counter = 0;
+
+    if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
+        let row = document.getElementById(`${FORMSET_PREFIX}-0`)
+
+        while (row !== null) {
+            if (!row.hidden) {
+                counter++
+            }
+            row = row.nextElementSibling;
+        }
+    }
+    currentLineCount.innerText = counter;
+}
 
 /**
  * this function decides whether to show START_PROOF button or RESTART_PROOF button
@@ -94,6 +123,7 @@ function start_proof(element) {
     element.hidden = true
     document.getElementById("btn_restart_proof").classList.remove("hidden")
     reset_order_fields()
+    updateLineCount()
 }
 
 /**
@@ -102,6 +132,7 @@ function start_proof(element) {
 function restart_proof() {
     delete_all_prooflines()
     start_proof(document.getElementById("btn_start_proof"))
+    updateLineCount()
 }
 
 
@@ -114,6 +145,7 @@ function insert_form(obj) {
     hide_make_parent_button()
     reset_order_fields()
     update_row_indentations()
+    updateLineCount()
 }
 
 /**
@@ -125,6 +157,7 @@ function make_parent(obj) {
     hide_make_parent_button()
     reset_order_fields()
     update_row_indentations()
+    updateLineCount()
 }
 
 
@@ -137,6 +170,7 @@ function create_subproof(obj) {
     hide_make_parent_button()
     reset_order_fields()
     update_row_indentations()
+    updateLineCount()
 }
 
 
@@ -147,6 +181,7 @@ function delete_form(obj) {
     delete_row(get_form_id(obj))
     hide_make_parent_button()
     update_row_indentations()
+    updateLineCount()
 }
 
 
@@ -161,11 +196,14 @@ function generate_new_subproof_row_number(currentRow) {
 
     // Get the row that the button was clicked
     const original_row_number_of_clicked_button = currentRow.children[0].children[0].value
-    console.log(original_row_number_of_clicked_button)
 
     // Update row number of clicked button
     currentRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
-    currentRow.children[2].children[0].value = 'Assumption'
+
+    // If Rule is currently blank then add "Assumption" to the new subproof
+    if (currentRow.children[2].children[0].value.length == 0) {
+        currentRow.children[2].children[0].value = 'Assumption'
+    }
 }
 
 
@@ -223,7 +261,20 @@ function insert_row_current_level(index) {
  * deletes the row where obj is located
  */
 function delete_row(deleted_row_index) {
-    const deleted_row = document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index);
+    let deleted_row = document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index);
+
+    while (true) {
+        if (checkIfRowIsUnique(deleted_row) === true) {
+            let deleted_row_info = getObjectsRowInfo(deleted_row)
+            if (deleted_row_info.list_of_line_number.length > 1) {
+                document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-line_no').value = deleted_row_info.string_of_prefix;
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
 
     //mark checkbox true
     document.getElementById('id_' + FORMSET_PREFIX + '-' + deleted_row_index + '-DELETE').setAttribute("checked", "true")
@@ -264,6 +315,7 @@ function update_form_count() {
     const fomrsetManagerTotalFormCounter = document.getElementById(FORMSET_TOTALFORMS_ID)
     let currentFormCount = document.getElementsByClassName(FORMSET_TR_CLASS).length
     fomrsetManagerTotalFormCounter.setAttribute('value', currentFormCount)
+    console.log(fomrsetManagerTotalFormCounter);
 }
 
 
@@ -378,12 +430,12 @@ function replaceCharacter(ev) {
     let txt = document.getElementById(ev.id).value;
     txt = txt.replace("\\and", "∧");
     txt = txt.replace("\\or", "∨");
-    txt = txt.replace("\\implies", "→");
+    txt = txt.replace("\\imp", "→");
     txt = txt.replace("\\not", "¬");
     txt = txt.replace("\\iff", "↔");
-    txt = txt.replace("\\falsum", "⊥");
-    txt = txt.replace("\\forall", "∀");
-    txt = txt.replace("\\exists", "∃");
+    txt = txt.replace("\\con", "⊥");
+    txt = txt.replace("\\all", "∀");
+    txt = txt.replace("\\exi", "∃");
     txt = txt.replace("\\in", "∈");
     document.getElementById(ev.id).value = txt;
 }
@@ -517,7 +569,12 @@ function getPreviousValidRow(currRow) {
  * this function reset line numbers in formset
  */
 
-function checkIfRowIsUnique(currRow, prevRow, nextRow) {
+function checkIfRowIsUnique(currRow) {
+    //getting the following valid row (ignoring rows that are already marked for deletion)
+    let nextRow = getNextValidRow(currRow);
+    //getting the previous valid row (ignoring deleted rows)
+    let prevRow = getPreviousValidRow(currRow)
+
     //getting line no info of current row
     let currRowInfo = getObjectsRowInfo(currRow);
     //getting line no info of next row
@@ -578,20 +635,6 @@ function renumber_rows(direction, newlyChangedRow) {
     let nextRowInfo = getObjectsRowInfo(nextRow);
     //getting line no info of prev row
     let prevRowInfo = getObjectsRowInfo(prevRow)
-
-
-    //checking if current row is last remaining element
-    const lastItemCheck = checkIfRowIsUnique(currRow, prevRow, nextRow)
-    // let currRowStartsWith = currRowInfo.list_of_line_number[0];
-
-    if (direction === -1) {
-        if (currRowInfo.list_of_line_number.length > 1 && lastItemCheck) {
-            currRowInfo = break_line_number(currRowInfo.string_of_prefix);
-        }
-        if (currRowInfo.list_of_line_number.length === 1) {
-            currRowInfo.string_of_prefix = "";
-        }
-    }
 
     let indexOfChangedElement = currRowInfo.list_of_line_number.length - 1
     let currRowStringOfPrefix = currRowInfo.string_of_prefix;
@@ -710,3 +753,5 @@ function hide_make_parent_button() {
 
 
 // ---------------------------------------------------------------------------------------------------------------------
+
+

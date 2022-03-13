@@ -22,8 +22,8 @@ class Premise(Rule):
                     response.is_valid = True
                     return response
                 else:
-                    response.err_msg = "Expression on line {} is not a premise"\
-                        .format(str(current_line.line_no))
+                    response.err_msg = "Error on line {}: Expression on line {} is not a premise"\
+                        .format(str(current_line.line_no), str(current_line.line_no))
                     return response                
 
             # If multiple expressions, search for the premise
@@ -33,10 +33,11 @@ class Premise(Rule):
                     return response
         
             # If not found, invalid
-            response.err_msg = "Expression on line {} not found in premises"\
-                .format(str(current_line.line_no))
+            response.err_msg = "Error on line {}: Expression on line {} not found in premises"\
+                .format(str(current_line.line_no), str(current_line.line_no))
             return response
 
         except:
-            response.err_msg = "One or more premises is invalid"
+            response.err_msg = "Error on line {}: One or more premises is invalid"\
+                .format(str(current_line.line_no))
             return response

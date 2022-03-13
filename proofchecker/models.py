@@ -1,11 +1,8 @@
-from ast import BinOp
+from PIL import Image
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from PIL import Image
-from proofchecker.proofs.proofutils import is_line_no, make_tree
 
 from proofchecker.proofs.proofutils import is_line_no, make_tree
 from proofchecker.utils import tflparser
@@ -19,6 +16,7 @@ def validate_line_no(value):
             _('%(value)s is not a valid line number'),
             params={'value': value},
         )
+
 
 # TODO: This has to adjust based on parser... need to fix
 
@@ -100,6 +98,9 @@ class Proof(models.Model):
     conclusion = models.CharField(max_length=255)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['-id']
+
     def __str__(self):
         return ("Proof {}:\nPremises: {},\nConclusion: {}\nLine Count: {}").format(
             self.name,
@@ -116,8 +117,8 @@ class ProofLine(models.Model):
     proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
     line_no = models.CharField(max_length=100, validators=[validate_line_no])
     # TODO: Add a validator for the formula field.
-    formula = models.CharField(max_length=255, blank=True, null=True)
-    rule = models.CharField(max_length=255, blank=True, null=True)
+    formula = models.CharField(max_length=255, null=True, blank=True)
+    rule = models.CharField(max_length=255, null=True, blank=True)
     ORDER = models.IntegerField(null=True)
 
     def __str__(self):
@@ -129,8 +130,10 @@ class ProofLine(models.Model):
 
 
 class Problem(models.Model):
-    grade = models.DecimalField(max_digits=5, decimal_places=2)
-    proof = models.ForeignKey(Proof, on_delete=models.CASCADE)
+    question = models.CharField(max_length=255, default='Solve the following problem')
+    point = models.DecimalField(max_digits=5, decimal_places=2)
+    target_steps = models.PositiveIntegerField()
+    proof = models.OneToOneField(Proof, on_delete=models.CASCADE)
     # If the proof is deleted, the problem is deleted
 
 
