@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
 
-from proofchecker.models import Proof, ProofLine, User
+from proofchecker.models import Course, Instructor, Problem, Proof, ProofLine, Student, User
 
 class HomeViewTest(TestCase):
 
@@ -207,7 +207,8 @@ class ProofUpdateViewTest(TestCase):
             'proofline_set-0-line_no': ['1'], 'proofline_set-0-formula': ['A∧B'], 'proofline_set-0-rule': ['Premise'], 'proofline_set-1-id': ['2'], 
             'proofline_set-1-ORDER': ['1'], 'proofline_set-1-line_no': ['2'], 'proofline_set-1-formula': ['A'], 'proofline_set-1-rule': ['∧E 1'], 
             'proofline_set-__prefix__-id': [''], 'proofline_set-__prefix__-ORDER': [''], 'proofline_set-__prefix__-line_no': [''], 
-            'proofline_set-__prefix__-formula': [''], 'proofline_set-__prefix__-rule': [''], 'check_proof': ['']})
+            'proofline_set-__prefix__-formula': [''], 'proofline_set-__prefix__-rule': [''], 'check_proof': ['']
+            })
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'proofchecker/proof_add_edit.html')
 
@@ -220,5 +221,84 @@ class ProofUpdateViewTest(TestCase):
             'proofline_set-0-line_no': ['1'], 'proofline_set-0-formula': ['A∧B'], 'proofline_set-0-rule': ['Premise'], 'proofline_set-1-id': ['2'], 
             'proofline_set-1-ORDER': ['1'], 'proofline_set-1-line_no': ['2'], 'proofline_set-1-formula': ['A'], 'proofline_set-1-rule': ['∧E 1'], 
             'proofline_set-__prefix__-id': [''], 'proofline_set-__prefix__-ORDER': [''], 'proofline_set-__prefix__-line_no': [''], 
-            'proofline_set-__prefix__-formula': [''], 'proofline_set-__prefix__-rule': [''], 'submit': ['']})
+            'proofline_set-__prefix__-formula': [''], 'proofline_set-__prefix__-rule': [''], 'submit': ['']
+            })
         self.assertEqual(response.status_code, 302)
+
+class FeedbackFormTest(TestCase):
+
+    def setUp(self):
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
+        test_user1.save()
+
+    def test_logged_in_uses_correct_template(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
+        response = self.client.get(reverse('feedback'))
+        self.assertTemplateUsed(response, 'proofchecker/feedback_form.html')
+        self.assertEqual(response.status_code, 200)
+
+    # def test_submit_feedback_redirect(self):
+    #     self.client = Client(enforce_csrf_checks=False)
+    #     login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
+    #     response = self.client.post(reverse('feedback'), {
+    #         'name': 'Test User',
+    #         'email': 'test@gmail.com',
+    #         'subject': 'Test Subject',
+    #         'details': 'Hello World'
+    #     })
+    #     self.assertEqual(response.status_code, 302)
+
+class StudentProofsViewTest(TestCase):
+
+    def setUp(self):
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK', is_active='True', is_instructor='True')
+        test_instructor = Instructor.objects.create(user=test_user1)
+        test_instructor.save()
+        test_user1.save()
+
+        test_user2 = User.objects.create_user(username='testuser2', password='1X<ISRUkw+tuK', is_active='True', is_student='True')
+        test_student = Student.objects.create(user=test_user2)
+        test_student.save()
+        test_user2.save()
+
+    def test_logged_in_uses_correct_template(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
+        response = self.client.get(reverse('student_proofs'))
+        self.assertTemplateUsed(response, 'proofchecker/student_proofs.html')
+        self.assertEqual(response.status_code, 200)
+
+    def test_specific_student(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
+        response = self.client.get(reverse('student_proofs'), args=[2])
+        self.assertTemplateUsed(response, 'proofchecker/student_proofs.html')
+        self.assertEqual(response.status_code, 200)
+
+class CourseStudentProofsViewTest(TestCase):
+
+    def setUp(self):
+        # Create two users (one instructor, one student)
+        test_user1 = User.objects.create_user(username='testuser1', password='1X<ISRUkw+tuK', is_active='True', is_instructor="True")
+        test_user2 = User.objects.create_user(username='testuser2', password='2HJ1vRV0Z&3iD', is_active='True', is_student="True")
+        test_instructor = Instructor.objects.create(user=test_user1)
+        test_student = Student.objects.create(user=test_user2)
+
+        test_instructor.save()
+        test_student.save()
+        test_user1.save()
+        test_user2.save()
+
+        # Create a course
+        test_course = Course.objects.create(
+            title = "Test Course",
+            term = "Fall 2022",
+            section = "101",
+            instructor = test_instructor,
+        )
+
+        test_course.save()
+
+    def test_logged_in_uses_correct_template(self):
+        login = self.client.login(username='testuser1', password='1X<ISRUkw+tuK', is_active='True')
+        response = self.client.get(reverse('course_student_proofs', args=[1, 2]))
+        self.assertTemplateUsed(response, 'proofchecker/course_student_proofs.html')
+        self.assertEqual(response.status_code, 200)

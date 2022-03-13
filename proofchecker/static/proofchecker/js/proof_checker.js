@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', reload_page, false);
  */
 function reload_page() {
     //this function will run on page load
+    updateLineCount()
 
     //will sort proof table based on ORDER field
     sort_table()
@@ -27,6 +28,7 @@ function reload_page() {
     hide_make_parent_button()
     update_row_indentations()
     updateLineCount()
+
 }
 
 
@@ -50,20 +52,15 @@ window.onload = function () {
 
 // Displayed line count
 function updateLineCount() {
-    let currentLineCount = document.getElementById("line_counter")
+    let table = document.getElementById("proof-table");
     let counter = 0;
 
-    if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
-        let row = document.getElementById(`${FORMSET_PREFIX}-0`)
-
-        while (row !== null) {
-            if (!row.hidden) {
-                counter++
-            }
-            row = row.nextElementSibling;
+    for (let i = 1; i < table.rows.length - 1; i++) {
+        if (!table.rows[i].hidden) {
+            counter++
         }
     }
-    currentLineCount.innerText = counter;
+    document.getElementById("line_counter").innerText = counter;
 }
 
 /**
@@ -74,6 +71,10 @@ function setStartRestartButtonAtBeginning() {
     if (document.getElementById(`id_${FORMSET_PREFIX}-0-rule`) !== null && document.getElementById(`id_${FORMSET_PREFIX}-0-rule`).value !== '') {
         document.getElementById("btn_start_proof").hidden = true
         document.getElementById("btn_restart_proof").classList.remove("hidden")
+    } else {
+        document.getElementById("btn_start_proof").classList.remove("hidden")
+        document.getElementById("btn_start_proof").hidden = false
+        document.getElementById("btn_restart_proof").hidden = true
     }
 }
 
@@ -175,10 +176,32 @@ function create_subproof(obj) {
 
 
 /**
+ * Moves current row up
+ */
+function move_up(obj) {
+    move_current_row_up(obj);
+    update_row_indentations();
+    hide_make_parent_button();
+    reset_order_fields();
+}
+
+
+/**
+ * Move current row down
+ */
+function move_down(obj) {
+    move_current_row_down(obj);
+    update_row_indentations();
+    hide_make_parent_button();
+    reset_order_fields();
+}
+
+/**
  * delete current row
  */
 function delete_form(obj) {
     delete_row(get_form_id(obj))
+    reset_order_fields()
     hide_make_parent_button()
     update_row_indentations()
     updateLineCount()
@@ -197,6 +220,7 @@ function generate_new_subproof_row_number(currentRow) {
     // Get the row that the button was clicked
     const original_row_number_of_clicked_button = currentRow.children[0].children[0].value
 
+
     // Update row number of clicked button
     currentRow.children[0].children[0].value = `${original_row_number_of_clicked_button}.1`
 
@@ -204,6 +228,15 @@ function generate_new_subproof_row_number(currentRow) {
     if (currentRow.children[2].children[0].value.length == 0) {
         currentRow.children[2].children[0].value = 'Assumption'
     }
+
+    updated_rows = {};
+    updated_rows[original_row_number_of_clicked_button] = currentRow.children[0].children[0].value;
+
+    reset_order_fields()
+
+    update_rule_line_references(updated_rows);
+
+
 }
 
 
@@ -226,13 +259,15 @@ function generate_parent_row(currentRow) {
     currentRow.children[0].children[0].value = originalCurrentRowLineNumberSegments.join('.')
     currentRow.children[0].children[0].setAttribute("readonly", true)
 
-
+    updated_rows = {}
     if (originalCurrentRowInfo.final_value != 1) {
-        renumber_rows(1, currentRow)
-
+        updated_rows = renumber_rows(1, currentRow);
     }
 
+    updated_rows[original_row_number_of_clicked_button] = currentRow.children[0].children[0].value;
+
     reset_order_fields()
+    update_rule_line_references(updated_rows)
 }
 
 
@@ -252,8 +287,184 @@ function insert_row_current_level(index) {
     newRow.children[0].children[0].value = prevRowLineNumberSegments.join('.')
     newRow.children[0].children[0].setAttribute("readonly", true)
 
-    renumber_rows(1, newRow)
+    updated_rows = renumber_rows(1, newRow)
     reset_order_fields()
+
+    update_rule_line_references(updated_rows)
+
+}
+
+
+
+/**
+ * Moves the current row up
+ */
+function move_current_row_up(obj) {
+
+    // Get the current row
+    const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
+
+    // Get the previous row
+    let previousRow = getPreviousValidRow(currentRow);
+
+    // If the previous row is hidden then continue to search until you find a visible previous row or null
+    while (true) {
+        if (previousRow == null || !previousRow.hidden) {
+            break;
+        }
+        previousRow = previousRow.previousElementSibling;
+    }
+
+    // If the previous row is not null then continue
+    if (previousRow != null) {
+        // Get previous row information
+        let previousRowInfo = getObjectsRowInfo(previousRow);
+        // Get current row information
+        let currentRowInfo = getObjectsRowInfo(currentRow);
+
+        // Get original previous row line number
+        const originalPreviousRowLineNumber = previousRowInfo.line_number_of_row;
+        // Get original previous row expression
+        const originalPreviousRowExpression = previousRow.children[1].children[0].value;
+        // get original previous row rule
+        const originalPreviousRowRule = previousRow.children[2].children[0].value;
+
+        // Get original current row line number
+        const originalCurrentRowLineNumber = currentRowInfo.line_number_of_row;
+        // Get original current row expression
+        const originalCurrentRowExpression = currentRow.children[1].children[0].value;
+        // get original current row rule
+        const originalCurrentRowRule = currentRow.children[2].children[0].value;
+
+        // Insert row after previous row
+        let insertObj = previousRow.children[3].children[0]
+        insert_row_current_level(get_form_id(insertObj));
+        update_row_indentations()
+        // Get the newly inserted row
+        let newlyInsertedRow = previousRow.nextElementSibling;
+
+        // If they are in line with each other then swap
+        if (previousRowInfo.string_of_prefix == currentRowInfo.string_of_prefix) {
+            // Change newly inserted row expression to the original previous row expression
+            newlyInsertedRow.children[1].children[0].value = originalPreviousRowExpression;
+            // Change newly inserted row rule to the original previous row rule
+            newlyInsertedRow.children[2].children[0].value = originalPreviousRowRule;
+
+            // Change previous row expression to the original current row expression
+            previousRow.children[1].children[0].value = originalCurrentRowExpression;
+            // Change previous row rule to the original current row rule
+            previousRow.children[2].children[0].value = originalCurrentRowRule;
+
+
+            // Update the line references originally pointing to the current row to the previous row
+            updated_rows[originalCurrentRowLineNumber] = originalPreviousRowLineNumber;
+            // Update the line references originally pointing to the previous row to the newly added row
+            updated_rows[originalPreviousRowLineNumber] = newlyInsertedRow.children[0].children[0].value;
+            update_rule_line_references(updated_rows);
+
+        }
+        // Otherwise move current in line
+        else {
+            // Change newly inserted row expression to the original current row expression
+            newlyInsertedRow.children[1].children[0].value = originalCurrentRowExpression;
+            // Change newly inserted row rule to the original current row rule
+            newlyInsertedRow.children[2].children[0].value = originalCurrentRowRule;
+
+            // Update the line references originally pointing to the current row to the newly added row
+            updated_rows[originalCurrentRowLineNumber] = newlyInsertedRow.children[0].children[0].value;
+            update_rule_line_references(updated_rows);
+
+        }
+        // Delete the original current row
+        delete_row(get_form_id(obj))
+    }
+}
+
+
+/**
+ * Moves the current row up
+ */
+function move_current_row_down(obj) {
+
+
+    // Get the current row
+    const currentRow = document.getElementById(`${FORMSET_PREFIX}-${get_form_id(obj)}`)
+
+
+    // Get the next row
+    let nextRow = getNextValidRow(currentRow);
+
+    // If the next row is hidden move to the next element until you find one that's not hidden
+    while (true) {
+        if (nextRow == null || !nextRow.hidden) {
+            break;
+        }
+        nextRow = nextRow.nextElementSibling
+    }
+
+    // If the next row is not null then move the row down
+    if (nextRow != null) {
+        // Get current row information
+        let currentRowInfo = getObjectsRowInfo(currentRow);
+        // Get next row information
+        let nextRowInfo = getObjectsRowInfo(nextRow);
+
+        // Get original current row line number
+        const originalCurrentRowLineNumber = currentRowInfo.line_number_of_row;
+        // Get original current row expression
+        const originalCurrentRowExpression = currentRow.children[1].children[0].value;
+        // get original current row rule
+        const originalCurrentRowRule = currentRow.children[2].children[0].value;
+
+        // Get original next row line number
+        const originalNextRowLineNumber = nextRowInfo.line_number_of_row;
+        // Get original next row expression
+        const originalNextRowExpression = nextRow.children[1].children[0].value;
+        // get original next row rule
+        const originalNextRowRule = nextRow.children[2].children[0].value;
+
+        // Insert row after next row
+        let insertObj = nextRow.children[3].children[0]
+        insert_row_current_level(get_form_id(insertObj));
+        update_row_indentations()
+
+        // Get information for inserted row
+        let newlyInsertedRow = nextRow.nextElementSibling;
+
+        // if the prefix of current and next match then it is a swap
+        if (currentRowInfo.string_of_prefix == nextRowInfo.string_of_prefix) {
+            // Change newly inserted row expression to original current row expression
+            newlyInsertedRow.children[1].children[0].value = originalCurrentRowExpression;
+            // Change newly inserted row rule to original current row rule
+            newlyInsertedRow.children[2].children[0].value = originalCurrentRowRule;
+
+            //Update the line references originally pointing to current row to newly added row
+            updated_rows[originalCurrentRowLineNumber] = newlyInsertedRow.children[0].children[0].value;
+            update_rule_line_references(updated_rows)
+        }
+        // otherwise you're switching the level of current to match next
+        else {
+            // Change newly inserted row expression to original next row expression
+            newlyInsertedRow.children[1].children[0].value = originalNextRowExpression;
+            // Change newly inserted row rule to original next row rule
+            newlyInsertedRow.children[2].children[0].value = originalNextRowRule;
+            // Change next row expression to original current row expression
+            nextRow.children[1].children[0].value = originalCurrentRowExpression;
+            // Change next row rule to original current row rule
+            nextRow.children[2].children[0].value = originalCurrentRowRule;
+
+            // Update the line references originally pointing to the current row to the next row
+            updated_rows[originalCurrentRowLineNumber] = originalNextRowLineNumber
+            // Update the line references originally potinting to the next row to the newly added row
+            updated_rows[originalNextRowLineNumber] = newlyInsertedRow.children[0].children[0].value;
+            update_rule_line_references(updated_rows)
+
+        }
+
+        // Delete the original current row
+        delete_row(get_form_id(obj))
+    }
+
 }
 
 
@@ -262,6 +473,8 @@ function insert_row_current_level(index) {
  */
 function delete_row(deleted_row_index) {
     let deleted_row = document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index);
+
+    let deleted_row_value = deleted_row.children[0].children[0].value;
 
     while (true) {
         if (checkIfRowIsUnique(deleted_row) === true) {
@@ -281,7 +494,7 @@ function delete_row(deleted_row_index) {
 
     //hide row
     document.getElementById(FORMSET_PREFIX + '-' + deleted_row_index).hidden = true;
-    renumber_rows(-1, deleted_row)
+    updated_rows = renumber_rows(-1, deleted_row)
     deleted_row.children[0].children[0].value = '0'
 
     //if id fields is empty that means this deleted (hidden now) row is a new row.. not existing one.. so we can actually remove it.
@@ -291,6 +504,11 @@ function delete_row(deleted_row_index) {
         update_form_count()
     }
     reset_order_fields()
+
+
+    updated_rows[deleted_row_value] = "";
+    update_rule_line_references(updated_rows)
+
 }
 
 
@@ -315,7 +533,7 @@ function update_form_count() {
     const fomrsetManagerTotalFormCounter = document.getElementById(FORMSET_TOTALFORMS_ID)
     let currentFormCount = document.getElementsByClassName(FORMSET_TR_CLASS).length
     fomrsetManagerTotalFormCounter.setAttribute('value', currentFormCount)
-    console.log(fomrsetManagerTotalFormCounter);
+    // console.log(fomrsetManagerTotalFormCounter);
 }
 
 
@@ -622,6 +840,8 @@ function checkIfRowIsUnique(currRow) {
 
 function renumber_rows(direction, newlyChangedRow) {
 
+    updated_rows = {}
+
     //getting currentRow that just got changed
     let currRow = newlyChangedRow;
     //getting the following valid row (ignoring rows that are already marked for deletion)
@@ -649,14 +869,60 @@ function renumber_rows(direction, newlyChangedRow) {
 
             //if next row starts with current row's prefix then we will increase (for insert / direction 1) or decrease (for deletion / direction -1) next row's line number
             if (nextRowInfo.line_number_of_row.startsWith(currRowStringOfPrefix)) {
+
+                let temporary_original_row = nextRow.children[0].children[0].value;
+
                 nextRowInfo.list_of_line_number[indexOfChangedElement] = Number(nextRowInfo.list_of_line_number[indexOfChangedElement]) + direction
                 const new_row_number = nextRowInfo.list_of_line_number.join('.');
                 nextRow.children[0].children[0].value = new_row_number
+
+                updated_rows[temporary_original_row] = new_row_number;
+
             }
 
             //setting up next for for next loop
             nextRow = getNextValidRow(nextRow)
             nextRowInfo = (nextRow !== null) ? getObjectsRowInfo(nextRow) : null;
+        }
+    }
+
+    return updated_rows;
+}
+
+
+function update_rule_line_references(updated_rows) {
+
+    if (document.getElementsByClassName(FORMSET_TR_CLASS).length >= 1) {
+        let row = document.getElementById(`${FORMSET_PREFIX}-0`)
+
+        while (row !== null) {
+            if (!row.hidden) {
+                let rule_text = row.children[2].children[0].value.split(/[ ,]+/)
+                let new_rule_text = [rule_text[0]];
+
+                for (let i = 0; i < rule_text.length; i++) {
+                    if (rule_text[i] in updated_rows) {
+                        // let original_value = rule_text[i]
+                        let new_value = updated_rows[rule_text[i]]
+                        if (new_value.length != 0) {
+                            new_rule_text.push(new_value)
+                        }
+                    }
+                    else {
+                        if (i > 0) {
+                            new_rule_text.push(rule_text[i]);
+                        }
+                    }
+                }
+                for (let i = 0; i < new_rule_text.length; i++) {
+                    if (i > 0 & i < new_rule_text.length - 1) {
+                        new_rule_text[i] = `${new_rule_text[i]},`
+                    }
+                }
+
+                row.children[2].children[0].value = new_rule_text.join(" ");
+            }
+            row = row.nextElementSibling;
         }
     }
 }
@@ -707,7 +973,7 @@ function updateFormsetId(old_id, new_id) {
     const targeted_element = document.getElementById(FORMSET_PREFIX + '-' + old_id)
     if (targeted_element !== null) {
         document.getElementById(FORMSET_PREFIX + '-' + old_id).setAttribute('id', `${FORMSET_PREFIX}-${new_id}`)
-        const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'make_parent-btn', 'create_subproof-btn', 'delete-btn', 'id', 'DELETE', 'ORDER']
+        const fields = ['line_no', 'formula', 'rule', 'insert-btn', 'make_parent-btn', 'create_subproof-btn', 'move_up-btn', 'move_down-btn', 'delete-btn', 'id', 'DELETE', 'ORDER']
         fields.forEach(function (field) {
             document.getElementById('id_' + FORMSET_PREFIX + '-' + old_id + '-' + field).setAttribute('name', `${FORMSET_PREFIX}-${new_id}-${field}`)
             document.getElementById('id_' + FORMSET_PREFIX + '-' + old_id + '-' + field).setAttribute('id', `id_${FORMSET_PREFIX}-${new_id}-${field}`)
@@ -718,19 +984,27 @@ function updateFormsetId(old_id, new_id) {
 
 
 function hide_make_parent_button() {
+
+    let table = document.getElementById("proof-table");
+
+    // Make all buttons visible
     let all_conclude_btn = document.getElementById(FORMSET_TBODY_ID).querySelectorAll('.make_parent')
     for (let i = 0; i < all_conclude_btn.length; i++) {
-        // all_conclude_btn.item(i).hidden = false
         all_conclude_btn.item(i).disabled = false
     }
 
-    let curr_form_obj = document.getElementById(`${FORMSET_PREFIX}-0`)
-    let next_form_obj = getNextValidRow(curr_form_obj)
+    for (let i = 1; i < table.rows.length - 1; i++) {
+        // console.log(table.rows[i])
 
-    while (curr_form_obj !== null || next_form_obj !== null) {
+        if (i == table.rows.length - 1) {
+            break;
+        }
+
+        let curr_form_obj = table.rows[i];
+        let next_form_obj = getNextValidRow(curr_form_obj)
+
         const current_row_info = getObjectsRowInfo(curr_form_obj)
         if (current_row_info.list_of_line_number.length === 1) {
-            // curr_form_obj.children[4].children[0].hidden = true
             curr_form_obj.children[4].children[0].disabled = true
         }
 
@@ -738,15 +1012,12 @@ function hide_make_parent_button() {
             const next_row_info = getObjectsRowInfo(next_form_obj)
             if (current_row_info.list_of_line_number.length > 1) {
                 if (current_row_info.string_of_prefix === next_row_info.string_of_prefix) {
-                    // curr_form_obj.children[4].children[0].hidden = true
                     curr_form_obj.children[4].children[0].disabled = true
 
                 }
             }
             curr_form_obj = next_form_obj
             next_form_obj = getNextValidRow(curr_form_obj)
-        } else {
-            break;
         }
     }
 }

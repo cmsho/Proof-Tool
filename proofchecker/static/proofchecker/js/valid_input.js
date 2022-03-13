@@ -1,55 +1,77 @@
 const premisesBox = document.getElementById('id_premises');
 const conclusionBox = document.getElementById('id_conclusion');
+const syntaxBox = document.getElementById('id_rules');
 
 premisesBox.addEventListener("focusout", isValidPremiseInput);
 conclusionBox.addEventListener("focusout", isValidConclusionInput);
-
-function applyTest(elementID)
-{
-    let proofBox = document.getElementById(elementID);
-    proofBox.addEventListener("onmouseover", makeGreen(elementID));
-    proofBox.addEventListener("onmouseout", makeWhite(elementID));
-}
-
-function makeGreen(elementID)
-{
-    let proofBox = document.getElementById(elementID);
-    proofBox.style.backgroundColor = "green";
-}
-
-function makeWhite(elementID)
-{
-    let proofBox = document.getElementById(elementID);
-    proofBox.style.backgroundColor = "white";
-}
+syntaxBox.addEventListener("change", checkAllFields);
 
 function isValidPremiseInput()
 {
     let premiseInput = "";
+    let syntaxChoice = syntaxBox.value;
     premiseInput = premisesBox.value;
-    if(premiseInput != "" && !isValidTFL(premiseInput).includes("This is a valid TFL statement."))
+
+    if(syntaxChoice.includes("tfl"))
     {
-        invalidPremiseInputMessage(isValidTFL(premiseInput));
+        if(premiseInput != "" && !isValidTFL(premiseInput).includes("This is a valid TFL statement"))
+        {
+            invalidPremiseInputMessage(isValidTFL(premiseInput));
+        }
+        else
+        {
+            clearPremiseErrorDiv();
+        }   
     }
-    else
+    else if(syntaxChoice.includes("fol"))
     {
-        clearPremiseErrorDiv();
+        if(premiseInput != "" && !isValidFOL(premiseInput).includes("This is a valid FOL statement"))
+        {
+            invalidPremiseInputMessage(isValidFOL(premiseInput));
+        }
+        else
+        {
+            clearPremiseErrorDiv();
+        }  
     }
+    
 }
 
 function isValidConclusionInput()
 {
     let conclusionInput = "";
+    let syntaxChoice = syntaxBox.value;
     conclusionInput = conclusionBox.value;
 
-    if(conclusionInput != "" && !isValidTFL(conclusionInput).includes("This is a valid TFL statement."))
+    if(syntaxChoice.includes("tfl"))
     {
-        invalidConclusionInputMessage(isValidTFL(conclusionInput));
+        if(conclusionInput != "" && !isValidTFL(conclusionInput).includes("This is a valid TFL statement"))
+        {
+            invalidConclusionInputMessage(isValidTFL(conclusionInput));
+        }
+        else
+        {
+            clearConclusionErrorDiv();
+        }
     }
-    else
+    else if(syntaxChoice.includes("fol"))
     {
-        clearConclusionErrorDiv();
+        if(conclusionInput != "" && !isValidFOL(conclusionInput).includes("This is a valid FOL statement"))
+        {
+            invalidConclusionInputMessage(isValidFOL(conclusionInput));
+        }
+        else
+        {
+            clearConclusionErrorDiv();
+        }
     }
+    
+}
+
+function checkAllFields()
+{
+    isValidPremiseInput();
+    isValidConclusionInput();
 }
 
 
@@ -62,7 +84,6 @@ function invalidPremiseInputMessage(string){
     let errorDiv = document.getElementById('valid-premise-div');
 
     errorDiv.innerHTML = premiseHeader.bold() + errorString;
-    setPremiseTooltipError(errorString);
 }
 
 
