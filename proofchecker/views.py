@@ -233,6 +233,7 @@ class ProblemView(ListView):
     model = Problem
     template_name = "proofchecker/problems.html"
 
+
 def feedback_form(request):
     if request.POST:
         form = FeedbackForm(request.POST)
@@ -260,6 +261,8 @@ def feedback_form(request):
     else:
         form = FeedbackForm()
     return render(request, 'proofchecker/feedback_form.html', {'form': form})
+
+
 @instructor_required
 def student_proofs_view(request, pk=None):
     courses = Course.objects.filter(instructor__user=request.user)
@@ -286,7 +289,6 @@ def student_proofs_view(request, pk=None):
     return render(request, 'proofchecker/student_proofs.html', context)
 
 
-
 @instructor_required
 def course_student_proofs_view(request, course_id=None, student_id=None):
 
@@ -306,4 +308,3 @@ def course_student_proofs_view(request, course_id=None, student_id=None):
         "proofs": proofs
     }
     return render(request, 'proofchecker/course_student_proofs.html', context)
-
