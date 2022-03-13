@@ -1,6 +1,17 @@
 # .coveragerc to control coverage.py
 
+[coverage:report]
+skip_empty = true
+
 [run]
 omit = 
     proofchecker/utils/ply/*
     manage.py
+    accounts/migrations/*
+    accounts/tests/*
+    assignments/migrations/*
+    assignments/tests/*
+    courses/migrations/*
+    courses/tests/*
+    proofchecker/migrations/*
+    proofchecker/tests/*
