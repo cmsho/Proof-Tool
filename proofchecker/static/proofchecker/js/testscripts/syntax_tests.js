@@ -14,7 +14,7 @@ QUnit.test("Remove Justification without Just Symbol Test", function( assert ) {
       assert.equal(str2, '(A∧B)∨C', "The initial string was " + str + " while the returned string is " + str2);
 });
 
-QUnit.test("Has Valid Symbols with Valid Symbols Test", function( assert ) { 
+QUnit.test("Has Valid Symbols with Valid TFL Symbols Test", function( assert ) { 
 
       //hasValidSymbols() should return True if all characters in the string are valid TFL symbols
       var value = "A->B"; 
@@ -22,7 +22,7 @@ QUnit.test("Has Valid Symbols with Valid Symbols Test", function( assert ) {
       assert.true(result, "The expression " + value + " is valid!");
 });
 
-QUnit.test("Has Valid Symbols with Invalid Symbols Test", function( assert ) { 
+QUnit.test("Has Valid Symbols with Invalid TFL Symbols Test", function( assert ) { 
 
       //hasValidSymbols() should return False if one or more characters in the string are not valid TFL symbols
       var value = "A>B=C"; 
@@ -135,4 +135,21 @@ QUnit.test("Is Valid TFL Against Invalid Input Test", function( assert ) {
 
       assert.notEqual(isValidTFL(invalid_symbols), "This is a valid TFL statement.", "The string " + invalid_symbols + " is NOT a valid TFL sentence.");
       assert.notEqual(isValidTFL(unbalanced_parens), "This is a valid TFL statement.", "The string " + unbalanced_parens + " is NOT a valid TFL sentence.");
+});
+
+QUnit.test("Has Valid FOL Symbols with Valid Input Test", function ( assert ) {
+
+      //hasValidFOLSymbols should return true if all symbols are valid FOL characters
+      var value = "Abtb=∀"; 
+      var result = hasValidFOLSymbols(value);
+      assert.true(result, "The expression " + value + " is valid!");
+
+});
+
+QUnit.test("Has Valid FOL Symbols with Invalid Input Test", function ( assert ) {
+
+      //hasValidFOLSymbols should return false if any symbols are invalid FOL characters
+      var value = "a->B ^ 88"; 
+      var result = hasValidFOLSymbols(value);
+      assert.false(result, "The expression " + value + " is invalid!");
 });
