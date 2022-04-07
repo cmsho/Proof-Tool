@@ -30,6 +30,8 @@ def home(request):
     context = {"proofs": proofs}
     return render(request, "proofchecker/home.html", context)
 
+def version_log(request):
+    return render(request, 'proofchecker/version_log.html')
 
 def SyntaxTestPage(request):
     return render(request, "proofchecker/testpages/syntax_test.html")

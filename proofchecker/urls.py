@@ -23,4 +23,5 @@ urlpatterns = [
     path("students/proofs/", views.student_proofs_view, name='student_proofs'),
     path("students/proofs/<pk>", views.student_proofs_view, name='student_proofs'),
     path("tests/syntaxtest", views.SyntaxTestPage, name='syntax_test'),
+    path("version_log", views.version_log, name='version_log')
 ]
