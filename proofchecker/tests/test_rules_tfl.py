@@ -156,7 +156,16 @@ class BasicRuleTests(TestCase):
         line3 = ProofLineObj('2.2', 'C', '∧E 2.1')
         proof = ProofObj(lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
-        self.assertTrue(result.is_valid) 
+        self.assertTrue(result.is_valid)
+
+        # Test with wrong symbol on line 1
+        line1 = ProofLineObj('1', 'A∨B', 'Premise')
+        line2 = ProofLineObj('2', 'A', '∧E 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, "Error on line 1: The root operand should be ∧ when applying ∧E "\
+                        + "(currently the root operand is ∨)")
 
         # Test with invalid conclusion
         line1 = ProofLineObj('1', 'A∧B', 'Premise')
@@ -207,6 +216,18 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
         result = rule.verify(line6, proof, parser)
         self.assertTrue(result.is_valid)
+
+        # Test where root value is not ∨
+        line1 = ProofLineObj('1', 'A∧B', 'Premise')
+        line2 = ProofLineObj('2.1', 'A', 'Assumption')
+        line3 = ProofLineObj('2.2', 'C', 'Assumption')
+        line4 = ProofLineObj('3.1', 'B', 'Assumption')
+        line5 = ProofLineObj('3.2', 'C', 'Assumption')
+        line6 = ProofLineObj('4', 'C', '∨E 1, 2, 3')
+        proof = ProofObj(lines=[line1, line2, line3, line4, line5, line6])
+        result = rule.verify(line6, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, "Error on line 1: The root operand should be ∨ when applying ∨E (currently the root operand is ∧)")
 
         # Test with unequivalent expressions
         line1 = ProofLineObj('1', 'A∨B', 'Premise')
@@ -371,6 +392,15 @@ class BasicRuleTests(TestCase):
         parser = tflparser.parser
 
         # Test with valid input
+        line1 = ProofLineObj('1', 'A∧B', 'Premise')
+        line2 = ProofLineObj('2', 'A', 'Premise')
+        line3 = ProofLineObj('3', 'B', '→E 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, "Error on line 1: The root operand should be → when applying →E (currently the root operand is ∧)")
+
+        # Test where root is not →
         line1 = ProofLineObj('1', 'A→B', 'Premise')
         line2 = ProofLineObj('2', 'A', 'Premise')
         line3 = ProofLineObj('3', 'B', '→E 1, 2')
@@ -507,6 +537,15 @@ class BasicRuleTests(TestCase):
         result = rule.verify(line3, proof, parser)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.err_msg, None)
+
+        # Test where root of line m is not ↔ 
+        line1 = ProofLineObj('1', 'A∧B', 'Assumption')
+        line2 = ProofLineObj('2', 'A', 'Assumption')
+        line3 = ProofLineObj('3', 'B', '↔E 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, "Error on line 1: The root operand should be ↔ when applying ↔E (currently the root operand is ∧)")
 
         # Test with invalid input
         line1 = ProofLineObj('1', 'A↔B', 'Assumption')

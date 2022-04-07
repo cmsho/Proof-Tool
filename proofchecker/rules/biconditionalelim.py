@@ -36,6 +36,12 @@ class BiconditionalElim(Rule):
                 root_n = make_tree(expressions[1], parser)
                 root_current = make_tree(current_line.expression, parser)
 
+                # Confirm the root value of line m is ∧
+                if (root_m.value != '↔'):
+                    response.err_msg = "Error on line {}: The root operand should be ↔ when applying ↔E (currently the root operand is {})"\
+                        .format(str(target_lines[0].line_no), str(root_m.value))
+                    return response
+
                 # Compare the trees
                 if (root_n == root_m.left) or (root_n == root_m.right):
                     if (root_current == root_m.left) or (root_current == root_m.right):

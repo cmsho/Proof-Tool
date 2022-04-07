@@ -35,6 +35,12 @@ class ConjunctionElim(Rule):
                 root_left = root_target.left
                 root_right = root_target.right
 
+                # Confirm the root value of line m is ∧
+                if (root_target.value != '∧'):
+                    response.err_msg = "Error on line {}: The root operand should be ∧ when applying ∧E (currently the root operand is {})"\
+                        .format(str(target_line.line_no), str(root_target.value))
+                    return response
+
                 # Create a tree from the current expression
                 root_current = make_tree(current_line.expression, parser)
 

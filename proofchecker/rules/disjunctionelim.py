@@ -42,6 +42,12 @@ class DisjunctionElim(Rule):
                 root_l = make_tree(expressions[4], parser)
                 root_current = make_tree(current_line.expression, parser)
 
+                # Confirm the root value of line m is ∨
+                if (root_m.value != '∨'):
+                    response.err_msg = "Error on line {}: The root operand should be ∨ when applying ∨E (currently the root operand is {})"\
+                        .format(str(target_lines[0].line_no), str(root_m.value))
+                    return response
+
                 # Verify lines i and k represent separate sides of expression m
                 if (root_i != root_k):
                     if (root_i == root_m.left) or (root_i == root_m.right):

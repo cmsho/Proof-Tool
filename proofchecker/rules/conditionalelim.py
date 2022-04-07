@@ -36,6 +36,12 @@ class ConditionalElim(Rule):
                 root_combined.left = make_tree(expressions[1], parser)
                 root_combined.right = make_tree(current_line.expression, parser)
 
+                # Confirm the root value of line m is ∧
+                if (root_implies.value != '→'):
+                    response.err_msg = "Error on line {}: The root operand should be → when applying →E (currently the root operand is {})"\
+                        .format(str(target_lines[0].line_no), str(root_implies.value))
+                    return response
+
                 # Compare the trees
                 if root_implies == root_combined:
                     response.is_valid = True
