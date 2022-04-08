@@ -46,6 +46,9 @@ class Student(models.Model):
     bio = models.TextField(max_length=500, blank=True)
     dob = models.DateField(null=True, blank=True)
 
+    class Meta:
+        ordering = ['user__username']
+
     def __str__(self):
         return self.user.username
 

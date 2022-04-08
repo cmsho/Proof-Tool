@@ -279,13 +279,7 @@ def feedback_form(request):
 @instructor_required
 def student_proofs_view(request, pk=None):
     courses = Course.objects.filter(instructor__user=request.user)
-
-    students = []
-    for course in courses:
-        for student in course.students.all():
-            students.append(student)
-
-    students = list(set(students))
+    students = Student.objects.filter(course__in=courses)
 
     student = None
     proofs = None
