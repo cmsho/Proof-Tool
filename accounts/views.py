@@ -1,19 +1,19 @@
-import profile
-from django.contrib.auth import get_user_model
-from django.shortcuts import redirect
-from django.views.generic import CreateView
-from django.views.generic import TemplateView
 from django.contrib import messages
-from django.views.generic.edit import UpdateView
+from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from .tokens import account_activation_token
-from django.core.mail import EmailMessage
-from django.urls import reverse
+from django.views.generic import CreateView
+from django.views.generic import TemplateView
+
 # Create your views here.
 from accounts.forms import StudentSignUpForm, InstructorSignUpForm, StudentProfileForm, InstructorProfileForm, UserForm
 from proofchecker.models import Student, Instructor
+from .tokens import account_activation_token
+
 User = get_user_model()
 
 
@@ -40,9 +40,9 @@ class StudentSignUpView(CreateView):
         link = reverse('activate', kwargs={
             'uidb64': uidb64, 'token': account_activation_token.make_token(user)
         })
-        activate_url = "http://"+domain+link
+        activate_url = "http://" + domain + link
         email_body = "Hi " + user.username + \
-            ", Please click on the link to confirm your registration.\n"+activate_url
+                     ", Please click on the link to confirm your registration.\n" + activate_url
         to_email = form.cleaned_data.get('email')
         email = EmailMessage(
             mail_subject, email_body, to=[to_email])
@@ -67,7 +67,7 @@ def activate(request, uidb64, token):
         messages.success(request, f'Account activated for {user.username}')
         return redirect('login')
     else:
-        messages.error(request, f'Error occured while activating accont.')
+        messages.error(request, f'Error occurred while activating account.')
         return redirect('login')
 
 
@@ -89,9 +89,9 @@ class InstructorSignUpView(CreateView):
         link = reverse('activate', kwargs={
             'uidb64': uidb64, 'token': account_activation_token.make_token(user)
         })
-        activate_url = "http://"+domain+link
+        activate_url = "http://" + domain + link
         email_body = "Hi " + user.username + \
-            ", Please click on the link to confirm your registration.\n"+activate_url
+                     ", Please click on the link to confirm your registration.\n" + activate_url
         to_email = form.cleaned_data.get('email')
         email = EmailMessage(
             mail_subject, email_body, to=[to_email])

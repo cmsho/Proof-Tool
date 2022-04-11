@@ -1,28 +1,24 @@
-from accounts.decorators import instructor_required
-from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import PermissionDenied
+from django.core.mail import EmailMessage
+from django.forms import inlineformset_factory
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, DeleteView
-from django.forms import inlineformset_factory
-from proofchecker.forms import ProofForm, ProofLineForm
-from proofchecker.models import Proof, Problem, ProofLine, Student, Course, StudentProblemSolution
+
+from accounts.decorators import instructor_required
+from proofchecker.models import Student, Course, StudentProblemSolution
 from proofchecker.proofs.proofchecker import verify_proof
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj
 from proofchecker.proofs.proofutils import get_premises
-from proofchecker.utils import tflparser
 from proofchecker.utils import folparser
-
-from .forms import ProofCheckerForm, ProofForm, ProofLineForm, FeedbackForm
-from .models import Proof, Problem, Assignment, Instructor, ProofLine, Feedback
-from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
-from proofchecker.proofs.proofutils import get_premises
-from proofchecker.proofs.proofchecker import verify_proof
-
-from django.contrib import messages
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
+from proofchecker.utils import tflparser
+from .forms import ProofForm, ProofLineForm, FeedbackForm
+from .models import Proof, Problem, ProofLine
 
 
 def home(request):
@@ -30,8 +26,10 @@ def home(request):
     context = {"proofs": proofs}
     return render(request, "proofchecker/home.html", context)
 
+
 def version_log(request):
     return render(request, 'proofchecker/version_log.html')
+
 
 def SyntaxTestPage(request):
     return render(request, "proofchecker/testpages/syntax_test.html")
@@ -160,56 +158,59 @@ def proof_create_view(request):
 @login_required
 def proof_update_view(request, pk=None):
     obj = get_object_or_404(Proof, pk=pk)
-    ProofLineFormset = inlineformset_factory(
-        Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
-    form = ProofForm(request.POST or None, instance=obj)
-    formset = ProofLineFormset(
-        request.POST or None, instance=obj, queryset=obj.proofline_set.order_by("ORDER"))
-    response = None
-    validation_failure = False
 
-    if request.POST:
-        if all([form.is_valid(), formset.is_valid()]):
-            parent = form.save(commit=False)
-            if 'check_proof' in request.POST:
-                proof = ProofObj(lines=[])
-                proof.rules = str(parent.rules)
-                proof.premises = get_premises(parent.premises)
-                proof.conclusion = str(parent.conclusion)
+    if obj.created_by == request.user or request.user.is_instructor:
+        ProofLineFormset = inlineformset_factory(
+            Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
+        form = ProofForm(request.POST or None, instance=obj)
+        formset = ProofLineFormset(
+            request.POST or None, instance=obj, queryset=obj.proofline_set.order_by("ORDER"))
+        response = None
+        validation_failure = False
 
-                for line in formset.ordered_forms:
-                    if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
-                        proofline = ProofLineObj()
-                        child = line.save(commit=False)
-                        child.proof = parent
-                        proofline.line_no = str(child.line_no)
-                        proofline.expression = str(child.formula)
-                        proofline.rule = str(child.rule)
-                        proof.lines.append(proofline)
+        if request.POST:
+            if all([form.is_valid(), formset.is_valid()]):
+                parent = form.save(commit=False)
+                if 'check_proof' in request.POST:
+                    proof = ProofObj(lines=[])
+                    proof.rules = str(parent.rules)
+                    proof.premises = get_premises(parent.premises)
+                    proof.conclusion = str(parent.conclusion)
 
-                # Determine which parser to user based on selected rules
-                if ((proof.rules == 'fol_basic') or (proof.rules == 'fol_derived')):
-                    parser = folparser.parser
-                else:
-                    parser = tflparser.parser
+                    for line in formset.ordered_forms:
+                        if len(line.cleaned_data) > 0 and not line.cleaned_data['DELETE']:
+                            proofline = ProofLineObj()
+                            child = line.save(commit=False)
+                            child.proof = parent
+                            proofline.line_no = str(child.line_no)
+                            proofline.expression = str(child.formula)
+                            proofline.rule = str(child.rule)
+                            proof.lines.append(proofline)
 
-                response = verify_proof(proof, parser)
+                    # Determine which parser to user based on selected rules
+                    if ((proof.rules == 'fol_basic') or (proof.rules == 'fol_derived')):
+                        parser = folparser.parser
+                    else:
+                        parser = tflparser.parser
 
-            elif 'submit' in request.POST:
-                if len(formset.forms) > 0:
-                    parent.created_by = request.user
-                    parent.save()
-                    formset.save()
-                    return HttpResponseRedirect(reverse('all_proofs'))
+                    response = verify_proof(proof, parser)
 
-    context = {
-        "object": obj,
-        "form": form,
-        "formset": formset,
-        "response": response
+                elif 'submit' in request.POST:
+                    if len(formset.forms) > 0:
+                        parent.created_by = request.user
+                        parent.save()
+                        formset.save()
+                        return HttpResponseRedirect(reverse('all_proofs'))
 
-    }
-    return render(request, 'proofchecker/proof_add_edit.html', context)
+        context = {
+            "object": obj,
+            "form": form,
+            "formset": formset,
+            "response": response
+        }
+        return render(request, 'proofchecker/proof_add_edit.html', context)
+    else:
+        raise PermissionDenied()
 
 
 class ProofView(LoginRequiredMixin, ListView):
@@ -221,8 +222,15 @@ class ProofView(LoginRequiredMixin, ListView):
         return Proof.objects.filter(created_by=self.request.user)
 
 
-class ProofDetailView(DetailView):
+class ProofDetailView(UserPassesTestMixin, DetailView):
     model = Proof
+
+    def test_func(self):
+        obj = self.get_object()
+        if obj.created_by == self.request.user or self.request.user.is_instructor:
+            return True
+        else:
+            return False
 
 
 class ProofDeleteView(DeleteView):
