@@ -74,9 +74,13 @@ def check_subs(current_tree: Node, line_n_tree: Node, left: str, right: str, cur
             return response
 
         # Check whether they are equivalent by swapping 'left' with 'right'
+        side = left
         x = 0
         while x < len(current_clean):
-            if not ((current_clean[x] == line_n_clean[x]) or (current_clean[x] == left) or (current_clean[x] == right)): 
+            if not ((current_clean[x] == line_n_clean[x]) or (current_clean[x] == side)):
+                if side == left:
+                    side = right
+                    continue 
                 response = ProofResponse()
                 response.err_msg = 'Error on line {}: Expression "{}" cannot be achieved by replacing "{}" with "{}" (or vice versa) in the expression "{}"'\
                     .format(current_line.line_no, current_line.expression, left, right, line_n.expression)

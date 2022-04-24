@@ -135,6 +135,15 @@ class FOLRulesTests(TestCase):
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
         self.assertEqual(result.err_msg, 'Error on line 3: Expressions on lines 2 and 3 should have similar structure')
+
+        # Test with double swap input
+        line1 = ProofLineObj('1', 'a=b', 'Premise')
+        line2 = ProofLineObj('2', 'Pab', 'Premise')
+        line3 = ProofLineObj('3', 'Pba', '=E 1, 2')
+        proof = ProofObj(lines=[line1, line2, line3])
+        result = rule.verify(line3, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 3: Expression "Pba" cannot be achieved by replacing "a" with "b" (or vice versa) in the expression "Pab"')
         
 
     def test_existential_intro(self):
@@ -299,6 +308,22 @@ class FOLRulesTests(TestCase):
         # Test with valid input
         line1 = ProofLineObj('1', '∀x∈S H(x)', 'Premise')
         line2 = ProofLineObj('2', 'H(a)', '∀E 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        # Test with valid input
+        line1 = ProofLineObj('1', '∀x∈V Pxa', 'Premise')
+        line2 = ProofLineObj('2', 'Paa', '∀E 1')
+        proof = ProofObj(lines=[line1, line2])
+        result = rule.verify(line2, proof, parser)
+        self.assertTrue(result.is_valid)
+        self.assertEqual(result.err_msg, None)
+
+        # Test with valid input
+        line1 = ProofLineObj('1', '∀x∈V Pxb', 'Premise')
+        line2 = ProofLineObj('2', 'Pab', '∀E 1')
         proof = ProofObj(lines=[line1, line2])
         result = rule.verify(line2, proof, parser)
         self.assertTrue(result.is_valid)

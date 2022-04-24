@@ -14,6 +14,12 @@ class Assumption(Rule):
 
         try:
             nums = str(current_line.line_no).replace('.', ' ').split()
+            
+            if len(nums) == 1:
+                response.err_msg = 'Error on line {}: Assumptions can only exist at the start of a subproof'\
+                .format(str(current_line.line_no))
+                return response
+            
             last_num = nums[len(nums)-1]
 
             # Assumptions should start a new subproof

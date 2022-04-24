@@ -1,6 +1,6 @@
 from proofchecker.proofs.proofobjects import ProofObj, ProofLineObj, ProofResponse
 from proofchecker.proofs.proofutils import clean_rule, get_line, verify_line_citation, make_tree, verify_same_structure_FOL, \
-    verify_var_replaces_every_name
+    verify_var_replaces_some_name
 from .rule import Rule
 
 class UniversalElim(Rule):
@@ -44,7 +44,7 @@ class UniversalElim(Rule):
                 # Verify that all instances of the bound variable in root_m.right
                 # are replaced by the same name in current
                 var = root_m.value[1]
-                result = verify_var_replaces_every_name(root_m.right, current, var, target_line.line_no, current_line.line_no)
+                result = verify_var_replaces_some_name(root_m.right, current, var, target_line.line_no, current_line.line_no)
                 if result.is_valid == False:
                     result.err_msg = 'Error on line {}: '.format(current_line.line_no) + result.err_msg
                     return result

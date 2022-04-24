@@ -108,7 +108,15 @@ class BasicRuleTests(TestCase):
         proof = ProofObj(premises='A', lines=[line1, line2, line3])
         result = rule.verify(line3, proof, parser)
         self.assertFalse(result.is_valid)
-        self.assertEqual(result.err_msg, 'Error on line 2.2: Assumptions can only exist at the start of a subproof')     
+        self.assertEqual(result.err_msg, 'Error on line 2.2: Assumptions can only exist at the start of a subproof')
+
+        # Test with assumption on line 1
+        line1 = ProofLineObj('1', 'A', 'Assumption')
+        line2 = ProofLineObj('2', 'A', 'R 1')
+        proof = ProofObj(premises='A', lines=[line1, line2])
+        result = rule.verify(line1, proof, parser)
+        self.assertFalse(result.is_valid)
+        self.assertEqual(result.err_msg, 'Error on line 1: Assumptions can only exist at the start of a subproof')
 
     def test_conjunction_intro(self):
         rule = ConjunctionIntro()
