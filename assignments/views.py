@@ -35,7 +35,8 @@ def instructor_assignments_view(request):
 
 
 def student_assignments_view(request):
-    object_list = Assignment.objects.filter(course__in=Course.objects.filter(Q(students__user=request.user)))
+    object_list = Assignment.objects.filter(
+        course__in=Course.objects.filter(Q(students__user=request.user)))
     context = {
         "object_list": object_list,
     }
@@ -77,9 +78,23 @@ def create_assignment_view(request):
 
 @login_required
 def assignment_details_view(request, pk=None):
+    studentPk = request.GET.get('studentId')
+    if studentPk is None:
+        if request.user.is_student:
+            studentPk = request.user.pk
+
     assignment = get_object_or_404(Assignment, pk=pk)
+    solutions = StudentProblemSolution.objects.filter(assignment=pk, student=studentPk)
     form = AssignmentForm(request.user, request.POST or None, instance=assignment)
     problems = assignment.problems.all()
+    totalgrade = 0
+    totalpoint = 0
+    for solution in solutions:
+        for problem in problems:
+            totalpoint = totalpoint + problem.point
+            if solution.problem == problem.pk:
+                problem.grade = solution.grade
+                totalgrade = totalgrade + problem.grade
 
     if request.POST:
         if form.is_valid():
@@ -94,7 +109,9 @@ def assignment_details_view(request, pk=None):
     context = {
         "assignment": assignment,
         "form": form,
-        "problems": problems
+        "problems": problems,
+        "totalgrade": totalgrade,
+        "totalpoint": totalpoint
     }
     return render(request, 'assignments/assignment_details.html', context)
 
@@ -111,8 +128,10 @@ def create_problem(request):
     proof_form = ProblemProofForm(request.POST or None)
 
     query_set = ProofLine.objects.none()
-    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
-    formset = ProofLineFormset(request.POST or None, instance=proof_form.instance, queryset=query_set)
+    ProofLineFormset = inlineformset_factory(
+        Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
+    formset = ProofLineFormset(
+        request.POST or None, instance=proof_form.instance, queryset=query_set)
 
     assignmentPk = request.GET.get('assignment')
     problem = None
@@ -161,7 +180,8 @@ def problem_details_view(request, pk=None):
     proof = None
     try:
         solution = StudentProblemSolution.objects.get(student__user_id=studentPk,
-                                                      assignment=Assignment.objects.get(id=assignmentPk),
+                                                      assignment=Assignment.objects.get(
+                                                          id=assignmentPk),
                                                       problem=problem)
         if solution is not None:
             return problem_solution_view(request, problem.id)
@@ -171,8 +191,10 @@ def problem_details_view(request, pk=None):
     proof = Proof.objects.get(problem=problem)
     proof_form = ProblemProofForm(request.POST or None, instance=proof)
 
-    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
-    formset = ProofLineFormset(request.POST or None, instance=proof, queryset=proof.proofline_set.order_by("ORDER"))
+    ProofLineFormset = inlineformset_factory(
+        Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
+    formset = ProofLineFormset(
+        request.POST or None, instance=proof, queryset=proof.proofline_set.order_by("ORDER"))
 
     if request.POST:
         if all([problem_form.is_valid(), proof_form.is_valid(), formset.is_valid()]):
@@ -234,15 +256,19 @@ def problem_solution_view(request, problem_id=None):
             proofline.save()
 
         solution = StudentProblemSolution(student=Student.objects.get(user_id=studentPk),
-                                          assignment=Assignment.objects.get(id=assignmentPk),
-                                          problem=Problem.objects.get(pk=problem_id),
+                                          assignment=Assignment.objects.get(
+                                              id=assignmentPk),
+                                          problem=Problem.objects.get(
+                                              pk=problem_id),
                                           proof=Proof.objects.get(id=proof.id))
         solution.save()
 
     proof_form = StudentProblemProofForm(request.POST or None, instance=proof)
 
-    ProofLineFormset = inlineformset_factory(Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
-    formset = ProofLineFormset(request.POST or None, instance=proof, queryset=proof.proofline_set.order_by("ORDER"))
+    ProofLineFormset = inlineformset_factory(
+        Proof, ProofLine, form=ProofLineForm, extra=0, can_order=True)
+    formset = ProofLineFormset(
+        request.POST or None, instance=proof, queryset=proof.proofline_set.order_by("ORDER"))
 
     response = None
     if request.POST:
@@ -274,6 +300,13 @@ def problem_solution_view(request, problem_id=None):
 
             elif 'submit' in request.POST:
                 proof.save()
+                grade = solution.grade or 0
+                if response and response.is_valid:
+                    grade = problem.point
+                else:
+                    grade = problem.point - problem.lost_points
+                solution.grade = grade
+                solution.save()
                 formset.save()
                 messages.success(request, "Solution saved successfully")
                 return HttpResponseRedirect(reverse('assignment_details', kwargs={'pk': assignmentPk}))

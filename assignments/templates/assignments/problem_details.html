@@ -29,6 +29,17 @@
         </div>
         {% endfor %} {% if request.user.is_instructor %}
         <br>
+
+        <!-- <div class="proof__submit-btn">
+            <button id="btn_start_proof" class="btn btn-primary mx-2" type="button" onclick="start_proof(this)">
+                Start Proof
+            </button>
+            <button id="btn_restart_proof" class="hidden btn btn-primary mx-2" type="button" onclick="restart_proof()">
+                Restart Proof
+            </button>
+            <input type="number" step="0.5" name="lost_points" id="lost_points" min="0" max="5" class="form-control" required/>
+            <label for="lost_points" class="lost__points">Points lost if target steps missed </label>
+        </div> -->
         <button id="btn_start_proof" class="btn btn-primary mx-2" type="button" onclick="start_proof(this)">
             Start Proof
         </button>

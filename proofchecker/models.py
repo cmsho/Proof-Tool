@@ -135,6 +135,7 @@ class Problem(models.Model):
     question = models.CharField(max_length=255, default='Solve the following problem')
     point = models.DecimalField(max_digits=5, decimal_places=2)
     target_steps = models.PositiveIntegerField()
+    lost_points = models.PositiveIntegerField()
     proof = models.OneToOneField(Proof, on_delete=models.CASCADE)
     # If the proof is deleted, the problem is deleted
 
