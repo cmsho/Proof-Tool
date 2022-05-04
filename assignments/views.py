@@ -89,12 +89,16 @@ def assignment_details_view(request, pk=None):
     problems = assignment.problems.all()
     totalgrade = 0
     totalpoint = 0
-    for solution in solutions:
-        for problem in problems:
-            totalpoint = totalpoint + problem.point
-            if solution.problem == problem.pk:
-                problem.grade = solution.grade
+    for problem in problems:
+        for solution in solutions:
+            setattr(problem, 'grade', 0)
+            if solution.problem.pk == problem.pk:
+                totalpoint = totalpoint + problem.point
+                if solution.grade: 
+                    problem.grade = solution.grade
+                    # setattr(problem, 'grade', solution.grade)
                 totalgrade = totalgrade + problem.grade
+                break;
 
     if request.POST:
         if form.is_valid():
