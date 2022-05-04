@@ -110,6 +110,9 @@ def assignment_details_view(request, pk=None):
         else:
             messages.error(request, form.errors)
 
+    if request.user.is_student:
+        form.disabled_all();
+
     context = {
         "assignment": assignment,
         "form": form,
@@ -161,6 +164,10 @@ def create_problem(request):
                 return redirect("/assignment/" + assignmentPk + "/details")
 
             return HttpResponseRedirect(reverse('all_assignments'))
+        
+    if request.user.is_student:
+        problem_form.disabled_all()
+        proof_form.disabled_all()
 
     context = {
         "problem_form": problem_form,
@@ -219,6 +226,10 @@ def problem_details_view(request, pk=None):
 
             return HttpResponseRedirect(reverse('all_assignments'))
 
+    if request.user.is_student:
+        problem_form.disabled_all()
+        proof_form.disabled_all()
+        
     context = {
         "object": problem,
         "problem_form": problem_form,
@@ -315,6 +326,10 @@ def problem_solution_view(request, problem_id=None):
                 messages.success(request, "Solution saved successfully")
                 return HttpResponseRedirect(reverse('assignment_details', kwargs={'pk': assignmentPk}))
 
+    if request.user.is_student:
+        problem_form.disabled_all()
+        proof_form.disabled_all()
+        
     context = {
         "object": problem,
         "problem_form": problem_form,
