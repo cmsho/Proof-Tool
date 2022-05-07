@@ -22,6 +22,9 @@ urlpatterns = [
     path("tests/syntaxtest", views.SyntaxTestPage, name='syntax_test'),
     path("students/proofs/", views.student_proofs_view, name='student_proofs'),
     path("students/proofs/<pk>", views.student_proofs_view, name='student_proofs'),
+    path("students/grades", views.student_grades_view, name='student_grades'),
+    # path("students/grades/<int:course_id>", views.student_grades_view, name='student_grades'),
+    # path("students/assignments", views.student_assignment, name='student_assignment'),
     path("tests/syntaxtest", views.SyntaxTestPage, name='syntax_test'),
     path("version_log", views.version_log, name='version_log')
 ]

@@ -242,7 +242,8 @@ class ProofDeleteView(DeleteView):
         obj = self.get_object()
         try:
             if StudentProblemSolution.objects.get(proof_id=obj.id):
-                messages.error(request, 'Proof from Assignment cannot be deleted!')
+                messages.error(
+                    request, 'Proof from Assignment cannot be deleted!')
                 return redirect('all_proofs')
             else:
                 return super(ProofDeleteView, self).dispatch(request, *args, **kwargs)
@@ -264,17 +265,18 @@ def feedback_form(request):
             email = form.cleaned_data.get('email')
             details = form.cleaned_data.get('details')
             subject = form.cleaned_data.get('subject')
-            attach = request.FILES['attach']
-            # attach = request.FILES.getlist('attach')
-            domain = get_current_site(request).domain
             mail_subject = 'Bug/Feedback - ' + subject
-
             email_body = details + "\n\nReported By - " + name + "\nEmail - " + email
 
             to_email = 'proofchecker.pwreset@gmail.com'
             email = EmailMessage(
                 mail_subject, email_body, to=[to_email])
-            email.attach(attach.name, attach.read(), attach.content_type)
+            try:
+                attach = request.FILES['attach']
+                if  attach != None and attach.content_type != None:
+                    email.attach(attach.name, attach.read(), attach.content_type)
+            except:
+                print()
             email.send()
             messages.success(
                 request, f'Your Feedback/Bug has been recorded. Thank you')
@@ -302,6 +304,31 @@ def student_proofs_view(request, pk=None):
         "proofs": proofs
     }
     return render(request, 'proofchecker/student_proofs.html', context)
+
+
+@instructor_required
+def student_grades_view(request, course_id=None):
+    courses = Course.objects.filter(instructor__user=request.user)
+    students = []
+    if course_id is not None:
+        for course in courses:
+            if course.id is course_id:
+                list_students = course.students.all()
+                for student in list_students:
+                    students.append(student.user)
+    # else:
+    #      for course in courses:
+    #         for student in course.students.all():
+    #             students.append(student)
+
+    students = list(set(students))
+
+    context = {
+        "students": students,
+        "courses":   courses.all(),
+        "course_id": course_id
+    }
+    return render(request, 'proofchecker/student_grades.html', context)
 
 
 @instructor_required

@@ -60,6 +60,11 @@ def course_detail_view(request, course_id=None):
                 messages.success(request, f'Course saved successfully')
             else:
                 messages.error(request, f'Validation failed. Course is not saved.')
+     
+    if request.user.is_student:
+        form.disabled_all();
+
+    
 
     assignments = Course.objects.get(id=course_id).assignment_set.all();
 
