@@ -26,19 +26,18 @@ def p_formula_binary_op(p):
 
     # Reformat symbol if necessary
     if p[0].value != ('∧' or '∨' or '→' or '↔'):
-        match p[0].value:
-            case '^':
-                p[0].value = '∧'
-            case '&':
-                p[0].value = '∧'
-            case '|':
-                p[0].value = '∨'
-            case '>':
-                p[0].value = '→'
-            case '->':
-                p[0].value = '→'
-            case '<->':
-                p[0].value = '↔'
+        if p[0].value == '^':
+            p[0].value = '∧'
+        if p[0].value == '&':
+            p[0].value = '∧'
+        if p[0].value == '|':
+            p[0].value = '∨'
+        if p[0].value == '>':
+            p[0].value = '→'
+        if p[0].value == '->':
+            p[0].value = '→'
+        if p[0].value == '<->':
+            p[0].value = '↔'
 
 
 def p_formula_unary_op(p):

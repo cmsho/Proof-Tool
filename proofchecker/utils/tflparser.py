@@ -26,19 +26,18 @@ def p_sentence_binary_op(p):
 
     # Reformat symbol if necessary
     if p[0].value != ('∧' or '∨' or '→' or '↔'):
-        match p[0].value:
-            case '^':
+        if p[0].value == '^':
                 p[0].value = '∧'
-            case '&':
-                p[0].value = '∧'
-            case 'v':
-                p[0].value = '∨'
-            case '>':
-                p[0].value = '→'
-            case '->':
-                p[0].value = '→'
-            case '<->':
-                p[0].value = '↔'
+        if p[0].value == '&':
+            p[0].value = '∧'
+        if p[0].value == 'v':
+            p[0].value = '∨'
+        if p[0].value == '>':
+            p[0].value = '→'
+        if p[0].value == '->':
+            p[0].value = '→' 
+        if p[0].value == '<->':
+            p[0].value = '↔'
 
 
 def p_sentence_unary_op(p):
