@@ -165,6 +165,7 @@ class Assignment(models.Model):
     due_by = models.DateTimeField()
     problems = models.ManyToManyField(Problem)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    is_submitted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title

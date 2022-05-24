@@ -287,6 +287,9 @@ def student_proofs_view(request, pk=None):
     students = []
     for course in courses:
         for student in course.students.all():
+            student.selected = False
+            if student.pk==pk :
+                 student.selected = True
             students.append(student)
 
     students = list(set(students))

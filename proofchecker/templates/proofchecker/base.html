@@ -29,13 +29,12 @@
 
 
     <!-- JS for Download Button -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
-    <link
+    {% comment %} <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.3/css/bootstrap-select.css"
     />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.3/js/bootstrap-select.min.js"></script> {% endcomment %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 
     <title> {% block title %}Proof Checker{% endblock %} </title>
@@ -142,14 +141,14 @@
             </a>
             {% endif %}
 
-            {% if user.is_instructor %}
+            {% comment %} {% if user.is_instructor %}
             <a href="{% url 'student_grades' %}" class="nav__link">
                 <div class="nav__icon-container" data-toggle="tooltip" data-placement="right" title="Student Grades">
                     <i class="material-icons">grading</i>
                 </div>
                 <span class="nav-left__label">Student Grades</span>
             </a>
-            {% endif %}
+            {% endif %} {% endcomment %}
 
             <a href="{% url 'logout' %}" class="nav__link">
                 <div class="nav__icon-container" data-toggle="tooltip" data-placement="right" title="Logout">

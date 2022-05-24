@@ -10,17 +10,14 @@ class DateInput(forms.DateInput):
 class AssignmentForm(forms.ModelForm):
     class Meta:
         model = Assignment
-        fields = ['title', 'course', 'due_by']
+        fields = ['title', 'course', 'due_by', 'is_submitted']
         widgets = {
             'due_by': DateInput()
         }
         
     def disabled_all(self):
-        self.fields['title'].widget.attrs['disabled'] = True
         self.fields['title'].widget.attrs['read-only'] = True
-        self.fields['course'].widget.attrs['disabled'] = True
         self.fields['course'].widget.attrs['read-only'] = True
-        self.fields['due_by'].widget.attrs['disabled'] = True
         self.fields['due_by'].widget.attrs['read-only'] = True
 
     def __init__(self, user, *args, **kwargs):
@@ -42,13 +39,9 @@ class ProblemForm(forms.ModelForm):
             visible.field.widget.attrs['onkeydown'] = 'replaceCharacter(this)'
 
     def disabled_all(self):
-        self.fields['question'].widget.attrs['disabled'] = True
         self.fields['question'].widget.attrs['read-only'] = True
-        self.fields['point'].widget.attrs['disabled'] = True
         self.fields['point'].widget.attrs['read-only'] = True
-        self.fields['target_steps'].widget.attrs['disabled'] = True
         self.fields['target_steps'].widget.attrs['read-only'] = True
-        self.fields['lost_points'].widget.attrs['disabled'] = True
         self.fields['lost_points'].widget.attrs['read-only'] = True
 class StudentProblemForm(ProblemForm):
     def __init__(self, *args, **kwargs):
@@ -71,11 +64,8 @@ class ProblemProofForm(forms.ModelForm):
             visible.field.widget.attrs['onkeydown'] = 'replaceCharacter(this)'
 
     def disabled_all(self):
-        self.fields['rules'].widget.attrs['disabled'] = True
         self.fields['rules'].widget.attrs['read-only'] = True
-        self.fields['premises'].widget.attrs['disabled'] = True
         self.fields['premises'].widget.attrs['read-only'] = True
-        self.fields['conclusion'].widget.attrs['disabled'] = True
         self.fields['conclusion'].widget.attrs['read-only'] = True
 
 class StudentProblemProofForm(ProblemProofForm):
