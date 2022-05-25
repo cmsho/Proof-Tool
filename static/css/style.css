@@ -15,15 +15,3 @@
   width: 4.5rem;
   margin-right: 1rem;
 } */
-
-
-*:disabled:read-only {
-  background: transparent;
-  border: none;
-  top: 5px;
-  position: relative;
-  -webkit-appearance: none;
-  appearance: none;
-  color: #212529;
-  opacity: 1;
-}

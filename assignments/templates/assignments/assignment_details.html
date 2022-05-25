@@ -21,6 +21,7 @@
     <hr>
     <form action="" method="post">
         {% csrf_token %}
+        <input type="hidden" name="assignment_pk" value={{pk}} />
         <div class="form-group row">
             <div class="col-md-4"><label for="id_title" class="col-md-4">{{ form.title.label }}</label></div>
             <div class="col-md-4">
@@ -78,8 +79,12 @@
                 {% for problem in problems %}
                 <div class="col-8 row-m">
                     {{ forloop.counter }}.
-                    <a href="{% url 'problem_details' problem.id %}?assignment={{ assignment.id }}">
-                        {{ problem.question }} </a>
+                    {% if assignment.is_submitted %}
+                        {{ problem.question }}
+                    {% else %}
+                        <a href="{% url 'problem_details' problem.id %}?assignment={{ assignment.id }}">
+                            {{ problem.question }} </a>
+                    {% endif %}
                 </div>
                 <div class="col-2 row-m">
                     <div class="ans-box">{{ problem.grade }}</div>
@@ -93,7 +98,12 @@
             <hr>
             <div class="form-group row">
                 <div class="col-8" style="display: flex; justify-content: space-between;">
-                    <a class="btn btn-primary" href={% url 'all_assignments' %}>Back</a>
+                    <div>
+                        <a class="btn btn-primary" href={% url 'all_assignments' %}>Back</a>
+                        {% if assignment.is_submitted == False %}
+                        <button type="submit" class="btn btn-success ml-2">Submit</button>
+                        {% endif %}
+                    </div>
                     <strong>Total</strong>
                 </div>
                 <div class="col-2">
