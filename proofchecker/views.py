@@ -30,6 +30,9 @@ def home(request):
 def version_log(request):
     return render(request, 'proofchecker/version_log.html')
 
+def devs(request):
+    return render(request, 'proofchecker/devs.html')
+
 
 def SyntaxTestPage(request):
     return render(request, "proofchecker/testpages/syntax_test.html")
