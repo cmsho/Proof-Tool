@@ -1,9 +1,9 @@
 # Proof-Tool
-A web application for verifying mathematical proofs using Truth-Functional Logic (TFL)
+A web application for verifying mathematical proofs using Truth-Functional Logic (TFL) and First Order Logic (FOL), currently utilized by professors and students in courses at Drexel University.  Developed with the Django (Python) web framework.
 
 # Dependencies
 These are the dependencies:
-- Python 3.10 (https://www.python.org/downloads/)
+- Python 3.8 (https://www.python.org/downloads/)
 - pipenv (from the command line, run 'pip install pipenv')
 
 # How to Run
