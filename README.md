@@ -1,6 +1,8 @@
 # Proof-Tool
 A web application for verifying mathematical proofs using Truth-Functional Logic (TFL) and First Order Logic (FOL), currently utilized by professors and students in courses at Drexel University.  Developed with the Django (Python) web framework.
 
+This system is live and publicly available at https://proof-tool.herokuapp.com/
+
 # Dependencies
 These are the dependencies:
 - Python 3.8 (https://www.python.org/downloads/)
