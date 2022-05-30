@@ -23,6 +23,8 @@
                             / Edit</a>
                         <a href="{% url 'delete_assignment' object.id %}"
                            class="card-link btn btn-secondary btn-sm">Delete </a>
+                        <a href="{% url 'get_csv_file' object.id %}"
+                           class="card-link btn btn-warning btn-sm">Download</a>
                     </div>
                 </div>
             {% endfor %}

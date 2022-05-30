@@ -16,5 +16,7 @@ urlpatterns = [
     path('problems/<int:pk>/delete', views.ProblemDeleteView.as_view(), name="delete_problem"),
 
     path('problems/<int:problem_id>/solution', views.problem_solution_view, name="problem_solution"),
+    
+    path('get_csv_file/<int:id>/', views.get_csv_file, name='get_csv_file')
 
 ]

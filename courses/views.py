@@ -1,3 +1,4 @@
+import logging
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -60,8 +61,10 @@ def course_detail_view(request, course_id=None):
                 messages.success(request, f'Course saved successfully')
             else:
                 messages.error(request, f'Validation failed. Course is not saved.')
-     
+    logger = logging.getLogger('django')
+    logger.info("outside of student")
     if request.user.is_student:
+        logger.info( "inside of student")
         form.disabled_all();
 
     

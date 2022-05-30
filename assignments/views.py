@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DeleteView
+import csv
 
 from accounts.decorators import instructor_required
 from proofchecker.forms import ProofLineForm
@@ -431,3 +432,16 @@ class ProblemDeleteView(DeleteView):
     model = Problem
     template_name = "assignments/delete_problem.html"
     success_url = "/problems/"
+
+
+def get_csv_file(request, id):
+    print("assignment_id:", id)
+    student_grading = StudentProblemSolution.objects.filter(assignment_id=id)     
+    response = HttpResponse('')     
+    response['Content-Disposition'] = 'attachment; filename=student_grading.csv'     
+    writer = csv.writer(response)     
+    writer.writerow(['Student', 'Assignment', 'Problem', 'Grade'])
+    student_grading = student_grading.values_list('student__user__email', 'assignment__title', 'problem__question', 'grade')     
+    for student in student_grading:         
+        writer.writerow(student)     
+    return response
