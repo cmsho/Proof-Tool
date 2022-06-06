@@ -169,6 +169,8 @@ class Assignment(models.Model):
     problems = models.ManyToManyField(Problem)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     is_submitted = models.BooleanField(default=False)
+    is_late_submitted = models.BooleanField(default=False)
+    is_late_submitted_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.title
