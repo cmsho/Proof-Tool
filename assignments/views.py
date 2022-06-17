@@ -65,9 +65,14 @@ def instructor_assignments_view(request):
 
 
 def student_assignments_view(request):
+    today_date = datetime.datetime.now()
+    today_date = today_date.strftime("%Y-%m-%d %H:%M:%S")
+    print("today_date:", today_date)
     object_list = Assignment.objects.filter(
-        course__in=Course.objects.filter(Q(students__user=request.user))
+        course__in=Course.objects.filter(Q(students__user=request.user)),
+        start_date__lte=today_date 
     )
+    print("object_list:", object_list)
     context = {
         "object_list": object_list,
     }
@@ -117,9 +122,20 @@ def assignment_details_view(request, pk=None):
             studentPk = request.user.pk
 
     assignment = get_object_or_404(Assignment, pk=pk)
+    start_date = assignment.start_date.strftime("%Y-%m-%d")
     current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    print("studentPk:", studentPk)
+    print("start_date:", start_date)
+    if studentPk:
+        if current_date >= start_date:
+            print("inside if")
+        else:
+            print("inside else")
+            return HttpResponseRedirect("/assignments")
+
     assignment_date = assignment.due_by.strftime("%Y-%m-%d")
-    
+        
     user_assignment_delay_obj = None
     can_user_request = None
     submission_date = None
@@ -192,6 +208,7 @@ def assignment_details_view(request, pk=None):
                     # setattr(problem, 'grade', solution.grade)
                 totalgrade = totalgrade + problem.grade
                 break
+   
 
     if request.POST:
         if form.is_valid():
@@ -248,7 +265,6 @@ def assignment_details_view(request, pk=None):
 
     # if request.user.is_student:
     #     form.disabled_all();
-
     context = {
         "assignment": assignment,
         "form": form,

@@ -10,8 +10,9 @@ class DateInput(forms.DateInput):
 class AssignmentForm(forms.ModelForm):
     class Meta:
         model = Assignment
-        fields = ['title', 'course', 'due_by', 'is_submitted']
+        fields = ['title', 'course', 'start_date', 'due_by', 'is_submitted']
         widgets = {
+            'start_date': DateInput(),
             'due_by': DateInput()
         }
         
