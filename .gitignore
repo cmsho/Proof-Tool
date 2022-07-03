@@ -128,6 +128,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Migration files
+/accounts/migrations/
+/assignments/migrations/
+/courses/migrations
 /proofchecker/migrations/
 
 # Ply debugging
