@@ -5,7 +5,7 @@ This system is live and publicly available at https://proof-tool.herokuapp.com/
 
 # Dependencies
 These are the dependencies:
-- Python 3.8 (https://www.python.org/downloads/)
+- Python 3.* (https://www.python.org/downloads/)
 - pipenv (from the command line, run 'pip install pipenv')
 
 # How to Run
